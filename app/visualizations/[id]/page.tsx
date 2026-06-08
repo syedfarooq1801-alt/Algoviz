@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import dynamic from "next/dynamic";
 import PatternVizDispatcher from "@/components/visualizations/PatternVizDispatcher";
 import ProblemVizFallback from "@/components/visualizations/ProblemVizFallback";
+import VizPageTabs from "@/components/visualizations/VizPageTabs";
 
 // ── Problem-specific visualizations ─────────────────────────────────────────
 
@@ -528,12 +529,13 @@ export default function VisualizationPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Visualization component */}
-        {VizComponent ? (
-          <VizComponent />
-        ) : (
-          <ProblemVizFallback problem={problem} pattern={pattern ?? null} />
-        )}
+        {/* Visualization + Code tabs */}
+        <VizPageTabs
+          problem={problem}
+          pattern={pattern ?? null}
+          VizComponent={VizComponent}
+          problemId={id}
+        />
       </main>
     </div>
   );
