@@ -152,6 +152,15 @@ function HeaderContent({ searchQuery = "", onSearchChange, suggestions = [] }: H
               {xp} XP
             </span>
           </div>
+          <Link
+            href="/study-plan"
+            className="hidden md:flex items-center gap-1 px-2 py-1 rounded-md text-xs transition-all"
+            style={{ color: "var(--text-muted)", border: "1px solid var(--border)" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#4f8ef7"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(79,142,247,0.4)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-muted)"; (e.currentTarget as HTMLElement).style.borderColor = "var(--border)"; }}
+          >
+            📅 Plan
+          </Link>
           <AuthButton />
         </div>
       </div>

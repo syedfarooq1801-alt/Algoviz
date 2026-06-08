@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PROBLEM_CONTENT } from "@/data/problemContent";
+import HintPanel from "@/components/HintPanel";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -179,6 +180,11 @@ export default function ProblemPage({ params }: Props) {
               {c}
             </span>
           ))}
+        </div>
+
+        {/* Hints */}
+        <div className="mb-6">
+          <HintPanel problemId={id} />
         </div>
 
         {/* Content */}

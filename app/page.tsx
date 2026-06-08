@@ -3,8 +3,16 @@ import { PATTERNS, getTotalProblems } from "@/data/problems";
 import { useProgressStore } from "@/lib/store";
 import Header from "@/components/Header";
 import PatternSection from "@/components/PatternSection";
+import ReviewQueue from "@/components/ReviewQueue";
+import dynamic from "next/dynamic";
 import { useSearchParams } from "next/navigation";
 import { useState, useMemo, Suspense } from "react";
+import Link from "next/link";
+
+const PatternRecognitionModal = dynamic(
+  () => import("@/components/PatternRecognitionModal"),
+  { ssr: false }
+);
 
 const FILTER_OPTIONS = ["All", "Easy", "Medium", "Hard", "Not Solved", "Bookmarked", "Has Viz"] as const;
 type FilterType = typeof FILTER_OPTIONS[number];
@@ -15,9 +23,22 @@ function HomePageContent() {
   const [activeFilter, setActiveFilter] = useState<FilterType>("All");
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") ?? "");
   const [expandAll, setExpandAll] = useState(false);
+  const [showRecognition, setShowRecognition] = useState(false);
 
   const totalProblems = getTotalProblems();
   const solvedCount = solved.size;
+
+  // Compute per-pattern mastery percentages (for mastery gates)
+  const patternPcts = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const p of PATTERNS) {
+      const total = p.problems.length;
+      if (total === 0) { map[p.id] = 0; continue; }
+      const solvedN = p.problems.filter((pr) => solved.has(pr.id)).length;
+      map[p.id] = Math.round((solvedN / total) * 100);
+    }
+    return map;
+  }, [solved]);
 
   const filteredPatterns = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -80,7 +101,7 @@ function HomePageContent() {
             }}
           >
             <span>✦</span>
-            <span>Master DSA with visual intuition · {totalProblems} problems · 16 patterns</span>
+            <span>Master DSA with visual intuition · {totalProblems} problems · 17 patterns</span>
           </div>
           <h1
             className="text-3xl font-bold mb-2 tracking-tight"
@@ -129,7 +150,36 @@ function HomePageContent() {
               </div>
             ))}
           </div>
+
+          {/* Quick action buttons */}
+          <div className="mt-6 flex items-center justify-center gap-3 flex-wrap">
+            <Link
+              href="/study-plan"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all"
+              style={{
+                background: "rgba(79,142,247,0.1)",
+                color: "#4f8ef7",
+                border: "1px solid rgba(79,142,247,0.25)",
+              }}
+            >
+              <span>📅</span> Study Plan
+            </Link>
+            <button
+              onClick={() => setShowRecognition(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all"
+              style={{
+                background: "rgba(168,85,247,0.1)",
+                color: "#a855f7",
+                border: "1px solid rgba(168,85,247,0.25)",
+              }}
+            >
+              <span>🧠</span> Pattern Quiz
+            </button>
+          </div>
         </div>
+
+        {/* Spaced repetition review queue */}
+        <ReviewQueue />
 
         {/* Filter bar */}
         <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
@@ -166,14 +216,23 @@ function HomePageContent() {
 
         {/* Pattern sections */}
         <div className="flex flex-col gap-2">
-          {filteredPatterns.map((pattern, i) => (
-            <PatternSection
-              key={pattern.id}
-              pattern={pattern}
-              index={i}
-              defaultOpen={expandAll || i === 0}
-            />
-          ))}
+          {filteredPatterns.map((pattern, i) => {
+            // Find original index in PATTERNS to get prev pattern
+            const origIdx = PATTERNS.findIndex((p) => p.id === pattern.id);
+            const prevPattern = origIdx > 0 ? PATTERNS[origIdx - 1] : null;
+            const prevPct = prevPattern ? (patternPcts[prevPattern.id] ?? 0) : 100;
+
+            return (
+              <PatternSection
+                key={pattern.id}
+                pattern={pattern}
+                index={i}
+                defaultOpen={expandAll || i === 0}
+                prevPatternPct={prevPct}
+                prevPatternTitle={prevPattern?.title}
+              />
+            );
+          })}
         </div>
 
         {filteredPatterns.length === 0 && (
@@ -186,6 +245,11 @@ function HomePageContent() {
           </div>
         )}
       </main>
+
+      {/* Pattern Recognition Modal */}
+      {showRecognition && (
+        <PatternRecognitionModal onClose={() => setShowRecognition(false)} />
+      )}
     </div>
   );
 }

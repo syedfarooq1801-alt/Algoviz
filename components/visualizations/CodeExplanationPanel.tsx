@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { PROBLEM_CONTENT } from "@/data/problemContent";
+import ApproachSteps from "@/components/visualizations/ApproachSteps";
 
 interface Props {
   problemId: string;
@@ -9,7 +10,6 @@ interface Props {
 export default function CodeExplanationPanel({ problemId }: Props) {
   const content = PROBLEM_CONTENT[problemId];
   const [copied, setCopied] = useState(false);
-  const [codeTab, setCodeTab] = useState<"cpp">("cpp");
 
   if (!content) {
     return (
@@ -38,24 +38,8 @@ export default function CodeExplanationPanel({ problemId }: Props) {
         <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{content.intuition}</p>
       </div>
 
-      {/* Approach */}
-      <div className="rounded-xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-base">🗺️</span>
-          <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Step-by-Step Approach</h3>
-        </div>
-        <ol className="space-y-2">
-          {content.approach.map((step, i) => (
-            <li key={i} className="flex gap-3 text-sm" style={{ color: "var(--text-secondary)" }}>
-              <span className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold mt-0.5"
-                style={{ background: "rgba(79,142,247,0.2)", color: "#4f8ef7" }}>
-                {i + 1}
-              </span>
-              <span className="leading-relaxed">{step}</span>
-            </li>
-          ))}
-        </ol>
-      </div>
+      {/* Approach — shared component (same as viz tab) */}
+      <ApproachSteps problemId={problemId} />
 
       {/* Code */}
       <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>

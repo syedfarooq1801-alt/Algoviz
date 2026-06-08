@@ -28,9 +28,14 @@ interface Props {
   pattern: Pattern;
   index: number;
   defaultOpen?: boolean;
+  /** Mastery % of the previous pattern (0-100). Undefined = no gate. */
+  prevPatternPct?: number;
+  prevPatternTitle?: string;
 }
 
-export default function PatternSection({ pattern, index, defaultOpen = false }: Props) {
+const MASTERY_GATE = 70; // % threshold to show "recommended" warning
+
+export default function PatternSection({ pattern, index, defaultOpen = false, prevPatternPct, prevPatternTitle }: Props) {
   const [open, setOpen] = useState(defaultOpen);
   const { solved } = useProgressStore();
   const problemIds = pattern.problems.map((p) => p.id);
@@ -38,6 +43,11 @@ export default function PatternSection({ pattern, index, defaultOpen = false }: 
   const total = pattern.problems.length;
   const pct = total > 0 ? Math.round((solvedCount / total) * 100) : 0;
   const colors = patternColors[pattern.color] ?? patternColors.blue;
+
+  // Mastery gate: prev pattern below 70% threshold
+  const gateActive =
+    prevPatternPct !== undefined &&
+    prevPatternPct < MASTERY_GATE;
 
   const masteryLabel =
     pct === 0 ? "Not started" :
@@ -102,6 +112,20 @@ export default function PatternSection({ pattern, index, defaultOpen = false }: 
             >
               {masteryLabel}
             </span>
+            {/* Mastery gate badge — soft lock, still accessible */}
+            {gateActive && pct === 0 && (
+              <span
+                className="text-xs px-2 py-0.5 rounded-full"
+                title={`Recommended: complete ${MASTERY_GATE}% of ${prevPatternTitle ?? "previous pattern"} first`}
+                style={{
+                  background: "rgba(234,179,8,0.1)",
+                  color: "#eab308",
+                  border: "1px solid rgba(234,179,8,0.25)",
+                }}
+              >
+                🔒 Finish {prevPatternTitle ?? "prev"} first ({prevPatternPct}%)
+              </span>
+            )}
           </div>
           <p
             className="text-xs mt-0.5 hidden sm:block truncate"
@@ -159,6 +183,20 @@ export default function PatternSection({ pattern, index, defaultOpen = false }: 
           </Link>
         </div>
       </button>
+
+      {/* Mastery gate expanded tip */}
+      {open && gateActive && pct === 0 && (
+        <div
+          className="mx-4 mb-3 px-4 py-2 rounded-lg text-xs"
+          style={{
+            background: "rgba(234,179,8,0.08)",
+            border: "1px solid rgba(234,179,8,0.2)",
+            color: "#eab308",
+          }}
+        >
+          💡 Recommended: reach {MASTERY_GATE}% mastery in <strong>{prevPatternTitle}</strong> before starting this pattern ({prevPatternPct}% done). You can still access it now.
+        </div>
+      )}
 
       {/* Problem table */}
       {open && (

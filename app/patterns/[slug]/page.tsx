@@ -1,5 +1,5 @@
 "use client";
-import { use } from "react";
+import { use, useState } from "react";
 import { getPatternById, PATTERNS } from "@/data/problems";
 import { useProgressStore } from "@/lib/store";
 import Header from "@/components/Header";
@@ -7,6 +7,13 @@ import ProblemRow from "@/components/ProblemRow";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import PatternVizDispatcher from "@/components/visualizations/PatternVizDispatcher";
+import { PROBLEM_CONTENT } from "@/data/problemContent";
+import dynamic from "next/dynamic";
+
+const ApproachSteps = dynamic(
+  () => import("@/components/visualizations/ApproachSteps"),
+  { ssr: false }
+);
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -283,6 +290,18 @@ export default function PatternPage({ params }: Props) {
           ))}
         </div>
 
+        {/* Per-problem Step-by-Step Approaches */}
+        <div className="mt-6 mb-4">
+          <h2 className="text-sm font-semibold mb-3" style={{ color: "var(--text-primary)" }}>
+            🗺️ Step-by-Step Approaches
+          </h2>
+          <div className="space-y-2">
+            {pattern.problems.map((problem) => (
+              <ProblemApproach key={problem.id} problem={problem} ApproachSteps={ApproachSteps} />
+            ))}
+          </div>
+        </div>
+
         {/* Pattern navigation */}
         <div className="flex items-center justify-between mt-8 text-sm">
           {prevPattern ? (
@@ -322,6 +341,60 @@ export default function PatternPage({ params }: Props) {
           ) : <div />}
         </div>
       </main>
+    </div>
+  );
+}
+
+// Collapsible per-problem approach accordion for pattern page
+function ProblemApproach({
+  problem,
+  ApproachSteps,
+}: {
+  problem: import("@/data/problems").Problem;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ApproachSteps: React.ComponentType<any>;
+}) {
+  const [open, setOpen] = useState(false);
+  const content = PROBLEM_CONTENT[problem.id];
+  if (!content || !content.approach?.length) return null;
+
+  return (
+    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-4 py-3 text-left transition-all"
+        style={{ background: "var(--bg-card)" }}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className="transition-transform duration-200"
+            style={{ transform: open ? "rotate(90deg)" : "rotate(0deg)" }}
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+              style={{ color: "var(--text-muted)" }}>
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </div>
+          <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+            {problem.title}
+          </span>
+          <span className="text-xs px-2 py-0.5 rounded-full" style={{
+            background: problem.difficulty === "Easy" ? "rgba(34,197,94,0.1)" : problem.difficulty === "Medium" ? "rgba(249,115,22,0.1)" : "rgba(239,68,68,0.1)",
+            color: problem.difficulty === "Easy" ? "#22c55e" : problem.difficulty === "Medium" ? "#f97316" : "#ef4444",
+          }}>
+            {problem.difficulty}
+          </span>
+        </div>
+        <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+          {content.approach.length} steps
+        </span>
+      </button>
+      {open && (
+        <div style={{ borderTop: "1px solid var(--border-subtle)" }}>
+          <ApproachSteps problemId={problem.id} compact />
+        </div>
+      )}
     </div>
   );
 }

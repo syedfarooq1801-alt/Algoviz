@@ -8,6 +8,7 @@ interface ProgressState {
   streak: number;
   lastActivity: string;
   xp: number;
+  solvedDates: Record<string, string>; // problemId -> ISO date string
   toggleSolved: (id: string, syncFn?: () => void) => void;
   toggleBookmark: (id: string, syncFn?: () => void) => void;
   isSolved: (id: string) => boolean;
@@ -31,6 +32,7 @@ export const useProgressStore = create<ProgressState>()(
       streak: 0,
       lastActivity: "",
       xp: 0,
+      solvedDates: {},
 
       toggleSolved: (id, syncFn) =>
         set((state) => {
@@ -39,11 +41,19 @@ export const useProgressStore = create<ProgressState>()(
           let newState: Partial<ProgressState>;
           if (next.has(id)) {
             next.delete(id);
-            newState = { solved: next, xp: Math.max(0, state.xp - 10) };
+            const nextDates = { ...state.solvedDates };
+            delete nextDates[id];
+            newState = { solved: next, xp: Math.max(0, state.xp - 10), solvedDates: nextDates };
           } else {
             next.add(id);
             const newStreak = state.lastActivity === today ? state.streak : state.streak + 1;
-            newState = { solved: next, xp: state.xp + 10, streak: newStreak, lastActivity: today };
+            newState = {
+              solved: next,
+              xp: state.xp + 10,
+              streak: newStreak,
+              lastActivity: today,
+              solvedDates: { ...state.solvedDates, [id]: today },
+            };
           }
           if (syncFn) setTimeout(syncFn, 0);
           return newState;
@@ -79,6 +89,7 @@ export const useProgressStore = create<ProgressState>()(
         xp: 0,
         streak: 0,
         lastActivity: "",
+        solvedDates: {},
       }),
     }),
     {
@@ -93,6 +104,7 @@ export const useProgressStore = create<ProgressState>()(
               ...state,
               solved: new Set(state.solved),
               bookmarked: new Set(state.bookmarked),
+              solvedDates: state.solvedDates ?? {},
             },
             version,
           };
@@ -106,6 +118,7 @@ export const useProgressStore = create<ProgressState>()(
                 ...state,
                 solved: Array.from(state.solved),
                 bookmarked: Array.from(state.bookmarked),
+                solvedDates: state.solvedDates ?? {},
               },
               version,
             })
@@ -116,3 +129,20 @@ export const useProgressStore = create<ProgressState>()(
     }
   )
 );
+
+// Lightweight store for viz-code step sync
+interface StepSyncState {
+  currentStep: number;
+  totalSteps: number;
+  setStep: (step: number) => void;
+  setTotalSteps: (total: number) => void;
+  reset: () => void;
+}
+
+export const useStepSyncStore = create<StepSyncState>((set) => ({
+  currentStep: -1,
+  totalSteps: 0,
+  setStep: (step) => set({ currentStep: step }),
+  setTotalSteps: (total) => set({ totalSteps: total }),
+  reset: () => set({ currentStep: -1, totalSteps: 0 }),
+}));
