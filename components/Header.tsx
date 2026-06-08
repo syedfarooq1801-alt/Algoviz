@@ -2,7 +2,7 @@
 import { useProgressStore } from "@/lib/store";
 import { getTotalProblems } from "@/data/problems";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 interface SearchSuggestion {
   id: string;
@@ -18,6 +18,7 @@ interface HeaderProps {
 
 export default function Header({ searchQuery = "", onSearchChange, suggestions = [] }: HeaderProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentQuery = searchQuery || searchParams.get("q") || "";
   const { solved, xp, streak } = useProgressStore();
@@ -28,7 +29,7 @@ export default function Header({ searchQuery = "", onSearchChange, suggestions =
   const navigateWithQuery = (value: string) => {
     const query = value.trim();
     const path = query ? `/?q=${encodeURIComponent(query)}` : "/";
-    if (router.pathname === "/") {
+    if (pathname === "/") {
       router.replace(path);
     } else {
       router.push(path);
