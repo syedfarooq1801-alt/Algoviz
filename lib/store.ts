@@ -8,11 +8,19 @@ interface ProgressState {
   streak: number;
   lastActivity: string;
   xp: number;
-  toggleSolved: (id: string) => void;
-  toggleBookmark: (id: string) => void;
+  toggleSolved: (id: string, syncFn?: () => void) => void;
+  toggleBookmark: (id: string, syncFn?: () => void) => void;
   isSolved: (id: string) => boolean;
   isBookmarked: (id: string) => boolean;
   getSolvedCount: (patternId: string, problemIds: string[]) => number;
+  hydrateFromFirestore: (data: {
+    solved: Set<string>;
+    bookmarked: Set<string>;
+    xp: number;
+    streak: number;
+    lastActivity: string;
+  }) => void;
+  resetForUser: () => void;
 }
 
 export const useProgressStore = create<ProgressState>()(
@@ -24,24 +32,28 @@ export const useProgressStore = create<ProgressState>()(
       lastActivity: "",
       xp: 0,
 
-      toggleSolved: (id) =>
+      toggleSolved: (id, syncFn) =>
         set((state) => {
           const next = new Set(state.solved);
           const today = new Date().toISOString().split("T")[0];
+          let newState: Partial<ProgressState>;
           if (next.has(id)) {
             next.delete(id);
-            return { solved: next, xp: Math.max(0, state.xp - 10) };
+            newState = { solved: next, xp: Math.max(0, state.xp - 10) };
           } else {
             next.add(id);
             const newStreak = state.lastActivity === today ? state.streak : state.streak + 1;
-            return { solved: next, xp: state.xp + 10, streak: newStreak, lastActivity: today };
+            newState = { solved: next, xp: state.xp + 10, streak: newStreak, lastActivity: today };
           }
+          if (syncFn) setTimeout(syncFn, 0);
+          return newState;
         }),
 
-      toggleBookmark: (id) =>
+      toggleBookmark: (id, syncFn) =>
         set((state) => {
           const next = new Set(state.bookmarked);
           next.has(id) ? next.delete(id) : next.add(id);
+          if (syncFn) setTimeout(syncFn, 0);
           return { bookmarked: next };
         }),
 
@@ -52,6 +64,22 @@ export const useProgressStore = create<ProgressState>()(
         const { solved } = get();
         return problemIds.filter((id) => solved.has(id)).length;
       },
+
+      hydrateFromFirestore: (data) => set({
+        solved: data.solved,
+        bookmarked: data.bookmarked,
+        xp: data.xp,
+        streak: data.streak,
+        lastActivity: data.lastActivity,
+      }),
+
+      resetForUser: () => set({
+        solved: new Set<string>(),
+        bookmarked: new Set<string>(),
+        xp: 0,
+        streak: 0,
+        lastActivity: "",
+      }),
     }),
     {
       name: "dsa-progress",

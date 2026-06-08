@@ -4,6 +4,7 @@ import { getTotalProblems } from "@/data/problems";
 import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Suspense } from "react";
+import AuthButton from "./AuthButton";
 
 interface SearchSuggestion {
   id: string;
@@ -151,6 +152,7 @@ function HeaderContent({ searchQuery = "", onSearchChange, suggestions = [] }: H
               {xp} XP
             </span>
           </div>
+          <AuthButton />
         </div>
       </div>
 

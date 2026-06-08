@@ -1,6 +1,8 @@
 "use client";
 import { Problem } from "@/data/problems";
 import { useProgressStore } from "@/lib/store";
+import { useAuth } from "@/lib/authContext";
+import { syncToFirestore } from "@/lib/authContext";
 import Link from "next/link";
 
 interface Props {
@@ -25,6 +27,8 @@ export default function ProblemRow({ problem, index }: Props) {
   const bookmarked = useProgressStore((state) => state.bookmarked.has(problem.id));
   const toggleSolved = useProgressStore((state) => state.toggleSolved);
   const toggleBookmark = useProgressStore((state) => state.toggleBookmark);
+  const { user } = useAuth();
+  const syncFn = user ? () => syncToFirestore(user.uid) : undefined;
 
   return (
     <div
@@ -39,7 +43,7 @@ export default function ProblemRow({ problem, index }: Props) {
       {/* Checkbox */}
       <button
         type="button"
-        onClick={() => toggleSolved(problem.id)}
+        onClick={() => toggleSolved(problem.id, syncFn)}
         className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all cursor-pointer"
         style={{
           border: solved ? "1.5px solid #16a34a" : "1.5px solid var(--text-muted)",
@@ -147,7 +151,7 @@ export default function ProblemRow({ problem, index }: Props) {
 
       {/* Bookmark */}
       <button
-        onClick={() => toggleBookmark(problem.id)}
+        onClick={() => toggleBookmark(problem.id, syncFn)}
         className="shrink-0 w-5 flex justify-center hover:scale-110 transition-all"
         title={bookmarked ? "Remove bookmark" : "Bookmark for review"}
       >
