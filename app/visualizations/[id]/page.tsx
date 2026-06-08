@@ -532,7 +532,7 @@ export default function VisualizationPage({ params }: Props) {
         {VizComponent ? (
           <VizComponent />
         ) : (
-          <ProblemVizFallback problem={problem} pattern={pattern} />
+          <ProblemVizFallback problem={problem} pattern={pattern ?? null} />
         )}
       </main>
     </div>
