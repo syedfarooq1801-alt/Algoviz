@@ -3,6 +3,7 @@ import { useProgressStore } from "@/lib/store";
 import { getTotalProblems } from "@/data/problems";
 import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { Suspense } from "react";
 
 interface SearchSuggestion {
   id: string;
@@ -16,7 +17,7 @@ interface HeaderProps {
   suggestions?: SearchSuggestion[];
 }
 
-export default function Header({ searchQuery = "", onSearchChange, suggestions = [] }: HeaderProps) {
+function HeaderContent({ searchQuery = "", onSearchChange, suggestions = [] }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -161,5 +162,13 @@ export default function Header({ searchQuery = "", onSearchChange, suggestions =
         />
       </div>
     </header>
+  );
+}
+
+export default function Header(props: HeaderProps) {
+  return (
+    <Suspense fallback={null}>
+      <HeaderContent {...props} />
+    </Suspense>
   );
 }

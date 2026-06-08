@@ -4,12 +4,12 @@ import { useProgressStore } from "@/lib/store";
 import Header from "@/components/Header";
 import PatternSection from "@/components/PatternSection";
 import { useSearchParams } from "next/navigation";
-import { useState, useMemo } from "react";
+import { useState, useMemo, Suspense } from "react";
 
 const FILTER_OPTIONS = ["All", "Easy", "Medium", "Hard", "Not Solved", "Bookmarked", "Has Viz"] as const;
 type FilterType = typeof FILTER_OPTIONS[number];
 
-export default function HomePage() {
+function HomePageContent() {
   const { solved, bookmarked } = useProgressStore();
   const searchParams = useSearchParams();
   const [activeFilter, setActiveFilter] = useState<FilterType>("All");
@@ -187,5 +187,13 @@ export default function HomePage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={null}>
+      <HomePageContent />
+    </Suspense>
   );
 }
