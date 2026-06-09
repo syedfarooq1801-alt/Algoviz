@@ -47,7 +47,10 @@ export default function PatternVizDispatcher({ patternId }: Props) {
           auto-animating
         </span>
       </div>
-      <VizComponent />
+      {/* Fixed-height wrapper prevents layout shift when animation runs */}
+      <div style={{ minHeight: 320 }}>
+        <VizComponent />
+      </div>
     </div>
   );
 }

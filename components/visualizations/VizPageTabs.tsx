@@ -82,7 +82,10 @@ export default function VizPageTabs({ problem, pattern, VizComponent, problemId 
       {/* Content */}
       {tab === "viz" && (
         <div className="space-y-4">
-          {VizComponent ? <VizComponent /> : <ProblemVizFallback problem={problem} pattern={pattern} />}
+          {/* Fixed-height wrapper prevents layout shift when animation adds/removes elements */}
+          <div style={{ minHeight: 420 }}>
+            {VizComponent ? <VizComponent /> : <ProblemVizFallback problem={problem} pattern={pattern} />}
+          </div>
           {/* Approach steps — visible in viz tab so you can click while watching animation */}
           <ApproachSteps problemId={problemId} />
           {/* Hints */}
