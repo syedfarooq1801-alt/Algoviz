@@ -2,6 +2,7 @@ export interface ProblemContent {
   intuition: string;
   approach: string[];
   cppSolution: string;
+  pythonSolution?: string;
   timeComplexity: string;
   timeExplanation: string;
   spaceComplexity: string;

@@ -1,5 +1,5 @@
 "use client";
-import { use } from "react";
+import { use, useState, useEffect } from "react";
 import { getProblemById, getPatternById } from "@/data/problems";
 import { useProgressStore } from "@/lib/store";
 import Header from "@/components/Header";
@@ -7,6 +7,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PROBLEM_CONTENT } from "@/data/problemContent";
 import HintPanel from "@/components/HintPanel";
+import CodeRunner from "@/components/CodeRunner";
+import { getProblemViz } from "@/components/visualizations/problemVizMap";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -22,14 +24,39 @@ export default function ProblemPage({ params }: Props) {
   const solved = isSolved(id);
   const bookmarked = isBookmarked(id);
   const content = PROBLEM_CONTENT[id];
+  const VizComponent = getProblemViz(id);
+  const [celebrate, setCelebrate] = useState(false);
+  const handleSolve = () => {
+    const wasSolved = isSolved(id);
+    toggleSolved(id);
+    if (!wasSolved) { setCelebrate(true); setTimeout(() => setCelebrate(false), 1400); }
+  };
+  const [lang, setLang] = useState<"cpp" | "python">("python");
+  useEffect(() => {
+    const saved = localStorage.getItem("codeLang") as "cpp" | "python" | null;
+    if (saved) setLang(saved);
+  }, []);
+  const switchLang = (l: "cpp" | "python") => {
+    setLang(l);
+    localStorage.setItem("codeLang", l);
+  };
 
   const diffColor = problem.difficulty === "Easy" ? "var(--accent-green)" : problem.difficulty === "Medium" ? "var(--accent-orange)" : "var(--accent-red)";
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
+      {celebrate && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center pointer-events-none">
+          <div className="animate-pop flex flex-col items-center gap-2 px-8 py-6 rounded-2xl"
+            style={{ background: "var(--bg-secondary)", border: "1px solid rgba(45,212,160,0.4)", boxShadow: "var(--shadow-lg)" }}>
+            <span className="text-4xl">🎉</span>
+            <span className="text-sm font-semibold" style={{ color: "var(--accent-green)" }}>Solved! +10 XP</span>
+          </div>
+        </div>
+      )}
       <Header />
 
-      <main className="max-w-4xl mx-auto px-4 pb-20">
+      <main className="max-w-3xl mx-auto px-5 pb-24">
         {/* Breadcrumb */}
         <div className="pt-6 pb-2 text-xs" style={{ color: "var(--text-muted)" }}>
           <Link href="/" className="hover:text-white transition-colors">Home</Link>
@@ -43,148 +70,37 @@ export default function ProblemPage({ params }: Props) {
           <span style={{ color: "var(--text-secondary)" }}>{problem.title}</span>
         </div>
 
-        {/* Problem header */}
-        <div className="mt-4 mb-6 flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>
-              {problem.title}
-            </h1>
-            <div className="flex items-center gap-3 flex-wrap">
-              <span
-                className="text-xs font-semibold px-2.5 py-1 rounded-full"
-                style={{
-                  color: diffColor,
-                  background: `${diffColor}15`,
-                  border: `1px solid ${diffColor}30`,
-                }}
-              >
-                {problem.difficulty}
-              </span>
-              <span
-                className="text-xs px-2 py-1 rounded"
-                style={{ background: "var(--bg-card)", color: "var(--text-muted)", border: "1px solid var(--border)" }}
-              >
-                Score: {problem.difficultyScore}/10
-              </span>
-              {pattern && (
-                <Link
-                  href={`/patterns/${pattern.id}`}
-                  className="text-xs px-2 py-1 rounded transition-colors hover:text-white"
-                  style={{ background: "rgba(255,255,255,0.05)", color: "var(--text-primary)", border: "1px solid rgba(255,255,255,0.08)" }}
-                >
-                  {pattern.title}
-                </Link>
-              )}
-              <span
-                className="text-xs px-2 py-1 rounded"
-                style={{
-                  background: "rgba(255,255,255,0.05)",
-                  color: problem.frequency === "High" ? "var(--accent-green)" : "var(--text-secondary)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
-              >
-                {problem.frequency} frequency
-              </span>
-            </div>
+        {/* Problem header — restrained: title, one metadata line, one primary action */}
+        <div className="mt-6 mb-10">
+          <h1 className="title-1 mb-3" style={{ color: "var(--text-primary)" }}>{problem.title}</h1>
+
+          {/* Single metadata line — no chips */}
+          <div className="flex items-center gap-2.5 text-sm mb-7" style={{ color: "var(--text-muted)" }}>
+            <span style={{ color: diffColor, fontWeight: 600 }}>{problem.difficulty}</span>
+            <span>·</span>
+            {pattern && <Link href={`/patterns/${pattern.id}`} className="hover:underline" style={{ color: "var(--text-secondary)" }}>{pattern.title}</Link>}
+            {problem.frequency === "High" && <><span>·</span><span>High frequency</span></>}
           </div>
 
-          {/* Actions */}
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={() => toggleSolved(id)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all"
+          {/* Actions — one primary, the rest quiet */}
+          <div className="flex items-center gap-3">
+            <button onClick={handleSolve} className="px-5 py-2.5 text-sm rounded-lg font-medium transition-all"
               style={{
-                background: solved ? "rgba(255,255,255,0.08)" : "var(--bg-card)",
-                color: solved ? "var(--text-primary)" : "var(--text-secondary)",
-                border: solved ? "1px solid rgba(255,255,255,0.12)" : "1px solid var(--border)",
-              }}
-            >
+                background: solved ? "var(--accent-soft)" : "var(--accent)",
+                color: solved ? "var(--accent-green)" : "#fff",
+                border: `1px solid ${solved ? "rgba(47,191,113,0.4)" : "var(--accent)"}`,
+              }}>
               {solved ? "✓ Solved" : "Mark Solved"}
             </button>
-
-            <button
-              onClick={() => toggleBookmark(id)}
-              className="p-2 rounded-lg transition-all"
-              style={{
-                background: bookmarked ? "rgba(255,255,255,0.08)" : "var(--bg-card)",
-                border: bookmarked ? "1px solid rgba(255,255,255,0.12)" : "1px solid var(--border)",
-              }}
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill={bookmarked ? "var(--accent-blue)" : "none"}
-                stroke={bookmarked ? "var(--accent-blue)" : "var(--text-muted)"}
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
-              </svg>
+            <button onClick={() => toggleBookmark(id)} className="text-sm transition-colors"
+              style={{ color: bookmarked ? "var(--accent)" : "var(--text-muted)" }}>
+              {bookmarked ? "★ Bookmarked" : "☆ Bookmark"}
             </button>
-
-            <a
-              href={problem.leetcodeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all"
-              style={{
-                background: "rgba(255,255,255,0.05)",
-                color: "var(--accent-orange)",
-                border: "1px solid rgba(255,255,255,0.08)",
-              }}
-            >
+            <a href={problem.leetcodeUrl} target="_blank" rel="noopener noreferrer"
+              className="text-sm transition-colors hover:text-white" style={{ color: "var(--text-muted)" }}>
               LeetCode ↗
             </a>
-
-            <Link
-              href={`/visualizations/${id}`}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all"
-              style={{
-                background: "rgba(255,255,255,0.05)",
-                color: "var(--accent-purple)",
-                border: "1px solid rgba(255,255,255,0.08)",
-              }}
-            >
-              ▶ Visualize
-            </Link>
           </div>
-        </div>
-
-        {/* Tags */}
-        <div className="flex flex-wrap gap-1.5 mb-6">
-          {problem.tags.map((tag) => (
-            <span
-              key={tag}
-              className="text-xs px-2 py-0.5 rounded-full"
-              style={{
-                background: "rgba(255,255,255,0.05)",
-                color: "var(--text-primary)",
-                border: "1px solid rgba(255,255,255,0.08)",
-              }}
-            >
-              {tag}
-            </span>
-          ))}
-          {problem.companies.map((c) => (
-            <span
-              key={c}
-              className="text-xs px-2 py-0.5 rounded-full"
-              style={{
-                background: "rgba(255,255,255,0.05)",
-                color: "var(--text-primary)",
-                border: "1px solid rgba(255,255,255,0.08)",
-              }}
-            >
-              {c}
-            </span>
-          ))}
-        </div>
-
-        {/* Hints */}
-        <div className="mb-6">
-          <HintPanel problemId={id} />
         </div>
 
         {/* Content */}
@@ -195,9 +111,20 @@ export default function ProblemPage({ params }: Props) {
               <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{content.intuition}</p>
             </Section>
 
+            {/* Interactive visualization — the hero of the lesson */}
+            {VizComponent && (
+              <div className="rounded-2xl p-5 reveal" style={{ background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)" }}>
+                <p className="eyebrow mb-4" style={{ color: "var(--accent-purple)" }}>Watch it work — interactive</p>
+                <VizComponent />
+              </div>
+            )}
+
+            {/* Hints — try before peeking */}
+            <HintPanel problemId={id} />
+
             {/* Why It Works — deep explanation */}
             {content.whyItWorks && (
-              <Section title="🔬 Why This Works (Deep Dive)" color="#06b6d4">
+              <Section title="🔬 Why This Works (Deep Dive)" color="#4F8CFF">
                 <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{content.whyItWorks}</p>
               </Section>
             )}
@@ -206,16 +133,16 @@ export default function ProblemPage({ params }: Props) {
             {content.patternConnection && (
               <div
                 className="rounded-xl p-4"
-                style={{ background: "rgba(168,85,247,0.06)", border: "1px solid rgba(168,85,247,0.2)" }}
+                style={{ background: "rgba(79,140,255,0.06)", border: "1px solid rgba(79,140,255,0.2)" }}
               >
-                <h3 className="text-xs font-semibold mb-1.5 uppercase tracking-wide" style={{ color: "#a855f7" }}>🧩 Pattern Connection</h3>
+                <h3 className="text-xs font-semibold mb-1.5 uppercase tracking-wide" style={{ color: "#4F8CFF" }}>🧩 Pattern Connection</h3>
                 <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{content.patternConnection}</p>
               </div>
             )}
 
             {/* Walkthrough Example */}
             {content.walkthroughExample && (
-              <Section title="🚶 Step-by-Step Walkthrough" color="#22c55e">
+              <Section title="🚶 Step-by-Step Walkthrough" color="#2FBF71">
                 <pre className="text-xs leading-relaxed whitespace-pre-wrap font-mono" style={{ color: "var(--text-secondary)" }}>{content.walkthroughExample}</pre>
               </Section>
             )}
@@ -227,7 +154,7 @@ export default function ProblemPage({ params }: Props) {
                   <li key={i} className="flex items-start gap-3 text-sm" style={{ color: "var(--text-secondary)" }}>
                     <span
                       className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold mt-0.5"
-                      style={{ background: "rgba(79,142,247,0.12)", color: "var(--accent-blue)" }}
+                      style={{ background: "rgba(79,140,255,0.12)", color: "var(--accent-blue)" }}
                     >
                       {i + 1}
                     </span>
@@ -237,23 +164,63 @@ export default function ProblemPage({ params }: Props) {
               </ol>
             </Section>
 
-            {/* C++ Solution */}
-            <Section title="⌨️ C++ Solution" color="var(--accent-purple)">
+            {/* Solution with language toggle */}
+            <Section title="⌨️ Solution" color="var(--accent-purple)">
+              <div className="flex items-center gap-1 mb-3">
+                <button
+                  onClick={() => switchLang("python")}
+                  className="px-3 py-1 rounded text-xs font-semibold transition-all"
+                  style={{
+                    background: lang === "python" ? "var(--accent-blue)" : "rgba(255,255,255,0.06)",
+                    color: lang === "python" ? "#fff" : "var(--text-muted)",
+                    border: lang === "python" ? "1px solid var(--accent-blue)" : "1px solid rgba(255,255,255,0.1)",
+                  }}
+                >
+                  Python
+                </button>
+                <button
+                  onClick={() => switchLang("cpp")}
+                  className="px-3 py-1 rounded text-xs font-semibold transition-all"
+                  style={{
+                    background: lang === "cpp" ? "var(--accent-purple)" : "rgba(255,255,255,0.06)",
+                    color: lang === "cpp" ? "#fff" : "var(--text-muted)",
+                    border: lang === "cpp" ? "1px solid var(--accent-purple)" : "1px solid rgba(255,255,255,0.1)",
+                  }}
+                >
+                  C++
+                </button>
+              </div>
               <pre
                 className="text-xs overflow-x-auto rounded-lg p-3"
                 style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.06)" }}
               >
-                <code>{content.cppSolution}</code>
+                <code>
+                  {lang === "python"
+                    ? (content.pythonSolution ?? "# Python solution coming soon")
+                    : content.cppSolution}
+                </code>
               </pre>
+            </Section>
+
+            {/* Code Playground */}
+            <Section title="🧪 Code Playground" color="var(--accent-green)">
+              <p className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>
+                Write and run code right here. Experiment, test ideas, break things.
+              </p>
+              <CodeRunner
+                defaultLang="python"
+                starterPython={`# Scratchpad — write Python, hit Run\n\ndef solve():\n    pass\n\nprint("hello from ${id}")`}
+                starterCpp={`// Scratchpad — write C++, hit Run\n#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    cout << "hello from ${id}" << endl;\n    return 0;\n}`}
+              />
             </Section>
 
             {/* Alternative Approaches */}
             {content.alternativeApproaches && content.alternativeApproaches.length > 0 && (
-              <Section title="🔀 Alternative Approaches" color="#f59e0b">
+              <Section title="🔀 Alternative Approaches" color="#F5A524">
                 <ul className="space-y-2">
                   {content.alternativeApproaches.map((alt, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm" style={{ color: "var(--text-secondary)" }}>
-                      <span style={{ color: "#f59e0b", marginTop: "2px" }}>◆</span>
+                      <span style={{ color: "#F5A524", marginTop: "2px" }}>◆</span>
                       {alt}
                     </li>
                   ))}
@@ -288,11 +255,11 @@ export default function ProblemPage({ params }: Props) {
             )}
 
             {/* Edge Cases */}
-            <Section title="⚠️ Edge Cases & Gotchas" color="#f59e0b">
+            <Section title="⚠️ Edge Cases & Gotchas" color="#F5A524">
               <ul className="space-y-1.5">
                 {content.edgeCases.map((e, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm" style={{ color: "var(--text-secondary)" }}>
-                    <span style={{ color: "#f59e0b" }}>⚡</span>
+                    <span style={{ color: "#F5A524" }}>⚡</span>
                     {e}
                   </li>
                 ))}
@@ -303,13 +270,13 @@ export default function ProblemPage({ params }: Props) {
             {content.proTips && content.proTips.length > 0 && (
               <div
                 className="rounded-xl p-4"
-                style={{ background: "rgba(34,197,94,0.05)", border: "1px solid rgba(34,197,94,0.2)" }}
+                style={{ background: "rgba(47,191,113,0.05)", border: "1px solid rgba(47,191,113,0.2)" }}
               >
-                <h3 className="text-sm font-semibold mb-2" style={{ color: "#22c55e" }}>✅ Pro Tips</h3>
+                <h3 className="text-sm font-semibold mb-2" style={{ color: "#2FBF71" }}>✅ Pro Tips</h3>
                 <ul className="space-y-1.5">
                   {content.proTips.map((tip, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm" style={{ color: "var(--text-secondary)" }}>
-                      <span style={{ color: "#22c55e" }}>→</span>
+                      <span style={{ color: "#2FBF71" }}>→</span>
                       {tip}
                     </li>
                   ))}
@@ -321,11 +288,11 @@ export default function ProblemPage({ params }: Props) {
             <div
               className="rounded-xl p-4"
               style={{
-                background: "rgba(168,85,247,0.06)",
-                border: "1px solid rgba(168,85,247,0.2)",
+                background: "rgba(79,140,255,0.06)",
+                border: "1px solid rgba(79,140,255,0.2)",
               }}
             >
-              <h3 className="text-sm font-semibold mb-2" style={{ color: "#a855f7" }}>🧠 Memory Trick</h3>
+              <h3 className="text-sm font-semibold mb-2" style={{ color: "#4F8CFF" }}>🧠 Memory Trick</h3>
               <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{content.memoryTrick}</p>
             </div>
           </div>
@@ -356,6 +323,25 @@ export default function ProblemPage({ params }: Props) {
             </a>
           </div>
         )}
+
+        {/* Related problems — same pattern */}
+        {pattern && pattern.problems.filter((p) => p.id !== id).length > 0 && (
+          <section className="mt-12">
+            <p className="eyebrow mb-3">More in {pattern.title}</p>
+            <div className="space-y-1">
+              {pattern.problems.filter((p) => p.id !== id).slice(0, 6).map((p) => (
+                <Link key={p.id} href={p.hasVisualization ? `/visualizations/${p.id}` : `/problems/${p.id}`}
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors"
+                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
+                  <span className="shrink-0 text-sm" style={{ color: isSolved(p.id) ? "var(--accent-green)" : "var(--text-muted)" }}>{isSolved(p.id) ? "✓" : "○"}</span>
+                  <span className="flex-1 text-sm" style={{ color: "var(--text-primary)" }}>{p.title}</span>
+                  <span className="text-xs" style={{ color: p.difficulty === "Easy" ? "var(--accent-green)" : p.difficulty === "Medium" ? "var(--accent-orange)" : "var(--accent-red)" }}>{p.difficulty}</span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );
@@ -370,15 +356,12 @@ function Section({
   color: string;
   children: React.ReactNode;
 }) {
+  // strip any leading emoji + whitespace so titles are clean editorial labels
+  const clean = title.replace(/^[^\p{L}]+/u, "").trim();
   return (
-    <div
-      className="rounded-xl p-5"
-      style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
-    >
-      <h2 className="text-sm font-semibold mb-3" style={{ color }}>
-        {title}
-      </h2>
+    <section className="group-gap">
+      <p className="eyebrow mb-3" style={{ color }}>{clean}</p>
       {children}
-    </div>
+    </section>
   );
 }

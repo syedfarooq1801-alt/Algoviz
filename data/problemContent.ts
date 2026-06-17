@@ -1,6 +1,7 @@
 // Re-export the interface and generated content as base
 export type { ProblemContent } from "./problemContent.generated";
 import { PROBLEM_CONTENT as GENERATED_CONTENT } from "./problemContent.generated";
+import { PYTHON_SOLUTIONS } from "./pythonSolutions";
 
 // Rich overrides — merge generated base with high-quality entries below
 const RICH_OVERRIDES: Record<string, import("./problemContent.generated").ProblemContent> = {
@@ -735,5 +736,11 @@ public:
   },
 };
 
-// Merged: generated base + rich overrides (rich overrides take priority)
-export const PROBLEM_CONTENT = { ...GENERATED_CONTENT, ...RICH_OVERRIDES };
+// Merged: generated base + rich overrides + python solutions
+const withPython = Object.fromEntries(
+  Object.entries({ ...GENERATED_CONTENT, ...RICH_OVERRIDES }).map(([id, content]) => [
+    id,
+    { ...content, pythonSolution: PYTHON_SOLUTIONS[id] ?? content.pythonSolution },
+  ])
+);
+export const PROBLEM_CONTENT = withPython;

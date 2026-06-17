@@ -41,7 +41,7 @@ function ProfileContent() {
         <button
           onClick={signIn}
           className="flex items-center gap-3 mx-auto px-6 py-3 rounded-xl font-medium text-sm"
-          style={{ background: "rgba(79,142,247,0.15)", border: "1px solid rgba(79,142,247,0.3)", color: "#4f8ef7" }}
+          style={{ background: "rgba(79,140,255,0.15)", border: "1px solid rgba(79,140,255,0.3)", color: "#4F8CFF" }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -67,7 +67,7 @@ function ProfileContent() {
             <Image src={user.photoURL} alt={user.displayName ?? ""} width={72} height={72} className="rounded-full" />
           ) : (
             <div className="w-18 h-18 rounded-full flex items-center justify-center text-2xl font-bold"
-              style={{ background: "rgba(79,142,247,0.2)", color: "#4f8ef7", width: 72, height: 72 }}>
+              style={{ background: "rgba(79,140,255,0.2)", color: "#4F8CFF", width: 72, height: 72 }}>
               {user.displayName?.[0]}
             </div>
           )}
@@ -84,10 +84,10 @@ function ProfileContent() {
         {/* Stats row */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
-            { label: "Problems Solved", value: `${solvedCount}/${total}`, sub: `${pct}%`, color: "#22c55e" },
-            { label: "XP Earned", value: xp, sub: "experience", color: "#f97316" },
-            { label: "Day Streak", value: streak, sub: "days", color: "#4f8ef7" },
-            { label: "Bookmarked", value: bookmarkedCount, sub: "for review", color: "#a855f7" },
+            { label: "Problems Solved", value: `${solvedCount}/${total}`, sub: `${pct}%`, color: "#2FBF71" },
+            { label: "XP Earned", value: xp, sub: "experience", color: "#F5A524" },
+            { label: "Day Streak", value: streak, sub: "days", color: "#4F8CFF" },
+            { label: "Bookmarked", value: bookmarkedCount, sub: "for review", color: "#4F8CFF" },
           ].map((s) => (
             <div key={s.label} className="rounded-xl p-4 text-center"
               style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
@@ -122,7 +122,7 @@ function ProfileContent() {
                 </div>
                 <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "var(--border)" }}>
                   <div className="h-full rounded-full"
-                    style={{ width: `${p.total > 0 ? (p.solved / p.total) * 100 : 0}%`, background: "#4f8ef7" }} />
+                    style={{ width: `${p.total > 0 ? (p.solved / p.total) * 100 : 0}%`, background: "#4F8CFF" }} />
                 </div>
               </div>
             ))}
@@ -143,8 +143,8 @@ function ProfileContent() {
                     style={{ border: "1px solid var(--border)" }}>
                     <span style={{ color: "var(--text-secondary)" }}>{pr.title}</span>
                     <span className="px-2 py-0.5 rounded text-xs" style={{
-                      background: pr.difficulty === "Easy" ? "rgba(34,197,94,0.1)" : pr.difficulty === "Medium" ? "rgba(249,115,22,0.1)" : "rgba(239,68,68,0.1)",
-                      color: pr.difficulty === "Easy" ? "#22c55e" : pr.difficulty === "Medium" ? "#f97316" : "#ef4444",
+                      background: pr.difficulty === "Easy" ? "rgba(47,191,113,0.1)" : pr.difficulty === "Medium" ? "rgba(245,165,36,0.1)" : "rgba(239,68,68,0.1)",
+                      color: pr.difficulty === "Easy" ? "#2FBF71" : pr.difficulty === "Medium" ? "#F5A524" : "#ef4444",
                     }}>{pr.difficulty}</span>
                   </Link>
                 ))

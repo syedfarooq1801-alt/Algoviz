@@ -15,12 +15,12 @@ export default function ReviewQueue() {
   if (due.length === 0 && upcoming.length === 0) return null;
 
   return (
-    <div className="rounded-xl overflow-hidden mb-6" style={{ border: "1px solid rgba(168,85,247,0.3)", background: "rgba(168,85,247,0.04)" }}>
+    <div className="rounded-xl overflow-hidden mb-6" style={{ border: "1px solid rgba(79,140,255,0.3)", background: "rgba(79,140,255,0.04)" }}>
       {/* Header */}
-      <div className="px-5 py-3 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(168,85,247,0.15)" }}>
+      <div className="px-5 py-3 flex items-center justify-between" style={{ borderBottom: "1px solid rgba(79,140,255,0.15)" }}>
         <div className="flex items-center gap-2">
           <span className="text-base">🔁</span>
-          <h3 className="text-sm font-semibold" style={{ color: "#a855f7" }}>Spaced Repetition</h3>
+          <h3 className="text-sm font-semibold" style={{ color: "#4F8CFF" }}>Spaced Repetition</h3>
           {due.length > 0 && (
             <span className="text-xs px-2 py-0.5 rounded-full font-bold animate-pulse"
               style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.3)" }}>

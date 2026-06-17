@@ -15,12 +15,12 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          border: "1.5px solid #4f8ef7",
+          border: "1.5px solid #4F8CFF",
         }}
       >
         <span
           style={{
-            color: "#4f8ef7",
+            color: "#4F8CFF",
             fontSize: 20,
             fontWeight: 700,
             lineHeight: 1,

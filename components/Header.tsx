@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Suspense } from "react";
 import AuthButton from "./AuthButton";
+import { useSDStore } from "@/lib/sdStore";
 
 interface SearchSuggestion {
   id: string;
@@ -24,14 +25,18 @@ function HeaderContent({ searchQuery = "", onSearchChange, suggestions = [] }: H
   const searchParams = useSearchParams();
   const currentQuery = searchQuery || searchParams.get("q") || "";
   const { solved, xp, streak } = useProgressStore();
+  const { mastered } = useSDStore();
+  const isSDMode = pathname.startsWith("/system-design");
+  const isSEMode = pathname.startsWith("/se-basics");
+  const isDSAMode = pathname.startsWith("/dsa") || pathname.startsWith("/problems") || pathname.startsWith("/patterns") || pathname.startsWith("/visualizations");
   const total = getTotalProblems();
   const solvedCount = solved.size;
   const showSuggestions = Boolean(currentQuery && suggestions.length > 0);
 
   const navigateWithQuery = (value: string) => {
     const query = value.trim();
-    const path = query ? `/?q=${encodeURIComponent(query)}` : "/";
-    if (pathname === "/") {
+    const path = query ? `/dsa?q=${encodeURIComponent(query)}` : "/dsa";
+    if (pathname === "/dsa") {
       router.replace(path);
     } else {
       router.push(path);
@@ -66,101 +71,54 @@ function HeaderContent({ searchQuery = "", onSearchChange, suggestions = [] }: H
           </span>
         </Link>
 
-        {/* Search */}
-        <div className="flex-1 max-w-sm">
-          <div className="relative">
-            <span
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-xs"
-              style={{ color: "var(--text-muted)" }}
-            >
-              ⌕
-            </span>
-            <input
-              type="text"
-              placeholder="Search problems..."
-              value={currentQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full pl-8 pr-4 py-1.5 rounded-lg text-sm outline-none transition-all"
-              style={{
-                background: "var(--bg-hover)",
-                border: "1px solid var(--border)",
-                color: "var(--text-primary)",
-              }}
-              onFocus={(e) => {
-                (e.target as HTMLInputElement).style.borderColor = "var(--accent-blue)";
-              }}
-              onBlur={(e) => {
-                (e.target as HTMLInputElement).style.borderColor = "var(--border)";
-              }}
-            />
-            {showSuggestions && (
-              <div
-                className="absolute left-0 right-0 mt-2 rounded-xl border bg-[rgba(15,15,23,0.96)] shadow-xl overflow-hidden"
-                style={{ borderColor: "var(--border)", zIndex: 50 }}
-              >
-                {suggestions.map((suggestion) => (
-                  <Link
-                    key={suggestion.id}
-                    href={`/problems/${suggestion.id}`}
-                    className="block px-4 py-3 text-sm transition-colors hover:bg-[rgba(255,255,255,0.06)]"
-                  >
-                    <div className="font-medium" style={{ color: "var(--text-primary)" }}>
-                      {suggestion.title}
-                    </div>
-                    <div className="text-xs" style={{ color: "var(--text-muted)" }}>
-                      {suggestion.pattern}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
+        {/* Mode toggle */}
+        <div className="flex shrink-0 p-0.5 rounded-lg gap-0.5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          <Link
+            href="/dsa"
+            className="px-3 py-1 rounded-md text-xs font-medium transition-all"
+            style={{
+              background: isDSAMode ? "var(--accent-soft)" : "transparent",
+              color: isDSAMode ? "var(--accent)" : "var(--text-muted)",
+              border: isDSAMode ? "1px solid rgba(91,140,255,0.35)" : "1px solid transparent",
+            }}
+          >
+            DSA
+          </Link>
+          <Link
+            href="/system-design"
+            className="px-3 py-1 rounded-md text-xs font-medium transition-all"
+            style={{
+              background: isSDMode ? "rgba(79,140,255,0.18)" : "transparent",
+              color: isSDMode ? "#4F8CFF" : "var(--text-muted)",
+              border: isSDMode ? "1px solid rgba(79,140,255,0.35)" : "1px solid transparent",
+            }}
+          >
+            System Design
+          </Link>
+          <Link
+            href="/se-basics"
+            className="px-3 py-1 rounded-md text-xs font-medium transition-all"
+            style={{
+              background: isSEMode ? "rgba(45,212,160,0.16)" : "transparent",
+              color: isSEMode ? "var(--accent-green)" : "var(--text-muted)",
+              border: isSEMode ? "1px solid rgba(45,212,160,0.35)" : "1px solid transparent",
+            }}
+          >
+            SE Basics
+          </Link>
         </div>
 
-        {/* Stats */}
-        <div className="flex items-center gap-5 text-xs shrink-0">
-          <div className="flex items-center gap-1.5">
-            <span style={{ color: "var(--text-muted)" }}>Solved</span>
-            <span className="font-semibold" style={{ color: "var(--accent-green)" }}>
-              {solvedCount}
-            </span>
-            <span style={{ color: "var(--text-muted)" }}>/ {total}</span>
-          </div>
-
-          <div
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
-            style={{
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.08)",
-            }}
+        {/* Right: command-palette trigger + profile */}
+        <div className="flex items-center gap-3 shrink-0 ml-auto">
+          <button
+            onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors"
+            style={{ background: "var(--bg-hover)", border: "1px solid var(--border)", color: "var(--text-muted)" }}
           >
-            <span>🔥</span>
-            <span className="font-semibold" style={{ color: "var(--text-primary)" }}>
-              {streak}
-            </span>
-          </div>
-
-          <div
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
-            style={{
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.08)",
-            }}
-          >
-            <span>⚡</span>
-            <span className="font-semibold" style={{ color: "var(--text-primary)" }}>
-              {xp} XP
-            </span>
-          </div>
-          <Link
-            href="/study-plan"
-            className="hidden md:flex items-center gap-1 px-2 py-1 rounded-md text-xs transition-all"
-            style={{ color: "var(--text-muted)", border: "1px solid var(--border)" }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#4f8ef7"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(79,142,247,0.4)"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "var(--text-muted)"; (e.currentTarget as HTMLElement).style.borderColor = "var(--border)"; }}
-          >
-            📅 Plan
-          </Link>
+            <span>⌕</span>
+            <span className="hidden sm:inline">Search</span>
+            <span className="hidden sm:flex items-center gap-0.5"><kbd>⌘</kbd><kbd>K</kbd></span>
+          </button>
           <AuthButton />
         </div>
       </div>

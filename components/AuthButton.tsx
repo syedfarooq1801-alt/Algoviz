@@ -17,9 +17,9 @@ export default function AuthButton() {
       onClick={signIn}
       className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
       style={{
-        background: "rgba(79,142,247,0.15)",
-        border: "1px solid rgba(79,142,247,0.3)",
-        color: "#4f8ef7",
+        background: "rgba(79,140,255,0.15)",
+        border: "1px solid rgba(79,140,255,0.3)",
+        color: "#4F8CFF",
       }}
     >
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -48,7 +48,7 @@ export default function AuthButton() {
           />
         ) : (
           <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
-            style={{ background: "rgba(79,142,247,0.2)", color: "#4f8ef7" }}>
+            style={{ background: "rgba(79,140,255,0.2)", color: "#4F8CFF" }}>
             {user.displayName?.[0] ?? "U"}
           </div>
         )}

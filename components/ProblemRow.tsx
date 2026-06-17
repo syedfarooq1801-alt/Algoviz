@@ -11,8 +11,8 @@ interface Props {
 }
 
 const diffColor = {
-  Easy: "#22c55e",
-  Medium: "#f97316",
+  Easy: "#2FBF71",
+  Medium: "#F5A524",
   Hard: "#ef4444",
 };
 
@@ -115,7 +115,7 @@ export default function ProblemRow({ problem, index }: Props) {
         {problem.frequency === "High" ? (
           <span
             className="text-xs px-1.5 py-0.5 rounded"
-            style={{ background: "rgba(79, 142, 247, 0.1)", color: "#4f8ef7", fontSize: "10px" }}
+            style={{ background: "rgba(79, 142, 247, 0.1)", color: "#4F8CFF", fontSize: "10px" }}
           >
             HOT
           </span>
@@ -131,7 +131,7 @@ export default function ProblemRow({ problem, index }: Props) {
           title={problem.hasVisualization ? "View visualization" : "View pattern visualization"}
           className="text-xs hover:scale-110 transition-transform"
         >
-          <span style={{ color: problem.hasVisualization ? "#a855f7" : "var(--text-muted)" }}>▶</span>
+          <span style={{ color: problem.hasVisualization ? "#4F8CFF" : "var(--text-muted)" }}>▶</span>
         </Link>
       </div>
 
@@ -144,8 +144,8 @@ export default function ProblemRow({ problem, index }: Props) {
         title="Open on LeetCode"
       >
         <svg width="18" height="18" viewBox="0 0 50 50" fill="none">
-          <path d="M36 35H14" stroke="#f97316" strokeWidth="4" strokeLinecap="round" />
-          <path d="M14 15l10 10-10 10" stroke="#f97316" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M36 35H14" stroke="#F5A524" strokeWidth="4" strokeLinecap="round" />
+          <path d="M14 15l10 10-10 10" stroke="#F5A524" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </a>
 
@@ -159,8 +159,8 @@ export default function ProblemRow({ problem, index }: Props) {
           width="13"
           height="13"
           viewBox="0 0 24 24"
-          fill={bookmarked ? "#4f8ef7" : "none"}
-          stroke={bookmarked ? "#4f8ef7" : "var(--text-muted)"}
+          fill={bookmarked ? "#4F8CFF" : "none"}
+          stroke={bookmarked ? "#4F8CFF" : "var(--text-muted)"}
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"

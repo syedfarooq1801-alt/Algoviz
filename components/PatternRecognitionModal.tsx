@@ -8,9 +8,9 @@ interface Props {
 }
 
 const COLOR_MAP: Record<string, string> = {
-  blue: "#4f8ef7", green: "#22c55e", purple: "#a855f7", orange: "#f97316",
-  cyan: "#06b6d4", yellow: "#eab308", emerald: "#10b981", red: "#ef4444",
-  violet: "#8b5cf6", teal: "#14b8a6", indigo: "#6366f1", amber: "#f59e0b",
+  blue: "#4F8CFF", green: "#2FBF71", purple: "#4F8CFF", orange: "#F5A524",
+  cyan: "#4F8CFF", yellow: "#F5A524", emerald: "#10b981", red: "#ef4444",
+  violet: "#8b5cf6", teal: "#14b8a6", indigo: "#6366f1", amber: "#F5A524",
   lime: "#84cc16", rose: "#f43f5e", slate: "#94a3b8", pink: "#ec4899",
 };
 
@@ -84,7 +84,7 @@ export default function PatternRecognitionModal({ onClose }: Props) {
   }, []);
 
   const correctPattern = quiz ? PATTERNS.find((p) => p.id === quiz.patternId) : null;
-  const correctColor = correctPattern ? COLOR_MAP[correctPattern.color] ?? "#4f8ef7" : "#4f8ef7";
+  const correctColor = correctPattern ? COLOR_MAP[correctPattern.color] ?? "#4F8CFF" : "#4F8CFF";
 
   return (
     <div
@@ -126,7 +126,7 @@ export default function PatternRecognitionModal({ onClose }: Props) {
               <button
                 onClick={handleRestart}
                 className="px-4 py-2 rounded-lg text-sm font-medium"
-                style={{ background: "rgba(79,142,247,0.15)", color: "#4f8ef7", border: "1px solid rgba(79,142,247,0.3)" }}
+                style={{ background: "rgba(79,140,255,0.15)", color: "#4F8CFF", border: "1px solid rgba(79,140,255,0.3)" }}
               >
                 Play Again
               </button>
@@ -149,7 +149,7 @@ export default function PatternRecognitionModal({ onClose }: Props) {
                   <div
                     key={i}
                     className="h-1.5 w-8 rounded-full transition-all"
-                    style={{ background: i < round ? "#4f8ef7" : i === round ? "rgba(79,142,247,0.4)" : "var(--border)" }}
+                    style={{ background: i < round ? "#4F8CFF" : i === round ? "rgba(79,140,255,0.4)" : "var(--border)" }}
                   />
                 ))}
               </div>
@@ -168,8 +168,8 @@ export default function PatternRecognitionModal({ onClose }: Props) {
               </h3>
               <div className="flex gap-2 flex-wrap">
                 <span className="text-xs px-2 py-0.5 rounded-full" style={{
-                  background: quiz.problem.difficulty === "Easy" ? "rgba(34,197,94,0.1)" : quiz.problem.difficulty === "Medium" ? "rgba(249,115,22,0.1)" : "rgba(239,68,68,0.1)",
-                  color: quiz.problem.difficulty === "Easy" ? "#22c55e" : quiz.problem.difficulty === "Medium" ? "#f97316" : "#ef4444",
+                  background: quiz.problem.difficulty === "Easy" ? "rgba(47,191,113,0.1)" : quiz.problem.difficulty === "Medium" ? "rgba(245,165,36,0.1)" : "rgba(239,68,68,0.1)",
+                  color: quiz.problem.difficulty === "Easy" ? "#2FBF71" : quiz.problem.difficulty === "Medium" ? "#F5A524" : "#ef4444",
                 }}>
                   {quiz.problem.difficulty}
                 </span>
@@ -193,13 +193,13 @@ export default function PatternRecognitionModal({ onClose }: Props) {
                 let textColor = "var(--text-secondary)";
 
                 if (showResult) {
-                  if (isCorrect) { bg = "rgba(34,197,94,0.1)"; borderColor = "rgba(34,197,94,0.35)"; textColor = "#22c55e"; }
+                  if (isCorrect) { bg = "rgba(47,191,113,0.1)"; borderColor = "rgba(47,191,113,0.35)"; textColor = "#2FBF71"; }
                   else if (isSelected) { bg = "rgba(239,68,68,0.1)"; borderColor = "rgba(239,68,68,0.35)"; textColor = "#ef4444"; }
                   else { textColor = "var(--text-muted)"; }
                 }
 
                 const patternObj = PATTERNS.find((p) => p.id === choice.id);
-                const choiceColor = patternObj ? COLOR_MAP[patternObj.color] ?? "#4f8ef7" : "#4f8ef7";
+                const choiceColor = patternObj ? COLOR_MAP[patternObj.color] ?? "#4F8CFF" : "#4F8CFF";
 
                 return (
                   <button
@@ -226,8 +226,8 @@ export default function PatternRecognitionModal({ onClose }: Props) {
             {answered !== null && (
               <div className="space-y-3">
                 <div className="rounded-lg p-3" style={{
-                  background: answered === quiz.patternId ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)",
-                  border: `1px solid ${answered === quiz.patternId ? "rgba(34,197,94,0.2)" : "rgba(239,68,68,0.2)"}`,
+                  background: answered === quiz.patternId ? "rgba(47,191,113,0.08)" : "rgba(239,68,68,0.08)",
+                  border: `1px solid ${answered === quiz.patternId ? "rgba(47,191,113,0.2)" : "rgba(239,68,68,0.2)"}`,
                 }}>
                   <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
                     {answered === quiz.patternId
@@ -246,7 +246,7 @@ export default function PatternRecognitionModal({ onClose }: Props) {
                   <button
                     onClick={handleNext}
                     className="ml-auto text-xs px-4 py-1.5 rounded-lg font-medium transition-all"
-                    style={{ background: "rgba(79,142,247,0.15)", color: "#4f8ef7", border: "1px solid rgba(79,142,247,0.3)" }}
+                    style={{ background: "rgba(79,140,255,0.15)", color: "#4F8CFF", border: "1px solid rgba(79,140,255,0.3)" }}
                   >
                     {round + 1 >= TOTAL_ROUNDS ? "See Results →" : "Next →"}
                   </button>
