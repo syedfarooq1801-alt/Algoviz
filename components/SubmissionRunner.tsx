@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { getProblemRunner, buildTestCode, type ProblemTestCase } from "@/data/testCases";
+import { usePrepStore } from "@/lib/prepStore";
 
 // Wandbox free C++ runner (no API key, scratchpad only)
 const WANDBOX_URL = "https://wandbox.org/api/compile.json";
@@ -94,6 +95,8 @@ interface Props {
 
 export default function SubmissionRunner({ problemId, starterCpp, starterPython, defaultLang = "python" }: Props) {
   const runner = getProblemRunner(problemId);
+  const addCodeAttempt = usePrepStore((s) => s.addCodeAttempt);
+  const codeAttempts = usePrepStore((s) => s.codeAttempts).filter((a) => a.problemId === problemId).slice(0, 5);
   const hasTestCases = runner !== null;
 
   const getStarter = (l: Lang) =>
@@ -114,6 +117,8 @@ export default function SubmissionRunner({ problemId, starterCpp, starterPython,
   // Submit results
   const [testResults, setTestResults] = useState<TestResult[] | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [customInput, setCustomInput] = useState("");
+  const [customExpected, setCustomExpected] = useState("");
 
   // Timer
   const [elapsed, setElapsed] = useState(0);
@@ -206,6 +211,15 @@ export default function SubmissionRunner({ problemId, starterCpp, starterPython,
     } catch (e) {
       setScratchOutput({ text: `Error: ${(e as Error).message}`, ok: false });
     } finally {
+      addCodeAttempt({
+        problemId,
+        lang,
+        mode: "scratchpad",
+        passed: 0,
+        total: 1,
+        elapsedSecs: elapsed,
+        summary: "Scratchpad run",
+      });
       setRunning(false);
       setStatus("");
     }
@@ -218,12 +232,18 @@ export default function SubmissionRunner({ problemId, starterCpp, starterPython,
     setSubmitting(true);
     setTestResults(null);
 
+    const extraCases: ProblemTestCase[] = customInput.trim()
+      ? [{ id: "custom", label: "Custom case", input: customInput.trim(), expected: customExpected.trim() || "null" }]
+      : [];
+    const cases = [...runner.testCases, ...extraCases];
+
     // init all as pending
-    const initial: TestResult[] = runner.testCases.map((tc) => ({ tc, status: "pending" }));
+    const initial: TestResult[] = cases.map((tc) => ({ tc, status: "pending" }));
     setTestResults([...initial]);
 
-    for (let i = 0; i < runner.testCases.length; i++) {
-      const tc = runner.testCases[i];
+    const finalResults: TestResult[] = [];
+    for (let i = 0; i < cases.length; i++) {
+      const tc = cases[i];
       setTestResults((prev) => prev ? prev.map((r, idx) => idx === i ? { ...r, status: "running" } : r) : null);
 
       const fullCode = buildTestCode(runner, code, tc.input);
@@ -248,9 +268,20 @@ export default function SubmissionRunner({ problemId, starterCpp, starterPython,
         result = { tc, status: "error", actual: "", errorMsg: (e as Error).message };
       }
 
+      finalResults.push(result);
       setTestResults((prev) => prev ? prev.map((r, idx) => idx === i ? result : r) : null);
     }
 
+    const passCount = finalResults.filter((r) => r.status === "pass").length;
+    addCodeAttempt({
+      problemId,
+      lang,
+      mode: "submit",
+      passed: passCount,
+      total: finalResults.length,
+      elapsedSecs: elapsed,
+      summary: passCount === finalResults.length ? "Accepted" : `${passCount}/${finalResults.length} tests passed`,
+    });
     setSubmitting(false);
   };
 
@@ -434,6 +465,27 @@ export default function SubmissionRunner({ problemId, starterCpp, starterPython,
               <div className="text-2xl mb-2">🧪</div>
               <p className="text-sm">Click Submit to run against {runner?.testCases.length ?? 0} test cases</p>
               <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>Python runs in your browser — no server needed</p>
+            </div>
+          )}
+
+          {lang === "python" && (
+            <div className="grid sm:grid-cols-2 gap-2 px-4 pb-4">
+              <textarea
+                value={customInput}
+                onChange={(e) => setCustomInput(e.target.value)}
+                placeholder='Custom JSON input, e.g. {"nums":[1,2],"target":3}'
+                rows={2}
+                className="rounded-lg text-xs p-2 outline-none resize-none"
+                style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)", color: "var(--text-secondary)", fontFamily: "var(--font-mono)" }}
+              />
+              <textarea
+                value={customExpected}
+                onChange={(e) => setCustomExpected(e.target.value)}
+                placeholder="Expected stdout JSON"
+                rows={2}
+                className="rounded-lg text-xs p-2 outline-none resize-none"
+                style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)", color: "var(--text-secondary)", fontFamily: "var(--font-mono)" }}
+              />
             </div>
           )}
 

@@ -2,7 +2,6 @@
 import { use, useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Header from "@/components/Header";
 import SEBlock from "@/components/se/SEBlock";
 import { getSEVisual } from "@/components/se/visuals/registry";
 import { getSubject, SUBJECT_META, SE_SUBJECTS } from "@/data/seBasics";
@@ -47,8 +46,7 @@ export default function SubjectPage({ params }: Props) {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      <Header />
-      <main className="mx-auto max-w-[1380px] px-6 pb-24">
+      <main className="mx-auto max-w-[1380px] px-6 pb-8">
         <div className="flex flex-wrap items-center gap-2 pb-8 pt-8 text-xs" style={{ color: "var(--text-muted)" }}>
           <Link href="/se-basics" className="hover:underline">SE Basics</Link>
           <span>/</span>

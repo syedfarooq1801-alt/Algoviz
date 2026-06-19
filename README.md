@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AlgoVis Interview Prep Platform
 
-## Getting Started
+AlgoVis is a local-first interview prep app for DSA, system design, CS fundamentals, behavioral interviews, and mock interview feedback. It is built for structured placement and software engineering prep, not just passive reading.
 
-First, run the development server:
+## What It Helps You Do
+
+- Learn DSA by pattern with curated LeetCode-style problems.
+- Practice with visual explanations, hints, dry runs, and runnable code.
+- Run timed mock interviews and score the behaviors interviewers care about.
+- Diagnose pattern-recognition mistakes before coding.
+- Track spaced repetition states: unseen, attempted, solved, reviewing, mastered.
+- Follow 30, 60, or 90 day plans with company and role-oriented prep tracks.
+- Review analytics that recommend what to study next.
+- Build behavioral STAR answers and score them with a rubric.
+
+## Core Prep Workflow
+
+1. Pick a prep track in `Study Plan`.
+2. Work through the daily DSA, system design, and SE basics tasks.
+3. Use `Diagnosis` to train pattern recognition.
+4. Solve problems in interview mode: clarify, brute force, optimize, code, test, state complexity, reflect.
+5. Run mock interviews weekly.
+6. Review the analytics dashboard and attack the weakest area next.
+
+## Features
+
+- DSA curriculum: 17 patterns and 186 problems.
+- Problem pages: intuition, approach, walkthroughs, complexity, edge cases, common mistakes, solutions, notes, and interview checklist.
+- Code runner: in-browser Python, C++ scratchpad, submit-style tests, hidden tests, custom test cases, and attempt history.
+- Mock interviews: timed sessions with post-mock score, correctness, complexity, edge case, solution reveal, self-explanation, notes, and coaching insights.
+- Pattern diagnosis: unseen problem prompts, pattern selection, immediate feedback, and accuracy tracking.
+- Spaced repetition: review due dates and readiness states per problem.
+- Study plans: 30, 60, and 90 day schedules with prep tracks such as FAANG DSA, backend-focused, system-design-heavy, weak DP, and weak graphs.
+- Behavioral prep: company values, common questions, STAR answer builder, saved drafts, and scoring rubric.
+- Analytics: weak patterns, difficulty gaps, weekly progress, due reviews, mock average, diagnosis accuracy, and interview pace.
+
+## Run Locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+```
 
-## Learn More
+## Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- Next.js App Router
+- React
+- TypeScript
+- Zustand persisted local stores
+- Tailwind CSS
+- Pyodide for browser-based Python execution
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Most progress is stored locally in the browser through persisted Zustand stores. Firebase support exists for authentication-related flows, but the core prep loop works locally.

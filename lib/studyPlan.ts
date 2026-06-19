@@ -1,11 +1,10 @@
 import { PATTERNS } from "@/data/problems";
 import { SD_CHAPTERS } from "@/data/systemDesign";
 import { SE_SUBJECTS } from "@/data/seBasics";
+import { COMMON_QUESTIONS, COMPANY_VALUES } from "@/data/behavioral";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export type TaskDomain = "dsa" | "sd" | "se";
-export type DayPhase = "dsa" | "sd" | "se" | "review" | "mock";
+export type TaskDomain = "dsa" | "sd" | "se" | "behavioral";
+export type DayPhase = "dsa" | "sd" | "se" | "review" | "mock" | "behavioral";
 export type DayType = "learn" | "practice" | "review" | "mock" | "rest";
 
 export interface PlanTask {
@@ -14,10 +13,11 @@ export interface PlanTask {
   title: string;
   href: string;
   difficulty?: string;
-  tag?: string;        // pattern (DSA), chapter (SD), subject (SE)
-  subjectId?: string;  // SE: for seStore key `${subjectId}/${chapterId}`
-  priority: number;    // higher = more important to review (1–9)
-  meta?: string;       // display label on review cards: "Hard · High freq", "Fundamental", etc.
+  tag?: string;
+  subjectId?: string;
+  priority: number;
+  meta?: string;
+  kind?: "theory" | "problem" | "concept" | "behavioral";
 }
 
 export interface DayPlan {
@@ -27,8 +27,8 @@ export interface DayPlan {
   type: DayType;
   label: string;
   color: string;
-  tasks: PlanTask[];        // content days: work to do; review days: focus tasks
-  reviewCovered?: PlanTask[]; // review days only: ALL tasks covered in this window
+  tasks: PlanTask[];
+  reviewCovered?: PlanTask[];
   reviewNote?: string;
 }
 
@@ -38,33 +38,39 @@ export interface StudyPlan {
   days: DayPlan[];
 }
 
-// ─── Domain Colors ────────────────────────────────────────────────────────────
-
 export const PHASE_COLOR: Record<DayPhase, string> = {
-  dsa:    "#4F8CFF",
-  sd:     "#2FBF71",
-  se:     "#F5A524",
+  dsa: "#4F8CFF",
+  sd: "#2FBF71",
+  se: "#F5A524",
   review: "#9AA4B2",
-  mock:   "#EF4444",
+  mock: "#EF4444",
+  behavioral: "#A5AFBD",
 };
-
-// ─── Priority scoring ─────────────────────────────────────────────────────────
 
 function dsaPriority(difficulty: string, frequency: string): number {
   const f = frequency === "High" ? 3 : frequency === "Medium" ? 2 : 1;
   const d = difficulty === "Hard" ? 3 : difficulty === "Medium" ? 2 : 1;
-  return f * 2 + d; // 3–9, higher = must review
+  return f * 2 + d;
 }
 
 function sdPriority(difficulty: string): number {
   return difficulty === "Fundamental" ? 3 : difficulty === "Intermediate" ? 2 : 1;
 }
 
-// ─── Task builders (with priority + meta) ────────────────────────────────────
-
 function buildDSATasks(): PlanTask[] {
-  return PATTERNS.flatMap((pattern) =>
-    pattern.problems.map((p) => {
+  return PATTERNS.flatMap((pattern) => [
+    {
+      domain: "dsa" as const,
+      id: `theory-${pattern.id}`,
+      title: `${pattern.title} theory`,
+      href: `/patterns/${pattern.id}`,
+      difficulty: "Theory",
+      tag: pattern.title,
+      priority: 6,
+      meta: "Pattern theory",
+      kind: "theory" as const,
+    },
+    ...pattern.problems.map((p) => {
       const freq = (p as { frequency?: string }).frequency ?? "Medium";
       return {
         domain: "dsa" as const,
@@ -75,9 +81,10 @@ function buildDSATasks(): PlanTask[] {
         tag: pattern.title,
         priority: dsaPriority(p.difficulty, freq),
         meta: `${p.difficulty} · ${freq} freq`,
+        kind: "problem" as const,
       };
-    })
-  );
+    }),
+  ]);
 }
 
 function buildSDTasks(): PlanTask[] {
@@ -90,6 +97,7 @@ function buildSDTasks(): PlanTask[] {
       tag: chapter.title,
       priority: sdPriority(c.difficulty),
       meta: c.difficulty,
+      kind: "concept" as const,
     })),
     ...(chapter.caseStudies ?? []).map((cs) => ({
       domain: "sd" as const,
@@ -99,6 +107,7 @@ function buildSDTasks(): PlanTask[] {
       tag: "Case Study",
       priority: 2,
       meta: "Case Study",
+      kind: "concept" as const,
     })),
   ]);
 }
@@ -106,9 +115,7 @@ function buildSDTasks(): PlanTask[] {
 function buildSETasks(): PlanTask[] {
   return SE_SUBJECTS.flatMap((subject) =>
     subject.chapters.map((ch) => {
-      const hasInterview = ch.blocks.some(
-        (b) => b.type === "interview" || b.type === "placement"
-      );
+      const hasInterview = ch.blocks.some((b) => b.type === "interview" || b.type === "placement");
       return {
         domain: "se" as const,
         id: `${subject.id}/${ch.id}`,
@@ -118,12 +125,47 @@ function buildSETasks(): PlanTask[] {
         subjectId: subject.id,
         priority: hasInterview ? 3 : 2,
         meta: hasInterview ? "Interview focus" : subject.title,
+        kind: "concept" as const,
       };
     })
   );
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+function buildBehavioralTasks(): PlanTask[] {
+  const companyTasks = COMPANY_VALUES.flatMap((company) => [
+    {
+      domain: "behavioral" as const,
+      id: `behavioral-${company.company.toLowerCase()}-values`,
+      title: `${company.company} values`,
+      href: "/behavioral",
+      tag: company.company,
+      priority: 3,
+      meta: "Company values",
+      kind: "behavioral" as const,
+    },
+    ...company.questions.slice(0, 2).map((q) => ({
+      domain: "behavioral" as const,
+      id: `behavioral-${q.id}`,
+      title: q.question,
+      href: "/behavioral",
+      tag: company.company,
+      priority: 3,
+      meta: q.principle ?? "STAR",
+      kind: "behavioral" as const,
+    })),
+  ]);
+  const commonTasks = COMMON_QUESTIONS.map((q, i) => ({
+    domain: "behavioral" as const,
+    id: `behavioral-common-${i}`,
+    title: q.question,
+    href: "/behavioral",
+    tag: q.category,
+    priority: 2,
+    meta: "Common question",
+    kind: "behavioral" as const,
+  }));
+  return [...companyTasks, ...commonTasks];
+}
 
 function addDays(iso: string, n: number): string {
   const d = new Date(iso);
@@ -135,210 +177,169 @@ function topByPriority(tasks: PlanTask[], n: number): PlanTask[] {
   return [...tasks].sort((a, b) => b.priority - a.priority).slice(0, n);
 }
 
-/** Spread tasks across contentDays, grouping same-tag tasks together. */
-function distribute(tasks: PlanTask[], contentDays: number, maxPerDay: number): PlanTask[][] {
-  const out: PlanTask[][] = Array.from({ length: contentDays }, () => []);
-  let dayIdx = 0;
-  for (const task of tasks) {
-    if (out[dayIdx].length >= maxPerDay) dayIdx = Math.min(dayIdx + 1, contentDays - 1);
-    if (out[dayIdx].length < maxPerDay) out[dayIdx].push(task);
+function taskEffort(task: PlanTask): number {
+  if (task.kind === "theory") return 1;
+  if (task.domain === "behavioral") return 1.5;
+  if (task.domain !== "dsa") return 1.5;
+  if (task.difficulty === "Easy") return 1;
+  if (task.difficulty === "Medium") return 2;
+  if (task.difficulty === "Hard") return 3;
+  return 1.5;
+}
+
+function totalEffort(tasks: PlanTask[]): number {
+  return tasks.reduce((sum, task) => sum + taskEffort(task), 0);
+}
+
+function takeByEffort(queue: PlanTask[], target: number, minItems = 1): PlanTask[] {
+  const picked: PlanTask[] = [];
+  let effort = 0;
+  while (queue.length > 0) {
+    const next = queue[0];
+    const nextEffort = taskEffort(next);
+    if (picked.length >= minItems && effort + nextEffort > target + 0.75) break;
+    picked.push(queue.shift()!);
+    effort += nextEffort;
+    if (effort >= target) break;
   }
-  return out;
+  return picked;
 }
 
-// ─── Review notes (strategy tips) ────────────────────────────────────────────
-
-const REVIEW_NOTES: Record<string, string[]> = {
-  dsa: [
-    "Re-solve the HIGH-PRIORITY problems below from scratch — no hints. These are the ones interviewers test most.",
-    "For each problem: write the brute force first, then optimize. Say your approach aloud before coding.",
-    "Timed mode: 20 min per problem. If stuck after 10 min, draw the pattern structure then continue.",
-    "Focus on HARD + Medium-freq problems — these separate candidates. If you solved them before, verify you can do it again cold.",
-  ],
-  sd: [
-    "For each Fundamental concept below: draw the architecture from memory. Check your version against the concept page.",
-    "Answer this for every concept: What fails without it? What's the main trade-off? When would you NOT use it?",
-    "For case studies: whiteboard the full design in 8 min. Cover: requirements, scale, data model, key components.",
-    "Walk through these concepts as a sequence — how do they compose into a real system?",
-  ],
-  se: [
-    "For each chapter marked 'Interview focus': recite the top 3 interview Q&As from memory, then verify.",
-    "Write the analogy or memory trick for each chapter below without looking. These are what make answers stick.",
-    "Go through these chapters and answer: 'How would I explain this to an interviewer in 60 seconds?'",
-  ],
-  review: [
-    "Cross-domain drill: pick one DSA problem, one SD concept, one SE chapter from your weakest areas. Deep-dive each.",
-    "Do the problems you haven't solved yet — those are your real gaps. Don't skip to new content.",
-    "Pattern-map drill: for each unsolved DSA problem, identify the pattern first before attempting. No random trial-and-error.",
-    "SD + SE integration: for each SE topic (OS, DBMS, CN), find where it appears in system design and connect the dots.",
-  ],
-  mock: [
-    "DSA Mock: 2 problems, 35 min total. No hints, no looking at solution. Grade: Did you get AC? Was your complexity correct?",
-    "SD Mock: Pick a case study you haven't read. Design it solo in 45 min. Cover all 6 steps. Grade yourself on completeness.",
-    "Full simulation: 30-min DSA (2 problems) + 45-min SD (1 case study). Treat it like a real interview. No interruptions.",
-  ],
-};
-
-function getReviewNote(phase: DayPhase, idx: number): string {
-  const arr = REVIEW_NOTES[phase] ?? REVIEW_NOTES["review"];
-  return arr[idx % arr.length];
+function takeDsaPatternByEffort(queue: PlanTask[], target: number, minItems = 1): PlanTask[] {
+  const tag = queue[0]?.tag;
+  if (!tag) return [];
+  const picked: PlanTask[] = [];
+  let effort = 0;
+  while (queue.length > 0 && queue[0].tag === tag) {
+    const next = queue[0];
+    const nextEffort = taskEffort(next);
+    if (picked.length >= minItems && effort + nextEffort > target + 0.75) break;
+    picked.push(queue.shift()!);
+    effort += nextEffort;
+    if (effort >= target) break;
+  }
+  return picked;
 }
 
-// ─── Plan Allocations ─────────────────────────────────────────────────────────
-// Total phase days = contentDays + floor(contentDays/6) + 1
-//   30-day:  DSA(10→12) + SD(6→8)  + SE(4→5)  + final(5)  = 30
-//   60-day:  DSA(20→24) + SD(14→17)+ SE(11→13) + final(6)  = 60
-//   90-day:  DSA(28→33) + SD(22→26)+ SE(18→22) + final(9)  = 90
+function labelFromTasks(fallback: string, tasks: PlanTask[]): string {
+  const tags = [...new Set(tasks.map((task) => task.tag).filter(Boolean))].slice(0, 2);
+  return tags.length ? tags.join(" + ") : fallback;
+}
 
-const ALLOC: Record<30 | 60 | 90, { dsa: number; sd: number; se: number; final: number }> = {
-  30: { dsa: 10, sd: 6,  se: 4,  final: 5 },
-  60: { dsa: 20, sd: 14, se: 11, final: 6 },
-  90: { dsa: 28, sd: 22, se: 18, final: 9 },
-};
+function getReviewNote(phase: DayPhase): string {
+  if (phase === "mock") return "Timed session. No hints. Review correctness, complexity, edge cases, and explanation.";
+  if (phase === "behavioral") return "Draft answers out loud. Keep each answer under 2.5 minutes.";
+  return "Review unfinished tasks first, then redo the hardest solved task from memory.";
+}
 
-const MAX_PER_DAY: Record<30 | 60 | 90, Record<TaskDomain, number>> = {
-  30: { dsa: 5, sd: 5, se: 4 },
-  60: { dsa: 5, sd: 5, se: 5 },
-  90: { dsa: 7, sd: 5, se: 3 },
-};
-
-// ─── Generator ────────────────────────────────────────────────────────────────
-
-export function generateStudyPlan(durationDays: 30 | 60 | 90, startDate: string): StudyPlan {
-  const alloc = ALLOC[durationDays];
-  const maxPerDay = MAX_PER_DAY[durationDays];
-
-  const dsaChunks = distribute(buildDSATasks(), alloc.dsa, maxPerDay.dsa);
-  const sdChunks  = distribute(buildSDTasks(),  alloc.sd,  maxPerDay.sd);
-  const seChunks  = distribute(buildSETasks(),  alloc.se,  maxPerDay.se);
-
+export function generateStudyPlan(durationDays: 30 | 60 | 90, startDate: string, trackWeights?: Record<string, number>): StudyPlan {
+  const tw = trackWeights ?? {};
+  const wDsa = tw.dsa ?? 0;
+  const wSd = tw.sd ?? 0;
+  const wSe = tw.se ?? 0;
+  const wTotal = wDsa + wSd + wSe;
+  const dsaFrac = wTotal > 0 ? Math.max(0.10, wDsa / wTotal) : 0.62;
+  const supportFrac = wTotal > 0 ? Math.max(0.05, (wSd + wSe) / wTotal / 2) : 0.19;
+  const dsaQueue = buildDSATasks();
+  const sdQueue = buildSDTasks();
+  const seQueue = buildSETasks();
+  const behavioralQueue = buildBehavioralTasks();
+  const assigned: PlanTask[] = [];
+  const weeklyWindow: PlanTask[] = [];
   const days: DayPlan[] = [];
-  let dayNum = 1;
-  let reviewNoteIdx = 0;
+  const behavioralDays = durationDays === 30 ? 3 : durationDays === 60 ? 5 : 7;
+  const coreEndDay = durationDays - behavioralDays;
+  const coreWorkDays = Array.from({ length: coreEndDay }, (_, i) => i + 1).filter((day) => (day - 1) % 7 !== 6).length;
 
-  function schedulePhase(
-    phase: "dsa" | "sd" | "se",
-    chunks: PlanTask[][],
-    contentDays: number
-  ) {
-    const totalPhaseDays = contentDays + Math.floor(contentDays / 6) + 1;
-    let contentDay = 0;
-    let windowBuffer: PlanTask[] = []; // tasks since last review
-    const allPhaseTasks: PlanTask[] = chunks.flat();
+  function remainingCoreEffort() {
+    return totalEffort(dsaQueue) + totalEffort(sdQueue) + totalEffort(seQueue);
+  }
 
-    for (let i = 0; i < totalPhaseDays; i++) {
-      const date = addDays(startDate, dayNum - 1);
-      const isEndOfPhase = i === totalPhaseDays - 1;
-      const isWeeklyReview = (i + 1) % 7 === 0;
-      const isReview = isWeeklyReview || isEndOfPhase;
+  function remainingCoreWorkDays(dayNum: number) {
+    return Array.from({ length: Math.max(0, coreEndDay - dayNum + 1) }, (_, i) => dayNum + i)
+      .filter((day) => (day - 1) % 7 !== 6).length;
+  }
 
-      if (isReview) {
-        // Focus = top 8 by priority from the window (or entire phase for end-of-phase)
-        const pool = isEndOfPhase ? allPhaseTasks : windowBuffer;
-        const focusTasks = topByPriority(pool, 8);
-        days.push({
-          day: dayNum,
-          date,
-          phase,
-          type: "review",
-          label: isEndOfPhase
-            ? `${phase === "dsa" ? "DSA" : phase === "sd" ? "System Design" : "SE Basics"} — Full Phase Review`
-            : `Week ${Math.ceil((i + 1) / 7)} Review — ${phase === "dsa" ? "DSA" : phase === "sd" ? "System Design" : "SE Basics"}`,
-          color: PHASE_COLOR.review,
-          tasks: focusTasks,
-          reviewCovered: [...windowBuffer],
-          reviewNote: getReviewNote(phase, reviewNoteIdx++),
-        });
-        windowBuffer = [];
-      } else {
-        const tasks = chunks[contentDay] ?? [];
-        windowBuffer.push(...tasks);
-        const isFirstDay = contentDay === 0;
-        const tags = [...new Set(tasks.map((t) => t.tag).filter(Boolean))];
-        const label = isFirstDay
-          ? `Start: ${tags[0] ?? (phase === "dsa" ? "DSA" : phase === "sd" ? "System Design" : "SE Basics")}`
-          : tags.slice(0, 2).join(" + ") || (phase === "dsa" ? "Practice" : phase === "sd" ? "SD Concepts" : "SE Reading");
+  for (let dayNum = 1; dayNum <= durationDays; dayNum++) {
+    const date = addDays(startDate, dayNum - 1);
+    const slot = (dayNum - 1) % 7;
+    const week = Math.ceil(dayNum / 7);
 
-        days.push({
-          day: dayNum,
-          date,
-          phase,
-          type: contentDay < Math.ceil(contentDays * 0.4) ? "learn" : "practice",
-          label,
-          color: PHASE_COLOR[phase],
-          tasks,
-        });
-        contentDay++;
-      }
-      dayNum++;
+    if (dayNum > coreEndDay) {
+      const target = Math.max(3, totalEffort(behavioralQueue) / Math.max(1, durationDays - dayNum + 1));
+      const tasks = takeByEffort(behavioralQueue, target, 2);
+      days.push({
+        day: dayNum,
+        date,
+        phase: dayNum === durationDays ? "mock" : "behavioral",
+        type: dayNum === durationDays ? "mock" : "practice",
+        label: dayNum === durationDays ? "Final behavioral + technical mock" : labelFromTasks("Behavioral prep", tasks),
+        color: dayNum === durationDays ? PHASE_COLOR.mock : PHASE_COLOR.behavioral,
+        tasks: dayNum === durationDays ? [...tasks, ...topByPriority(assigned, 4)] : tasks,
+        reviewNote: getReviewNote(dayNum === durationDays ? "mock" : "behavioral"),
+      });
+      continue;
     }
-  }
 
-  schedulePhase("dsa", dsaChunks, alloc.dsa);
-  schedulePhase("sd",  sdChunks,  alloc.sd);
-  schedulePhase("se",  seChunks,  alloc.se);
+    if (slot === 6) {
+      const isMock = week % 2 === 0;
+      const tasks = topByPriority(weeklyWindow.length ? weeklyWindow : assigned, isMock ? 6 : 8);
+      days.push({
+        day: dayNum,
+        date,
+        phase: isMock ? "mock" : "review",
+        type: isMock ? "mock" : "review",
+        label: isMock ? `Week ${week} mock interview` : `Week ${week} review`,
+        color: isMock ? PHASE_COLOR.mock : PHASE_COLOR.review,
+        tasks,
+        reviewCovered: [...weeklyWindow],
+        reviewNote: getReviewNote(isMock ? "mock" : "review"),
+      });
+      weeklyWindow.length = 0;
+      continue;
+    }
 
-  // Collect top tasks from all domains for comprehensive review days
-  const topDSA = topByPriority(dsaChunks.flat(), 6);
-  const topSD  = topByPriority(sdChunks.flat(), 4);
-  const topSE  = topByPriority(seChunks.flat(), 4);
+    const workDaysLeft = Math.max(1, remainingCoreWorkDays(dayNum));
+    const dailyTarget = Math.max(6, remainingCoreEffort() / workDaysLeft);
+    const dsaTarget = Math.max(2, dailyTarget * dsaFrac);
+    const supportTarget = Math.max(1.5, dailyTarget * supportFrac);
+    const supportQueue = slot === 2 || slot === 4 ? seQueue : sdQueue;
+    const alternateQueue = supportQueue === seQueue ? sdQueue : seQueue;
+    const dsaTasks = takeDsaPatternByEffort(dsaQueue, dsaTarget, 1);
+    let supportTasks = takeByEffort(supportQueue, supportTarget, 1);
 
-  const mockCount = Math.min(3, Math.floor(alloc.final * 0.4));
-  const revCount  = alloc.final - mockCount;
+    if (dsaQueue.length === 0 || supportTasks.length === 0) {
+      supportTasks = [...supportTasks, ...takeByEffort(alternateQueue, supportTarget, supportTasks.length ? 0 : 1)];
+    }
 
-  const revConfig: Array<{ label: string; tasks: PlanTask[]; note: string }> = [
-    { label: "Comprehensive Review — DSA High-Priority Problems", tasks: topDSA, note: getReviewNote("review", 0) },
-    { label: "Comprehensive Review — System Design Fundamentals", tasks: topSD,  note: getReviewNote("review", 1) },
-    { label: "Comprehensive Review — SE Basics Interview Chapters", tasks: topSE, note: getReviewNote("review", 2) },
-    { label: "All Domains — Unsolved & Weak Spots", tasks: [...topDSA.slice(0,3), ...topSD.slice(0,3), ...topSE.slice(0,2)], note: getReviewNote("review", 3) },
-    { label: "Spaced Repetition — Cross-Domain Drill", tasks: [...topDSA.slice(3), ...topSD.slice(2), ...topSE.slice(2)], note: getReviewNote("review", 0) },
-  ];
+    const tasks = [...dsaTasks, ...supportTasks];
+    const phase: DayPhase =
+      supportTasks.some((task) => task.domain === "se") ? "se" :
+      supportTasks.some((task) => task.domain === "sd") ? "sd" : "dsa";
 
-  for (let i = 0; i < revCount; i++) {
-    const cfg = revConfig[i % revConfig.length];
+    weeklyWindow.push(...tasks);
+    assigned.push(...tasks);
     days.push({
       day: dayNum,
-      date: addDays(startDate, dayNum - 1),
-      phase: "review",
-      type: "review",
-      label: cfg.label,
-      color: PHASE_COLOR.review,
-      tasks: cfg.tasks,
-      reviewNote: cfg.note,
+      date,
+      phase,
+      type: dayNum <= Math.ceil(coreWorkDays * 0.35) ? "learn" : "practice",
+      label: labelFromTasks("Core curriculum", tasks),
+      color: PHASE_COLOR[phase],
+      tasks,
     });
-    dayNum++;
   }
 
-  const mockLabels = [
-    "Mock Interview — DSA",
-    "Mock Interview — System Design",
-    "Final Mock — Full Placement Simulation",
-  ];
-  for (let i = 0; i < mockCount; i++) {
-    days.push({
-      day: dayNum,
-      date: addDays(startDate, dayNum - 1),
-      phase: "mock",
-      type: "mock",
-      label: mockLabels[Math.min(i, mockLabels.length - 1)],
-      color: PHASE_COLOR.mock,
-      tasks: i === 0 ? topDSA.slice(0, 3) : i === 1 ? topSD.slice(0, 3) : [...topDSA.slice(0,2), ...topSD.slice(0,2)],
-      reviewNote: getReviewNote("mock", i),
-    });
-    dayNum++;
+  while (behavioralQueue.length > 0 && days.length > 0) {
+    days[days.length - 1].tasks.push(...takeByEffort(behavioralQueue, 999, 0));
   }
 
   return { durationDays, startDate, days };
 }
 
-// ─── Spaced Repetition (used by ReviewQueue) ──────────────────────────────────
-
 const REVIEW_INTERVALS = [1, 3, 7, 14, 30];
 
-export function getDueForReview(
-  solvedDates: Record<string, string>,
-  today: string
-): string[] {
+export function getDueForReview(solvedDates: Record<string, string>, today: string): string[] {
   return Object.entries(solvedDates)
     .filter(([, d]) => REVIEW_INTERVALS.includes(daysDiff(d, today)))
     .map(([id]) => id);

@@ -1,55 +1,46 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const ICONS: Record<string, React.ReactNode> = {
-  home: <path d="M3 11l9-8 9 8M5 10v10h14V10" />,
-  dsa: <path d="M4 6h16M4 12h16M4 18h10" />,
-  sd: <><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></>,
-  se: <><path d="M4 19.5A2.5 2.5 0 016.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" /></>,
-  search: <><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></>,
-};
+import { BarChart3, BrainCircuit, Code2, Search, Sparkles } from "lucide-react";
 
 const TABS = [
-  { key: "home", label: "Home", href: "/", match: (p: string) => p === "/" },
-  { key: "dsa", label: "DSA", href: "/dsa", match: (p: string) => p.startsWith("/dsa") || p.startsWith("/problems") || p.startsWith("/patterns") || p.startsWith("/visualizations") },
-  { key: "sd", label: "System", href: "/system-design", match: (p: string) => p.startsWith("/system-design") },
-  { key: "se", label: "SE Basics", href: "/se-basics", match: (p: string) => p.startsWith("/se-basics") },
+  { label: "Home", href: "/", icon: BrainCircuit, match: (p: string) => p === "/" },
+  { label: "DSA", href: "/dsa", icon: Code2, match: (p: string) => p.startsWith("/dsa") || p.startsWith("/problems") || p.startsWith("/patterns") || p.startsWith("/visualizations") },
+  { label: "Diagnose", href: "/diagnosis", icon: Sparkles, match: (p: string) => p.startsWith("/diagnosis") },
+  { label: "Stats", href: "/analytics", icon: BarChart3, match: (p: string) => p.startsWith("/analytics") },
 ];
-
-const navItemStyle = (active: boolean): React.CSSProperties => ({
-  color: active ? "var(--accent)" : "var(--text-muted)",
-});
 
 export default function MobileNav() {
   const pathname = usePathname();
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 glass" style={{ borderTop: "1px solid var(--border)" }}>
       <div className="flex items-stretch justify-around px-1 pb-[env(safe-area-inset-bottom)]">
-        {TABS.map((t) => {
-          const active = t.match(pathname);
+        {TABS.map((tab) => {
+          const active = tab.match(pathname);
+          const Icon = tab.icon;
           return (
             <Link
-              key={t.key}
-              href={t.href}
-              className="flex flex-col items-center gap-1 py-2 px-3 flex-1 hover:opacity-80 active:opacity-60"
-              style={navItemStyle(active)}
+              key={tab.href}
+              href={tab.href}
+              className="flex flex-col items-center gap-1 py-2 px-2 flex-1"
+              style={{ color: active ? "var(--accent)" : "var(--text-muted)" }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                {ICONS[t.key]}
-              </svg>
-              <span className="text-[10px] font-medium">{t.label}</span>
+              <span className="w-8 h-7 rounded-lg inline-flex items-center justify-center"
+                style={{ background: active ? "var(--accent-soft)" : "transparent", border: active ? "1px solid rgba(79,140,255,0.25)" : "1px solid transparent" }}>
+                <Icon size={18} />
+              </span>
+              <span className="text-[10px] font-medium">{tab.label}</span>
             </Link>
           );
         })}
         <button
           onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}
-          className="flex flex-col items-center gap-1 py-2 px-3 flex-1 hover:opacity-80 active:opacity-60"
+          className="flex flex-col items-center gap-1 py-2 px-2 flex-1"
           style={{ color: "var(--text-muted)" }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            {ICONS.search}
-          </svg>
+          <span className="w-8 h-7 rounded-lg inline-flex items-center justify-center">
+            <Search size={18} />
+          </span>
           <span className="text-[10px] font-medium">Search</span>
         </button>
       </div>

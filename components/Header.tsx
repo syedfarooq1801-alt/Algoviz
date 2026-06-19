@@ -1,11 +1,22 @@
 "use client";
+import { Suspense } from "react";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  BarChart3,
+  BookOpen,
+  BrainCircuit,
+  Code2,
+  GraduationCap,
+  LayoutDashboard,
+  MessageSquareText,
+  Search,
+  Server,
+  Sparkles,
+} from "lucide-react";
 import { useProgressStore } from "@/lib/store";
 import { getTotalProblems } from "@/data/problems";
-import Link from "next/link";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { Suspense } from "react";
 import AuthButton from "./AuthButton";
-import { useSDStore } from "@/lib/sdStore";
 
 interface SearchSuggestion {
   id: string;
@@ -19,116 +30,103 @@ interface HeaderProps {
   suggestions?: SearchSuggestion[];
 }
 
-function HeaderContent({ searchQuery = "", onSearchChange, suggestions = [] }: HeaderProps) {
+function HeaderContent({ searchQuery = "", onSearchChange }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentQuery = searchQuery || searchParams.get("q") || "";
-  const { solved, xp, streak } = useProgressStore();
-  const { mastered } = useSDStore();
-  const isSDMode = pathname.startsWith("/system-design");
-  const isSEMode = pathname.startsWith("/se-basics");
-  const isDSAMode = pathname.startsWith("/dsa") || pathname.startsWith("/problems") || pathname.startsWith("/patterns") || pathname.startsWith("/visualizations");
+  const { solved } = useProgressStore();
   const total = getTotalProblems();
-  const solvedCount = solved.size;
-  const showSuggestions = Boolean(currentQuery && suggestions.length > 0);
 
   const navigateWithQuery = (value: string) => {
     const query = value.trim();
     const path = query ? `/dsa?q=${encodeURIComponent(query)}` : "/dsa";
-    if (pathname === "/dsa") {
-      router.replace(path);
-    } else {
-      router.push(path);
-    }
+    if (pathname === "/dsa") router.replace(path);
+    else router.push(path);
   };
 
-  const handleSearchChange = (value: string) => {
-    if (onSearchChange) onSearchChange(value);
-    navigateWithQuery(value);
+  const handleSearch = () => {
+    if (onSearchChange && currentQuery) onSearchChange(currentQuery);
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }));
   };
+
+  const primary = [
+    { href: "/dsa", label: "DSA", icon: Code2, active: pathname.startsWith("/dsa") || pathname.startsWith("/problems") || pathname.startsWith("/patterns") || pathname.startsWith("/visualizations") },
+    { href: "/system-design", label: "System", icon: Server, active: pathname.startsWith("/system-design") },
+    { href: "/se-basics", label: "SE Basics", icon: GraduationCap, active: pathname.startsWith("/se-basics") },
+    { href: "/behavioral", label: "Behavioral", icon: MessageSquareText, active: pathname.startsWith("/behavioral") },
+  ];
+
+  const tools = [
+    { href: "/", label: "Dashboard", icon: LayoutDashboard, active: pathname === "/" },
+    { href: "/analytics", label: "Analytics", icon: BarChart3, active: pathname.startsWith("/analytics") },
+    { href: "/diagnosis", label: "Diagnosis", icon: Sparkles, active: pathname.startsWith("/diagnosis") },
+    { href: "/flashcards", label: "Cards", icon: BookOpen, active: pathname.startsWith("/flashcards") },
+  ];
 
   return (
-    <header
-      className="glass sticky top-0 z-50 border-b"
-      style={{ borderColor: "var(--border)" }}
-    >
-      <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
-        {/* Logo */}
+    <header className="glass sticky top-0 z-50 border-b" style={{ borderColor: "var(--border)" }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-4">
         <Link href="/" className="flex items-center gap-2 shrink-0">
-          <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-sm font-semibold"
-            style={{
-              background: "rgba(255,255,255,0.05)",
-              color: "var(--text-primary)",
-              border: "1px solid var(--border)",
-            }}
-          >
-            ∑
-          </div>
-          <span className="font-semibold text-sm" style={{ color: "var(--text-primary)" }}>
-            AlgoVis
+          <span className="w-8 h-8 rounded-lg inline-flex items-center justify-center"
+            style={{ background: "var(--accent-soft)", color: "var(--accent)", border: "1px solid rgba(79,140,255,0.28)" }}>
+            <BrainCircuit size={17} />
           </span>
+          <span className="font-semibold text-sm hidden sm:inline" style={{ color: "var(--text-primary)" }}>AlgoVis</span>
         </Link>
 
-        {/* Mode toggle */}
-        <div className="flex shrink-0 p-0.5 rounded-lg gap-0.5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-          <Link
-            href="/dsa"
-            className="px-3 py-1 rounded-md text-xs font-medium transition-all"
-            style={{
-              background: isDSAMode ? "var(--accent-soft)" : "transparent",
-              color: isDSAMode ? "var(--accent)" : "var(--text-muted)",
-              border: isDSAMode ? "1px solid rgba(91,140,255,0.35)" : "1px solid transparent",
-            }}
-          >
-            DSA
-          </Link>
-          <Link
-            href="/system-design"
-            className="px-3 py-1 rounded-md text-xs font-medium transition-all"
-            style={{
-              background: isSDMode ? "rgba(79,140,255,0.18)" : "transparent",
-              color: isSDMode ? "#4F8CFF" : "var(--text-muted)",
-              border: isSDMode ? "1px solid rgba(79,140,255,0.35)" : "1px solid transparent",
-            }}
-          >
-            System Design
-          </Link>
-          <Link
-            href="/se-basics"
-            className="px-3 py-1 rounded-md text-xs font-medium transition-all"
-            style={{
-              background: isSEMode ? "rgba(45,212,160,0.16)" : "transparent",
-              color: isSEMode ? "var(--accent-green)" : "var(--text-muted)",
-              border: isSEMode ? "1px solid rgba(45,212,160,0.35)" : "1px solid transparent",
-            }}
-          >
-            SE Basics
-          </Link>
-        </div>
+        <nav className="hidden lg:flex p-0.5 rounded-lg gap-0.5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          {primary.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.href} href={item.href}
+                className="px-3 py-1.5 rounded-md text-xs font-medium inline-flex items-center gap-1.5"
+                style={{
+                  background: item.active ? "var(--accent-soft)" : "transparent",
+                  color: item.active ? "var(--accent)" : "var(--text-muted)",
+                  border: item.active ? "1px solid rgba(79,140,255,0.32)" : "1px solid transparent",
+                }}>
+                <Icon size={13} />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
 
-        {/* Right: command-palette trigger + profile */}
-        <div className="flex items-center gap-3 shrink-0 ml-auto">
+        <nav className="hidden md:flex p-0.5 rounded-lg gap-0.5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          {tools.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.href} href={item.href}
+                className="px-3 py-1.5 rounded-md text-xs font-medium inline-flex items-center gap-1.5"
+                style={{
+                  background: item.active ? "rgba(79,140,255,0.14)" : "transparent",
+                  color: item.active ? "var(--accent)" : "var(--text-muted)",
+                  border: item.active ? "1px solid rgba(79,140,255,0.28)" : "1px solid transparent",
+                }}>
+                <Icon size={13} />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="ml-auto flex items-center gap-2">
           <button
-            onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs transition-colors"
+            onClick={handleSearch}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs"
             style={{ background: "var(--bg-hover)", border: "1px solid var(--border)", color: "var(--text-muted)" }}
           >
-            <span>⌕</span>
+            <Search size={14} />
             <span className="hidden sm:inline">Search</span>
-            <span className="hidden sm:flex items-center gap-0.5"><kbd>⌘</kbd><kbd>K</kbd></span>
+            <span className="hidden xl:flex items-center gap-0.5"><kbd>Ctrl</kbd><kbd>K</kbd></span>
           </button>
           <AuthButton />
         </div>
       </div>
 
-      {/* Progress bar at bottom of header */}
       <div style={{ height: "2px", background: "var(--border)" }}>
-        <div
-          className="h-full progress-bar"
-          style={{ width: `${total > 0 ? (solvedCount / total) * 100 : 0}%` }}
-        />
+        <div className="h-full progress-bar" style={{ width: `${total > 0 ? (solved.size / total) * 100 : 0}%` }} />
       </div>
     </header>
   );

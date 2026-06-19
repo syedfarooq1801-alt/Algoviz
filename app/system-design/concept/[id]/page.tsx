@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { getConceptById, SD_CHAPTERS } from "@/data/systemDesign";
 import { SD_CONCEPT_CONTENT } from "@/data/systemDesignContent";
 import { useSDStore } from "@/lib/sdStore";
-import Header from "@/components/Header";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
@@ -44,8 +43,7 @@ export default function ConceptPage({ params }: Props) {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      <Header />
-      <main className="max-w-4xl mx-auto px-6 pb-28">
+      <main className="max-w-4xl mx-auto px-6 pb-8">
         {/* Breadcrumb */}
         <div className="pt-6 pb-2 text-xs" style={{ color: "var(--text-muted)" }}>
           <Link href="/system-design" className="hover:text-white transition-colors">System Design</Link>

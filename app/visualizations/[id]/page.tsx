@@ -1,7 +1,6 @@
 "use client";
 import { use } from "react";
 import { getProblemById, getPatternById } from "@/data/problems";
-import Header from "@/components/Header";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import VizPageTabs from "@/components/visualizations/VizPageTabs";
@@ -28,8 +27,7 @@ export default function VisualizationPage({ params }: Props) {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      <Header />
-      <main className="mx-auto max-w-[1120px] px-6 pb-24">
+      <main className="mx-auto max-w-[1120px] px-6 pb-8">
         {/* Editorial header */}
         <section className="max-w-[760px] pb-10 pt-14">
           <div className="mb-3 text-xs font-medium" style={{ color: "var(--text-muted)" }}>

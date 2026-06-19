@@ -734,6 +734,80 @@ public:
     ],
     memoryTrick: "\"DFS returns 1 + size of all 4 neighbors. Think of it as asking each neighbor: how big is your island chunk?\"",
   },
+
+  "ransom-note": {
+    intuition:
+      "You need to build the ransom note using only letters from the magazine — each magazine letter can be used at most once. This is a frequency-counting problem: count how many of each letter the magazine has, then verify the ransom note never requires more of any letter than the magazine provides.",
+    approach: [
+      "Create a frequency array of size 26 (one slot per lowercase letter), initialized to 0.",
+      "Walk through the magazine: for each character, increment its count (cnt[c - 'a']++).",
+      "Walk through the ransom note: for each character, decrement its count (cnt[c - 'a']--).",
+      "If the count drops below 0, that letter is used more times than available — return false.",
+      "If we finish without any negative count, return true.",
+    ],
+    cppSolution: `class Solution {
+public:
+    bool canConstruct(string ransomNote, string magazine) {
+        vector<int> cnt(26, 0);
+        for (char c : magazine)
+            cnt[c - 'a']++;
+        for (char c : ransomNote) {
+            cnt[c - 'a']--;
+            if (cnt[c - 'a'] < 0) return false;
+        }
+        return true;
+    }
+};`,
+    timeComplexity: "O(m + n)",
+    timeExplanation: "One pass through magazine (length m) and one pass through ransomNote (length n).",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "Fixed-size array of 26 integers — never grows with input size.",
+    edgeCases: [
+      "Ransom note longer than magazine — guaranteed false (not enough letters).",
+      "Empty ransom note — trivially true, loop never executes.",
+      "Repeated letters — cnt tracks exact counts, handles all repetitions correctly.",
+      "Magazine has all same letter — e.g. magazine=\"aaa\", note=\"ab\" → false because 'b' count goes negative.",
+    ],
+    memoryTrick: "\"Magazine is your wallet. Each letter is a dollar. Ransom note is your shopping list. If you ever go into debt (negative count), you can't afford it.\"",
+  },
+
+  "isomorphic-strings": {
+    intuition:
+      "Isomorphic means there's a consistent one-to-one character mapping from s to t. Key insight: the mapping must be a bijection — not just s[i] always maps to the same t[i], but also t[i] always maps back to the same s[i]. Without the reverse check, 'foo' → 'bar' would pass (f→b, o→a, o→r fails) but 'ab' → 'aa' would wrongly pass (a→a, b→a: two letters mapping to same letter is NOT isomorphic).",
+    approach: [
+      "Create two maps: st (s char → t char) and ts (t char → s char).",
+      "Walk both strings simultaneously at index i.",
+      "If st already maps s[i] but st[s[i]] ≠ t[i] — inconsistent forward mapping, return false.",
+      "If ts already maps t[i] but ts[t[i]] ≠ s[i] — inconsistent reverse mapping (collision), return false.",
+      "Otherwise record both mappings: st[s[i]] = t[i] and ts[t[i]] = s[i].",
+      "If we complete the loop without contradiction, return true.",
+    ],
+    cppSolution: `class Solution {
+public:
+    bool isIsomorphic(string s, string t) {
+        unordered_map<char, char> st, ts;
+        for (int i = 0; i < (int)s.size(); i++) {
+            if (st.count(s[i]) && st[s[i]] != t[i]) return false;
+            if (ts.count(t[i]) && ts[t[i]] != s[i]) return false;
+            st[s[i]] = t[i];
+            ts[t[i]] = s[i];
+        }
+        return true;
+    }
+};`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Single pass through both strings of length n.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "Maps store at most 256 distinct ASCII characters — bounded constant regardless of input length.",
+    edgeCases: [
+      "\"paper\" / \"title\" → true (p↔t, a↔i, e↔l, r↔e).",
+      "\"foo\" / \"bar\" → false (o maps to a first, then tries to map to r — contradiction).",
+      "\"ab\" / \"aa\" → false (ts catches it: 'a' in t already maps back to 'a' in s, but now s[1]='b' ≠ 'a').",
+      "Single character strings — always true.",
+      "Both strings empty — trivially true.",
+    ],
+    memoryTrick: "\"It's a marriage contract — must be faithful both ways. s commits to t AND t commits back to s. One-sided loyalty fails: two people can't marry the same person.\"",
+  },
 };
 
 // Merged: generated base + rich overrides + python solutions

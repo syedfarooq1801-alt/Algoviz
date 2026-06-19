@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { getCaseStudyRefById } from "@/data/systemDesign";
 import { getCaseStudyById } from "@/data/caseStudies";
 import { useSDStore } from "@/lib/sdStore";
-import Header from "@/components/Header";
 import Link from "next/link";
 import ArchitectureDiagram from "@/components/sd/ArchitectureDiagram";
 
@@ -26,8 +25,7 @@ export default function CaseStudyPage({ params }: Props) {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      <Header />
-      <main className="max-w-4xl mx-auto px-4 pb-20">
+      <main className="max-w-4xl mx-auto px-4 pb-8">
         {/* Breadcrumb */}
         <div className="pt-6 pb-2 text-xs" style={{ color: "var(--text-muted)" }}>
           <Link href="/system-design" className="hover:text-white transition-colors">System Design</Link>

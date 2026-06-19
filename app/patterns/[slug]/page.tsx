@@ -2,7 +2,6 @@
 import { use, useState } from "react";
 import { getPatternById, PATTERNS } from "@/data/problems";
 import { useProgressStore } from "@/lib/store";
-import Header from "@/components/Header";
 import ProgressRing from "@/components/ProgressRing";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -43,9 +42,7 @@ export default function PatternPage({ params }: Props) {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      <Header />
-
-      <main className="max-w-4xl mx-auto px-6 pb-28">
+      <main className="max-w-4xl mx-auto px-6 pb-8">
         {/* Breadcrumb */}
         <div className="pt-6 pb-2 text-xs" style={{ color: "var(--text-muted)" }}>
           <Link href="/dsa" className="hover:text-white transition-colors">DSA</Link>

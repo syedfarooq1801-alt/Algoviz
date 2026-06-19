@@ -1,7 +1,7 @@
 "use client";
 import { PATTERNS, getTotalProblems } from "@/data/problems";
 import { useProgressStore } from "@/lib/store";
-import Header from "@/components/Header";
+import { BLIND_75, NEETCODE_150 } from "@/data/curatedLists";
 import PatternSection from "@/components/PatternSection";
 import ReviewQueue from "@/components/ReviewQueue";
 import dynamic from "next/dynamic";
@@ -36,6 +36,7 @@ function HomePageContent() {
   const [expandAll, setExpandAll] = useState(false);
   const [showRecognition, setShowRecognition] = useState(false);
   const [showHotList, setShowHotList] = useState(false);
+  const [curatedFilter, setCuratedFilter] = useState<"none" | "blind75" | "neetcode150">("none");
 
   const totalProblems = getTotalProblems();
   const solvedCount = solved.size;
@@ -75,6 +76,8 @@ function HomePageContent() {
           const names = aliases[companyFilter] ?? [companyFilter];
           if (!prob.companies.some((c) => names.includes(c))) return false;
         }
+        if (curatedFilter === "blind75" && !BLIND_75.includes(prob.id)) return false;
+        if (curatedFilter === "neetcode150" && !NEETCODE_150.includes(prob.id)) return false;
         if (activeFilter === "Easy") return prob.difficulty === "Easy";
         if (activeFilter === "Medium") return prob.difficulty === "Medium";
         if (activeFilter === "Hard") return prob.difficulty === "Hard";
@@ -84,7 +87,7 @@ function HomePageContent() {
         return true;
       }),
     })).filter((p) => p.problems.length > 0);
-  }, [activeFilter, companyFilter, solved, bookmarked, searchQuery]);
+  }, [activeFilter, companyFilter, curatedFilter, solved, bookmarked, searchQuery]);
 
   const suggestions = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -105,12 +108,7 @@ function HomePageContent() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      <Header
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        suggestions={suggestions}
-      />
-      <main className="mx-auto max-w-5xl px-4 pb-20">
+      <main className="mx-auto max-w-5xl px-4 pb-8 pt-4">
         {/* Hero — editorial */}
         <section className="max-w-[760px] pb-10 pt-14 reveal reveal-1">
           <p className="eyebrow mb-3">Track 01 · Algorithms &amp; Data Structures</p>
@@ -257,6 +255,33 @@ function HomePageContent() {
             >
               {expandAll ? "Collapse All" : "Expand All"}
             </button>
+          </div>
+          {/* Curated lists */}
+          <div className="flex flex-wrap items-center gap-2 mb-2">
+            <span className="text-xs" style={{ color: "var(--text-muted)" }}>List:</span>
+            <button onClick={() => setCuratedFilter("none")}
+              className="rounded-lg px-2.5 py-1 text-xs transition-all"
+              style={{
+                background: curatedFilter === "none" ? "rgba(79,140,255,0.12)" : "var(--bg-card)",
+                color: curatedFilter === "none" ? "var(--accent)" : "var(--text-muted)",
+                border: `1px solid ${curatedFilter === "none" ? "rgba(79,140,255,0.25)" : "var(--border)"}`,
+              }}>
+              All
+            </button>
+            {([
+              { key: "blind75",    label: "Blind 75",     count: BLIND_75.length,    color: "#F5A524" },
+              { key: "neetcode150",label: "NeetCode 150", count: NEETCODE_150.length, color: "#2FBF71" },
+            ] as const).map((cf) => (
+              <button key={cf.key} onClick={() => setCuratedFilter(curatedFilter === cf.key ? "none" : cf.key)}
+                className="rounded-lg px-2.5 py-1 text-xs transition-all"
+                style={{
+                  background: curatedFilter === cf.key ? `${cf.color}18` : "var(--bg-card)",
+                  color: curatedFilter === cf.key ? cf.color : "var(--text-muted)",
+                  border: `1px solid ${curatedFilter === cf.key ? cf.color + "50" : "var(--border)"}`,
+                }}>
+                {cf.label} <span style={{ opacity: 0.7 }}>({cf.count})</span>
+              </button>
+            ))}
           </div>
           {/* Company filters */}
           <div className="flex flex-wrap items-center gap-2">

@@ -2,7 +2,6 @@
 import { useAuth } from "@/lib/authContext";
 import { useProgressStore } from "@/lib/store";
 import { PATTERNS, getTotalProblems } from "@/data/problems";
-import Header from "@/components/Header";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -29,7 +28,7 @@ function ProfileContent() {
 
   if (!user) return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      <Header />
+
       <div className="max-w-lg mx-auto px-4 pt-32 text-center">
         <div className="text-6xl mb-6">🔐</div>
         <h1 className="text-2xl font-bold mb-3" style={{ color: "var(--text-primary)" }}>
@@ -57,7 +56,7 @@ function ProfileContent() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      <Header />
+
       <main className="max-w-4xl mx-auto px-4 py-10 space-y-6">
 
         {/* Profile card */}

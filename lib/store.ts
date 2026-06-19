@@ -9,7 +9,8 @@ interface ProgressState {
   lastActivity: string;
   xp: number;
   solvedDates: Record<string, string>; // problemId -> ISO date string
-  toggleSolved: (id: string, syncFn?: () => void) => void;
+  solveTimes: Record<string, number>;  // problemId -> seconds taken
+  toggleSolved: (id: string, syncFn?: () => void, timeSecs?: number) => void;
   toggleBookmark: (id: string, syncFn?: () => void) => void;
   isSolved: (id: string) => boolean;
   isBookmarked: (id: string) => boolean;
@@ -33,8 +34,9 @@ export const useProgressStore = create<ProgressState>()(
       lastActivity: "",
       xp: 0,
       solvedDates: {},
+      solveTimes: {},
 
-      toggleSolved: (id, syncFn) =>
+      toggleSolved: (id, syncFn, timeSecs) =>
         set((state) => {
           const next = new Set(state.solved);
           const today = new Date().toISOString().split("T")[0];
@@ -42,17 +44,23 @@ export const useProgressStore = create<ProgressState>()(
           if (next.has(id)) {
             next.delete(id);
             const nextDates = { ...state.solvedDates };
+            const nextTimes = { ...state.solveTimes };
             delete nextDates[id];
-            newState = { solved: next, xp: Math.max(0, state.xp - 10), solvedDates: nextDates };
+            delete nextTimes[id];
+            newState = { solved: next, xp: Math.max(0, state.xp - 10), solvedDates: nextDates, solveTimes: nextTimes };
           } else {
             next.add(id);
             const newStreak = state.lastActivity === today ? state.streak : state.streak + 1;
+            const nextTimes = timeSecs != null
+              ? { ...state.solveTimes, [id]: timeSecs }
+              : state.solveTimes;
             newState = {
               solved: next,
               xp: state.xp + 10,
               streak: newStreak,
               lastActivity: today,
               solvedDates: { ...state.solvedDates, [id]: today },
+              solveTimes: nextTimes,
             };
           }
           if (syncFn) setTimeout(syncFn, 0);
@@ -90,6 +98,7 @@ export const useProgressStore = create<ProgressState>()(
         streak: 0,
         lastActivity: "",
         solvedDates: {},
+        solveTimes: {},
       }),
     }),
     {
@@ -105,6 +114,7 @@ export const useProgressStore = create<ProgressState>()(
               solved: new Set(state.solved),
               bookmarked: new Set(state.bookmarked),
               solvedDates: state.solvedDates ?? {},
+              solveTimes: state.solveTimes ?? {},
             },
             version,
           };
@@ -119,6 +129,7 @@ export const useProgressStore = create<ProgressState>()(
                 solved: Array.from(state.solved),
                 bookmarked: Array.from(state.bookmarked),
                 solvedDates: state.solvedDates ?? {},
+                solveTimes: state.solveTimes ?? {},
               },
               version,
             })

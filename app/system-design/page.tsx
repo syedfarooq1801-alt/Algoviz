@@ -2,7 +2,6 @@
 import { useState, useMemo } from "react";
 import { SD_CHAPTERS, getAllConcepts, getAllCaseStudyRefs, getTotalSDConcepts, getTotalCaseStudies } from "@/data/systemDesign";
 import { useSDStore } from "@/lib/sdStore";
-import Header from "@/components/Header";
 import SDChapterSection from "@/components/sd/SDChapterSection";
 import SDLearningPath from "@/components/sd/SDLearningPath";
 
@@ -39,9 +38,7 @@ export default function SystemDesignPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      <Header />
-
-      <main className="max-w-5xl mx-auto px-6 pb-24">
+      <main className="max-w-5xl mx-auto px-6 pb-8">
         {/* Hero — editorial */}
         <section className="pt-16 pb-4 reveal reveal-1">
           <p className="eyebrow mb-3">Track 02 · Systems thinking</p>

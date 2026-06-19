@@ -1,129 +1,289 @@
 "use client";
 import { useMemo } from "react";
 import Link from "next/link";
-import Header from "@/components/Header";
-import ProgressRing from "@/components/ProgressRing";
+import { ArrowRight } from "lucide-react";
 import { PATTERNS, getTotalProblems } from "@/data/problems";
 import { getTotalSDConcepts, getTotalCaseStudies } from "@/data/systemDesign";
 import { getTotalSEChapters } from "@/data/seBasics";
 import { useProgressStore } from "@/lib/store";
 import { useSDStore } from "@/lib/sdStore";
 import { useSEStore } from "@/lib/seStore";
+import { useInterviewStore } from "@/lib/interviewStore";
+import { usePrepStore } from "@/lib/prepStore";
+
+function pct(done: number, total: number) {
+  return total ? Math.round((done / total) * 100) : 0;
+}
+
+function todayIso() {
+  return new Date().toISOString().split("T")[0];
+}
 
 export default function Home() {
-  const { solved } = useProgressStore();
+  const { solved, solvedDates } = useProgressStore();
   const { mastered } = useSDStore();
   const { completed } = useSEStore();
+  const { targetDate, targetCompany, daysUntil } = useInterviewStore();
+  const { reviewDue, mockSessions } = usePrepStore();
+  const days = daysUntil();
 
   const totalProblems = getTotalProblems();
   const sdTotal = getTotalSDConcepts() + getTotalCaseStudies();
   const seTotal = getTotalSEChapters();
+  const allProblems = useMemo(() => PATTERNS.flatMap((p) => p.problems), []);
 
-  const dsaPct = Math.round((solved.size / totalProblems) * 100);
-  const sdPct = Math.round((mastered.size / sdTotal) * 100);
-  const sePct = Math.round((completed.size / seTotal) * 100);
-  const overall = Math.round((dsaPct + sdPct + sePct) / 3);
-
-  // Continue Learning → first unsolved problem in curriculum order
   const continueTarget = useMemo(() => {
-    for (const p of PATTERNS) {
-      for (const prob of p.problems) {
-        if (!solved.has(prob.id)) return { href: prob.hasVisualization ? `/visualizations/${prob.id}` : `/problems/${prob.id}`, label: prob.title };
+    for (const pattern of PATTERNS) {
+      for (const problem of pattern.problems) {
+        if (!solved.has(problem.id)) {
+          return {
+            href: problem.hasVisualization ? `/visualizations/${problem.id}` : `/problems/${problem.id}`,
+            title: problem.title,
+            pattern: pattern.title,
+            difficulty: problem.difficulty,
+          };
+        }
       }
     }
-    return { href: "/dsa", label: "Browse patterns" };
+    return { href: "/dsa", title: "All problems complete", pattern: "DSA", difficulty: "—" };
   }, [solved]);
 
-  const journey = [
-    { key: "dsa", title: "Data Structures & Algorithms", blurb: "17 patterns, 186 problems. Build the core problem-solving muscle.", href: "/dsa", pct: dsaPct, color: "var(--accent)", done: solved.size, total: totalProblems, unit: "problems" },
-    { key: "sd", title: "System Design", blurb: "Foundations to distributed systems. Think in tradeoffs.", href: "/system-design", pct: sdPct, color: "var(--accent-purple)", done: mastered.size, total: sdTotal, unit: "concepts" },
-    { key: "se", title: "SE Basics", blurb: "OS, DBMS, Networks, OOP, Linux — the fundamentals interviews assume.", href: "/se-basics", pct: sePct, color: "var(--accent-green)", done: completed.size, total: seTotal, unit: "chapters" },
-    { key: "mock", title: "Mock Interviews", blurb: "Timed sessions under pressure. Turn knowledge into reflexes.", href: "/mock", pct: 0, color: "var(--accent-orange)", done: 0, total: 0, unit: "" },
-    { key: "ready", title: "Placement Ready", blurb: "Patterns mastered, systems understood, interviews rehearsed.", href: "/profile", pct: overall, color: "var(--accent-red)", done: 0, total: 0, unit: "", terminal: true },
+  const dueReviews = Object.entries(reviewDue)
+    .filter(([, due]) => due <= todayIso())
+    .map(([id]) => allProblems.find((p) => p.id === id))
+    .filter(Boolean)
+    .slice(0, 6);
+
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const solvedThisWeek = Object.values(solvedDates ?? {}).filter(
+    (date) => new Date(date) >= weekAgo
+  ).length;
+
+  const patternStats = PATTERNS.map((pattern) => {
+    const done = pattern.problems.filter((p) => solved.has(p.id)).length;
+    return {
+      id: pattern.id,
+      title: pattern.title,
+      done,
+      total: pattern.problems.length,
+      pct: pct(done, pattern.problems.length),
+    };
+  }).sort((a, b) => a.pct - b.pct);
+
+  const metrics = [
+    {
+      type: "dsa",
+      label: "DSA",
+      value: `${solved.size}`,
+      sub: `/ ${totalProblems}`,
+      pct: pct(solved.size, totalProblems),
+      href: "/dsa",
+    },
+    {
+      type: "sd",
+      label: "System Design",
+      value: `${mastered.size}`,
+      sub: `/ ${sdTotal}`,
+      pct: pct(mastered.size, sdTotal),
+      href: "/system-design",
+    },
+    {
+      type: "se",
+      label: "SE Basics",
+      value: `${completed.size}`,
+      sub: `/ ${seTotal}`,
+      pct: pct(completed.size, seTotal),
+      href: "/se-basics",
+    },
+    {
+      type: "week",
+      label: "This Week",
+      value: `${solvedThisWeek}`,
+      sub: "problems",
+      pct: Math.min(100, (solvedThisWeek / 7) * 100),
+      href: "/analytics",
+    },
   ];
+
+  const diffColor = (d: string) =>
+    d === "Easy" ? "var(--accent-green)" : d === "Medium" ? "var(--accent-orange)" : "var(--accent-red)";
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      <Header />
-
-      {/* Hero */}
-      <section className="max-w-5xl mx-auto px-6 pt-24 pb-16">
-        <div className="max-w-3xl">
-          <p className="eyebrow reveal reveal-1 mb-5">Your personal engineering academy</p>
-          <h1 className="display reveal reveal-2" style={{ color: "var(--text-primary)" }}>
-            Become<br />Placement Ready
-          </h1>
-          <p className="lede reveal reveal-3 mt-6 max-w-xl">
-            Master DSA, System Design, and CS Fundamentals through interactive visual learning —
-            not memorization.
-          </p>
-          <div className="flex flex-wrap items-center gap-3 mt-9 reveal reveal-4">
-            <Link href={continueTarget.href} className="btn-primary px-6 py-3 text-sm inline-flex items-center gap-2">
-              Continue Learning <span style={{ opacity: 0.7 }}>→</span>
-            </Link>
-            <Link href="/study-plan" className="btn-ghost px-6 py-3 text-sm">Start Roadmap</Link>
-            <button
-              onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}
-              className="ml-1 text-sm inline-flex items-center gap-2" style={{ color: "var(--text-muted)" }}>
-              <kbd>⌘</kbd><kbd>K</kbd> to search
-            </button>
+      <main className="px-6 sm:px-8 py-7 pb-8 max-w-5xl">
+        {/* Page header */}
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-7">
+          <div>
+            <div className="eyebrow mb-1">Today</div>
+            <h1 className="text-2xl font-semibold" style={{ color: "var(--text-primary)" }}>
+              Dashboard
+            </h1>
           </div>
-          {solved.size + mastered.size + completed.size > 0 && (
-            <p className="text-sm mt-6 reveal reveal-5" style={{ color: "var(--text-muted)" }}>
-              Resuming: <span style={{ color: "var(--text-secondary)" }}>{continueTarget.label}</span>
-            </p>
+          {targetDate && days !== null && (
+            <div
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm"
+              style={{
+                background: "var(--accent-soft)",
+                border: "1px solid rgba(79,140,255,0.25)",
+                color: "var(--accent)",
+              }}
+            >
+              <span className="font-medium">{targetCompany ?? "Interview"}</span>
+              <span style={{ color: "var(--text-muted)" }}>·</span>
+              <span>{Math.max(0, days)}d left</span>
+            </div>
           )}
         </div>
-      </section>
 
-      <div className="max-w-5xl mx-auto px-6"><hr className="hairline" /></div>
+        {/* Metric cards */}
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+          {metrics.map((m) => (
+            <Link
+              key={m.type}
+              href={m.href}
+              data-card-type={m.type}
+              className="metric-card block"
+            >
+              <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>
+                {m.label}
+              </div>
+              <div className="flex items-baseline gap-1.5 mb-3">
+                <span
+                  className="metric-number font-mono font-bold leading-none"
+                  style={{ fontSize: "2.1rem", color: "var(--text-primary)" }}
+                >
+                  {m.value}
+                </span>
+                <span className="text-sm" style={{ color: "var(--text-muted)" }}>
+                  {m.sub}
+                </span>
+              </div>
+              <div className="meter-track">
+                <div className="meter-fill blue-only" style={{ width: `${m.pct}%` }} />
+              </div>
+              <div className="text-xs mt-1.5" style={{ color: "var(--text-muted)" }}>
+                {m.pct}%
+              </div>
+            </Link>
+          ))}
+        </section>
 
-      {/* Learning Journey */}
-      <section className="max-w-3xl mx-auto px-6 py-16">
-        <p className="eyebrow mb-2">The path</p>
-        <h2 className="title-1 mb-2" style={{ color: "var(--text-primary)" }}>Your learning journey</h2>
-        <p className="lede mb-12">Five stages from first principles to interview-ready. Each builds on the last.</p>
+        {/* Continue studying */}
+        <Link
+          href={continueTarget.href}
+          className="block mb-5 px-5 py-4 rounded-xl transition-colors"
+          style={{
+            background: "var(--bg-card)",
+            border: "1px solid var(--border)",
+            borderLeft: "3px solid var(--accent)",
+          }}
+        >
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <div className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>
+                Continue studying
+              </div>
+              <div
+                className="font-semibold text-sm truncate mb-1.5"
+                style={{ color: "var(--text-primary)" }}
+              >
+                {continueTarget.title}
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span
+                  className="px-2 py-0.5 rounded"
+                  style={{
+                    background: "var(--accent-soft)",
+                    color: "var(--accent)",
+                    border: "1px solid rgba(79,140,255,0.2)",
+                  }}
+                >
+                  {continueTarget.pattern}
+                </span>
+                <span style={{ color: diffColor(continueTarget.difficulty) }}>
+                  {continueTarget.difficulty}
+                </span>
+              </div>
+            </div>
+            <ArrowRight size={18} style={{ color: "var(--accent)", flexShrink: 0 }} />
+          </div>
+        </Link>
 
-        <div className="relative">
-          {/* connecting rail */}
-          <div className="absolute left-[27px] top-4 bottom-4 w-px" style={{ background: "var(--border)" }} />
-          <div className="space-y-3">
-            {journey.map((s, i) => (
-              <Link key={s.key} href={s.href}
-                className={`relative flex items-center gap-5 rounded-xl px-4 py-4 lift reveal reveal-${Math.min(5, i + 1)}`}
-                style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-                <div className="relative shrink-0" style={{ zIndex: 1 }}>
-                  <ProgressRing pct={s.pct} size={56} color={s.color} label={s.terminal ? "🏁" : `${s.pct}%`} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="title-2" style={{ color: "var(--text-primary)" }}>{s.title}</h3>
-                  <p className="text-sm mt-0.5" style={{ color: "var(--text-secondary)" }}>{s.blurb}</p>
-                  {s.total > 0 && (
-                    <p className="text-xs mt-1.5" style={{ color: "var(--text-muted)" }}>{s.done} / {s.total} {s.unit}</p>
-                  )}
-                </div>
-                <span className="shrink-0 text-lg" style={{ color: "var(--text-muted)" }}>→</span>
+        {/* Bottom 2-col */}
+        <section className="grid gap-4 lg:grid-cols-2">
+          {/* Due reviews */}
+          <div className="quiet-panel overflow-hidden">
+            <div
+              className="flex items-center justify-between px-4 py-3"
+              style={{ borderBottom: "1px solid var(--border-subtle)" }}
+            >
+              <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                Due reviews
+              </h2>
+              <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>
+                {dueReviews.length}
+              </span>
+            </div>
+            {dueReviews.length ? (
+              dueReviews.map(
+                (problem) =>
+                  problem && (
+                    <Link
+                      key={problem.id}
+                      href={`/problems/${problem.id}`}
+                      className="flex items-center justify-between px-4 py-2.5 text-sm transition-colors hover:bg-[var(--bg-hover)]"
+                      style={{ borderBottom: "1px solid var(--border-subtle)" }}
+                    >
+                      <span className="truncate" style={{ color: "var(--text-secondary)" }}>
+                        {problem.title}
+                      </span>
+                      <span
+                        className="text-xs ml-2 shrink-0"
+                        style={{ color: diffColor(problem.difficulty) }}
+                      >
+                        {problem.difficulty}
+                      </span>
+                    </Link>
+                  )
+              )
+            ) : (
+              <div className="px-4 py-6 text-sm" style={{ color: "var(--text-muted)" }}>
+                No reviews due.
+              </div>
+            )}
+          </div>
+
+          {/* Weakest patterns */}
+          <div className="quiet-panel p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                Weakest patterns
+              </h2>
+              <Link href="/analytics" className="text-xs" style={{ color: "var(--text-muted)" }}>
+                Analytics →
               </Link>
-            ))}
+            </div>
+            <div className="space-y-3">
+              {patternStats.slice(0, 5).map((pattern) => (
+                <Link key={pattern.id} href={`/patterns/${pattern.id}`} className="block">
+                  <div className="flex justify-between gap-3 text-xs mb-1.5">
+                    <span className="truncate" style={{ color: "var(--text-secondary)" }}>
+                      {pattern.title}
+                    </span>
+                    <span className="font-mono shrink-0" style={{ color: "var(--text-muted)" }}>
+                      {pattern.pct}%
+                    </span>
+                  </div>
+                  <div className="meter-track">
+                    <div className="meter-fill blue-only" style={{ width: `${pattern.pct}%` }} />
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
-
-      {/* Overall mastery trail */}
-      <section className="max-w-3xl mx-auto px-6 pb-28">
-        <div className="rounded-2xl px-7 py-7 flex items-center gap-7" style={{ background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)" }}>
-          <ProgressRing pct={overall} size={88} stroke={7} color="var(--accent)" label={`${overall}%`} />
-          <div>
-            <p className="eyebrow mb-1">Overall mastery</p>
-            <h3 className="title-2" style={{ color: "var(--text-primary)" }}>
-              {overall === 0 ? "Just getting started" : overall < 40 ? "Building momentum" : overall < 80 ? "Strong progress" : "Almost there"}
-            </h3>
-            <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-              {solved.size} problems · {mastered.size} SD concepts · {completed.size} chapters complete
-            </p>
-          </div>
-        </div>
-      </section>
+        </section>
+      </main>
     </div>
   );
 }

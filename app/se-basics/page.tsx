@@ -1,7 +1,6 @@
 "use client";
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import Header from "@/components/Header";
 import { SE_SUBJECTS, SUBJECT_META, getTotalSEChapters, searchSE } from "@/data/seBasics";
 import { useSEStore } from "@/lib/seStore";
 
@@ -16,8 +15,7 @@ export default function SEBasicsPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      <Header />
-      <main className="mx-auto max-w-[1120px] px-6 pb-24">
+      <main className="mx-auto max-w-[1120px] px-6 pb-8">
         <section className="max-w-[760px] pb-12 pt-14">
           <div className="mb-4 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
             CS Fundamentals / {totalChapters} chapters
