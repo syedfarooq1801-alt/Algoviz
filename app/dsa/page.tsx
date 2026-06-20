@@ -16,7 +16,7 @@ const COMPANY_COLORS: Record<string, string> = {
 };
 
 function DSAContent() {
-  const { solved } = useProgressStore();
+  const { solved, toggleSolved } = useProgressStore();
   const [activeTopic, setActiveTopic] = useState("all");
   const [diff, setDiff] = useState<Diff>("All");
   const total = getTotalProblems();
@@ -173,13 +173,24 @@ function DSAContent() {
                     {prob.difficulty}
                   </span>
 
-                  <span style={{ textAlign: "center", fontSize: 14 }}>
-                    {isSolved
-                      ? <span style={{ color: "#2FBF71" }}>✓</span>
-                      : isNext
-                        ? <span style={{ color: "var(--accent)" }}>→</span>
-                        : <span style={{ color: "var(--text-muted)", opacity: 0.3 }}>·</span>}
-                  </span>
+                  <button
+                    onClick={() => toggleSolved(prob.id)}
+                    title={isSolved ? "Mark unsolved" : "Mark solved"}
+                    style={{
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      background: "none", border: "none", cursor: "pointer", padding: 0, width: "100%",
+                    }}
+                  >
+                    <span style={{
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      width: 18, height: 18, borderRadius: 4, flexShrink: 0,
+                      background: isSolved ? "#2FBF71" : "transparent",
+                      border: `1.5px solid ${isSolved ? "#2FBF71" : isNext ? "var(--accent)" : "var(--border)"}`,
+                      transition: "all 0.15s",
+                    }}>
+                      {isSolved && <span style={{ fontSize: 11, color: "#fff", fontWeight: 700, lineHeight: 1 }}>✓</span>}
+                    </span>
+                  </button>
                 </div>
               );
             })}

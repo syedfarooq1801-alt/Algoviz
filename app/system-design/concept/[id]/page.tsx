@@ -39,11 +39,9 @@ export default function ConceptPage({ params }: Props) {
   const prev = myIndex > 0 ? conceptsInChapter[myIndex - 1] : null;
   const next = myIndex < conceptsInChapter.length - 1 ? conceptsInChapter[myIndex + 1] : null;
 
-  const difficultyColor: Record<string, string> = { Fundamental: "#2FBF71", Intermediate: "#F5A524", Advanced: "#ef4444" };
-
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      <main className="max-w-4xl mx-auto px-6 pb-8">
+      <main className="max-w-5xl mx-auto px-6 pb-8">
         {/* Breadcrumb */}
         <div className="pt-6 pb-2 text-xs" style={{ color: "var(--text-muted)" }}>
           <Link href="/system-design" className="hover:text-white transition-colors">System Design</Link>
@@ -74,7 +72,7 @@ export default function ConceptPage({ params }: Props) {
           <p className="lede max-w-2xl">{concept.summary}</p>
         </section>
 
-        {/* ── ARCHITECTURE / VISUALIZATION AS HERO ── */}
+        {/* Visualization */}
         {VizComponent && (
           <section className="mb-9 reveal reveal-2">
             <div className="rounded-2xl p-5" style={{ background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)" }}>
@@ -85,8 +83,7 @@ export default function ConceptPage({ params }: Props) {
         )}
 
         {content ? (
-          <div className="reading space-y-10">
-            {/* What breaks without it — the framing question */}
+          <div className="space-y-10">
             <section className="reveal reveal-3">
               <div className="rounded-xl px-5 py-4 mb-7" style={{ background: "var(--accent-soft)", borderLeft: "3px solid var(--accent)" }}>
                 <p className="text-xs font-semibold mb-1" style={{ color: "var(--accent)" }}>What breaks if this doesn&apos;t exist?</p>
@@ -97,7 +94,6 @@ export default function ConceptPage({ params }: Props) {
               <p className="text-base leading-relaxed" style={{ color: "var(--text-secondary)" }}>{content.technicalDetail}</p>
             </section>
 
-            {/* Tradeoffs */}
             {content.tradeoffs.length > 0 && (
               <section>
                 <p className="eyebrow mb-3" style={{ color: "var(--accent-orange)" }}>The tradeoffs</p>
@@ -111,20 +107,17 @@ export default function ConceptPage({ params }: Props) {
               </section>
             )}
 
-            {/* Real world */}
             <section>
               <p className="eyebrow mb-3" style={{ color: "#4F8CFF" }}>In the real world</p>
               <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{content.realWorldExample}</p>
             </section>
 
-            {/* Interview */}
             <section>
               <p className="eyebrow mb-3" style={{ color: "var(--accent-purple)" }}>In the interview</p>
               <p className="text-base font-medium mb-2" style={{ color: "var(--text-primary)" }}>{content.interviewQuestion}</p>
               <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{content.modelAnswer}</p>
             </section>
 
-            {/* Mistakes */}
             {content.commonMistakes.length > 0 && (
               <section>
                 <p className="eyebrow mb-3" style={{ color: "var(--accent-red)" }}>Common mistakes</p>
@@ -138,7 +131,6 @@ export default function ConceptPage({ params }: Props) {
               </section>
             )}
 
-            {/* Memory + cheat — minimal inline */}
             {(content.memoryTrick || content.cheatSheetLine) && (
               <section className="space-y-4">
                 {content.memoryTrick && (
@@ -152,7 +144,6 @@ export default function ConceptPage({ params }: Props) {
               </section>
             )}
 
-            {/* Related */}
             {content.relatedConcepts.length > 0 && (
               <section>
                 <p className="eyebrow mb-3">Related concepts</p>

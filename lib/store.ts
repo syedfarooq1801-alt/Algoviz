@@ -8,19 +8,22 @@ interface ProgressState {
   streak: number;
   lastActivity: string;
   xp: number;
-  solvedDates: Record<string, string>; // problemId -> ISO date string
-  solveTimes: Record<string, number>;  // problemId -> seconds taken
+  solvedDates: Record<string, string>;
+  solveTimes: Record<string, number>;
+  studyPlanDuration: 30 | 60 | 90;
   toggleSolved: (id: string, syncFn?: () => void, timeSecs?: number) => void;
   toggleBookmark: (id: string, syncFn?: () => void) => void;
   isSolved: (id: string) => boolean;
   isBookmarked: (id: string) => boolean;
   getSolvedCount: (patternId: string, problemIds: string[]) => number;
+  setStudyPlanDuration: (d: 30 | 60 | 90) => void;
   hydrateFromFirestore: (data: {
     solved: Set<string>;
     bookmarked: Set<string>;
     xp: number;
     streak: number;
     lastActivity: string;
+    studyPlanDuration?: 30 | 60 | 90;
   }) => void;
   resetForUser: () => void;
 }
@@ -35,6 +38,7 @@ export const useProgressStore = create<ProgressState>()(
       xp: 0,
       solvedDates: {},
       solveTimes: {},
+      studyPlanDuration: 30 as 30 | 60 | 90,
 
       toggleSolved: (id, syncFn, timeSecs) =>
         set((state) => {
@@ -83,12 +87,15 @@ export const useProgressStore = create<ProgressState>()(
         return problemIds.filter((id) => solved.has(id)).length;
       },
 
+      setStudyPlanDuration: (d) => set({ studyPlanDuration: d }),
+
       hydrateFromFirestore: (data) => set({
         solved: data.solved,
         bookmarked: data.bookmarked,
         xp: data.xp,
         streak: data.streak,
         lastActivity: data.lastActivity,
+        studyPlanDuration: data.studyPlanDuration ?? 30,
       }),
 
       resetForUser: () => set({
@@ -99,6 +106,7 @@ export const useProgressStore = create<ProgressState>()(
         lastActivity: "",
         solvedDates: {},
         solveTimes: {},
+        studyPlanDuration: 30,
       }),
     }),
     {

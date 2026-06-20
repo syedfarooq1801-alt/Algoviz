@@ -5,10 +5,12 @@ import {
   BarChart3,
   BookOpen,
   BrainCircuit,
+  CalendarDays,
   Code2,
   GraduationCap,
   LayoutDashboard,
   MessageSquareText,
+  LogOut,
   Moon,
   Server,
   Sun,
@@ -45,7 +47,7 @@ function NavLink({ href, label, icon: Icon, active }: NavItem) {
 export default function Sidebar() {
   const pathname = usePathname();
   const { targetDate, targetCompany, daysUntil } = useInterviewStore();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { theme, toggle } = useTheme();
   const days = daysUntil();
 
@@ -104,6 +106,12 @@ export default function Sidebar() {
       label: "Flashcards",
       icon: BookOpen,
       active: pathname.startsWith("/flashcards"),
+    },
+    {
+      href: "/study-plan",
+      label: "Study Plan",
+      icon: CalendarDays,
+      active: pathname.startsWith("/study-plan"),
     },
     {
       href: "/mock",
@@ -195,7 +203,7 @@ export default function Sidebar() {
         style={{ borderTop: "1px solid var(--border-subtle)" }}
       >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
+          <Link href="/profile" className="flex items-center gap-2 min-w-0 flex-1" style={{ textDecoration: "none" }}>
             <div
               className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
               style={{
@@ -204,24 +212,32 @@ export default function Sidebar() {
                 border: "1px solid rgba(79,140,255,0.25)",
               }}
             >
-              {initials}
+              {initials || "G"}
             </div>
             <span className="text-xs truncate" style={{ color: "var(--text-secondary)" }}>
-              {user?.displayName ?? user?.email ?? "Guest"}
+              {user?.displayName ?? user?.email ?? "Guest — sign in"}
             </span>
+          </Link>
+          <div className="flex items-center gap-1 shrink-0">
+            {user && (
+              <button
+                onClick={() => signOut()}
+                className="w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                style={{ background: "var(--bg-hover)", border: "1px solid var(--border)", color: "var(--text-muted)" }}
+                title="Sign out"
+              >
+                <LogOut size={12} />
+              </button>
+            )}
+            <button
+              onClick={toggle}
+              className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors"
+              style={{ background: "var(--bg-hover)", border: "1px solid var(--border)", color: "var(--text-muted)" }}
+              title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+            >
+              {theme === "dark" ? <Sun size={13} /> : <Moon size={13} />}
+            </button>
           </div>
-          <button
-            onClick={toggle}
-            className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors"
-            style={{
-              background: "var(--bg-hover)",
-              border: "1px solid var(--border)",
-              color: "var(--text-muted)",
-            }}
-            title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-          >
-            {theme === "dark" ? <Sun size={13} /> : <Moon size={13} />}
-          </button>
         </div>
       </div>
     </aside>

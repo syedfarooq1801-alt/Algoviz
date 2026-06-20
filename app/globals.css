@@ -160,7 +160,7 @@ h1, h2, h3, h4 { letter-spacing: 0; }
 .prose-se p { font-size: 1.02rem; line-height: 1.75; }
 
 /* Reading-width container — content-first, not full-bleed */
-.reading { max-width: 44rem; margin-left: auto; margin-right: auto; }
+.reading { max-width: 62rem; margin-left: auto; margin-right: auto; }
 
 /* Generous, editorial vertical rhythm — content should breathe */
 .section-gap { margin-top: 5.5rem; }       /* ~88px between major sections */

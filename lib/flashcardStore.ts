@@ -11,6 +11,7 @@ interface FlashcardState {
   resetAll: () => void;
   isKnown: (id: string) => boolean;
   isWeak: (id: string) => boolean;
+  hydrateFromFirestore: (data: { known: Set<string>; weak: Set<string> }) => void;
 }
 
 export const useFlashcardStore = create<FlashcardState>()(
@@ -49,6 +50,7 @@ export const useFlashcardStore = create<FlashcardState>()(
       resetAll: () => set({ known: new Set(), weak: new Set() }),
       isKnown: (id) => get().known.has(id),
       isWeak: (id) => get().weak.has(id),
+      hydrateFromFirestore: (data) => set({ known: data.known, weak: data.weak }),
     }),
     {
       name: "flashcard-progress",

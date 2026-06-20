@@ -29,7 +29,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-theme="dark" className={`h-full ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" data-theme="dark" suppressHydrationWarning className={`h-full ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
       <head>
         <script
           dangerouslySetInnerHTML={{
