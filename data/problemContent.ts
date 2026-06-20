@@ -6013,6 +6013,134 @@ public:
     memoryTrick: "\"It's a marriage contract — must be faithful both ways. s commits to t AND t commits back to s. One-sided loyalty fails: two people can't marry the same person.\"",
   },
 
+  "combination-sum-iii": {
+    intuition:
+      "Find all combinations of exactly k numbers from 1–9 that sum to n. Classic backtracking: at each step choose the next number (must be > last chosen to avoid duplicates), recurse, then backtrack. Prune early when remaining sum goes negative or too few numbers remain.",
+    approach: [
+      "Backtrack(start, k, remaining, path):",
+      "  Base case: k === 0 && remaining === 0 → add copy of path to results.",
+      "  Base case: k === 0 || remaining <= 0 → return (pruning).",
+      "  Loop i from start to 9:",
+      "    Pruning: if i > remaining, break (numbers only get bigger).",
+      "    Push i, recurse(i+1, k-1, remaining-i), pop i.",
+    ],
+    cppSolution: `class Solution {
+    vector<vector<int>> res;
+    void bt(int start, int k, int rem, vector<int>& path) {
+        if (k == 0 && rem == 0) { res.push_back(path); return; }
+        if (k == 0 || rem <= 0) return;
+        for (int i = start; i <= 9; i++) {
+            if (i > rem) break; // prune: remaining numbers only larger
+            path.push_back(i);
+            bt(i + 1, k - 1, rem - i, path);
+            path.pop_back();
+        }
+    }
+public:
+    vector<vector<int>> combinationSum3(int k, int n) {
+        vector<int> path;
+        bt(1, k, n, path);
+        return res;
+    }
+};`,
+    timeComplexity: "O(C(9,k))",
+    timeExplanation: "At most C(9,k) valid subsets of size k from digits 1-9. Pruning makes it much faster in practice.",
+    spaceComplexity: "O(k)",
+    spaceExplanation: "Recursion depth = k (at most 9). Path array holds k elements.",
+    edgeCases: [
+      "k=1, n=5 → [[5]].",
+      "n > 9+8+...+(9-k+1) → impossible, no results.",
+      "k=9, n=45 → exactly one combination [1,2,3,4,5,6,7,8,9].",
+      "Prune i > rem: if remaining sum is 3, no point trying i=4.",
+    ],
+    memoryTrick: "\"Pick k numbers from 1-9, no repeats. Sorted choices = next i always > last → start from i+1. Sum drops with each pick → prune when i > rem.\"",
+  },
+
+  "non-overlapping-intervals": {
+    intuition:
+      "Remove minimum intervals to make the rest non-overlapping. Greedy insight: always keep the interval that ends earliest — it leaves the most room for future intervals. Sort by end time. If next interval starts before current end, remove it (count it). Otherwise update current end.",
+    approach: [
+      "Sort intervals by end time.",
+      "Track end of last kept interval (prevEnd = intervals[0][1]).",
+      "For each subsequent interval [s, e]:",
+      "  If s < prevEnd → overlap. Remove this interval (count++). Keep the one ending sooner (prevEnd unchanged since we sorted by end).",
+      "  If s >= prevEnd → no overlap. Keep interval. prevEnd = e.",
+      "Return count.",
+    ],
+    cppSolution: `class Solution {
+public:
+    int eraseOverlapIntervals(vector<vector<int>>& intervals) {
+        sort(intervals.begin(), intervals.end(),
+             [](const auto& a, const auto& b){ return a[1] < b[1]; }); // sort by end
+        int count = 0;
+        int prevEnd = intervals[0][1];
+        for (int i = 1; i < (int)intervals.size(); i++) {
+            if (intervals[i][0] < prevEnd) {
+                count++; // overlap: remove current (it ends later since sorted)
+            } else {
+                prevEnd = intervals[i][1]; // no overlap: keep, update end
+            }
+        }
+        return count;
+    }
+};`,
+    timeComplexity: "O(n log n)",
+    timeExplanation: "Sorting dominates. Linear scan after is O(n).",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "In-place sort (or O(log n) stack for sort). Scan uses only prevEnd variable.",
+    edgeCases: [
+      "No overlaps at all → return 0.",
+      "All intervals same → keep one, remove n-1.",
+      "[[1,2],[1,2],[1,2]] → remove 2.",
+      "Touching intervals [1,2],[2,3] → not overlapping (start ≥ prevEnd → keep both).",
+      "Single interval → return 0 (nothing to remove).",
+    ],
+    memoryTrick: "\"Earliest-end greedy. Sort by end. Overlap → remove current (it ends later). No overlap → move prevEnd forward. Count the removals.\" Same idea as activity selection problem.",
+  },
+
+  "subsets-ii": {
+    intuition:
+      "Generate all subsets of an array that may have duplicates, without duplicate subsets. Sort first so duplicates are adjacent. In backtracking, skip an element if it's the same as the previous one at the same recursion level — this eliminates duplicate subsets without needing a set.",
+    approach: [
+      "Sort nums.",
+      "Backtrack(start, path):",
+      "  Add copy of path to results immediately (every prefix is a valid subset).",
+      "  Loop i from start to n-1:",
+      "    Skip if i > start && nums[i] === nums[i-1] (duplicate at this level).",
+      "    Push nums[i], recurse(i+1), pop.",
+    ],
+    cppSolution: `class Solution {
+    vector<vector<int>> res;
+    void bt(vector<int>& nums, int start, vector<int>& path) {
+        res.push_back(path);
+        for (int i = start; i < (int)nums.size(); i++) {
+            if (i > start && nums[i] == nums[i-1]) continue; // skip dup at same level
+            path.push_back(nums[i]);
+            bt(nums, i + 1, path);
+            path.pop_back();
+        }
+    }
+public:
+    vector<vector<int>> subsetsWithDup(vector<int>& nums) {
+        sort(nums.begin(), nums.end());
+        vector<int> path;
+        bt(nums, 0, path);
+        return res;
+    }
+};`,
+    timeComplexity: "O(n · 2^n)",
+    timeExplanation: "Up to 2^n subsets, each taking O(n) to copy. Duplicate skipping reduces actual work but doesn't change worst-case bound.",
+    spaceComplexity: "O(n)",
+    spaceExplanation: "Recursion depth n, path array size n.",
+    edgeCases: [
+      "[1,2,2] → [],[1],[1,2],[1,2,2],[2],[2,2] — 6 subsets, not 8.",
+      "All same elements [2,2,2] → [],[2],[2,2],[2,2,2] — 4 subsets.",
+      "No duplicates → same as Subsets I.",
+      "The skip condition is i > start (not i > 0) — only skip duplicates at the SAME recursion level, not across levels.",
+    ],
+    memoryTrick: "\"Sort → skip same neighbor at same level. i > start means we've already made one choice at this level; same number again would duplicate the subtree.\"",
+  },
+
   "merge-intervals": {
     intuition:
       "Sort intervals by start time. Then walk through: if the current interval overlaps the last merged one (current.start ≤ merged.end), extend the end. Otherwise push a new interval. Overlap condition after sorting: current.start ≤ previous.end.",

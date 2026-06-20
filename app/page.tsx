@@ -176,7 +176,7 @@ function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
 }
 
 export default function Home() {
-  const { solved, solvedDates } = useProgressStore();
+  const { solved, solvedDates, streak } = useProgressStore();
   const { mastered } = useSDStore();
   const { completed } = useSEStore();
   const isNewUser = solved.size === 0 && mastered.size === 0 && completed.size === 0;
@@ -281,20 +281,34 @@ export default function Home() {
               Dashboard
             </h1>
           </div>
-          {targetDate && days !== null && (
-            <div
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm"
-              style={{
-                background: "var(--accent-soft)",
-                border: "1px solid rgba(79,140,255,0.25)",
-                color: "var(--accent)",
-              }}
-            >
-              <span className="font-medium">{targetCompany ?? "Interview"}</span>
-              <span style={{ color: "var(--text-muted)" }}>·</span>
-              <span>{Math.max(0, days)}d left</span>
-            </div>
-          )}
+          <div className="flex items-center gap-2 flex-wrap">
+            {streak > 0 && (
+              <div
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold"
+                style={{
+                  background: "rgba(245,165,36,0.12)",
+                  border: "1px solid rgba(245,165,36,0.3)",
+                  color: "#F5A524",
+                }}
+              >
+                🔥 {streak} day{streak !== 1 ? "s" : ""}
+              </div>
+            )}
+            {targetDate && days !== null && (
+              <div
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm"
+                style={{
+                  background: "var(--accent-soft)",
+                  border: "1px solid rgba(79,140,255,0.25)",
+                  color: "var(--accent)",
+                }}
+              >
+                <span className="font-medium">{targetCompany ?? "Interview"}</span>
+                <span style={{ color: "var(--text-muted)" }}>·</span>
+                <span>{Math.max(0, days)}d left</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Metric cards */}

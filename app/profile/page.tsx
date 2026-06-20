@@ -1,18 +1,36 @@
 "use client";
 import { useAuth } from "@/lib/authContext";
 import { useProgressStore } from "@/lib/store";
+import { useSDStore } from "@/lib/sdStore";
+import { useSEStore } from "@/lib/seStore";
 import { PATTERNS, getTotalProblems } from "@/data/problems";
+import { getTotalSDConcepts } from "@/data/systemDesign";
+import { getTotalSEChapters } from "@/data/seBasics";
 import Image from "next/image";
 import Link from "next/link";
-import { Suspense } from "react";
+import { useState, Suspense } from "react";
 
 function ProfileContent() {
   const { user, signIn, signOut, signInError } = useAuth();
   const { solved, bookmarked, xp, streak } = useProgressStore();
+  const { mastered } = useSDStore();
+  const { completed } = useSEStore();
   const total = getTotalProblems();
+  const sdTotal = getTotalSDConcepts();
+  const seTotal = getTotalSEChapters();
   const solvedCount = solved.size;
   const bookmarkedCount = bookmarked.size;
   const pct = total > 0 ? Math.round((solvedCount / total) * 100) : 0;
+  const [copied, setCopied] = useState(false);
+
+  const shareText = `🔥 ${streak}-day streak on AlgoVis\n✅ ${solvedCount}/${total} DSA problems solved (${pct}%)\n🏗️ ${mastered.size}/${sdTotal} System Design mastered\n📚 ${completed.size}/${seTotal} SE Basics complete\n\nStudying for FAANG @ algovis.app\n#AlgoVis #LeetCode #FAANG`;
+
+  const copyShare = () => {
+    navigator.clipboard.writeText(shareText).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   // Solved per pattern
   const patternBreakdown = PATTERNS.map((p) => ({
@@ -106,6 +124,31 @@ function ProfileContent() {
               <div className="text-xs" style={{ color: "var(--text-secondary)" }}>{s.sub}</div>
             </div>
           ))}
+        </div>
+
+        {/* Share card */}
+        <div className="rounded-xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Share Progress</h2>
+            <button
+              onClick={copyShare}
+              style={{
+                padding: "5px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600,
+                cursor: "pointer", transition: "all 0.15s",
+                background: copied ? "rgba(47,191,113,0.12)" : "var(--accent-soft)",
+                color: copied ? "#2FBF71" : "var(--accent)",
+                border: `1px solid ${copied ? "rgba(47,191,113,0.3)" : "rgba(79,140,255,0.3)"}`,
+              }}
+            >
+              {copied ? "Copied!" : "Copy"}
+            </button>
+          </div>
+          <pre style={{
+            fontFamily: "var(--font-mono)", fontSize: 12, lineHeight: 1.7,
+            color: "var(--text-secondary)", background: "var(--bg-secondary)",
+            border: "1px solid var(--border-subtle)", borderRadius: 8,
+            padding: "12px 14px", margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-word",
+          }}>{shareText}</pre>
         </div>
 
         {/* Overall progress bar */}
