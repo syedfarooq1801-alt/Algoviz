@@ -19,7 +19,7 @@ const COMPANY_COLORS: Record<string, string> = {
 };
 
 function DSAContent() {
-  const { solved, toggleSolved, isBookmarked, toggleBookmark } = useProgressStore();
+  const { solved, bookmarked: bookmarkedSet, toggleSolved, toggleBookmark } = useProgressStore();
   const { reviewDue } = usePrepStore();
   const today = new Date().toISOString().slice(0, 10);
   const [activeTopic, setActiveTopic] = useState("all");
@@ -205,7 +205,7 @@ function DSAContent() {
             {problems.map((prob, i) => {
               const isSolved = solved.has(prob.id);
               const isNext = prob.id === firstUnsolved;
-              const bookmarked = isBookmarked(prob.id);
+              const bookmarked = bookmarkedSet.has(prob.id);
               const isDue = reviewDue[prob.id] && reviewDue[prob.id] <= today;
               const pattern = PATTERNS.find((p) => p.id === prob.pattern);
               const companies = (prob.companies ?? []).slice(0, 3);
