@@ -3,6 +3,7 @@ import { useAuth } from "@/lib/authContext";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { getTotalProblems } from "@/data/problems";
+import { LogoBadge } from "@/components/Logo";
 
 const FEATURES = [
   { icon: "⚡", title: "Spaced Repetition", desc: "Schedule problem reviews on a 1→3→7→21 day cycle. Never re-forget what you once understood." },
@@ -34,6 +35,9 @@ function LandingPage() {
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)", overflowY: "auto" }}>
       <section style={{ maxWidth: 760, margin: "0 auto", padding: "80px 24px 60px", textAlign: "center" }}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: 28 }}>
+          <LogoBadge size={56} />
+        </div>
         <div style={{
           display: "inline-flex", alignItems: "center", gap: 6,
           padding: "4px 14px", borderRadius: 20, marginBottom: 24,

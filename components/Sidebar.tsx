@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 import {
   BarChart3,
   BookOpen,
-  BrainCircuit,
   CalendarDays,
   Code2,
   GraduationCap,
@@ -16,6 +15,7 @@ import {
   Sun,
   Swords,
 } from "lucide-react";
+import { LogoIcon } from "@/components/Logo";
 import { useInterviewStore } from "@/lib/interviewStore";
 import { useAuth } from "@/lib/authContext";
 import { useTheme } from "@/lib/themeStore";
@@ -157,7 +157,7 @@ export default function Sidebar() {
               border: "1px solid rgba(79,140,255,0.28)",
             }}
           >
-            <BrainCircuit size={16} />
+            <LogoIcon size={17} />
           </span>
           <span className="font-semibold text-sm" style={{ color: "var(--text-primary)" }}>
             Code Algo
