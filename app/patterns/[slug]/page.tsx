@@ -1,5 +1,5 @@
 "use client";
-import { use, useState } from "react";
+import { use, useState, useCallback } from "react";
 import { getPatternById, PATTERNS } from "@/data/problems";
 import { useProgressStore } from "@/lib/store";
 import ProgressRing from "@/components/ProgressRing";
@@ -97,7 +97,10 @@ export default function PatternPage({ params }: Props) {
 
           {/* Template — inline, monospace, no heavy box */}
           <div className="mt-7">
-            <p className="eyebrow mb-2">Template</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="eyebrow">Template</p>
+              <CopyButton text={pattern.template} />
+            </div>
             <pre className="text-xs"><code>{pattern.template}</code></pre>
           </div>
         </section>
@@ -431,6 +434,27 @@ function BigOCheatSheet({ patternId }: { patternId: string }) {
         </div>
       )}
     </div>
+  );
+}
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = useCallback(() => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  }, [text]);
+  return (
+    <button onClick={copy} style={{
+      fontSize: 10, padding: "2px 8px", borderRadius: 4, cursor: "pointer",
+      background: copied ? "rgba(47,191,113,0.1)" : "var(--bg-hover)",
+      color: copied ? "#2FBF71" : "var(--text-muted)",
+      border: `1px solid ${copied ? "rgba(47,191,113,0.3)" : "var(--border)"}`,
+      fontFamily: "var(--font-mono)", transition: "all 0.15s",
+    }}>
+      {copied ? "Copied!" : "Copy"}
+    </button>
   );
 }
 

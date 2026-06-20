@@ -63,6 +63,8 @@ async function loadUserData(uid: string) {
   useFlashcardStore.getState().hydrateFromFirestore({
     known: new Set<string>(d.flashcardKnown ?? []),
     weak: new Set<string>(d.flashcardWeak ?? []),
+    nextReview: d.flashcardNextReview ?? {},
+    level: d.flashcardLevel ?? {},
   });
 }
 
@@ -70,7 +72,7 @@ async function syncAllToFirestore(uid: string) {
   const { solved, bookmarked, xp, streak, lastActivity, studyPlanDuration } = useProgressStore.getState();
   const { mastered: sdMastered, bookmarked: sdBookmarked } = useSDStore.getState();
   const { completed: seCompleted } = useSEStore.getState();
-  const { known: flashcardKnown, weak: flashcardWeak } = useFlashcardStore.getState();
+  const { known: flashcardKnown, weak: flashcardWeak, nextReview: flashcardNextReview, level: flashcardLevel } = useFlashcardStore.getState();
 
   const ref = doc(db, "users", uid);
   await updateDoc(ref, {
@@ -82,6 +84,8 @@ async function syncAllToFirestore(uid: string) {
     seCompleted: Array.from(seCompleted),
     flashcardKnown: Array.from(flashcardKnown),
     flashcardWeak: Array.from(flashcardWeak),
+    flashcardNextReview,
+    flashcardLevel,
   });
 }
 

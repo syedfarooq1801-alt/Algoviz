@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</helmet>
+
+<div style="min-width:100%;min-height:100vh;padding:48px;background:#e7e5df;box-sizing:border-box;font-family:'Space Grotesk',sans-serif">
+
+  <div style="margin-bottom:24px">
+    <p style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;color:#999;margin:0 0 5px">ALGOVIS · INNER SCREENS</p>
+    <h1 style="font-size:22px;font-weight:700;color:#1C1D28;margin:0 0 4px;letter-spacing:-0.02em">7 inner screens — Studio Dark</h1>
+    <p style="font-size:12px;color:#888;margin:0;font-family:'JetBrains Mono',monospace">Click sidebar items to navigate between screens</p>
+  </div>
+
+  <div style="width:1280px;border-radius:2px;box-shadow:0 2px 20px rgba(0,0,0,.2);overflow:hidden">
+    <div style="background:#08091A;display:grid;grid-template-columns:220px 1fr;height:760px;font-family:'Space Grotesk',sans-serif;color:#DDE0F5">
+
+      <!-- ══ SIDEBAR ══ -->
+      <div style="background:#05060F;border-right:1px solid #1A1D38;display:flex;flex-direction:column;overflow:hidden">
+        <div style="padding:18px 16px 14px;border-bottom:1px solid #12152A;flex-shrink:0">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:30px;height:30px;background:rgba(79,140,255,0.1);border:1px solid rgba(79,140,255,0.22);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2.5" fill="#4F8CFF"></circle><circle cx="7" cy="7" r="5.5" stroke="#4F8CFF" stroke-width="1.2" stroke-dasharray="2.5 2"></circle></svg>
+            </div>
+            <span style="font-size:15px;font-weight:700;color:#DDE0F5;letter-spacing:-0.02em">AlgoVis</span>
+          </div>
+        </div>
+        <div style="margin:10px 10px 0;background:rgba(245,165,36,0.06);border:1px solid rgba(245,165,36,0.15);border-radius:6px;padding:8px 12px;flex-shrink:0">
+          <div style="font-size:9px;letter-spacing:0.1em;color:rgba(245,165,36,0.5);font-family:'JetBrains Mono',monospace;margin-bottom:3px">INTERVIEW</div>
+          <div style="font-size:12px;color:#F5A524;font-family:'JetBrains Mono',monospace;font-weight:500">Google · 14 days</div>
+        </div>
+        <nav style="flex:1;padding:14px 8px 0;overflow-y:auto">
+          <div style="padding:0 8px;font-size:9px;letter-spacing:0.12em;color:#3A4060;font-family:'JetBrains Mono',monospace;margin-bottom:5px">LEARN</div>
+          <a onClick="{{ navDSA }}" style="{{ dsaNS }}">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;color:{{ dsaIC }}"><path d="M4 3L1 7l3 4M10 3l3 4-3 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M8.5 2.5l-3 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+            <span style="font-size:12px;font-weight:{{ dsaFW }}">DSA</span>
+            <div style="width:5px;height:5px;background:#22D587;border-radius:50%;margin-left:auto;flex-shrink:0"></div>
+          </a>
+          <a onClick="{{ navSD }}" style="{{ sdNS }}">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;color:{{ sdIC }}"><rect x="1.5" y="1.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.5"></rect><rect x="8" y="1.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.5"></rect><rect x="1.5" y="8" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.5"></rect><rect x="8" y="8" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.5"></rect></svg>
+            <span style="font-size:12px;font-weight:{{ sdFW }}">System Design</span>
+          </a>
+          <a onClick="{{ navSE }}" style="{{ seNS }}">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;color:{{ seIC }}"><path d="M2 2h7a1 1 0 011 1v9H3a1 1 0 01-1-1V2z" stroke="currentColor" stroke-width="1.5"></path><path d="M9 12h2a1 1 0 001-1V3a1 1 0 00-1-1H9" stroke="currentColor" stroke-width="1.5"></path><path d="M5 5h3M5 7.5h2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path></svg>
+            <span style="font-size:12px;font-weight:{{ seFW }}">SE Basics</span>
+          </a>
+          <a onClick="{{ navBehavioral }}" style="{{ behavNS }}">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;color:{{ behavIC }}"><path d="M2 2h10a1 1 0 011 1v5.5a1 1 0 01-1 1H8.5L7 11v-1.5H2a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+            <span style="font-size:12px;font-weight:{{ behavFW }}">Behavioral</span>
+          </a>
+          <div style="height:1px;background:#12152A;margin:10px 6px 12px"></div>
+          <div style="padding:0 8px;font-size:9px;letter-spacing:0.12em;color:#3A4060;font-family:'JetBrains Mono',monospace;margin-bottom:5px">TOOLS</div>
+          <a onClick="{{ navDashboard }}" style="{{ dashNS }}">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><path d="M1.5 6.5L7 2l5.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M3 5.5V12h3V9h2v3h3V5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            <span style="font-size:12px">Dashboard</span>
+          </a>
+          <a onClick="{{ navSP }}" style="{{ spNS }}">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;color:{{ spIC }}"><rect x="1.5" y="2.5" width="11" height="10" rx="1" stroke="currentColor" stroke-width="1.5"></rect><path d="M4.5 1v3M9.5 1v3M1.5 6h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+            <span style="font-size:12px;font-weight:{{ spFW }}">Study Plan</span>
+          </a>
+          <a onClick="{{ navFC }}" style="{{ fcNS }}">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;color:{{ fcIC }}"><rect x="2" y="4" width="9" height="7" rx="1" stroke="currentColor" stroke-width="1.5"></rect><path d="M4 4V3a1 1 0 011-1h7a1 1 0 011 1v7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+            <span style="font-size:12px;font-weight:{{ fcFW }}">Flashcards</span>
+          </a>
+          <a onClick="{{ navMock }}" style="{{ mockNS }}">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;color:{{ mockIC }}"><rect x="1.5" y="3" width="8.5" height="8" rx="1" stroke="currentColor" stroke-width="1.5"></rect><path d="M10 6.5l3-2v5l-3-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            <span style="font-size:12px;font-weight:{{ mockFW }}">Mock Interview</span>
+          </a>
+        </nav>
+        <div style="padding:12px 16px;border-top:1px solid #12152A;display:flex;align-items:center;gap:10px;flex-shrink:0">
+          <div style="width:26px;height:26px;background:rgba(79,140,255,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:'JetBrains Mono',monospace;color:#4F8CFF;font-weight:600;flex-shrink:0">JS</div>
+          <span style="font-size:12px;color:#525875">Sign in</span>
+        </div>
+      </div>
+
+      <!-- ══ MAIN ══ -->
+      <div style="overflow-y:auto;background:#08091A;position:relative">
+
+        <!-- DSA -->
+        <div style="display:{{ dsaD }};padding:24px 28px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+            <div>
+              <p style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace;letter-spacing:0.07em;margin:0 0 6px">LEARN / DSA</p>
+              <h2 style="font-size:24px;font-weight:700;color:#DDE0F5;margin:0;letter-spacing:-0.02em">DSA Problems</h2>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="display:flex;gap:3px;background:#0B0C1A;border:1px solid #1B1E3A;border-radius:6px;padding:3px">
+                <button onClick="{{ setDSAAll }}" style="{{ fTabAll }}">ALL</button>
+                <button onClick="{{ setDSAEasy }}" style="{{ fTabEasy }}">EASY</button>
+                <button onClick="{{ setDSAMedium }}" style="{{ fTabMedium }}">MEDIUM</button>
+                <button onClick="{{ setDSAHard }}" style="{{ fTabHard }}">HARD</button>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;background:#0E0F22;border:1px solid #1B1E3A;border-radius:6px;padding:6px 12px">
+                <span style="font-size:20px;font-weight:700;color:#4F8CFF;font-family:'JetBrains Mono',monospace;line-height:1">47</span>
+                <span style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace">/ 293</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:172px 1fr;gap:12px">
+            <!-- Topic sidebar -->
+            <div style="background:#0B0C18;border:1px solid #1B1E3A;border-radius:8px;overflow:hidden">
+              <div style="padding:10px 12px;border-bottom:1px solid #12152A"><span style="font-size:9px;letter-spacing:0.12em;color:#3A4060;font-family:'JetBrains Mono',monospace">TOPICS</span></div>
+              <div style="padding:6px">
+                <div style="display:flex;justify-content:space-between;padding:6px 8px;border-radius:5px;background:rgba(79,140,255,0.08);margin-bottom:1px"><span style="font-size:11px;color:#4F8CFF">All Topics</span><span style="font-size:9px;color:#4F8CFF;font-family:'JetBrains Mono',monospace">293</span></div>
+                <div style="display:flex;justify-content:space-between;padding:6px 8px;border-radius:5px;margin-bottom:1px"><span style="font-size:11px;color:#8890B0">Arrays &amp; Hashing</span><span style="font-size:9px;color:#525875;font-family:'JetBrains Mono',monospace">47</span></div>
+                <div style="display:flex;justify-content:space-between;padding:6px 8px;border-radius:5px;margin-bottom:1px"><span style="font-size:11px;color:#8890B0">Two Pointers</span><span style="font-size:9px;color:#525875;font-family:'JetBrains Mono',monospace">12</span></div>
+                <div style="display:flex;justify-content:space-between;padding:6px 8px;border-radius:5px;margin-bottom:1px"><span style="font-size:11px;color:#8890B0">Sliding Window</span><span style="font-size:9px;color:#525875;font-family:'JetBrains Mono',monospace">10</span></div>
+                <div style="display:flex;justify-content:space-between;padding:6px 8px;border-radius:5px;margin-bottom:1px"><span style="font-size:11px;color:#8890B0">Stack</span><span style="font-size:9px;color:#525875;font-family:'JetBrains Mono',monospace">8</span></div>
+                <div style="display:flex;justify-content:space-between;padding:6px 8px;border-radius:5px;margin-bottom:1px"><span style="font-size:11px;color:#8890B0">Binary Search</span><span style="font-size:9px;color:#525875;font-family:'JetBrains Mono',monospace">15</span></div>
+                <div style="display:flex;justify-content:space-between;padding:6px 8px;border-radius:5px;margin-bottom:1px"><span style="font-size:11px;color:#8890B0">Linked List</span><span style="font-size:9px;color:#525875;font-family:'JetBrains Mono',monospace">11</span></div>
+                <div style="display:flex;justify-content:space-between;padding:6px 8px;border-radius:5px;margin-bottom:1px"><span style="font-size:11px;color:#8890B0">Trees</span><span style="font-size:9px;color:#525875;font-family:'JetBrains Mono',monospace">23</span></div>
+                <div style="display:flex;justify-content:space-between;padding:6px 8px;border-radius:5px;margin-bottom:1px"><span style="font-size:11px;color:#8890B0">Graphs</span><span style="font-size:9px;color:#525875;font-family:'JetBrains Mono',monospace">14</span></div>
+                <div style="display:flex;justify-content:space-between;padding:6px 8px;border-radius:5px;margin-bottom:1px"><span style="font-size:11px;color:#8890B0">Heap / Priority Q</span><span style="font-size:9px;color:#525875;font-family:'JetBrains Mono',monospace">7</span></div>
+                <div style="display:flex;justify-content:space-between;padding:6px 8px;border-radius:5px;margin-bottom:1px"><span style="font-size:11px;color:#8890B0">Backtracking</span><span style="font-size:9px;color:#525875;font-family:'JetBrains Mono',monospace">9</span></div>
+                <div style="display:flex;justify-content:space-between;padding:6px 8px;border-radius:5px;margin-bottom:1px"><span style="font-size:11px;color:#8890B0">Dynamic Prog.</span><span style="font-size:9px;color:#525875;font-family:'JetBrains Mono',monospace">20</span></div>
+                <div style="display:flex;justify-content:space-between;padding:6px 8px;border-radius:5px"><span style="font-size:11px;color:#8890B0">Greedy</span><span style="font-size:9px;color:#525875;font-family:'JetBrains Mono',monospace">9</span></div>
+              </div>
+            </div>
+            <!-- Problem list -->
+            <div style="background:#0B0C18;border:1px solid #1B1E3A;border-radius:8px;overflow:hidden">
+              <div style="display:grid;grid-template-columns:32px 1fr 100px 68px 28px;gap:8px;padding:10px 16px;border-bottom:1px solid #12152A;align-items:center">
+                <span style="font-size:9px;color:#3A4060;font-family:'JetBrains Mono',monospace">#</span>
+                <span style="font-size:9px;color:#3A4060;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em">PROBLEM</span>
+                <span style="font-size:9px;color:#3A4060;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em">TOPIC</span>
+                <span style="font-size:9px;color:#3A4060;font-family:'JetBrains Mono',monospace;letter-spacing:0.08em">DIFF</span>
+                <span></span>
+              </div>
+              <sc-for list="{{ filteredProbs }}" as="p" hint-placeholder-count="12">
+                <div style="display:grid;grid-template-columns:32px 1fr 100px 68px 28px;gap:8px;padding:9px 16px;border-bottom:1px solid rgba(26,29,56,0.5);align-items:center">
+                  <span style="font-size:11px;color:#3A4060;font-family:'JetBrains Mono',monospace;padding-top:2px">{{ p.num }}</span>
+                  <div>
+                    <div style="font-size:12px;color:#B8BDD8;font-weight:500;margin-bottom:5px">{{ p.title }}</div>
+                    <div style="font-size:9px;color:#525875;font-family:'JetBrains Mono',monospace;letter-spacing:0.02em">{{ p.cos }}</div>
+                  </div>
+                  <span style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace;background:rgba(79,140,255,0.06);border:1px solid rgba(79,140,255,0.1);border-radius:3px;padding:2px 7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;align-self:start;margin-top:2px">{{ p.topic }}</span>
+                  <span style="font-size:10px;font-family:'JetBrains Mono',monospace;padding:2px 7px;border-radius:3px;color:{{ p.dColor }};background:{{ p.dBg }};align-self:start;margin-top:2px">{{ p.diff }}</span>
+                  <span style="font-size:13px;color:{{ p.sColor }};text-align:center;align-self:start;margin-top:2px">{{ p.sIcon }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Design -->
+        <div style="display:{{ sdD }};padding:24px 28px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+            <div>
+              <p style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace;letter-spacing:0.07em;margin:0 0 6px">LEARN / SYSTEM DESIGN</p>
+              <h2 style="font-size:24px;font-weight:700;color:#DDE0F5;margin:0;letter-spacing:-0.02em">System Design</h2>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;background:#0E0F22;border:1px solid #1B1E3A;border-radius:6px;padding:8px 14px">
+              <span style="font-size:18px;font-weight:700;color:#A78BFA;font-family:'JetBrains Mono',monospace;line-height:1">8</span>
+              <span style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace">/ 42 concepts</span>
+              <div style="width:44px;height:3px;background:rgba(167,139,250,0.12);border-radius:2px;overflow:hidden;margin-left:4px"><div style="height:3px;width:19%;background:#A78BFA;border-radius:2px"></div></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;margin-bottom:16px">
+            <span style="font-size:10px;font-family:'JetBrains Mono',monospace;padding:3px 10px;border-radius:4px;background:rgba(79,140,255,0.12);outline:1px solid rgba(79,140,255,0.22);outline-offset:-1px;color:#4F8CFF">All</span>
+            <span style="font-size:10px;font-family:'JetBrains Mono',monospace;padding:3px 10px;border-radius:4px;border:1px solid rgba(79,140,255,0.1);color:#525875">Scalability</span>
+            <span style="font-size:10px;font-family:'JetBrains Mono',monospace;padding:3px 10px;border-radius:4px;border:1px solid rgba(79,140,255,0.1);color:#525875">Storage</span>
+            <span style="font-size:10px;font-family:'JetBrains Mono',monospace;padding:3px 10px;border-radius:4px;border:1px solid rgba(79,140,255,0.1);color:#525875">Caching</span>
+            <span style="font-size:10px;font-family:'JetBrains Mono',monospace;padding:3px 10px;border-radius:4px;border:1px solid rgba(79,140,255,0.1);color:#525875">Messaging</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+            <sc-for list="{{ sdCards }}" as="c" hint-placeholder-count="9">
+              <div style="background:#0E0F22;border:1px solid #1B1E3A;border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+                  <div style="width:32px;height:32px;background:rgba(79,140,255,0.06);border:1px solid rgba(79,140,255,0.12);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;color:#4F8CFF">{{ c.icon }}</div>
+                  <span style="font-size:10px;font-family:'JetBrains Mono',monospace;padding:2px 7px;border-radius:3px;color:{{ c.dColor }};background:{{ c.dBg }};flex-shrink:0">{{ c.diff }}</span>
+                </div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:#DDE0F5;margin-bottom:8px">{{ c.title }}</div>
+                  <div style="display:flex;gap:4px;flex-wrap:wrap">
+                    <sc-for list="{{ c.concepts }}" as="tag" hint-placeholder-count="3">
+                      <span style="font-size:9px;font-family:'JetBrains Mono',monospace;color:#525875;background:rgba(79,140,255,0.04);border:1px solid rgba(79,140,255,0.08);border-radius:3px;padding:2px 6px">{{ tag }}</span>
+                    </sc-for>
+                  </div>
+                </div>
+                <button style="margin-top:auto;width:100%;padding:7px;background:rgba(79,140,255,0.06);border:1px solid rgba(79,140,255,0.14);border-radius:5px;color:#4F8CFF;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer;letter-spacing:0.04em">Start →</button>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- SE Basics -->
+        <div style="display:{{ seD }};padding:24px 28px;height:760px;box-sizing:border-box;flex-direction:column">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+            <div>
+              <p style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace;letter-spacing:0.07em;margin:0 0 6px">LEARN / SE BASICS</p>
+              <h2 style="font-size:24px;font-weight:700;color:#DDE0F5;margin:0;letter-spacing:-0.02em">SE Basics</h2>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;background:#0E0F22;border:1px solid #1B1E3A;border-radius:6px;padding:8px 14px">
+              <span style="font-size:18px;font-weight:700;color:#0EA5E9;font-family:'JetBrains Mono',monospace;line-height:1">2</span>
+              <span style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace">/ 8 chapters</span>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:248px 1fr;gap:12px;height:600px">
+            <div style="background:#0B0C18;border:1px solid #1B1E3A;border-radius:8px;overflow-y:auto">
+              <div style="padding:10px 14px;border-bottom:1px solid #12152A"><span style="font-size:9px;letter-spacing:0.12em;color:#3A4060;font-family:'JetBrains Mono',monospace">CHAPTERS</span></div>
+              <div style="padding:8px">
+                <div onClick="{{ navSECh0 }}" style="{{ seCh0S }}">
+                  <div style="width:22px;height:22px;border-radius:5px;background:#22D587;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:'JetBrains Mono',monospace;color:#08091A;font-weight:700;flex-shrink:0">✓</div>
+                  <div><div style="font-size:12px;color:#DDE0F5">Git &amp; Version Control</div><div style="font-size:10px;color:#525875;margin-top:2px;font-family:'JetBrains Mono',monospace">25 min · Done</div></div>
+                </div>
+                <div onClick="{{ navSECh1 }}" style="{{ seCh1S }}">
+                  <div style="width:22px;height:22px;border-radius:5px;background:rgba(79,140,255,0.12);border:1px solid rgba(79,140,255,0.3);display:flex;align-items:center;justify-content:center;font-size:9px;color:#4F8CFF;font-weight:700;flex-shrink:0">→</div>
+                  <div><div style="font-size:12px;color:#DDE0F5">REST APIs &amp; HTTP</div><div style="font-size:10px;color:#4F8CFF;margin-top:2px;font-family:'JetBrains Mono',monospace">30 min · Reading</div></div>
+                </div>
+                <div onClick="{{ navSECh2 }}" style="{{ seCh2S }}">
+                  <div style="width:22px;height:22px;border-radius:5px;background:#0E0F22;border:1px solid #1B1E3A;display:flex;align-items:center;justify-content:center;font-size:9px;color:#3A4060;font-weight:700;flex-shrink:0">3</div>
+                  <div><div style="font-size:12px;color:#8890B0">SQL Databases</div><div style="font-size:10px;color:#3A4060;margin-top:2px;font-family:'JetBrains Mono',monospace">45 min</div></div>
+                </div>
+                <div onClick="{{ navSECh3 }}" style="{{ seCh3S }}">
+                  <div style="width:22px;height:22px;border-radius:5px;background:#0E0F22;border:1px solid #1B1E3A;display:flex;align-items:center;justify-content:center;font-size:9px;color:#3A4060;font-weight:700;flex-shrink:0">4</div>
+                  <div><div style="font-size:12px;color:#8890B0">NoSQL &amp; Caching</div><div style="font-size:10px;color:#3A4060;margin-top:2px;font-family:'JetBrains Mono',monospace">35 min</div></div>
+                </div>
+                <div onClick="{{ navSECh4 }}" style="{{ seCh4S }}">
+                  <div style="width:22px;height:22px;border-radius:5px;background:#0E0F22;border:1px solid #1B1E3A;display:flex;align-items:center;justify-content:center;font-size:9px;color:#3A4060;font-weight:700;flex-shrink:0">5</div>
+                  <div><div style="font-size:12px;color:#8890B0">Operating Systems</div><div style="font-size:10px;color:#3A4060;margin-top:2px;font-family:'JetBrains Mono',monospace">40 min</div></div>
+                </div>
+                <div onClick="{{ navSECh5 }}" style="{{ seCh5S }}">
+                  <div style="width:22px;height:22px;border-radius:5px;background:#0E0F22;border:1px solid #1B1E3A;display:flex;align-items:center;justify-content:center;font-size:9px;color:#3A4060;font-weight:700;flex-shrink:0">6</div>
+                  <div><div style="font-size:12px;color:#8890B0">Computer Networks</div><div style="font-size:10px;color:#3A4060;margin-top:2px;font-family:'JetBrains Mono',monospace">35 min</div></div>
+                </div>
+                <div onClick="{{ navSECh6 }}" style="{{ seCh6S }}">
+                  <div style="width:22px;height:22px;border-radius:5px;background:#0E0F22;border:1px solid #1B1E3A;display:flex;align-items:center;justify-content:center;font-size:9px;color:#3A4060;font-weight:700;flex-shrink:0">7</div>
+                  <div><div style="font-size:12px;color:#8890B0">Design Patterns</div><div style="font-size:10px;color:#3A4060;margin-top:2px;font-family:'JetBrains Mono',monospace">50 min</div></div>
+                </div>
+                <div onClick="{{ navSECh7 }}" style="{{ seCh7S }}">
+                  <div style="width:22px;height:22px;border-radius:5px;background:#0E0F22;border:1px solid #1B1E3A;display:flex;align-items:center;justify-content:center;font-size:9px;color:#3A4060;font-weight:700;flex-shrink:0">8</div>
+                  <div><div style="font-size:12px;color:#8890B0">Docker &amp; Containers</div><div style="font-size:10px;color:#3A4060;margin-top:2px;font-family:'JetBrains Mono',monospace">30 min</div></div>
+                </div>
+              </div>
+            </div>
+            <div style="background:#0B0C18;border:1px solid #1B1E3A;border-radius:8px;padding:28px 30px;overflow-y:auto;display:flex;flex-direction:column">
+              <p style="font-size:9px;letter-spacing:0.12em;color:#3A4060;font-family:'JetBrains Mono',monospace;margin:0 0 8px">CHAPTER {{ seChapter.num }}</p>
+              <h3 style="font-size:20px;font-weight:700;color:#DDE0F5;margin:0 0 8px;letter-spacing:-0.01em">{{ seChapter.title }}</h3>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px">
+                <span style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace">{{ seChapter.time }}</span>
+                <span style="font-size:10px;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:3px;color:{{ seChapter.statusColor }};background:{{ seChapter.statusBg }}">{{ seChapter.status }}</span>
+              </div>
+              <div style="background:#08091A;border:1px solid #1B1E3A;border-radius:6px;padding:18px 20px;margin-bottom:auto">
+                <p style="font-size:9px;letter-spacing:0.12em;color:#3A4060;font-family:'JetBrains Mono',monospace;margin:0 0 12px">WHAT YOU'LL LEARN</p>
+                <sc-for list="{{ seChapter.topics }}" as="t" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                    <div style="width:5px;height:5px;background:#4F8CFF;border-radius:50%;flex-shrink:0"></div>
+                    <span style="font-size:13px;color:#9499C0">{{ t }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:24px">
+                <button style="flex:1;padding:11px;background:#4F8CFF;border:none;border-radius:6px;color:#fff;font-size:13px;font-family:'Space Grotesk',sans-serif;font-weight:600;cursor:pointer">{{ seChapter.cta }}</button>
+                <button style="padding:11px 20px;background:#0E0F22;border:1px solid #1B1E3A;border-radius:6px;color:#525875;font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer">Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Behavioral -->
+        <div style="display:{{ behavD }};padding:24px 28px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <div>
+              <p style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace;letter-spacing:0.07em;margin:0 0 6px">LEARN / BEHAVIORAL</p>
+              <h2 style="font-size:24px;font-weight:700;color:#DDE0F5;margin:0;letter-spacing:-0.02em">Behavioral</h2>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;background:#0E0F22;border:1px solid #1B1E3A;border-radius:6px;padding:8px 14px">
+              <span style="font-size:18px;font-weight:700;color:#22D587;font-family:'JetBrains Mono',monospace;line-height:1">3</span>
+              <span style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace">/ 24 prepped</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:3px;background:#0B0C1A;border:1px solid #1B1E3A;border-radius:6px;padding:3px;width:fit-content;margin-bottom:18px">
+            <button onClick="{{ setBehavAll }}" style="{{ bTabAll }}">ALL</button>
+            <button onClick="{{ setBehavLead }}" style="{{ bTabLead }}">LEADERSHIP</button>
+            <button onClick="{{ setBehavTeam }}" style="{{ bTabTeam }}">TEAMWORK</button>
+            <button onClick="{{ setBehavConflict }}" style="{{ bTabConflict }}">CONFLICT</button>
+            <button onClick="{{ setBehavFail }}" style="{{ bTabFail }}">FAILURE</button>
+            <button onClick="{{ setBehavAchieve }}" style="{{ bTabAchieve }}">ACHIEVEMENT</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <sc-for list="{{ filteredBQs }}" as="q" hint-placeholder-count="6">
+              <div style="background:#0E0F22;border:1px solid #1B1E3A;border-radius:8px;padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+                  <span style="font-size:9px;font-family:'JetBrains Mono',monospace;padding:2px 8px;border-radius:3px;color:{{ q.catColor }};background:{{ q.catBg }};flex-shrink:0">{{ q.cat }}</span>
+                  <span style="font-size:9px;font-family:'JetBrains Mono',monospace;color:#3A4060;flex-shrink:0">{{ q.status }}</span>
+                </div>
+                <p style="font-size:13px;color:#B8BDD8;line-height:1.55;margin:0;flex:1">{{ q.q }}</p>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <span style="font-size:9px;font-family:'JetBrains Mono',monospace;padding:3px 8px;border-radius:3px;background:rgba(79,140,255,0.06);border:1px solid rgba(79,140,255,0.12);color:#525875">STAR</span>
+                  <button style="margin-left:auto;font-size:11px;font-family:'JetBrains Mono',monospace;background:transparent;border:1px solid rgba(79,140,255,0.15);border-radius:4px;color:#4F8CFF;padding:4px 10px;cursor:pointer">Prep →</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- Mock Interview -->
+        <div style="display:{{ mockD }}">
+          <!-- Setup -->
+          <div style="display:{{ mockSetupD }};padding:24px 28px">
+            <div style="margin-bottom:24px">
+              <p style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace;letter-spacing:0.07em;margin:0 0 6px">TOOLS / MOCK INTERVIEW</p>
+              <h2 style="font-size:24px;font-weight:700;color:#DDE0F5;margin:0;letter-spacing:-0.02em">Mock Interview</h2>
+            </div>
+            <div style="display:grid;grid-template-columns:480px 1fr;gap:16px;align-items:start">
+              <div style="background:#0B0C18;border:1px solid #1B1E3A;border-radius:10px;padding:28px 30px">
+                <div style="margin-bottom:22px">
+                  <p style="font-size:9px;letter-spacing:0.12em;color:#3A4060;font-family:'JetBrains Mono',monospace;margin:0 0 10px">INTERVIEW TYPE</p>
+                  <div style="display:flex;gap:6px">
+                    <button onClick="{{ setMockCoding }}" style="{{ mtCoding }}">Coding</button>
+                    <button onClick="{{ setMockSD }}" style="{{ mtSD }}">System Design</button>
+                    <button onClick="{{ setMockBehav }}" style="{{ mtBehav }}">Behavioral</button>
+                  </div>
+                </div>
+                <div style="margin-bottom:22px">
+                  <p style="font-size:9px;letter-spacing:0.12em;color:#3A4060;font-family:'JetBrains Mono',monospace;margin:0 0 10px">DIFFICULTY</p>
+                  <div style="display:flex;gap:6px">
+                    <button onClick="{{ setMockEasy }}" style="{{ mdEasy }}">Easy</button>
+                    <button onClick="{{ setMockMedium }}" style="{{ mdMedium }}">Medium</button>
+                    <button onClick="{{ setMockHard }}" style="{{ mdHard }}">Hard</button>
+                  </div>
+                </div>
+                <div style="margin-bottom:22px">
+                  <p style="font-size:9px;letter-spacing:0.12em;color:#3A4060;font-family:'JetBrains Mono',monospace;margin:0 0 10px">DURATION</p>
+                  <div style="display:flex;gap:6px">
+                    <button onClick="{{ setMockDur30 }}" style="{{ mdu30 }}">30 min</button>
+                    <button onClick="{{ setMockDur45 }}" style="{{ mdu45 }}">45 min</button>
+                    <button onClick="{{ setMockDur60 }}" style="{{ mdu60 }}">60 min</button>
+                  </div>
+                </div>
+                <div style="margin-bottom:28px">
+                  <p style="font-size:9px;letter-spacing:0.12em;color:#3A4060;font-family:'JetBrains Mono',monospace;margin:0 0 10px">COMPANY FOCUS</p>
+                  <div style="display:flex;gap:6px">
+                    <button onClick="{{ setMockGoogle }}" style="{{ mcGoogle }}">Google</button>
+                    <button onClick="{{ setMockAmazon }}" style="{{ mcAmazon }}">Amazon</button>
+                    <button onClick="{{ setMockMeta }}" style="{{ mcMeta }}">Meta</button>
+                    <button onClick="{{ setMockApple }}" style="{{ mcApple }}">Apple</button>
+                  </div>
+                </div>
+                <button onClick="{{ startMock }}" style="width:100%;padding:13px;background:#4F8CFF;border:none;border-radius:7px;color:#fff;font-size:14px;font-family:'Space Grotesk',sans-serif;font-weight:600;cursor:pointer">Begin Interview →</button>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div style="background:#0B0C18;border:1px solid #1B1E3A;border-radius:10px;padding:20px 22px">
+                  <p style="font-size:9px;letter-spacing:0.12em;color:#3A4060;font-family:'JetBrains Mono',monospace;margin:0 0 12px">SESSION PREVIEW</p>
+                  <div style="display:flex;flex-direction:column;gap:9px">
+                    <div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:#525875">Type</span><span style="font-size:12px;color:#DDE0F5;font-family:'JetBrains Mono',monospace">{{ mockTypeName }}</span></div>
+                    <div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:#525875">Difficulty</span><span style="font-size:12px;font-family:'JetBrains Mono',monospace;color:{{ mockDiffColor }}">{{ mockDiffName }}</span></div>
+                    <div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:#525875">Duration</span><span style="font-size:12px;color:#DDE0F5;font-family:'JetBrains Mono',monospace">{{ mockDur }} min</span></div>
+                    <div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:#525875">Company</span><span style="font-size:12px;color:#DDE0F5;font-family:'JetBrains Mono',monospace">{{ mockCompanyName }}</span></div>
+                  </div>
+                </div>
+                <div style="background:#0B0C18;border:1px solid #1B1E3A;border-radius:10px;padding:20px 22px">
+                  <p style="font-size:9px;letter-spacing:0.12em;color:#3A4060;font-family:'JetBrains Mono',monospace;margin:0 0 10px">LAST SESSION</p>
+                  <div style="font-size:24px;font-weight:700;color:#DDE0F5;font-family:'JetBrains Mono',monospace;margin-bottom:4px">72<span style="font-size:13px;color:#525875;font-weight:400"> / 100</span></div>
+                  <div style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace;margin-bottom:12px">Coding · Medium · 45 min · Jun 12</div>
+                  <div style="height:3px;background:rgba(79,140,255,0.1);border-radius:2px;overflow:hidden"><div style="height:3px;width:72%;background:#4F8CFF;border-radius:2px"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Active -->
+          <div style="display:{{ mockActiveD }};height:760px;flex-direction:column">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid #1B1E3A;flex-shrink:0">
+              <div style="display:flex;align-items:center;gap:12px">
+                <span style="font-size:12px;font-weight:600;color:#DDE0F5">Two Sum</span>
+                <span style="font-size:10px;color:#22D587;font-family:'JetBrains Mono',monospace">Easy</span>
+                <span style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace;background:rgba(79,140,255,0.06);border:1px solid rgba(79,140,255,0.1);border-radius:3px;padding:2px 8px">Arrays</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="display:flex;align-items:center;gap:8px;background:#0E0F22;border:1px solid rgba(245,165,36,0.2);border-radius:6px;padding:6px 12px">
+                  <span style="font-size:9px;color:#F5A524;font-family:'JetBrains Mono',monospace">TIME</span>
+                  <span style="font-size:16px;font-weight:700;color:#F5A524;font-family:'JetBrains Mono',monospace">42:17</span>
+                </div>
+                <button onClick="{{ endMock }}" style="padding:6px 14px;background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.2);border-radius:5px;color:#FF6B6B;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer">End Session</button>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:42% 1fr;flex:1;overflow:hidden">
+              <div style="border-right:1px solid #1B1E3A;padding:20px 24px;overflow-y:auto">
+                <p style="font-size:9px;letter-spacing:0.12em;color:#3A4060;font-family:'JetBrains Mono',monospace;margin:0 0 12px">PROBLEM STATEMENT</p>
+                <p style="font-size:13px;color:#9499C0;line-height:1.7;margin:0 0 16px">Given an array of integers <span style="color:#4F8CFF;font-family:'JetBrains Mono',monospace">nums</span> and an integer <span style="color:#4F8CFF;font-family:'JetBrains Mono',monospace">target</span>, return indices of two numbers that add up to target.</p>
+                <p style="font-size:9px;letter-spacing:0.12em;color:#3A4060;font-family:'JetBrains Mono',monospace;margin:0 0 8px">EXAMPLE</p>
+                <div style="background:#05060F;border:1px solid #12152A;border-radius:5px;padding:10px 14px;margin-bottom:16px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.8">
+                  <div style="color:#4F8CFF">Input: <span style="color:#B8BDD8">nums=[2,7,11,15], target=9</span></div>
+                  <div style="color:#4F8CFF">Output: <span style="color:#22D587">[0,1]</span></div>
+                </div>
+                <p style="font-size:9px;letter-spacing:0.12em;color:#3A4060;font-family:'JetBrains Mono',monospace;margin:0 0 8px">CONSTRAINTS</p>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#525875;line-height:2">
+                  <div>2 ≤ nums.length ≤ 10⁴</div>
+                  <div>Exactly one valid answer.</div>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;overflow:hidden">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px;border-bottom:1px solid #1B1E3A;background:#05060F;flex-shrink:0">
+                  <span style="font-size:10px;color:#4F8CFF;font-family:'JetBrains Mono',monospace">Python 3</span>
+                  <div style="display:flex;gap:6px">
+                    <button style="padding:4px 10px;background:transparent;border:1px solid rgba(79,140,255,0.15);border-radius:4px;color:#525875;font-size:10px;font-family:'JetBrains Mono',monospace;cursor:pointer">Run</button>
+                    <button style="padding:4px 10px;background:#4F8CFF;border:none;border-radius:4px;color:#fff;font-size:10px;font-family:'JetBrains Mono',monospace;cursor:pointer">Submit</button>
+                  </div>
+                </div>
+                <div style="flex:1;background:#05060F;padding:16px 20px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#B4B9D6;line-height:1.9;overflow-y:auto">
+                  <div style="color:#525875">class Solution:</div>
+                  <div style="padding-left:20px;color:#525875">def twoSum(self, nums, target):</div>
+                  <div style="padding-left:40px;color:#4F8CFF">seen = {}</div>
+                  <div style="padding-left:40px;color:#4F8CFF">for i, num in enumerate(nums):</div>
+                  <div style="padding-left:60px;color:#22D587">complement = target - num</div>
+                  <div style="padding-left:60px;color:#22D587">if complement in seen:</div>
+                  <div style="padding-left:80px;color:#DDE0F5">return [seen[complement], i]</div>
+                  <div style="padding-left:60px;color:#DDE0F5">seen[num] = i</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Flashcards -->
+        <div style="display:{{ fcD }};padding:24px 28px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+            <div>
+              <p style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace;letter-spacing:0.07em;margin:0 0 6px">TOOLS / FLASHCARDS</p>
+              <h2 style="font-size:24px;font-weight:700;color:#DDE0F5;margin:0;letter-spacing:-0.02em">Flashcards</h2>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;background:#0E0F22;border:1px solid #1B1E3A;border-radius:6px;padding:8px 14px">
+              <span style="font-size:18px;font-weight:700;color:#DDE0F5;font-family:'JetBrains Mono',monospace;line-height:1">{{ fcDone }}</span>
+              <span style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace">/ {{ fcTotal }} cards</span>
+            </div>
+          </div>
+          <!-- Progress -->
+          <div style="height:3px;background:rgba(79,140,255,0.1);border-radius:2px;overflow:hidden;margin-bottom:16px"><div style="height:3px;background:#4F8CFF;border-radius:2px;width:{{ fcPct }}%"></div></div>
+          <!-- Category pills -->
+          <div style="display:flex;gap:6px;margin-bottom:28px">
+            <span style="font-size:10px;font-family:'JetBrains Mono',monospace;padding:3px 10px;border-radius:4px;background:rgba(79,140,255,0.12);outline:1px solid rgba(79,140,255,0.22);outline-offset:-1px;color:#4F8CFF">All</span>
+            <span style="font-size:10px;font-family:'JetBrains Mono',monospace;padding:3px 10px;border-radius:4px;border:1px solid rgba(79,140,255,0.1);color:#525875">Algorithms</span>
+            <span style="font-size:10px;font-family:'JetBrains Mono',monospace;padding:3px 10px;border-radius:4px;border:1px solid rgba(79,140,255,0.1);color:#525875">System Design</span>
+            <span style="font-size:10px;font-family:'JetBrains Mono',monospace;padding:3px 10px;border-radius:4px;border:1px solid rgba(79,140,255,0.1);color:#525875">Data Structures</span>
+          </div>
+          <!-- Card -->
+          <div style="width:100%;height:200px;perspective:1200px;margin-bottom:16px;cursor:pointer" onClick="{{ flipCard }}">
+            <div style="{{ fcContainerStyle }}">
+              <div style="position:absolute;inset:0;backface-visibility:hidden;background:#0E0F22;border:1px solid #1B1E3A;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:36px;flex-direction:column;gap:12px">
+                <p style="font-size:10px;color:#3A4060;font-family:'JetBrains Mono',monospace;letter-spacing:0.1em;margin:0;text-align:center">{{ currentCard.cat }}</p>
+                <p style="font-size:17px;color:#DDE0F5;text-align:center;line-height:1.6;margin:0;font-weight:500">{{ currentCard.q }}</p>
+                <p style="font-size:10px;color:#3A4060;font-family:'JetBrains Mono',monospace;margin:0">tap to reveal →</p>
+              </div>
+              <div style="position:absolute;inset:0;backface-visibility:hidden;transform:rotateY(180deg);background:#0A1220;border:1px solid #1A2D48;border-radius:12px;display:flex;align-items:center;justify-content:center;padding:36px;flex-direction:column;gap:12px">
+                <p style="font-size:10px;color:#4F8CFF;font-family:'JetBrains Mono',monospace;letter-spacing:0.1em;margin:0">ANSWER</p>
+                <p style="font-size:14px;color:#9499C0;text-align:center;line-height:1.7;margin:0">{{ currentCard.a }}</p>
+              </div>
+            </div>
+          </div>
+          <!-- Confidence -->
+          <div style="display:flex;justify-content:center;gap:10px;margin-bottom:28px">
+            <button onClick="{{ fcNext }}" style="padding:10px 22px;background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.2);border-radius:6px;color:#FF6B6B;font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer">Again</button>
+            <button onClick="{{ fcNext }}" style="padding:10px 22px;background:rgba(245,165,36,0.08);border:1px solid rgba(245,165,36,0.2);border-radius:6px;color:#F5A524;font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer">Hard</button>
+            <button onClick="{{ fcNext }}" style="padding:10px 22px;background:rgba(79,140,255,0.08);border:1px solid rgba(79,140,255,0.2);border-radius:6px;color:#4F8CFF;font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer">Good</button>
+            <button onClick="{{ fcNext }}" style="padding:10px 22px;background:rgba(34,213,135,0.08);border:1px solid rgba(34,213,135,0.2);border-radius:6px;color:#22D587;font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer">Easy</button>
+          </div>
+          <!-- Stats -->
+          <div style="display:flex;justify-content:center;gap:32px">
+            <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:#DDE0F5;font-family:'JetBrains Mono',monospace">{{ fcRemaining }}</div><div style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace;margin-top:4px">remaining</div></div>
+            <div style="width:1px;background:#1B1E3A"></div>
+            <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:#22D587;font-family:'JetBrains Mono',monospace">{{ fcDone }}</div><div style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace;margin-top:4px">done today</div></div>
+            <div style="width:1px;background:#1B1E3A"></div>
+            <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:#F5A524;font-family:'JetBrains Mono',monospace">3</div><div style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace;margin-top:4px">due tomorrow</div></div>
+          </div>
+        </div>
+
+        <!-- Study Plan -->
+        <div style="display:{{ spD }};padding:24px 28px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+            <div>
+              <p style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace;letter-spacing:0.07em;margin:0 0 6px">TOOLS / STUDY PLAN</p>
+              <h2 style="font-size:24px;font-weight:700;color:#DDE0F5;margin:0;letter-spacing:-0.02em">Study Plan</h2>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="display:flex;align-items:center;gap:8px;background:#0E0F22;border:1px solid rgba(245,165,36,0.2);border-radius:6px;padding:8px 14px">
+                <span>🔥</span>
+                <span style="font-size:18px;font-weight:700;color:#F5A524;font-family:'JetBrains Mono',monospace;line-height:1">14</span>
+                <span style="font-size:10px;color:#7A5C2A;font-family:'JetBrains Mono',monospace">day streak</span>
+              </div>
+            </div>
+          </div>
+          <!-- Weekly calendar -->
+          <div style="background:#0B0C18;border:1px solid #1B1E3A;border-radius:8px;padding:16px 20px;margin-bottom:16px">
+            <p style="font-size:9px;letter-spacing:0.12em;color:#3A4060;font-family:'JetBrains Mono',monospace;margin:0 0 12px">WEEK OF JUN 16 – 22</p>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px">
+              <div style="text-align:center"><div style="font-size:9px;color:#3A4060;font-family:'JetBrains Mono',monospace;margin-bottom:8px">MON</div><div style="width:32px;height:32px;border-radius:50%;background:rgba(34,213,135,0.12);border:1px solid rgba(34,213,135,0.25);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:11px;color:#22D587;font-weight:600">✓</div><div style="font-size:9px;color:#22D587;font-family:'JetBrains Mono',monospace">3/3</div></div>
+              <div style="text-align:center"><div style="font-size:9px;color:#3A4060;font-family:'JetBrains Mono',monospace;margin-bottom:8px">TUE</div><div style="width:32px;height:32px;border-radius:50%;background:rgba(34,213,135,0.12);border:1px solid rgba(34,213,135,0.25);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:11px;color:#22D587;font-weight:600">✓</div><div style="font-size:9px;color:#22D587;font-family:'JetBrains Mono',monospace">3/3</div></div>
+              <div style="text-align:center"><div style="font-size:9px;color:#3A4060;font-family:'JetBrains Mono',monospace;margin-bottom:8px">WED</div><div style="width:32px;height:32px;border-radius:50%;background:rgba(245,165,36,0.08);border:1px solid rgba(245,165,36,0.2);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:11px;color:#F5A524;font-weight:600">2</div><div style="font-size:9px;color:#F5A524;font-family:'JetBrains Mono',monospace">2/3</div></div>
+              <div style="text-align:center"><div style="font-size:9px;color:#4F8CFF;font-family:'JetBrains Mono',monospace;margin-bottom:8px">THU ·</div><div style="width:32px;height:32px;border-radius:50%;background:rgba(79,140,255,0.12);border:2px solid rgba(79,140,255,0.4);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:11px;color:#4F8CFF;font-weight:600">1</div><div style="font-size:9px;color:#4F8CFF;font-family:'JetBrains Mono',monospace">1/3</div></div>
+              <div style="text-align:center"><div style="font-size:9px;color:#3A4060;font-family:'JetBrains Mono',monospace;margin-bottom:8px">FRI</div><div style="width:32px;height:32px;border-radius:50%;background:#0E0F22;border:1px solid #1B1E3A;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:11px;color:#3A4060">3</div><div style="font-size:9px;color:#3A4060;font-family:'JetBrains Mono',monospace">0/3</div></div>
+              <div style="text-align:center"><div style="font-size:9px;color:#3A4060;font-family:'JetBrains Mono',monospace;margin-bottom:8px">SAT</div><div style="width:32px;height:32px;border-radius:50%;background:#0E0F22;border:1px solid #1B1E3A;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:11px;color:#3A4060">2</div><div style="font-size:9px;color:#3A4060;font-family:'JetBrains Mono',monospace">0/2</div></div>
+              <div style="text-align:center"><div style="font-size:9px;color:#3A4060;font-family:'JetBrains Mono',monospace;margin-bottom:8px">SUN</div><div style="width:32px;height:32px;border-radius:50%;background:#0E0F22;border:1px solid #1B1E3A;display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:11px;color:#3A4060">1</div><div style="font-size:9px;color:#3A4060;font-family:'JetBrains Mono',monospace">0/1</div></div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div style="background:#0B0C18;border:1px solid #1B1E3A;border-radius:8px;overflow:hidden">
+              <div style="padding:12px 16px;border-bottom:1px solid #12152A;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-weight:600;color:#DDE0F5">Today's tasks</span><span style="font-size:10px;color:#4F8CFF;font-family:'JetBrains Mono',monospace;background:rgba(79,140,255,0.08);border:1px solid rgba(79,140,255,0.15);border-radius:3px;padding:2px 8px">1/3 done</span></div>
+              <div style="padding:10px 16px;border-bottom:1px solid rgba(26,29,56,0.5);display:flex;align-items:center;gap:12px">
+                <div style="width:18px;height:18px;border-radius:4px;background:rgba(34,213,135,0.12);border:1px solid rgba(34,213,135,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;color:#22D587">✓</div>
+                <span style="font-size:12px;color:#525875;text-decoration:line-through">Study Quicksort algorithm</span>
+                <span style="font-size:9px;color:#3A4060;font-family:'JetBrains Mono',monospace;margin-left:auto">DSA</span>
+              </div>
+              <div style="padding:10px 16px;border-bottom:1px solid rgba(26,29,56,0.5);display:flex;align-items:center;gap:12px;background:rgba(79,140,255,0.03)">
+                <div style="width:18px;height:18px;border-radius:4px;background:rgba(79,140,255,0.1);border:1px solid rgba(79,140,255,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:#4F8CFF">→</div>
+                <span style="font-size:12px;color:#DDE0F5">Solve: Two Sum</span>
+                <span style="font-size:9px;color:#4F8CFF;font-family:'JetBrains Mono',monospace;margin-left:auto">DSA</span>
+              </div>
+              <div style="padding:10px 16px;display:flex;align-items:center;gap:12px">
+                <div style="width:18px;height:18px;border-radius:4px;background:#0E0F22;border:1px solid #1B1E3A;flex-shrink:0"></div>
+                <span style="font-size:12px;color:#525875">Review 3 due flashcards</span>
+                <span style="font-size:9px;color:#3A4060;font-family:'JetBrains Mono',monospace;margin-left:auto">Cards</span>
+              </div>
+            </div>
+            <div style="background:#0B0C18;border:1px solid #1B1E3A;border-radius:8px;padding:14px 16px">
+              <p style="font-size:12px;font-weight:600;color:#DDE0F5;margin:0 0 14px">Upcoming milestones</p>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div style="display:flex;align-items:flex-start;gap:12px"><div style="width:6px;height:6px;background:#22D587;border-radius:50%;flex-shrink:0;margin-top:5px"></div><div style="flex:1"><div style="font-size:12px;color:#B8BDD8">Complete Arrays &amp; Hashing</div><div style="font-size:10px;color:#3A4060;font-family:'JetBrains Mono',monospace;margin-top:2px">Week 2 goal</div></div><div style="text-align:right"><div style="font-size:14px;font-weight:700;color:#22D587;font-family:'JetBrains Mono',monospace">3</div><div style="font-size:9px;color:#3A4060;font-family:'JetBrains Mono',monospace">days</div></div></div>
+                <div style="display:flex;align-items:flex-start;gap:12px"><div style="width:6px;height:6px;background:#4F8CFF;border-radius:50%;flex-shrink:0;margin-top:5px"></div><div style="flex:1"><div style="font-size:12px;color:#B8BDD8">First mock interview</div><div style="font-size:10px;color:#3A4060;font-family:'JetBrains Mono',monospace;margin-top:2px">Week 4 goal</div></div><div style="text-align:right"><div style="font-size:14px;font-weight:700;color:#4F8CFF;font-family:'JetBrains Mono',monospace">17</div><div style="font-size:9px;color:#3A4060;font-family:'JetBrains Mono',monospace">days</div></div></div>
+                <div style="display:flex;align-items:flex-start;gap:12px"><div style="width:6px;height:6px;background:#F5A524;border-radius:50%;flex-shrink:0;margin-top:5px"></div><div style="flex:1"><div style="font-size:12px;color:#B8BDD8">Google interview</div><div style="font-size:10px;color:#F5A524;font-family:'JetBrains Mono',monospace;margin-top:2px">Target date</div></div><div style="text-align:right"><div style="font-size:14px;font-weight:700;color:#F5A524;font-family:'JetBrains Mono',monospace">14</div><div style="font-size:9px;color:#3A4060;font-family:'JetBrains Mono',monospace">days</div></div></div>
+                <div style="margin-top:4px;height:2px;background:rgba(79,140,255,0.08);border-radius:1px;overflow:hidden"><div style="height:2px;width:25%;background:#4F8CFF;border-radius:1px"></div></div>
+                <div style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace">Week 2 of 8 · 25% complete</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboard hint -->
+        <div style="display:{{ dashD }};padding:24px 28px;height:760px;box-sizing:border-box;align-items:center;justify-content:center">
+          <div style="text-align:center">
+            <div style="width:48px;height:48px;background:rgba(79,140,255,0.1);border:1px solid rgba(79,140,255,0.22);border-radius:10px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+              <svg width="20" height="20" viewBox="0 0 14 14" fill="none"><path d="M1.5 6.5L7 2l5.5 4.5" stroke="#4F8CFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M3 5.5V12h3V9h2v3h3V5.5" stroke="#4F8CFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </div>
+            <p style="font-size:16px;font-weight:600;color:#DDE0F5;margin:0 0 6px">Dashboard</p>
+            <p style="font-size:12px;color:#525875;font-family:'JetBrains Mono',monospace;margin:0">See AlgoVis Studio.dc.html</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+class Component extends DCLogic {
+  state = {
+    screen: 'dsa',
+    dsaFilter: 'all',
+    fcFlipped: false,
+    fcIndex: 0,
+    mockPhase: 'setup',
+    mockType: 'coding',
+    mockDiff: 'medium',
+    mockDur: 45,
+    seChapter: 1,
+    behavCat: 'all',
+    mockCompany: 'google',
+  };
+
+  renderVals() {
+    const st = this.state;
+    const sc = st.screen;
+
+    const nav = (id) => () => this.setState({ screen: id, fcFlipped: false });
+    const ns = (id) => sc === id
+      ? { display:'flex', alignItems:'center', gap:'10px', padding:'8px 10px', borderRadius:'6px', marginBottom:'2px', background:'rgba(79,140,255,0.1)', outline:'1px solid rgba(79,140,255,0.18)', outlineOffset:'-1px', color:'#4F8CFF', textDecoration:'none', cursor:'pointer' }
+      : { display:'flex', alignItems:'center', gap:'10px', padding:'8px 10px', borderRadius:'6px', marginBottom:'2px', color:'#525875', textDecoration:'none', cursor:'pointer' };
+    const fw = (id) => sc === id ? '600' : '400';
+    const ic = (id) => sc === id ? '#4F8CFF' : 'currentColor';
+    const disp = (id) => sc === id ? 'block' : 'none';
+
+    // DSA
+    var mkP = function(num,title,topic,diff,dColor,dBg,sIcon,sColor,names){
+      return {
+        num:num, title:title, topic:topic, diff:diff,
+        dColor:dColor, dBg:dBg, sIcon:sIcon, sColor:sColor,
+        cos: names.slice(0,3).join(' · '),
+      };
+    };
+    const allProbs = [
+      mkP('01','Two Sum','Arrays','Easy','#22D587','rgba(34,213,135,0.08)','→','#4F8CFF',['Amazon','Google','Apple','Meta']),
+      mkP('02','Valid Parentheses','Stack','Easy','#22D587','rgba(34,213,135,0.08)','✓','#22D587',['Amazon','Google','Meta']),
+      mkP('03','Best Time to Buy Stock','Sliding Window','Easy','#22D587','rgba(34,213,135,0.08)','✓','#22D587',['Amazon','Microsoft']),
+      mkP('04','Contains Duplicate','Arrays','Easy','#22D587','rgba(34,213,135,0.08)','✓','#22D587',['Amazon','Google']),
+      mkP('05','Product of Array Except Self','Arrays','Medium','#F5A524','rgba(245,165,36,0.08)','◐','#F5A524',['Amazon','Apple','Microsoft']),
+      mkP('06','Longest Substring Without Repeating','Sliding Window','Medium','#F5A524','rgba(245,165,36,0.08)','·','#3A4060',['Amazon','Google','Meta']),
+      mkP('07','Minimum Window Substring','Sliding Window','Hard','#FF6B6B','rgba(255,107,107,0.08)','·','#3A4060',['Google','Meta']),
+      mkP('08','Reverse Linked List','Linked List','Easy','#22D587','rgba(34,213,135,0.08)','·','#3A4060',['Amazon','Microsoft']),
+      mkP('09','Merge Two Sorted Lists','Linked List','Easy','#22D587','rgba(34,213,135,0.08)','·','#3A4060',['Amazon','Apple']),
+      mkP('10','Binary Search','Binary Search','Easy','#22D587','rgba(34,213,135,0.08)','·','#3A4060',['Google','LinkedIn']),
+      mkP('11','Kth Largest Element','Heap','Medium','#F5A524','rgba(245,165,36,0.08)','·','#3A4060',['Amazon','Google']),
+      mkP('12','Word Search','Backtracking','Medium','#F5A524','rgba(245,165,36,0.08)','·','#3A4060',['Amazon','Meta']),
+      mkP('13','Climbing Stairs','1D DP','Easy','#22D587','rgba(34,213,135,0.08)','·','#3A4060',['Amazon','Apple']),
+      mkP('14','House Robber','1D DP','Medium','#F5A524','rgba(245,165,36,0.08)','·','#3A4060',['Amazon','Microsoft']),
+      mkP('15','Number of Islands','Graphs','Medium','#F5A524','rgba(245,165,36,0.08)','·','#3A4060',['Google','Amazon','Meta']),
+    ];
+    const df = st.dsaFilter || 'all';
+    const filteredProbs = df === 'all' ? allProbs : allProbs.filter(function(p){ return p.diff.toLowerCase() === df; });
+    const fTab = function(id) {
+      return df === id
+        ? { padding:'3px 10px', borderRadius:'4px', fontSize:'10px', fontFamily:"'JetBrains Mono',monospace", letterSpacing:'0.04em', background:'rgba(79,140,255,0.14)', outline:'1px solid rgba(79,140,255,0.22)', outlineOffset:'-1px', color:'#4F8CFF', cursor:'pointer', border:'none' }
+        : { padding:'3px 10px', borderRadius:'4px', fontSize:'10px', fontFamily:"'JetBrains Mono',monospace", letterSpacing:'0.04em', background:'transparent', border:'1px solid rgba(79,140,255,0.1)', color:'#525875', cursor:'pointer' };
+    };
+
+    // System Design
+    const sdCards = [
+      {icon:'⊞',title:'URL Shortener',diff:'Easy',dColor:'#22D587',dBg:'rgba(34,213,135,0.08)',concepts:['Hashing','KV Store','Base62']},
+      {icon:'⊙',title:'Rate Limiter',diff:'Medium',dColor:'#F5A524',dBg:'rgba(245,165,36,0.08)',concepts:['Caching','Token Bucket','Redis']},
+      {icon:'⊛',title:'Design Twitter',diff:'Hard',dColor:'#FF6B6B',dBg:'rgba(255,107,107,0.08)',concepts:['Fan-out','Feed','CDN']},
+      {icon:'⊠',title:'Key-Value Store',diff:'Medium',dColor:'#F5A524',dBg:'rgba(245,165,36,0.08)',concepts:['Replication','Sharding','LSM']},
+      {icon:'⊡',title:'Web Crawler',diff:'Medium',dColor:'#F5A524',dBg:'rgba(245,165,36,0.08)',concepts:['BFS','DNS','Dedup']},
+      {icon:'⊜',title:'Notification System',diff:'Medium',dColor:'#F5A524',dBg:'rgba(245,165,36,0.08)',concepts:['Msg Queue','Push','APNS']},
+      {icon:'⊕',title:'Design YouTube',diff:'Hard',dColor:'#FF6B6B',dBg:'rgba(255,107,107,0.08)',concepts:['Encoding','CDN','Blob Store']},
+      {icon:'⊗',title:'Real-time Chat',diff:'Hard',dColor:'#FF6B6B',dBg:'rgba(255,107,107,0.08)',concepts:['WebSockets','Presence','Msg DB']},
+      {icon:'⊘',title:'Search Autocomplete',diff:'Medium',dColor:'#F5A524',dBg:'rgba(245,165,36,0.08)',concepts:['Trie','Caching','Ranking']},
+    ];
+
+    // SE Basics
+    const seChapters = [
+      {num:'01',title:'Git & Version Control',time:'25 min',status:'Done',statusColor:'#22D587',statusBg:'rgba(34,213,135,0.08)',topics:['Branching strategies','Merge vs Rebase','Git internals','Conventional commits'],cta:'Review chapter →'},
+      {num:'02',title:'REST APIs & HTTP',time:'30 min',status:'Reading',statusColor:'#4F8CFF',statusBg:'rgba(79,140,255,0.08)',topics:['HTTP methods & status codes','REST constraints','Authentication','Rate limiting'],cta:'Continue reading →'},
+      {num:'03',title:'SQL Databases',time:'45 min',status:'Not started',statusColor:'#525875',statusBg:'rgba(79,140,255,0.04)',topics:['ACID properties','Indexing strategies','Query optimization','Transactions'],cta:'Start reading →'},
+      {num:'04',title:'NoSQL & Caching',time:'35 min',status:'Not started',statusColor:'#525875',statusBg:'rgba(79,140,255,0.04)',topics:['Document vs Key-Value','Redis patterns','Cache invalidation','Eventual consistency'],cta:'Start reading →'},
+      {num:'05',title:'Operating Systems',time:'40 min',status:'Not started',statusColor:'#525875',statusBg:'rgba(79,140,255,0.04)',topics:['Process vs Thread','Memory management','Deadlocks','File systems'],cta:'Start reading →'},
+      {num:'06',title:'Computer Networks',time:'35 min',status:'Not started',statusColor:'#525875',statusBg:'rgba(79,140,255,0.04)',topics:['OSI model','DNS & TCP/IP','TLS/SSL','Load balancing'],cta:'Start reading →'},
+      {num:'07',title:'Design Patterns',time:'50 min',status:'Not started',statusColor:'#525875',statusBg:'rgba(79,140,255,0.04)',topics:['Creational patterns','Structural patterns','Behavioral patterns','SOLID principles'],cta:'Start reading →'},
+      {num:'08',title:'Docker & Containers',time:'30 min',status:'Not started',statusColor:'#525875',statusBg:'rgba(79,140,255,0.04)',topics:['Container vs VM','Dockerfile basics','Docker Compose','Kubernetes intro'],cta:'Start reading →'},
+    ];
+    var seI = typeof st.seChapter === 'number' ? st.seChapter : 1;
+    if (seI >= seChapters.length) seI = 0;
+    var seChStyle = function(i) {
+      return seI === i
+        ? { display:'flex', alignItems:'center', gap:'10px', padding:'10px 12px', borderRadius:'6px', marginBottom:'2px', background:'rgba(79,140,255,0.08)', outline:'1px solid rgba(79,140,255,0.14)', outlineOffset:'-1px', cursor:'pointer' }
+        : { display:'flex', alignItems:'center', gap:'10px', padding:'10px 12px', borderRadius:'6px', marginBottom:'2px', cursor:'pointer' };
+    };
+
+    // Behavioral
+    const allBQs = [
+      {q:'Tell me about a time you led a project under a tight deadline.',cat:'Leadership',catColor:'#4F8CFF',catBg:'rgba(79,140,255,0.08)',status:'Prepped ✓'},
+      {q:'Describe a conflict with a teammate and how you resolved it.',cat:'Conflict',catColor:'#F5A524',catBg:'rgba(245,165,36,0.08)',status:'Not prepped'},
+      {q:'Tell me about a mistake you made and what you learned.',cat:'Failure',catColor:'#FF6B6B',catBg:'rgba(255,107,107,0.08)',status:'Not prepped'},
+      {q:'Describe a time you influenced a team without formal authority.',cat:'Leadership',catColor:'#4F8CFF',catBg:'rgba(79,140,255,0.08)',status:'Prepped ✓'},
+      {q:'Tell me about your most technically challenging project.',cat:'Achievement',catColor:'#22D587',catBg:'rgba(34,213,135,0.08)',status:'Not prepped'},
+      {q:'How do you handle multiple competing priorities at once?',cat:'Teamwork',catColor:'#A78BFA',catBg:'rgba(167,139,250,0.08)',status:'Not prepped'},
+      {q:'Describe a time you had to deliver difficult feedback.',cat:'Leadership',catColor:'#4F8CFF',catBg:'rgba(79,140,255,0.08)',status:'Not prepped'},
+      {q:'Tell me about a time you exceeded expectations.',cat:'Achievement',catColor:'#22D587',catBg:'rgba(34,213,135,0.08)',status:'Not prepped'},
+    ];
+    const bc = st.behavCat || 'all';
+    const filteredBQs = bc === 'all' ? allBQs : allBQs.filter(function(q){ return q.cat.toLowerCase() === bc; });
+    var bTab = function(id) {
+      return bc === id
+        ? { padding:'3px 10px', borderRadius:'4px', fontSize:'10px', fontFamily:"'JetBrains Mono',monospace", letterSpacing:'0.04em', background:'rgba(79,140,255,0.14)', outline:'1px solid rgba(79,140,255,0.22)', outlineOffset:'-1px', color:'#4F8CFF', cursor:'pointer', border:'none' }
+        : { padding:'3px 10px', borderRadius:'4px', fontSize:'10px', fontFamily:"'JetBrains Mono',monospace", letterSpacing:'0.04em', background:'transparent', border:'1px solid rgba(79,140,255,0.1)', color:'#525875', cursor:'pointer' };
+    };
+
+    // Flashcards
+    const flashcards = [
+      {q:'What is the time complexity of quicksort?',a:'Average O(n log n), Worst O(n²). Space: O(log n) avg.',cat:'Algorithms'},
+      {q:'Explain the CAP theorem.',a:'Consistency, Availability, Partition Tolerance — only 2 of 3 simultaneously.',cat:'System Design'},
+      {q:'What is a hash collision?',a:'When two keys map to the same bucket. Resolved via chaining or open addressing.',cat:'Data Structures'},
+      {q:'What is memoization?',a:'Caching results of expensive function calls. Used in top-down DP.',cat:'Algorithms'},
+      {q:'Explain TCP vs UDP.',a:'TCP: reliable, ordered, connection-based. UDP: fast but unreliable.',cat:'Networking'},
+    ];
+    var fi = typeof st.fcIndex === 'number' ? st.fcIndex : 0;
+    if (fi >= flashcards.length) fi = 0;
+    var fc = flashcards[fi];
+
+    // Mock interview buttons
+    var baseBtn = { padding:'7px 14px', borderRadius:'5px', fontSize:'11px', fontFamily:"'JetBrains Mono',monospace", cursor:'pointer' };
+    var inactiveBtn = { padding:'7px 14px', borderRadius:'5px', fontSize:'11px', fontFamily:"'JetBrains Mono',monospace", cursor:'pointer', background:'#0E0F22', border:'1px solid #1B1E3A', color:'#525875' };
+    var activeBlueBtn = { padding:'7px 14px', borderRadius:'5px', fontSize:'11px', fontFamily:"'JetBrains Mono',monospace", cursor:'pointer', background:'rgba(79,140,255,0.12)', outline:'1px solid rgba(79,140,255,0.24)', outlineOffset:'-1px', color:'#4F8CFF', border:'none' };
+    var mbt = function(id) { return st.mockType === id ? activeBlueBtn : inactiveBtn; };
+    var mdu = function(id) { return st.mockDur === id ? activeBlueBtn : inactiveBtn; };
+    var mco = function(id) { return st.mockCompany === id ? activeBlueBtn : inactiveBtn; };
+    var mdEasy = st.mockDiff === 'easy' ? { padding:'7px 14px', borderRadius:'5px', fontSize:'11px', fontFamily:"'JetBrains Mono',monospace", cursor:'pointer', background:'rgba(34,213,135,0.1)', outline:'1px solid rgba(34,213,135,0.24)', outlineOffset:'-1px', color:'#22D587', border:'none' } : inactiveBtn;
+    var mdMedium = st.mockDiff === 'medium' ? { padding:'7px 14px', borderRadius:'5px', fontSize:'11px', fontFamily:"'JetBrains Mono',monospace", cursor:'pointer', background:'rgba(245,165,36,0.1)', outline:'1px solid rgba(245,165,36,0.24)', outlineOffset:'-1px', color:'#F5A524', border:'none' } : inactiveBtn;
+    var mdHard = st.mockDiff === 'hard' ? { padding:'7px 14px', borderRadius:'5px', fontSize:'11px', fontFamily:"'JetBrains Mono',monospace", cursor:'pointer', background:'rgba(255,107,107,0.1)', outline:'1px solid rgba(255,107,107,0.24)', outlineOffset:'-1px', color:'#FF6B6B', border:'none' } : inactiveBtn;
+    var mockDiffColors = { easy:'#22D587', medium:'#F5A524', hard:'#FF6B6B' };
+    var mockTypeNames = { coding:'Coding', 'system-design':'System Design', behavioral:'Behavioral' };
+
+    return {
+      // Screen displays
+      dsaD: disp('dsa'),
+      sdD: disp('system-design'),
+      seD: disp('se-basics'),
+      behavD: disp('behavioral'),
+      mockD: disp('mock-interview'),
+      fcD: disp('flashcards'),
+      spD: disp('study-plan'),
+      dashD: disp('dashboard'),
+      mockSetupD: (st.mockPhase || 'setup') === 'setup' ? 'block' : 'none',
+      mockActiveD: st.mockPhase === 'active' ? 'flex' : 'none',
+
+      // Nav styles
+      navDSA: nav('dsa'), navSD: nav('system-design'), navSE: nav('se-basics'),
+      navBehavioral: nav('behavioral'), navMock: nav('mock-interview'),
+      navFC: nav('flashcards'), navSP: nav('study-plan'), navDashboard: nav('dashboard'),
+      dsaNS: ns('dsa'), sdNS: ns('system-design'), seNS: ns('se-basics'),
+      behavNS: ns('behavioral'), mockNS: ns('mock-interview'),
+      fcNS: ns('flashcards'), spNS: ns('study-plan'), dashNS: ns('dashboard'),
+      dsaIC: ic('dsa'), sdIC: ic('system-design'), seIC: ic('se-basics'),
+      behavIC: ic('behavioral'), mockIC: ic('mock-interview'), fcIC: ic('flashcards'), spIC: ic('study-plan'),
+      dsaFW: fw('dsa'), sdFW: fw('system-design'), seFW: fw('se-basics'),
+      behavFW: fw('behavioral'), mockFW: fw('mock-interview'), fcFW: fw('flashcards'), spFW: fw('study-plan'),
+
+      // DSA
+      filteredProbs: filteredProbs,
+      fTabAll: fTab('all'), fTabEasy: fTab('easy'), fTabMedium: fTab('medium'), fTabHard: fTab('hard'),
+      setDSAAll: function() { this.setState({dsaFilter:'all'}); }.bind(this),
+      setDSAEasy: function() { this.setState({dsaFilter:'easy'}); }.bind(this),
+      setDSAMedium: function() { this.setState({dsaFilter:'medium'}); }.bind(this),
+      setDSAHard: function() { this.setState({dsaFilter:'hard'}); }.bind(this),
+
+      // System Design
+      sdCards: sdCards,
+
+      // SE Basics
+      seChapter: seChapters[seI],
+      seCh0S: seChStyle(0), seCh1S: seChStyle(1), seCh2S: seChStyle(2), seCh3S: seChStyle(3),
+      seCh4S: seChStyle(4), seCh5S: seChStyle(5), seCh6S: seChStyle(6), seCh7S: seChStyle(7),
+      navSECh0: function() { this.setState({seChapter:0}); }.bind(this),
+      navSECh1: function() { this.setState({seChapter:1}); }.bind(this),
+      navSECh2: function() { this.setState({seChapter:2}); }.bind(this),
+      navSECh3: function() { this.setState({seChapter:3}); }.bind(this),
+      navSECh4: function() { this.setState({seChapter:4}); }.bind(this),
+      navSECh5: function() { this.setState({seChapter:5}); }.bind(this),
+      navSECh6: function() { this.setState({seChapter:6}); }.bind(this),
+      navSECh7: function() { this.setState({seChapter:7}); }.bind(this),
+
+      // Behavioral
+      filteredBQs: filteredBQs,
+      bTabAll: bTab('all'), bTabLead: bTab('leadership'), bTabTeam: bTab('teamwork'),
+      bTabConflict: bTab('conflict'), bTabFail: bTab('failure'), bTabAchieve: bTab('achievement'),
+      setBehavAll: function() { this.setState({behavCat:'all'}); }.bind(this),
+      setBehavLead: function() { this.setState({behavCat:'leadership'}); }.bind(this),
+      setBehavTeam: function() { this.setState({behavCat:'teamwork'}); }.bind(this),
+      setBehavConflict: function() { this.setState({behavCat:'conflict'}); }.bind(this),
+      setBehavFail: function() { this.setState({behavCat:'failure'}); }.bind(this),
+      setBehavAchieve: function() { this.setState({behavCat:'achievement'}); }.bind(this),
+
+      // Flashcards
+      currentCard: fc,
+      fcIndex: fi,
+      fcTotal: flashcards.length,
+      fcDone: fi + 1,
+      fcRemaining: flashcards.length - fi - 1,
+      fcPct: Math.round(((fi + 1) / flashcards.length) * 100),
+      fcFlipped: st.fcFlipped,
+      flipCard: function() { this.setState(function(s){ return {fcFlipped: !s.fcFlipped}; }); }.bind(this),
+      fcNext: function() { if (fi < flashcards.length - 1) this.setState({fcIndex: fi + 1, fcFlipped: false}); }.bind(this),
+      fcContainerStyle: { position:'relative', width:'100%', height:'100%', transformStyle:'preserve-3d', transition:'transform 0.5s ease', transform: st.fcFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)', cursor:'pointer' },
+
+      // Mock
+      mockSetup: (st.mockPhase || 'setup') === 'setup',
+      mockActive: st.mockPhase === 'active',
+      startMock: function() { this.setState({mockPhase:'active'}); }.bind(this),
+      endMock: function() { this.setState({mockPhase:'setup'}); }.bind(this),
+      setMockCoding: function() { this.setState({mockType:'coding'}); }.bind(this),
+      setMockSD: function() { this.setState({mockType:'system-design'}); }.bind(this),
+      setMockBehav: function() { this.setState({mockType:'behavioral'}); }.bind(this),
+      setMockEasy: function() { this.setState({mockDiff:'easy'}); }.bind(this),
+      setMockMedium: function() { this.setState({mockDiff:'medium'}); }.bind(this),
+      setMockHard: function() { this.setState({mockDiff:'hard'}); }.bind(this),
+      setMockDur30: function() { this.setState({mockDur:30}); }.bind(this),
+      setMockDur45: function() { this.setState({mockDur:45}); }.bind(this),
+      setMockDur60: function() { this.setState({mockDur:60}); }.bind(this),
+      setMockGoogle: function() { this.setState({mockCompany:'google'}); }.bind(this),
+      setMockAmazon: function() { this.setState({mockCompany:'amazon'}); }.bind(this),
+      setMockMeta: function() { this.setState({mockCompany:'meta'}); }.bind(this),
+      setMockApple: function() { this.setState({mockCompany:'apple'}); }.bind(this),
+      mtCoding: mbt('coding'), mtSD: mbt('system-design'), mtBehav: mbt('behavioral'),
+      mdEasy: mdEasy, mdMedium: mdMedium, mdHard: mdHard,
+      mdu30: mdu(30), mdu45: mdu(45), mdu60: mdu(60),
+      mcGoogle: mco('google'), mcAmazon: mco('amazon'), mcMeta: mco('meta'), mcApple: mco('apple'),
+      mockTypeName: mockTypeNames[st.mockType || 'coding'] || 'Coding',
+      mockDiffName: (st.mockDiff || 'medium').charAt(0).toUpperCase() + (st.mockDiff || 'medium').slice(1),
+      mockDiffColor: mockDiffColors[st.mockDiff || 'medium'] || '#F5A524',
+      mockDur: st.mockDur || 45,
+      mockCompanyName: (st.mockCompany || 'google').charAt(0).toUpperCase() + (st.mockCompany || 'google').slice(1),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

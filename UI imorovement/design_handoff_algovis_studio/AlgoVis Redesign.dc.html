@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<template id="__bundler_thumbnail" data-bg-color="#e7e5df">
+  <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+    <rect width="120" height="80" fill="#e7e5df"/>
+    <!-- Frame A: dark terminal -->
+    <rect x="4" y="12" width="34" height="62" rx="2" fill="#07080F"/>
+    <rect x="4" y="12" width="34" height="7" fill="#050609"/>
+    <rect x="7" y="14.5" width="8" height="2" rx="1" fill="#4F8CFF" opacity="0.7"/>
+    <rect x="17" y="24" width="28" height="2" rx="1" fill="#0B0C18"/>
+    <rect x="17" y="28" width="28" height="2" rx="1" fill="#0B0C18"/>
+    <rect x="17" y="32" width="28" height="2" rx="1" fill="#0B0C18"/>
+    <!-- Frame B: studio dark with sidebar -->
+    <rect x="43" y="12" width="34" height="62" rx="2" fill="#08091A"/>
+    <rect x="43" y="12" width="8" height="62" fill="#05060F"/>
+    <rect x="45" y="15" width="4" height="4" rx="1" fill="rgba(79,140,255,0.3)"/>
+    <rect x="53" y="16" width="22" height="3" rx="1" fill="#0E0F22"/>
+    <rect x="53" y="22" width="22" height="8" rx="1" fill="#0E0F22"/>
+    <rect x="53" y="34" width="22" height="10" rx="1" fill="#4F8CFF" opacity="0.3"/>
+    <!-- Frame C: studio light -->
+    <rect x="82" y="12" width="34" height="62" rx="2" fill="#EDF0FA"/>
+    <rect x="82" y="12" width="8" height="62" fill="#fff"/>
+    <rect x="84" y="15" width="4" height="4" rx="1" fill="rgba(61,123,255,0.2)"/>
+    <rect x="92" y="16" width="7" height="5" rx="1" fill="#EEF3FF"/>
+    <rect x="101" y="16" width="7" height="5" rx="1" fill="#F0EEFF"/>
+    <rect x="110" y="16" width="5" height="5" rx="1" fill="#EDFFF6"/>
+    <rect x="92" y="24" width="22" height="8" rx="1" fill="#fff"/>
+    <!-- AlgoVis label -->
+    <text x="60" y="9" font-family="monospace" font-size="4" fill="#999" text-anchor="middle">ALGOVIS · REDESIGN</text>
+  </svg>
+</template>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</helmet>
+
+<div style="width:max-content;min-width:100%;min-height:100vh;padding:48px;background:#e7e5df;box-sizing:border-box">
+
+  <!-- BRIEFING -->
+  <div style="margin-bottom:36px">
+    <p style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;color:#999;margin:0 0 6px">ALGOVIS · DASHBOARD REDESIGN</p>
+    <h1 style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:#1C1D28;margin:0 0 10px;letter-spacing:-0.02em">3 design directions</h1>
+    <p style="font-family:'Space Grotesk',sans-serif;font-size:13px;color:#666;line-height:1.6;margin:0 0 14px;max-width:660px">Addressing: weak typography → mono/grotesk pairing with strong hierarchy · too dense → breathing room in B/C · lacks personality → code-native details + sidebar nav + colorful accents</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;background:#fff;border-radius:3px;padding:3px 10px;border:1px solid #ddd;color:#555">A — Terminal / dark · all-mono · dense</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;background:#fff;border-radius:3px;padding:3px 10px;border:1px solid #ddd;color:#555">B — Studio Dark / sidebar · grotesk+mono</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;background:#fff;border-radius:3px;padding:3px 10px;border:1px solid #ddd;color:#555">C — Studio Light / colorful cards</span>
+    </div>
+  </div>
+
+  <!-- FRAMES ROW -->
+  <div style="display:flex;gap:48px;align-items:flex-start">
+
+    <!-- ══════════════════════════════════════════
+         FRAME A — TERMINAL
+    ══════════════════════════════════════════ -->
+    <div style="flex:none;width:1200px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#555;margin-bottom:10px">
+        <strong style="color:#1C1D28">A</strong> <span style="color:#ccc">—</span> Terminal <span style="color:#bbb">/ dark · all-monospace · CLI aesthetic</span>
+      </div>
+      <div style="border-radius:2px;box-shadow:0 2px 12px rgba(0,0,0,.18);overflow:hidden">
+        <div style="background:#07080F;font-family:'JetBrains Mono',monospace;color:#B4B9D6">
+
+          <!-- NAV BAR -->
+          <div style="height:48px;background:#050609;border-bottom:1px solid rgba(79,140,255,0.12);display:flex;align-items:center;padding:0 20px;gap:16px">
+            <span style="font-size:12px;font-weight:600;color:#4F8CFF;letter-spacing:0.1em;flex-shrink:0">◉ ALGOVIS</span>
+            <div style="display:flex;gap:1px;background:rgba(255,255,255,0.025);border:1px solid rgba(79,140,255,0.1);border-radius:5px;padding:2px">
+              <span style="font-size:10px;color:#4F8CFF;background:rgba(79,140,255,0.14);border:1px solid rgba(79,140,255,0.22);border-radius:3px;padding:4px 12px;letter-spacing:0.04em">DSA</span>
+              <span style="font-size:10px;color:#434968;padding:4px 12px;letter-spacing:0.04em">SYSTEM</span>
+              <span style="font-size:10px;color:#434968;padding:4px 12px;letter-spacing:0.04em">SE·BASICS</span>
+              <span style="font-size:10px;color:#434968;padding:4px 12px;letter-spacing:0.04em">BEHAVIORAL</span>
+            </div>
+            <div style="flex:1"></div>
+            <div style="display:flex;gap:1px;background:rgba(255,255,255,0.025);border:1px solid rgba(79,140,255,0.1);border-radius:5px;padding:2px">
+              <span style="font-size:10px;color:#4F8CFF;background:rgba(79,140,255,0.14);border:1px solid rgba(79,140,255,0.22);border-radius:3px;padding:4px 12px;letter-spacing:0.04em">HOME</span>
+              <span style="font-size:10px;color:#434968;padding:4px 12px;letter-spacing:0.04em">STATS</span>
+              <span style="font-size:10px;color:#434968;padding:4px 12px;letter-spacing:0.04em">CARDS</span>
+              <span style="font-size:10px;color:#434968;padding:4px 12px;letter-spacing:0.04em">MOCK</span>
+            </div>
+            <span style="font-size:10px;color:#F5A524;letter-spacing:0.08em;flex-shrink:0;margin-left:8px">14D → GOOGLE</span>
+          </div>
+
+          <!-- PROGRESS LINE -->
+          <div style="height:2px;background:rgba(79,140,255,0.07)"><div style="height:2px;width:16%;background:linear-gradient(90deg,#4F8CFF,#22D587)"></div></div>
+
+          <!-- BREADCRUMB -->
+          <div style="padding:14px 24px 0;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:10px;color:rgba(79,140,255,0.32);letter-spacing:0.06em">~/dashboard</span>
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="font-size:10px;color:#363C5C">Thu · Jun 19, 2026</span>
+              <span style="font-size:10px;color:#434968;border:1px solid rgba(79,140,255,0.1);border-radius:4px;padding:3px 10px;letter-spacing:0.04em">study plan →</span>
+            </div>
+          </div>
+
+          <!-- CONTENT -->
+          <div style="padding:12px 24px 28px;display:flex;flex-direction:column;gap:10px">
+
+            <!-- ROW 1: tasks + track -->
+            <div style="display:grid;grid-template-columns:1fr 280px;gap:10px">
+
+              <!-- tasks -->
+              <div style="background:#0B0C18;border:1px solid rgba(79,140,255,0.1);border-radius:6px;overflow:hidden">
+                <div style="padding:8px 14px;border-bottom:1px solid rgba(79,140,255,0.07);display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:9px;color:rgba(79,140,255,0.36);letter-spacing:0.16em">TASKS ·· TODAY</span>
+                  <span style="font-size:9px;color:#363C5C">4 items</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid rgba(79,140,255,0.06)">
+                  <span style="font-size:16px;color:#4F8CFF;width:16px;flex-shrink:0;line-height:1">→</span>
+                  <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:#CDD2EE">Two Sum</div><div style="font-size:10px;color:#434968;margin-top:2px">Arrays &amp; Hashing · Easy</div></div>
+                  <span style="font-size:9px;color:#4F8CFF;background:rgba(79,140,255,0.08);border:1px solid rgba(79,140,255,0.18);border-radius:3px;padding:2px 7px;flex-shrink:0;letter-spacing:0.04em">next</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid rgba(79,140,255,0.06)">
+                  <span style="font-size:16px;color:#F5A524;width:16px;flex-shrink:0;line-height:1">↻</span>
+                  <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:#CDD2EE">Review due</div><div style="font-size:10px;color:#F5A524;margin-top:2px">3 problems due today</div></div>
+                  <span style="font-size:9px;color:#F5A524;background:rgba(245,165,36,0.1);border:1px solid rgba(245,165,36,0.22);border-radius:3px;padding:2px 7px;flex-shrink:0;letter-spacing:0.04em">due</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid rgba(79,140,255,0.06)">
+                  <span style="font-size:16px;color:#363C5C;width:16px;flex-shrink:0;line-height:1">◈</span>
+                  <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:#767DA0">Pattern diagnosis</div><div style="font-size:10px;color:#363C5C;margin-top:2px">0 attempts today</div></div>
+                  <span style="font-size:9px;color:#363C5C;border:1px solid rgba(79,140,255,0.07);border-radius:3px;padding:2px 7px;flex-shrink:0">optional</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;padding:11px 14px">
+                  <span style="font-size:16px;color:#363C5C;width:16px;flex-shrink:0;line-height:1">◎</span>
+                  <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:#767DA0">Mock interview</div><div style="font-size:10px;color:#363C5C;margin-top:2px">last score 72/100</div></div>
+                  <span style="font-size:9px;color:#363C5C;border:1px solid rgba(79,140,255,0.07);border-radius:3px;padding:2px 7px;flex-shrink:0">optional</span>
+                </div>
+              </div>
+
+              <!-- track + weakest -->
+              <div style="background:#0B0C18;border:1px solid rgba(79,140,255,0.1);border-radius:6px;padding:16px;display:flex;flex-direction:column">
+                <div style="font-size:9px;letter-spacing:0.16em;color:rgba(79,140,255,0.33);margin-bottom:8px">TRACK</div>
+                <div style="font-size:13px;font-weight:600;color:#CDD2EE;margin-bottom:3px">MAANG Fast Track</div>
+                <div style="font-size:10px;color:#434968;line-height:1.7;margin-bottom:16px">150 problems · 8 weeks<br/>focus: pattern mastery</div>
+                <div style="height:1px;background:rgba(79,140,255,0.07);margin-bottom:16px"></div>
+                <div style="font-size:9px;letter-spacing:0.16em;color:rgba(79,140,255,0.33);margin-bottom:9px">WEAKEST PATTERN</div>
+                <div style="font-size:12px;font-weight:500;color:#CDD2EE;margin-bottom:10px">Dynamic Programming</div>
+                <div style="height:4px;background:rgba(79,140,255,0.1);border-radius:2px;overflow:hidden;margin-bottom:7px"><div style="height:4px;width:23%;background:#4F8CFF;border-radius:2px"></div></div>
+                <div style="display:flex;justify-content:space-between;font-size:10px;margin-top:auto">
+                  <span style="color:#434968">5 / 22 complete</span>
+                  <span style="color:#4F8CFF">23%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ROW 2: progress meters -->
+            <div style="background:#0B0C18;border:1px solid rgba(79,140,255,0.1);border-radius:6px;padding:14px 20px">
+              <div style="font-size:9px;letter-spacing:0.16em;color:rgba(79,140,255,0.33);margin-bottom:14px">PROGRESS</div>
+              <div style="display:grid;grid-template-columns:120px 1fr 72px 38px;gap:12px;align-items:center;margin-bottom:10px">
+                <span style="font-size:11px;color:#565E80">dsa</span>
+                <div style="height:3px;background:rgba(79,140,255,0.1);border-radius:2px;overflow:hidden"><div style="height:3px;width:16%;background:#4F8CFF;border-radius:2px"></div></div>
+                <span style="font-size:11px;color:#434968;text-align:right">47 / 293</span>
+                <span style="font-size:11px;color:#4F8CFF;text-align:right">16%</span>
+              </div>
+              <div style="display:grid;grid-template-columns:120px 1fr 72px 38px;gap:12px;align-items:center;margin-bottom:10px">
+                <span style="font-size:11px;color:#565E80">system-design</span>
+                <div style="height:3px;background:rgba(79,140,255,0.1);border-radius:2px;overflow:hidden"><div style="height:3px;width:19%;background:#4F8CFF;border-radius:2px"></div></div>
+                <span style="font-size:11px;color:#434968;text-align:right">8 / 42</span>
+                <span style="font-size:11px;color:#4F8CFF;text-align:right">19%</span>
+              </div>
+              <div style="display:grid;grid-template-columns:120px 1fr 72px 38px;gap:12px;align-items:center">
+                <span style="font-size:11px;color:#565E80">se-basics</span>
+                <div style="height:3px;background:rgba(79,140,255,0.1);border-radius:2px;overflow:hidden"><div style="height:3px;width:34%;background:#4F8CFF;border-radius:2px"></div></div>
+                <span style="font-size:11px;color:#434968;text-align:right">12 / 35</span>
+                <span style="font-size:11px;color:#4F8CFF;text-align:right">34%</span>
+              </div>
+            </div>
+
+            <!-- ROW 3: reviews + week -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div style="background:#0B0C18;border:1px solid rgba(79,140,255,0.1);border-radius:6px;overflow:hidden">
+                <div style="padding:8px 14px;border-bottom:1px solid rgba(79,140,255,0.07);display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:9px;color:rgba(79,140,255,0.33);letter-spacing:0.16em">DUE REVIEWS</span>
+                  <span style="font-size:10px;color:#F5A524;background:rgba(245,165,36,0.1);border:1px solid rgba(245,165,36,0.2);border-radius:3px;padding:1px 7px">3</span>
+                </div>
+                <div style="padding:9px 14px;border-bottom:1px solid rgba(79,140,255,0.06);display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:11px;color:#B4B9D6">Two Sum</span><span style="font-size:10px;color:#22D587">Easy</span>
+                </div>
+                <div style="padding:9px 14px;border-bottom:1px solid rgba(79,140,255,0.06);display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:11px;color:#B4B9D6">Valid Parentheses</span><span style="font-size:10px;color:#22D587">Easy</span>
+                </div>
+                <div style="padding:9px 14px;display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:11px;color:#B4B9D6">Binary Search</span><span style="font-size:10px;color:#22D587">Easy</span>
+                </div>
+              </div>
+              <div style="background:#0B0C18;border:1px solid rgba(79,140,255,0.1);border-radius:6px;padding:16px">
+                <div style="font-size:9px;letter-spacing:0.16em;color:rgba(79,140,255,0.33);margin-bottom:12px">THIS WEEK</div>
+                <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:14px">
+                  <span style="font-size:48px;font-weight:600;color:#CDD2EE;line-height:1">7</span>
+                  <span style="font-size:11px;color:#434968">problems solved</span>
+                </div>
+                <div style="display:flex;gap:3px;align-items:flex-end;height:28px">
+                  <div style="width:20px;background:rgba(79,140,255,0.5);border-radius:2px 2px 0 0;height:55%"></div>
+                  <div style="width:20px;background:#4F8CFF;border-radius:2px 2px 0 0;height:100%"></div>
+                  <div style="width:20px;background:rgba(79,140,255,0.18);border-radius:2px 2px 0 0;height:20%"></div>
+                  <div style="width:20px;background:rgba(79,140,255,0.12);border-radius:2px 2px 0 0;height:10%"></div>
+                  <div style="width:20px;background:rgba(79,140,255,0.65);border-radius:2px 2px 0 0;height:75%"></div>
+                  <div style="width:20px;background:#22D587;border-radius:2px 2px 0 0;height:60%"></div>
+                  <div style="width:20px;background:rgba(79,140,255,0.15);border-radius:2px 2px 0 0;height:20%"></div>
+                </div>
+                <div style="display:flex;gap:3px;margin-top:5px">
+                  <span style="font-size:8px;color:#363C5C;width:20px;text-align:center">M</span>
+                  <span style="font-size:8px;color:#363C5C;width:20px;text-align:center">T</span>
+                  <span style="font-size:8px;color:#363C5C;width:20px;text-align:center">W</span>
+                  <span style="font-size:8px;color:#363C5C;width:20px;text-align:center">T</span>
+                  <span style="font-size:8px;color:#363C5C;width:20px;text-align:center">F</span>
+                  <span style="font-size:8px;color:#4F8CFF;width:20px;text-align:center">S</span>
+                  <span style="font-size:8px;color:#363C5C;width:20px;text-align:center">S</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- END FRAME A -->
+
+
+    <!-- ══════════════════════════════════════════
+         FRAME B — STUDIO DARK
+    ══════════════════════════════════════════ -->
+    <div style="flex:none;width:1200px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#555;margin-bottom:10px">
+        <strong style="color:#1C1D28">B</strong> <span style="color:#ccc">—</span> Studio Dark <span style="color:#bbb">/ sidebar nav · Space Grotesk + Mono · premium tool</span>
+      </div>
+      <div style="border-radius:2px;box-shadow:0 2px 12px rgba(0,0,0,.18);overflow:hidden">
+        <div style="background:#08091A;display:grid;grid-template-columns:220px 1fr;height:760px;font-family:'Space Grotesk',sans-serif;color:#DDE0F5">
+
+          <!-- SIDEBAR -->
+          <div style="background:#05060F;border-right:1px solid #1A1D38;display:flex;flex-direction:column">
+            <!-- logo -->
+            <div style="padding:18px 16px 14px;border-bottom:1px solid #12152A">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:30px;height:30px;background:rgba(79,140,255,0.1);border:1px solid rgba(79,140,255,0.22);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2.5" fill="#4F8CFF"></circle><circle cx="7" cy="7" r="5.5" stroke="#4F8CFF" stroke-width="1.2" stroke-dasharray="2.5 2"></circle></svg>
+                </div>
+                <span style="font-size:14px;font-weight:700;color:#DDE0F5;letter-spacing:-0.01em">AlgoVis</span>
+              </div>
+            </div>
+            <!-- interview chip -->
+            <div style="margin:10px 10px 0;background:rgba(245,165,36,0.06);border:1px solid rgba(245,165,36,0.15);border-radius:6px;padding:8px 12px">
+              <div style="font-size:9px;letter-spacing:0.1em;color:rgba(245,165,36,0.5);font-family:'JetBrains Mono',monospace;margin-bottom:3px">INTERVIEW</div>
+              <div style="font-size:12px;color:#F5A524;font-family:'JetBrains Mono',monospace;font-weight:500">Google · 14 days</div>
+            </div>
+            <!-- nav -->
+            <nav style="flex:1;padding:14px 8px 0;overflow-y:auto">
+              <div style="padding:0 8px;font-size:9px;letter-spacing:0.12em;color:#3A4060;font-family:'JetBrains Mono',monospace;margin-bottom:5px">LEARN</div>
+              <!-- DSA -->
+              <a href="#" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;margin-bottom:2px;color:#8890B0;text-decoration:none">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><path d="M4 3L1 7l3 4M10 3l3 4-3 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M8.5 2.5l-3 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+                <span style="font-size:12px">DSA</span>
+                <div style="width:5px;height:5px;background:#22D587;border-radius:50%;margin-left:auto;flex-shrink:0"></div>
+              </a>
+              <!-- System Design -->
+              <a href="#" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;margin-bottom:2px;color:#525875;text-decoration:none">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><rect x="1.5" y="1.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.5"></rect><rect x="8" y="1.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.5"></rect><rect x="1.5" y="8" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.5"></rect><rect x="8" y="8" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.5"></rect></svg>
+                <span style="font-size:12px">System Design</span>
+              </a>
+              <!-- SE Basics -->
+              <a href="#" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;margin-bottom:2px;color:#525875;text-decoration:none">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><path d="M2 2h7a1 1 0 011 1v9H3a1 1 0 01-1-1V2z" stroke="currentColor" stroke-width="1.5"></path><path d="M9 12h2a1 1 0 001-1V3a1 1 0 00-1-1H9" stroke="currentColor" stroke-width="1.5"></path><path d="M5 5h3M5 7.5h2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path></svg>
+                <span style="font-size:12px">SE Basics</span>
+              </a>
+              <!-- Behavioral -->
+              <a href="#" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;margin-bottom:12px;color:#525875;text-decoration:none">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><path d="M2 2h10a1 1 0 011 1v5.5a1 1 0 01-1 1H8.5L7 11v-1.5H2a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+                <span style="font-size:12px">Behavioral</span>
+              </a>
+              <div style="height:1px;background:#12152A;margin:0 6px 12px"></div>
+              <div style="padding:0 8px;font-size:9px;letter-spacing:0.12em;color:#3A4060;font-family:'JetBrains Mono',monospace;margin-bottom:5px">TOOLS</div>
+              <!-- Dashboard (active) -->
+              <a href="#" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;margin-bottom:2px;background:rgba(79,140,255,0.1);border:1px solid rgba(79,140,255,0.18);color:#4F8CFF;text-decoration:none">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><path d="M1.5 6.5L7 2l5.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M3 5.5V12h3V9h2v3h3V5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span style="font-size:12px;font-weight:500">Dashboard</span>
+              </a>
+              <!-- Analytics -->
+              <a href="#" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;margin-bottom:2px;color:#525875;text-decoration:none">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><rect x="1.5" y="7.5" width="3" height="5" rx="0.5" stroke="currentColor" stroke-width="1.5"></rect><rect x="5.5" y="5" width="3" height="7.5" rx="0.5" stroke="currentColor" stroke-width="1.5"></rect><rect x="9.5" y="2" width="3" height="10.5" rx="0.5" stroke="currentColor" stroke-width="1.5"></rect></svg>
+                <span style="font-size:12px">Analytics</span>
+              </a>
+              <!-- Flashcards -->
+              <a href="#" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;margin-bottom:2px;color:#525875;text-decoration:none">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><rect x="2" y="4" width="9" height="7" rx="1" stroke="currentColor" stroke-width="1.5"></rect><path d="M4 4V3a1 1 0 011-1h7a1 1 0 011 1v7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+                <span style="font-size:12px">Flashcards</span>
+              </a>
+              <!-- Mock -->
+              <a href="#" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;color:#525875;text-decoration:none">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><rect x="1.5" y="3" width="8.5" height="8" rx="1" stroke="currentColor" stroke-width="1.5"></rect><path d="M10 6.5l3-2v5l-3-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span style="font-size:12px">Mock Interview</span>
+              </a>
+            </nav>
+            <!-- account -->
+            <div style="padding:12px 16px;border-top:1px solid #12152A;display:flex;align-items:center;gap:10px">
+              <div style="width:26px;height:26px;background:rgba(79,140,255,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:'JetBrains Mono',monospace;color:#4F8CFF;font-weight:600;flex-shrink:0">JS</div>
+              <span style="font-size:12px;color:#525875">Sign in</span>
+            </div>
+          </div>
+          <!-- END SIDEBAR -->
+
+          <!-- MAIN CONTENT -->
+          <div style="overflow-y:auto;padding:28px 32px;background:#08091A">
+            <!-- header -->
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px">
+              <div>
+                <p style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace;letter-spacing:0.07em;margin:0 0 7px">TODAY · JUN 19 · THURSDAY</p>
+                <h1 style="font-size:28px;font-weight:700;color:#DDE0F5;line-height:1;margin:0;letter-spacing:-0.02em">Dashboard</h1>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;background:#0E0F22;border:1px solid #1B1E3A;border-radius:8px;padding:8px 14px">
+                <div style="width:6px;height:6px;background:#F5A524;border-radius:50%;flex-shrink:0"></div>
+                <span style="font-size:11px;color:#9499C0;font-family:'JetBrains Mono',monospace">Google</span>
+                <span style="font-size:15px;font-weight:700;color:#F5A524;font-family:'JetBrains Mono',monospace">14</span>
+                <span style="font-size:11px;color:#525875;font-family:'JetBrains Mono',monospace">days</span>
+              </div>
+            </div>
+            <!-- metric cards -->
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+              <div style="background:#0E0F22;border:1px solid #1B1E3A;border-radius:8px;padding:16px">
+                <div style="font-size:9px;color:#525875;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;margin-bottom:10px">DSA</div>
+                <div style="font-size:34px;font-weight:600;color:#DDE0F5;font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:6px">47</div>
+                <div style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace;margin-bottom:10px">/ 293 problems</div>
+                <div style="height:2px;background:rgba(79,140,255,0.12);border-radius:1px;overflow:hidden"><div style="height:2px;width:16%;background:#4F8CFF;border-radius:1px"></div></div>
+                <div style="font-size:10px;color:#4F8CFF;font-family:'JetBrains Mono',monospace;margin-top:5px">16%</div>
+              </div>
+              <div style="background:#0E0F22;border:1px solid #1B1E3A;border-radius:8px;padding:16px">
+                <div style="font-size:9px;color:#525875;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;margin-bottom:10px">SYSTEM DESIGN</div>
+                <div style="font-size:34px;font-weight:600;color:#DDE0F5;font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:6px">8</div>
+                <div style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace;margin-bottom:10px">/ 42 concepts</div>
+                <div style="height:2px;background:rgba(79,140,255,0.12);border-radius:1px;overflow:hidden"><div style="height:2px;width:19%;background:#4F8CFF;border-radius:1px"></div></div>
+                <div style="font-size:10px;color:#4F8CFF;font-family:'JetBrains Mono',monospace;margin-top:5px">19%</div>
+              </div>
+              <div style="background:#0E0F22;border:1px solid #1B1E3A;border-radius:8px;padding:16px">
+                <div style="font-size:9px;color:#525875;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;margin-bottom:10px">SE BASICS</div>
+                <div style="font-size:34px;font-weight:600;color:#DDE0F5;font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:6px">12</div>
+                <div style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace;margin-bottom:10px">/ 35 chapters</div>
+                <div style="height:2px;background:rgba(79,140,255,0.12);border-radius:1px;overflow:hidden"><div style="height:2px;width:34%;background:#4F8CFF;border-radius:1px"></div></div>
+                <div style="font-size:10px;color:#4F8CFF;font-family:'JetBrains Mono',monospace;margin-top:5px">34%</div>
+              </div>
+              <div style="background:#0E0F22;border:1px solid #1B1E3A;border-radius:8px;padding:16px">
+                <div style="font-size:9px;color:#525875;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;margin-bottom:10px">THIS WEEK</div>
+                <div style="font-size:34px;font-weight:600;color:#DDE0F5;font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:6px">7</div>
+                <div style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace;margin-bottom:10px">problems solved</div>
+                <div style="height:2px;background:rgba(34,213,135,0.15);border-radius:1px;overflow:hidden"><div style="height:2px;width:70%;background:#22D587;border-radius:1px"></div></div>
+                <div style="font-size:10px;color:#22D587;font-family:'JetBrains Mono',monospace;margin-top:5px">on track</div>
+              </div>
+            </div>
+            <!-- continue card -->
+            <div style="background:#0E0F22;border:1px solid #1B1E3A;border-top:2px solid #4F8CFF;border-radius:0 0 8px 8px;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between">
+              <div>
+                <div style="font-size:9px;color:#525875;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;margin-bottom:9px">CONTINUE STUDYING</div>
+                <div style="font-size:20px;font-weight:700;color:#DDE0F5;margin-bottom:7px;letter-spacing:-0.01em">Two Sum</div>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <span style="font-size:11px;color:#525875;font-family:'JetBrains Mono',monospace;background:rgba(79,140,255,0.08);border:1px solid rgba(79,140,255,0.15);border-radius:4px;padding:2px 8px">Arrays &amp; Hashing</span>
+                  <span style="font-size:11px;color:#22D587;font-family:'JetBrains Mono',monospace">Easy</span>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px">
+                <div style="text-align:right">
+                  <div style="font-size:10px;color:#525875;font-family:'JetBrains Mono',monospace">MAANG Fast Track</div>
+                  <div style="font-size:10px;color:#3E4465;font-family:'JetBrains Mono',monospace;margin-top:3px">problem 12 / 150</div>
+                </div>
+                <div style="width:38px;height:38px;background:rgba(79,140,255,0.1);border:1px solid rgba(79,140,255,0.25);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#4F8CFF;font-size:20px">→</div>
+              </div>
+            </div>
+            <!-- bottom grid -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <!-- due reviews -->
+              <div style="background:#0E0F22;border:1px solid #1B1E3A;border-radius:8px;overflow:hidden">
+                <div style="padding:14px 16px;border-bottom:1px solid #141628;display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:13px;font-weight:600;color:#DDE0F5">Due reviews</span>
+                  <span style="font-size:10px;color:#F5A524;font-family:'JetBrains Mono',monospace;background:rgba(245,165,36,0.08);border:1px solid rgba(245,165,36,0.2);border-radius:4px;padding:2px 8px">3 today</span>
+                </div>
+                <div style="padding:11px 16px;border-bottom:1px solid #141628;display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:13px;color:#B8BDD8">Two Sum</span>
+                  <span style="font-size:11px;color:#22D587;font-family:'JetBrains Mono',monospace">Easy</span>
+                </div>
+                <div style="padding:11px 16px;border-bottom:1px solid #141628;display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:13px;color:#B8BDD8">Valid Parentheses</span>
+                  <span style="font-size:11px;color:#22D587;font-family:'JetBrains Mono',monospace">Easy</span>
+                </div>
+                <div style="padding:11px 16px;display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:13px;color:#B8BDD8">Binary Search</span>
+                  <span style="font-size:11px;color:#22D587;font-family:'JetBrains Mono',monospace">Easy</span>
+                </div>
+              </div>
+              <!-- weakest patterns -->
+              <div style="background:#0E0F22;border:1px solid #1B1E3A;border-radius:8px;padding:16px">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                  <span style="font-size:13px;font-weight:600;color:#DDE0F5">Weakest patterns</span>
+                  <span style="font-size:11px;color:#525875;font-family:'JetBrains Mono',monospace">view all →</span>
+                </div>
+                <div style="margin-bottom:13px">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:#9499C0">Dynamic Programming</span><span style="font-size:10px;color:#4F8CFF;font-family:'JetBrains Mono',monospace">23%</span></div>
+                  <div style="height:3px;background:rgba(79,140,255,0.1);border-radius:2px;overflow:hidden"><div style="height:3px;width:23%;background:#4F8CFF;border-radius:2px"></div></div>
+                </div>
+                <div style="margin-bottom:13px">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:#9499C0">Graph Algorithms</span><span style="font-size:10px;color:#4F8CFF;font-family:'JetBrains Mono',monospace">31%</span></div>
+                  <div style="height:3px;background:rgba(79,140,255,0.1);border-radius:2px;overflow:hidden"><div style="height:3px;width:31%;background:#4F8CFF;border-radius:2px"></div></div>
+                </div>
+                <div style="margin-bottom:13px">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:#9499C0">Binary Search</span><span style="font-size:10px;color:#4F8CFF;font-family:'JetBrains Mono',monospace">38%</span></div>
+                  <div style="height:3px;background:rgba(79,140,255,0.1);border-radius:2px;overflow:hidden"><div style="height:3px;width:38%;background:#4F8CFF;border-radius:2px"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:#9499C0">Advanced Graphs</span><span style="font-size:10px;color:#4F8CFF;font-family:'JetBrains Mono',monospace">42%</span></div>
+                  <div style="height:3px;background:rgba(79,140,255,0.1);border-radius:2px;overflow:hidden"><div style="height:3px;width:42%;background:#4F8CFF;border-radius:2px"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- END MAIN -->
+
+        </div>
+      </div>
+    </div>
+    <!-- END FRAME B -->
+
+
+    <!-- ══════════════════════════════════════════
+         FRAME C — STUDIO LIGHT
+    ══════════════════════════════════════════ -->
+    <div style="flex:none;width:1200px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#555;margin-bottom:10px">
+        <strong style="color:#1C1D28">C</strong> <span style="color:#ccc">—</span> Studio Light <span style="color:#bbb">/ same sidebar · light mode · colored accent cards</span>
+      </div>
+      <div style="border-radius:2px;box-shadow:0 2px 12px rgba(0,0,0,.12);overflow:hidden">
+        <div style="background:#EDF0FA;display:grid;grid-template-columns:220px 1fr;height:760px;font-family:'Space Grotesk',sans-serif;color:#151728">
+
+          <!-- SIDEBAR (light) -->
+          <div style="background:#FFFFFF;border-right:1px solid #E2E4F0;display:flex;flex-direction:column">
+            <!-- logo -->
+            <div style="padding:18px 16px 14px;border-bottom:1px solid #EDF0FA">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:30px;height:30px;background:rgba(61,123,255,0.08);border:1px solid rgba(61,123,255,0.18);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="2.5" fill="#3D7BFF"></circle><circle cx="7" cy="7" r="5.5" stroke="#3D7BFF" stroke-width="1.2" stroke-dasharray="2.5 2"></circle></svg>
+                </div>
+                <span style="font-size:14px;font-weight:700;color:#151728;letter-spacing:-0.01em">AlgoVis</span>
+              </div>
+            </div>
+            <!-- interview chip -->
+            <div style="margin:10px 10px 0;background:#FFF8ED;border:1px solid rgba(217,119,6,0.2);border-radius:6px;padding:8px 12px">
+              <div style="font-size:9px;letter-spacing:0.1em;color:rgba(217,119,6,0.6);font-family:'JetBrains Mono',monospace;margin-bottom:3px">INTERVIEW</div>
+              <div style="font-size:12px;color:#B45309;font-family:'JetBrains Mono',monospace;font-weight:500">Google · 14 days</div>
+            </div>
+            <!-- nav -->
+            <nav style="flex:1;padding:14px 8px 0;overflow-y:auto">
+              <div style="padding:0 8px;font-size:9px;letter-spacing:0.12em;color:#B0B4CC;font-family:'JetBrains Mono',monospace;margin-bottom:5px">LEARN</div>
+              <a href="#" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;margin-bottom:2px;color:#5C607D;text-decoration:none">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0;color:#9599B5"><path d="M4 3L1 7l3 4M10 3l3 4-3 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M8.5 2.5l-3 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+                <span style="font-size:12px">DSA</span>
+                <div style="width:5px;height:5px;background:#15A260;border-radius:50%;margin-left:auto;flex-shrink:0"></div>
+              </a>
+              <a href="#" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;margin-bottom:2px;color:#9599B5;text-decoration:none">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><rect x="1.5" y="1.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.5"></rect><rect x="8" y="1.5" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.5"></rect><rect x="1.5" y="8" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.5"></rect><rect x="8" y="8" width="4.5" height="4.5" rx="1" stroke="currentColor" stroke-width="1.5"></rect></svg>
+                <span style="font-size:12px">System Design</span>
+              </a>
+              <a href="#" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;margin-bottom:2px;color:#9599B5;text-decoration:none">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><path d="M2 2h7a1 1 0 011 1v9H3a1 1 0 01-1-1V2z" stroke="currentColor" stroke-width="1.5"></path><path d="M9 12h2a1 1 0 001-1V3a1 1 0 00-1-1H9" stroke="currentColor" stroke-width="1.5"></path><path d="M5 5h3M5 7.5h2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path></svg>
+                <span style="font-size:12px">SE Basics</span>
+              </a>
+              <a href="#" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;margin-bottom:12px;color:#9599B5;text-decoration:none">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><path d="M2 2h10a1 1 0 011 1v5.5a1 1 0 01-1 1H8.5L7 11v-1.5H2a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+                <span style="font-size:12px">Behavioral</span>
+              </a>
+              <div style="height:1px;background:#EDF0FA;margin:0 6px 12px"></div>
+              <div style="padding:0 8px;font-size:9px;letter-spacing:0.12em;color:#B0B4CC;font-family:'JetBrains Mono',monospace;margin-bottom:5px">TOOLS</div>
+              <a href="#" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;margin-bottom:2px;background:#EBF0FF;border:1px solid rgba(61,123,255,0.18);color:#3D7BFF;text-decoration:none">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><path d="M1.5 6.5L7 2l5.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M3 5.5V12h3V9h2v3h3V5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span style="font-size:12px;font-weight:500">Dashboard</span>
+              </a>
+              <a href="#" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;margin-bottom:2px;color:#9599B5;text-decoration:none">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><rect x="1.5" y="7.5" width="3" height="5" rx="0.5" stroke="currentColor" stroke-width="1.5"></rect><rect x="5.5" y="5" width="3" height="7.5" rx="0.5" stroke="currentColor" stroke-width="1.5"></rect><rect x="9.5" y="2" width="3" height="10.5" rx="0.5" stroke="currentColor" stroke-width="1.5"></rect></svg>
+                <span style="font-size:12px">Analytics</span>
+              </a>
+              <a href="#" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;margin-bottom:2px;color:#9599B5;text-decoration:none">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><rect x="2" y="4" width="9" height="7" rx="1" stroke="currentColor" stroke-width="1.5"></rect><path d="M4 4V3a1 1 0 011-1h7a1 1 0 011 1v7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+                <span style="font-size:12px">Flashcards</span>
+              </a>
+              <a href="#" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;color:#9599B5;text-decoration:none">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><rect x="1.5" y="3" width="8.5" height="8" rx="1" stroke="currentColor" stroke-width="1.5"></rect><path d="M10 6.5l3-2v5l-3-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span style="font-size:12px">Mock Interview</span>
+              </a>
+            </nav>
+            <!-- account -->
+            <div style="padding:12px 16px;border-top:1px solid #EDF0FA;display:flex;align-items:center;gap:10px">
+              <div style="width:26px;height:26px;background:#EBF0FF;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:'JetBrains Mono',monospace;color:#3D7BFF;font-weight:600;flex-shrink:0">JS</div>
+              <span style="font-size:12px;color:#9599B5">Sign in</span>
+            </div>
+          </div>
+          <!-- END SIDEBAR (light) -->
+
+          <!-- MAIN (light) -->
+          <div style="overflow-y:auto;padding:28px 32px;background:#EDF0FA">
+            <!-- header -->
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px">
+              <div>
+                <p style="font-size:10px;color:#9599B5;font-family:'JetBrains Mono',monospace;letter-spacing:0.07em;margin:0 0 7px">TODAY · JUN 19 · THURSDAY</p>
+                <h1 style="font-size:28px;font-weight:700;color:#151728;line-height:1;margin:0;letter-spacing:-0.02em">Dashboard</h1>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;background:#FFF8ED;border:1px solid rgba(217,119,6,0.2);border-radius:8px;padding:8px 14px">
+                <div style="width:6px;height:6px;background:#D97706;border-radius:50%;flex-shrink:0"></div>
+                <span style="font-size:11px;color:#92400E;font-family:'JetBrains Mono',monospace">Google</span>
+                <span style="font-size:15px;font-weight:700;color:#D97706;font-family:'JetBrains Mono',monospace">14</span>
+                <span style="font-size:11px;color:#B45309;font-family:'JetBrains Mono',monospace">days</span>
+              </div>
+            </div>
+            <!-- metric cards — each colorful -->
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px">
+              <div style="background:#EEF3FF;border:1px solid #DDE6FF;border-radius:8px;padding:16px">
+                <div style="font-size:9px;color:#6B8FCC;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;margin-bottom:10px">DSA</div>
+                <div style="font-size:34px;font-weight:700;color:#3D7BFF;font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:6px">47</div>
+                <div style="font-size:10px;color:#8AAAE0;font-family:'JetBrains Mono',monospace;margin-bottom:10px">/ 293 problems</div>
+                <div style="height:2px;background:rgba(61,123,255,0.18);border-radius:1px;overflow:hidden"><div style="height:2px;width:16%;background:#3D7BFF;border-radius:1px"></div></div>
+                <div style="font-size:10px;color:#3D7BFF;font-family:'JetBrains Mono',monospace;margin-top:5px">16%</div>
+              </div>
+              <div style="background:#F0EEFF;border:1px solid #E0D9FF;border-radius:8px;padding:16px">
+                <div style="font-size:9px;color:#8B74CC;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;margin-bottom:10px">SYSTEM DESIGN</div>
+                <div style="font-size:34px;font-weight:700;color:#7C5CE8;font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:6px">8</div>
+                <div style="font-size:10px;color:#AA93D8;font-family:'JetBrains Mono',monospace;margin-bottom:10px">/ 42 concepts</div>
+                <div style="height:2px;background:rgba(124,92,232,0.18);border-radius:1px;overflow:hidden"><div style="height:2px;width:19%;background:#7C5CE8;border-radius:1px"></div></div>
+                <div style="font-size:10px;color:#7C5CE8;font-family:'JetBrains Mono',monospace;margin-top:5px">19%</div>
+              </div>
+              <div style="background:#EEF8FF;border:1px solid #D8EDFF;border-radius:8px;padding:16px">
+                <div style="font-size:9px;color:#5E9EC4;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;margin-bottom:10px">SE BASICS</div>
+                <div style="font-size:34px;font-weight:700;color:#0284C7;font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:6px">12</div>
+                <div style="font-size:10px;color:#7AB8D8;font-family:'JetBrains Mono',monospace;margin-bottom:10px">/ 35 chapters</div>
+                <div style="height:2px;background:rgba(2,132,199,0.18);border-radius:1px;overflow:hidden"><div style="height:2px;width:34%;background:#0284C7;border-radius:1px"></div></div>
+                <div style="font-size:10px;color:#0284C7;font-family:'JetBrains Mono',monospace;margin-top:5px">34%</div>
+              </div>
+              <div style="background:#EDFFF6;border:1px solid #C6F5DF;border-radius:8px;padding:16px">
+                <div style="font-size:9px;color:#4BA87A;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;margin-bottom:10px">THIS WEEK</div>
+                <div style="font-size:34px;font-weight:700;color:#15A260;font-family:'JetBrains Mono',monospace;line-height:1;margin-bottom:6px">7</div>
+                <div style="font-size:10px;color:#5DBF8E;font-family:'JetBrains Mono',monospace;margin-bottom:10px">problems solved</div>
+                <div style="height:2px;background:rgba(21,162,96,0.18);border-radius:1px;overflow:hidden"><div style="height:2px;width:70%;background:#15A260;border-radius:1px"></div></div>
+                <div style="font-size:10px;color:#15A260;font-family:'JetBrains Mono',monospace;margin-top:5px">on track</div>
+              </div>
+            </div>
+            <!-- continue card -->
+            <div style="background:#FFFFFF;border:1px solid #DDE6FF;border-left:3px solid #3D7BFF;border-radius:0 8px 8px 0;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.04)">
+              <div>
+                <div style="font-size:9px;color:#9599B5;letter-spacing:0.1em;font-family:'JetBrains Mono',monospace;margin-bottom:9px">CONTINUE STUDYING</div>
+                <div style="font-size:20px;font-weight:700;color:#151728;margin-bottom:7px;letter-spacing:-0.01em">Two Sum</div>
+                <div style="display:flex;gap:8px;align-items:center">
+                  <span style="font-size:11px;color:#5C607D;font-family:'JetBrains Mono',monospace;background:#EBF0FF;border:1px solid #DDE6FF;border-radius:4px;padding:2px 8px">Arrays &amp; Hashing</span>
+                  <span style="font-size:11px;color:#15A260;font-family:'JetBrains Mono',monospace">Easy</span>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:14px">
+                <div style="text-align:right">
+                  <div style="font-size:10px;color:#9599B5;font-family:'JetBrains Mono',monospace">MAANG Fast Track</div>
+                  <div style="font-size:10px;color:#B0B4CC;font-family:'JetBrains Mono',monospace;margin-top:3px">problem 12 / 150</div>
+                </div>
+                <div style="width:38px;height:38px;background:#EBF0FF;border:1px solid #DDE6FF;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#3D7BFF;font-size:20px">→</div>
+              </div>
+            </div>
+            <!-- bottom grid -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+              <div style="background:#FFFFFF;border:1px solid #E2E4F0;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+                <div style="padding:14px 16px;border-bottom:1px solid #EDF0FA;display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:13px;font-weight:600;color:#151728">Due reviews</span>
+                  <span style="font-size:10px;color:#D97706;font-family:'JetBrains Mono',monospace;background:#FFF8ED;border:1px solid rgba(217,119,6,0.2);border-radius:4px;padding:2px 8px">3 today</span>
+                </div>
+                <div style="padding:11px 16px;border-bottom:1px solid #EDF0FA;display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:13px;color:#5C607D">Two Sum</span><span style="font-size:11px;color:#15A260;font-family:'JetBrains Mono',monospace">Easy</span>
+                </div>
+                <div style="padding:11px 16px;border-bottom:1px solid #EDF0FA;display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:13px;color:#5C607D">Valid Parentheses</span><span style="font-size:11px;color:#15A260;font-family:'JetBrains Mono',monospace">Easy</span>
+                </div>
+                <div style="padding:11px 16px;display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:13px;color:#5C607D">Binary Search</span><span style="font-size:11px;color:#15A260;font-family:'JetBrains Mono',monospace">Easy</span>
+                </div>
+              </div>
+              <div style="background:#FFFFFF;border:1px solid #E2E4F0;border-radius:8px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                  <span style="font-size:13px;font-weight:600;color:#151728">Weakest patterns</span>
+                  <span style="font-size:11px;color:#9599B5;font-family:'JetBrains Mono',monospace">view all →</span>
+                </div>
+                <div style="margin-bottom:13px">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:#5C607D">Dynamic Programming</span><span style="font-size:10px;color:#3D7BFF;font-family:'JetBrains Mono',monospace">23%</span></div>
+                  <div style="height:3px;background:#E8EEFF;border-radius:2px;overflow:hidden"><div style="height:3px;width:23%;background:#3D7BFF;border-radius:2px"></div></div>
+                </div>
+                <div style="margin-bottom:13px">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:#5C607D">Graph Algorithms</span><span style="font-size:10px;color:#3D7BFF;font-family:'JetBrains Mono',monospace">31%</span></div>
+                  <div style="height:3px;background:#E8EEFF;border-radius:2px;overflow:hidden"><div style="height:3px;width:31%;background:#3D7BFF;border-radius:2px"></div></div>
+                </div>
+                <div style="margin-bottom:13px">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:#5C607D">Binary Search</span><span style="font-size:10px;color:#3D7BFF;font-family:'JetBrains Mono',monospace">38%</span></div>
+                  <div style="height:3px;background:#E8EEFF;border-radius:2px;overflow:hidden"><div style="height:3px;width:38%;background:#3D7BFF;border-radius:2px"></div></div>
+                </div>
+                <div>
+                  <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;color:#5C607D">Advanced Graphs</span><span style="font-size:10px;color:#3D7BFF;font-family:'JetBrains Mono',monospace">42%</span></div>
+                  <div style="height:3px;background:#E8EEFF;border-radius:2px;overflow:hidden"><div style="height:3px;width:42%;background:#3D7BFF;border-radius:2px"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- END MAIN (light) -->
+
+        </div>
+      </div>
+    </div>
+    <!-- END FRAME C -->
+
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

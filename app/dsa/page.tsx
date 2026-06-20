@@ -1,6 +1,7 @@
 "use client";
 import { PATTERNS, getTotalProblems } from "@/data/problems";
 import { useProgressStore } from "@/lib/store";
+import { usePrepStore } from "@/lib/prepStore";
 import { useState, useMemo, Suspense } from "react";
 import Link from "next/link";
 
@@ -18,7 +19,9 @@ const COMPANY_COLORS: Record<string, string> = {
 };
 
 function DSAContent() {
-  const { solved, toggleSolved } = useProgressStore();
+  const { solved, toggleSolved, isBookmarked, toggleBookmark } = useProgressStore();
+  const { reviewDue } = usePrepStore();
+  const today = new Date().toISOString().slice(0, 10);
   const [activeTopic, setActiveTopic] = useState("all");
   const [diff, setDiff] = useState<Diff>("All");
   const [company, setCompany] = useState<Company>("All");
@@ -188,13 +191,13 @@ function DSAContent() {
 
           {/* Table header */}
           <div style={{
-            display: "grid", gridTemplateColumns: "36px 1fr 150px 90px 36px",
+            display: "grid", gridTemplateColumns: "36px 1fr 150px 90px 36px 36px",
             padding: "6px 20px", fontSize: 10, color: "var(--text-muted)",
             fontFamily: "var(--font-mono)", letterSpacing: "0.06em",
             borderBottom: "1px solid var(--border-subtle)",
             background: "var(--bg-secondary)", flexShrink: 0,
           }}>
-            <span>#</span><span>TITLE</span><span>TOPIC</span><span>DIFFICULTY</span><span></span>
+            <span>#</span><span>TITLE</span><span>TOPIC</span><span>DIFFICULTY</span><span></span><span></span>
           </div>
 
           {/* Problem rows */}
@@ -202,12 +205,14 @@ function DSAContent() {
             {problems.map((prob, i) => {
               const isSolved = solved.has(prob.id);
               const isNext = prob.id === firstUnsolved;
+              const bookmarked = isBookmarked(prob.id);
+              const isDue = reviewDue[prob.id] && reviewDue[prob.id] <= today;
               const pattern = PATTERNS.find((p) => p.id === prob.pattern);
               const companies = (prob.companies ?? []).slice(0, 3);
 
               return (
                 <div key={prob.id} style={{
-                  display: "grid", gridTemplateColumns: "36px 1fr 150px 90px 36px",
+                  display: "grid", gridTemplateColumns: "36px 1fr 150px 90px 36px 36px",
                   alignItems: "center", padding: "10px 20px",
                   borderBottom: "1px solid var(--border-subtle)",
                   background: isSolved ? "rgba(47,191,113,0.02)" : "transparent",
@@ -219,15 +224,20 @@ function DSAContent() {
                   </span>
 
                   <div style={{ minWidth: 0, paddingRight: 12 }}>
-                    <Link href={`/problems/${prob.id}`} style={{
-                      display: "block", fontSize: 13, fontWeight: 500,
-                      color: isSolved ? "var(--text-muted)" : "var(--text-primary)",
-                      textDecoration: isSolved ? "line-through" : "none",
-                      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                      opacity: isSolved ? 0.6 : 1,
-                    }}>
-                      {prob.title}
-                    </Link>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <Link href={`/problems/${prob.id}`} style={{
+                        fontSize: 13, fontWeight: 500,
+                        color: isSolved ? "var(--text-muted)" : "var(--text-primary)",
+                        textDecoration: isSolved ? "line-through" : "none",
+                        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                        opacity: isSolved ? 0.6 : 1, flex: 1, minWidth: 0,
+                      }}>
+                        {prob.title}
+                      </Link>
+                      {isDue && (
+                        <span title="Due for review" style={{ fontSize: 9, padding: "1px 5px", borderRadius: 3, flexShrink: 0, background: "rgba(245,165,36,0.15)", color: "#F5A524", fontFamily: "var(--font-mono)" }}>DUE</span>
+                      )}
+                    </div>
                     {companies.length > 0 && (
                       <div style={{ fontSize: 11, fontFamily: "var(--font-mono)", marginTop: 2 }}>
                         {companies.map((c, ci) => (
@@ -272,6 +282,19 @@ function DSAContent() {
                     }}>
                       {isSolved && <span style={{ fontSize: 11, color: "#fff", fontWeight: 700, lineHeight: 1 }}>✓</span>}
                     </span>
+                  </button>
+
+                  <button
+                    onClick={() => toggleBookmark(prob.id)}
+                    title={bookmarked ? "Remove bookmark" : "Bookmark"}
+                    style={{
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      background: "none", border: "none", cursor: "pointer", padding: 0,
+                      fontSize: 13, color: bookmarked ? "#F5A524" : "var(--border)",
+                      transition: "color 0.15s",
+                    }}
+                  >
+                    {bookmarked ? "★" : "☆"}
                   </button>
                 </div>
               );

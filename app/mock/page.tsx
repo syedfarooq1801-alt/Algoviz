@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
-import CodeRunner from "@/components/CodeRunner";
 import { PATTERNS, Problem } from "@/data/problems";
 import { PROBLEM_CONTENT } from "@/data/problemContent";
 import { useProgressStore } from "@/lib/store";
@@ -338,15 +337,27 @@ function ProblemPrompt({ problem, review, onUpdate }: {
             {review.solved ? "✓ Solved" : "Mark solved"}
           </button>
           <button onClick={() => onUpdate({ solutionRevealed: true })} className="text-xs px-3 py-1.5 rounded-lg" style={{ color: "var(--text-muted)", border: "1px solid var(--border)" }}>
-            Reveal later? track hint use
+            Peeked at solution
           </button>
         </div>
       </div>
 
-      <CodeRunner defaultLang="python"
-        starterPython={`# ${problem.title}\n# Talk through brute force, optimize, code, then state complexity.\n\n`}
-        starterCpp={`// ${problem.title}\n#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    return 0;\n}`}
-      />
+      {/* Interview checklist */}
+      <div className="card p-4">
+        <div className="text-xs font-semibold mb-3" style={{ color: "var(--text-muted)", letterSpacing: "0.08em" }}>INTERVIEW CHECKLIST</div>
+        <div className="grid grid-cols-2 gap-2 text-xs" style={{ color: "var(--text-secondary)" }}>
+          {["Restate problem in own words", "Clarify constraints & edge cases", "Talk through brute force", "Identify pattern / optimization", "Solve on LeetCode", "State time & space complexity"].map((step) => (
+            <div key={step} className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)" }}>
+              <span style={{ color: "var(--accent)", fontSize: 10 }}>→</span> {step}
+            </div>
+          ))}
+        </div>
+        <a href={problem.leetcodeUrl} target="_blank" rel="noopener noreferrer"
+          className="mt-4 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all"
+          style={{ background: "rgba(255,161,22,0.1)", color: "#F5A524", border: "1px solid rgba(255,161,22,0.25)", textDecoration: "none" }}>
+          Open on LeetCode ↗
+        </a>
+      </div>
     </div>
   );
 }
@@ -367,7 +378,7 @@ function ReviewCard({ review, onUpdate }: { review: MockProblemReview; onUpdate:
         <Check label="Correct solution" checked={review.solved} onChange={(v) => onUpdate({ solved: v })} />
         <Check label="Stated time/space complexity" checked={review.complexityStated} onChange={(v) => onUpdate({ complexityStated: v })} />
         <Check label="Considered edge cases" checked={review.edgeCasesConsidered} onChange={(v) => onUpdate({ edgeCasesConsidered: v })} />
-        <Check label="Used hint/revealed solution" checked={review.solutionRevealed} onChange={(v) => onUpdate({ solutionRevealed: v })} />
+        <Check label="Peeked at solution" checked={review.solutionRevealed} onChange={(v) => onUpdate({ solutionRevealed: v })} />
       </div>
       <label className="block text-xs mb-2" style={{ color: "var(--text-muted)" }}>Could I explain this clearly? {review.selfExplainScore}/5</label>
       <input type="range" min={1} max={5} value={review.selfExplainScore} onChange={(e) => onUpdate({ selfExplainScore: Number(e.target.value) })}

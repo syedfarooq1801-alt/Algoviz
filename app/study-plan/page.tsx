@@ -193,7 +193,7 @@ export default function StudyPlanPage() {
                       {/* Title — navigates to topic/problem */}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         {task.href ? (
-                          <Link href={task.href} style={{
+                          <Link href={task.href} target="_blank" rel="noopener noreferrer" style={{
                             display: "block", fontSize: 12, fontWeight: 500,
                             color: done ? "var(--text-muted)" : "var(--accent)",
                             textDecoration: done ? "line-through" : "none",

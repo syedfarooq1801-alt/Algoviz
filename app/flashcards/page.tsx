@@ -30,19 +30,23 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export default function FlashcardsPage() {
-  const { known, weak, markKnown, markWeak, isKnown, isWeak } = useFlashcardStore();
+  const { known, weak, markKnown, markWeak, isKnown, isWeak, isDue, getDueCount } = useFlashcardStore();
   const [domain, setDomain] = useState<Domain>("sd");
-  const [filter, setFilter] = useState<"all" | "weak" | "unseen">("all");
+  const [filter, setFilter] = useState<"all" | "due" | "weak" | "unseen">("due");
   const [flipped, setFlipped] = useState(false);
   const [idx, setIdx] = useState(0);
 
   const allCards = useMemo(() => {
     const cards = domain === "sd" ? buildSDCards() : buildSECards();
+    if (filter === "due") return cards.filter((c) => (isKnown(c.id) || isWeak(c.id)) ? isDue(c.id) : true);
     if (filter === "weak") return cards.filter((c) => isWeak(c.id));
     if (filter === "unseen") return cards.filter((c) => !isKnown(c.id) && !isWeak(c.id));
     return cards;
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [domain, filter, known, weak]);
+
+  const allDomainCards = useMemo(() => domain === "sd" ? buildSDCards() : buildSECards(), [domain]);
+  const dueCount = getDueCount(allDomainCards.map((c) => c.id));
 
   const card = allCards[idx] ?? null;
   const totalCards = domain === "sd" ? buildSDCards().length : buildSECards().length;
@@ -99,18 +103,22 @@ export default function FlashcardsPage() {
             </button>
           ))}
           <div style={{ width: 1, background: "var(--border-subtle)", margin: "0 4px" }} />
-          {(["all", "weak", "unseen"] as const).map((f) => (
-            <button key={f} onClick={() => { setFilter(f); setIdx(0); setFlipped(false); }} style={{
-              padding: "5px 14px", fontSize: 12, borderRadius: 5, cursor: "pointer",
-              background: filter === f ? "rgba(245,165,36,0.1)" : "transparent",
-              color: filter === f ? "#F5A524" : "var(--text-muted)",
-              border: filter === f ? "1px solid rgba(245,165,36,0.25)" : "1px solid var(--border-subtle)",
-              fontWeight: filter === f ? 600 : 400, transition: "all 0.1s",
-              textTransform: "capitalize",
-            }}>
-              {f}
-            </button>
-          ))}
+          {(["due", "all", "weak", "unseen"] as const).map((f) => {
+            const label = f === "due" ? `Due${dueCount > 0 ? ` (${dueCount})` : ""}` : f.charAt(0).toUpperCase() + f.slice(1);
+            const active = filter === f;
+            const color = f === "due" ? "#2FBF71" : "#F5A524";
+            return (
+              <button key={f} onClick={() => { setFilter(f); setIdx(0); setFlipped(false); }} style={{
+                padding: "5px 14px", fontSize: 12, borderRadius: 5, cursor: "pointer",
+                background: active ? `${color}1A` : "transparent",
+                color: active ? color : "var(--text-muted)",
+                border: active ? `1px solid ${color}44` : "1px solid var(--border-subtle)",
+                fontWeight: active ? 600 : 400, transition: "all 0.1s",
+              }}>
+                {label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Flip Card */}
@@ -251,9 +259,9 @@ export default function FlashcardsPage() {
           marginTop: 24, display: "flex", gap: 20, justifyContent: "center",
           fontSize: 12, fontFamily: "var(--font-mono)", color: "var(--text-muted)",
         }}>
-          <span><span style={{ color: "var(--text-secondary)" }}>{allCards.length - knownCount - allCards.filter((c) => isWeak(c.id)).length}</span> remaining</span>
-          <span><span style={{ color: "#2FBF71" }}>{knownCount}</span> done today</span>
-          <span><span style={{ color: "#F5A524" }}>{allCards.filter((c) => isWeak(c.id)).length}</span> weak</span>
+          <span><span style={{ color: "#2FBF71" }}>{dueCount}</span> due today</span>
+          <span><span style={{ color: "var(--accent)" }}>{knownCount}</span> learned</span>
+          <span><span style={{ color: "#F5A524" }}>{allDomainCards.filter((c) => isWeak(c.id)).length}</span> weak</span>
         </div>
       </main>
     </div>

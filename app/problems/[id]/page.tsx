@@ -7,6 +7,7 @@ import { getProblemById, getPatternById } from "@/data/problems";
 import { PROBLEM_CONTENT } from "@/data/problemContent";
 import { useProgressStore } from "@/lib/store";
 import { useNotesStore } from "@/lib/notesStore";
+import { usePrepStore } from "@/lib/prepStore";
 import { getProblemViz } from "@/components/visualizations/problemVizMap";
 
 interface Props {
@@ -23,8 +24,17 @@ export default function ProblemPage({ params }: Props) {
   const VizComponent = getProblemViz(id);
   const { isSolved, isBookmarked, toggleSolved, toggleBookmark } = useProgressStore();
   const { getNote, setNote, hasNote } = useNotesStore();
+  const { scheduleReview, reviewDue } = usePrepStore();
   const solved = isSolved(id);
   const bookmarked = isBookmarked(id);
+  const dueDate = reviewDue[id];
+  const [reviewScheduled, setReviewScheduled] = useState(false);
+
+  const handleScheduleReview = () => {
+    scheduleReview(id, "solved");
+    setReviewScheduled(true);
+    setTimeout(() => setReviewScheduled(false), 2000);
+  };
   const [lang, setLang] = useState<"python" | "cpp">("python");
   const [noteText, setNoteText] = useState(() => getNote(id));
   const [noteSaved, setNoteSaved] = useState(false);
@@ -76,6 +86,14 @@ export default function ProblemPage({ params }: Props) {
                 </button>
                 <button onClick={() => toggleBookmark(id)} className="btn-ghost px-3 py-2 text-sm inline-flex items-center gap-2">
                   <Bookmark size={15} /> {bookmarked ? "Saved" : "Save"}
+                </button>
+                <button
+                  onClick={handleScheduleReview}
+                  className="btn-ghost px-3 py-2 text-sm inline-flex items-center gap-2"
+                  style={dueDate ? { color: "#F5A524" } : undefined}
+                  title={dueDate ? `Review due ${dueDate}` : "Schedule review"}
+                >
+                  {reviewScheduled ? "Scheduled ✓" : dueDate ? `Due ${dueDate}` : "Review later"}
                 </button>
                 <a href={problem.leetcodeUrl} target="_blank" rel="noopener noreferrer" className="btn-ghost px-3 py-2 text-sm inline-flex items-center gap-2">
                   <ExternalLink size={15} /> LeetCode

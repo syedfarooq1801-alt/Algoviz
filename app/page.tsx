@@ -37,7 +37,7 @@ export default function Home() {
       for (const problem of pattern.problems) {
         if (!solved.has(problem.id)) {
           return {
-            href: problem.hasVisualization ? `/visualizations/${problem.id}` : `/problems/${problem.id}`,
+            href: `/problems/${problem.id}`,
             title: problem.title,
             pattern: pattern.title,
             difficulty: problem.difficulty,

@@ -1,0 +1,4322 @@
+---PAGE 1---
+NeetCode 200  |  Page 1  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+NEETCODE 200
+ Complete Solutions Guide
+ Every problem with Hint . Memory Trick . Full C++ Solution
+ 
+200
+Problems Covered
+17
+Pattern Chapters
+C++
+Solution Language
+Yes
+Hint for Every Problem — nudge without spoiling
+Yes
+Memory Trick — so you never forget the approach
+Yes
+Full Working Solution with clean indentation
+ Study the hint . Recall the trick . Write the solution
+ 
+---PAGE 2---
+NeetCode 200  |  Page 2  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Arrays AND Hashing
+ 11 Problems
+ 
+#1
+Contains Duplicate
+ LC 217
+ Easy
+ 
+HINT — Think about this before looking at code
+Check if any value appears more than once. Can you do it in one pass using a set to remember what you have
+seen?
+MEMORY TRICK — How to never forget this
+SET = seen before? If seen.count(n) before insert: duplicate found. Like a bouncer checking a guest list.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool containsDuplicate(vector less-than int greater-than AND nums) {
+    unordered_set less-than int greater-than seen;
+    for (int n : nums) {
+        if (seen.count(n)) return true;
+        seen.insert(n);
+    }
+    return false;
+}
+#2
+Valid Anagram
+ LC 242
+ Easy
+ 
+HINT — Think about this before looking at code
+Two strings are anagrams if they use exact same letters same number of times. Count chars in s then subtract
+for t.
+MEMORY TRICK — How to never forget this
+ANAGRAM = same letters shuffled. Increment freq for s, decrement for t. Any count going negative = not
+anagram.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool isAnagram(string s, string t) {
+    if (s.size() != t.size()) return false;
+    unordered_map less-than char,int greater-than freq;
+    for (char c : s) freq[c]++;
+    for (char c : t) { freq[c]--; if (freq[c] is negative) return false; }
+    return true;
+}
+#3
+Two Sum
+ LC 1
+ Easy
+ 
+HINT — Think about this before looking at code
+
+---PAGE 3---
+NeetCode 200  |  Page 3  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+For each number you need its partner (target - num). Store what you have seen so far to find the partner
+instantly.
+MEMORY TRICK — How to never forget this
+TWO SUM = looking for my other half. Map stores each number. For every new number check if complement
+exists.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than int greater-than twoSum(vector less-than int greater-than AND nums, int target)
+{
+    unordered_map less-than int,int greater-than seen;
+    for (int i = 0; i less-than (int)nums.size(); i++) {
+        int comp = target - nums[i];
+        if (seen.count(comp)) return {seen[comp], i};
+        seen[nums[i]] = i;
+    }
+    return {};
+}
+#4
+Group Anagrams
+ LC 49
+ Medium
+HINT — Think about this before looking at code
+Anagrams all sort to the same string. Use that sorted string as a map key to group them together.
+MEMORY TRICK — How to never forget this
+SORT = SIGNATURE. Sort each word alphabetically. Anagrams get same key. 'eat' 'tea' 'ate' all sort to 'aet'.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than vector less-than string greater-than greater-than groupAnagrams(vector less-than
+string greater-than AND strs) {
+    unordered_map less-than string, vector less-than string greater-than greater-than groups;
+    for (stringAND s : strs) {
+        string key = s; sort(key.begin(), key.end());
+        groups[key].push_back(s);
+    }
+    vector less-than vector less-than string greater-than greater-than res;
+    for (autoAND [k, v] : groups) res.push_back(v);
+    return res;
+}
+#5
+Top K Frequent Elements
+ LC 347
+ Medium
+HINT — Think about this before looking at code
+Count frequencies with a map then find the K highest. Use a min-heap of size K to avoid sorting all elements.
+MEMORY TRICK — How to never forget this
+
+---PAGE 4---
+NeetCode 200  |  Page 4  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+MIN-HEAP TRICK: Keep a min-heap of size K. When it exceeds K pop the smallest. What remains is the top K.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than int greater-than topKFrequent(vector less-than int greater-than AND nums, int k)
+{
+    unordered_map less-than int,int greater-than freq;
+    for (int n : nums) freq[n]++;
+    priority_queue less-than pair less-than int,int greater-than ,vector less-than pair less-than
+int,int greater-than greater-than ,greater less-than pair less-than int,int greater-than
+greater-than greater-than minH;
+    for (autoAND [val, cnt] : freq) {
+        minH.push({cnt, val});
+        if ((int)minH.size() exceeds k) minH.pop();
+    }
+    vector less-than int greater-than res;
+    while (!minH.empty()) { res.push_back(minH.top().second); minH.pop(); }
+    return res;
+}
+#6
+Product of Array Except Self
+ LC 238
+ Medium
+HINT — Think about this before looking at code
+For each position you need product of everything to its left AND right. Precompute both directions without
+division.
+MEMORY TRICK — How to never forget this
+LEFT PASS then RIGHT PASS. First sweep stores running product from left. Second sweep multiplies in
+product from right.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than int greater-than productExceptSelf(vector less-than int greater-than AND nums) {
+    int n = nums.size(); vector less-than int greater-than res(n, 1);
+    int left = 1;
+    for (int i = 0; i is less than n; i++) { res[i] = left; left *= nums[i]; }
+    int right = 1;
+    for (int i = n-1; i is at least 0; i--) { res[i] *= right; right *= nums[i]; }
+    return res;
+}
+#7
+Valid Sudoku
+ LC 36
+ Medium
+HINT — Think about this before looking at code
+Check rows, columns, and 3x3 boxes separately. Box index = (row/3)*3 + col/3. Use sets to detect duplicates.
+MEMORY TRICK — How to never forget this
+
+---PAGE 5---
+NeetCode 200  |  Page 5  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+BOX INDEX = (row/3)*3 + (col/3). Encode each digit with its position context into a single set. If insert fails:
+invalid.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool isValidSudoku(vector less-than vector less-than char greater-than greater-than AND board) {
+    unordered_set less-than string greater-than seen;
+    for (int r = 0; r less-than 9; r++) for (int c = 0; c less-than 9; c++) {
+        char d = board[r][c]; if (d == '.') continue;
+        if (!seen.insert(to_string(r)+"r"+d).second) return false;
+        if (!seen.insert(to_string(c)+"c"+d).second) return false;
+        if (!seen.insert(to_string(r/3)+","+to_string(c/3)+"b"+d).second) return false;
+    }
+    return true;
+}
+#8
+Encode and Decode Strings
+ LC 271
+ Medium
+HINT — Think about this before looking at code
+You need a delimiter that cannot appear in the string itself. Encode the length of each string before it.
+MEMORY TRICK — How to never forget this
+LENGTH PREFIX: encode as len#string. Decode by reading until '#' then reading exactly len chars.
+less-than b greater-than Solution (C++): less-than /b greater-than
+string encode(vector less-than string greater-than AND strs) {
+    string res;
+    for (stringAND s : strs) res += to_string(s.size()) + '#' + s;
+    return res;
+}
+vector less-than string greater-than decode(string s) {
+    vector less-than string greater-than res; int i = 0;
+    while (i less-than (int)s.size()) {
+        int j = s.find('#', i); int len = stoi(s.substr(i, j-i));
+        res.push_back(s.substr(j+1, len)); i = j + 1 + len;
+    }
+    return res;
+}
+#9
+Longest Consecutive Sequence
+ LC 128
+ Medium
+HINT — Think about this before looking at code
+Only start counting from the beginning of a sequence. How do you know if something is a sequence start?
+MEMORY TRICK — How to never forget this
+
+---PAGE 6---
+NeetCode 200  |  Page 6  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+START OF SEQUENCE = num-1 is NOT in set. Only count from starts. Each number visited once. Put all in
+unordered_set first.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int longestConsecutive(vector less-than int greater-than AND nums) {
+    unordered_set less-than int greater-than s(nums.begin(), nums.end());
+    int best = 0;
+    for (int n : s) {
+        if (!s.count(n-1)) {
+            int len = 1;
+            while (s.count(n + len)) len++;
+            best = max(best, len);
+        }
+    }
+    return best;
+}
+#10
+Ransom Note
+ LC 383
+ Easy
+ 
+HINT — Think about this before looking at code
+Check if all characters needed for the ransom note can be found in the magazine. What counts matter?
+MEMORY TRICK — How to never forget this
+CHAR FREQUENCY. Count chars in magazine. For each char in note subtract from magazine. If any goes
+negative: false.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool canConstruct(string ransomNote, string magazine) {
+    vector<int> cnt(26,0);
+    for(char c:magazine) cnt[c-'a']++;
+    for(char c:ransomNote) { cnt[c-'a']--; if(cnt[c-'a']<0) return false; }
+    return true;
+}
+#11
+Isomorphic Strings
+ LC 205
+ Easy
+ 
+HINT — Think about this before looking at code
+Two strings are isomorphic if characters can be replaced consistently. Map each char in s to char in t and vice
+versa.
+MEMORY TRICK — How to never forget this
+TWO-WAY MAP. Map s[i] to t[i] and t[i] to s[i]. If any mapping conflicts return false.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool isIsomorphic(string s, string t) {
+    unordered_map<char,char> st, ts;
+
+---PAGE 7---
+NeetCode 200  |  Page 7  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    for(int i=0;i<(int)s.size();i++){
+        if(st.count(s[i])&&st[s[i]]!=t[i]) return false;
+        if(ts.count(t[i])&&ts[t[i]]!=s[i]) return false;
+        st[s[i]]=t[i]; ts[t[i]]=s[i];
+    }
+    return true;
+}
+
+---PAGE 8---
+NeetCode 200  |  Page 8  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Two Pointers
+ 7 Problems
+ 
+#12
+Valid Palindrome
+ LC 125
+ Easy
+ 
+HINT — Think about this before looking at code
+Skip non-alphanumeric chars. Compare chars from both ends moving inward. What two pointers do you need?
+MEMORY TRICK — How to never forget this
+L and R squeeze inward skip non-alpha. tolower() both before comparing. Stop when L is at least R.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool isPalindrome(string s) {
+    int L = 0, R = (int)s.size()-1;
+    while (L less-than R) {
+        while (L less-than R AND !isalnum(s[L])) L++;
+        while (L less-than R AND !isalnum(s[R])) R--;
+        if (tolower(s[L]) != tolower(s[R])) return false;
+        L++; R--;
+    }
+    return true;
+}
+#13
+Two Sum II
+ LC 167
+ Medium
+HINT — Think about this before looking at code
+Array is sorted. If sum is too big move right pointer left. If too small move left pointer right.
+MEMORY TRICK — How to never forget this
+SORTED = TWO POINTERS. Too big: R--. Too small: L++. Equal: done. Never need a hashmap when array is
+sorted.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than int greater-than twoSum(vector less-than int greater-than AND nums, int target)
+{
+    int L = 0, R = (int)nums.size()-1;
+    while (L less-than R) {
+        int sum = nums[L] + nums[R];
+        if (sum == target) return {L+1, R+1};
+        else if (sum less-than target) L++;
+        else R--;
+    }
+    return {};
+}
+
+---PAGE 9---
+NeetCode 200  |  Page 9  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+#14
+3Sum
+ LC 15
+ Medium
+HINT — Think about this before looking at code
+Fix one element with a for loop then use two pointers for the remaining pair. Sort first to avoid duplicates easily.
+MEMORY TRICK — How to never forget this
+FIX + TWO POINTER. Sort first. Skip duplicate at i. Skip duplicates after finding valid triplet. Like Two Sum II
+with a fixed element.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than vector less-than int greater-than greater-than threeSum(vector less-than int
+greater-than AND nums) {
+    sort(nums.begin(), nums.end());
+    vector less-than vector less-than int greater-than greater-than res;
+    for (int i = 0; i less-than (int)nums.size(); i++) {
+        if (i is positive AND nums[i] == nums[i-1]) continue;
+        int L = i+1, R = (int)nums.size()-1;
+        while (L less-than R) {
+            int sum = nums[i]+nums[L]+nums[R];
+            if (sum == 0) {
+                res.push_back({nums[i],nums[L],nums[R]});
+                while (L less-than R AND nums[L]==nums[L+1]) L++;
+                while (L less-than R AND nums[R]==nums[R-1]) R--;
+                L++; R--;
+            } else if (sum is negative) L++;
+            else R--;
+        }
+    }
+    return res;
+}
+#15
+Container With Most Water
+ LC 11
+ Medium
+HINT — Think about this before looking at code
+Area = min(height[L], height[R]) * (R-L). Start wide then move the shorter wall inward.
+MEMORY TRICK — How to never forget this
+MOVE THE SHORTER WALL. Moving the taller one can only decrease area. Greedy: shorter pointer moves
+inward.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int maxArea(vector less-than int greater-than AND height) {
+    int L = 0, R = (int)height.size()-1, res = 0;
+    while (L less-than R) {
+        res = max(res, min(height[L], height[R]) * (R-L));
+        if (height[L] less-than height[R]) L++;
+
+---PAGE 10---
+NeetCode 200  |  Page 10  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+        else R--;
+    }
+    return res;
+}
+#16
+Trapping Rain Water
+ LC 42
+ Hard
+ 
+HINT — Think about this before looking at code
+Water at each cell = min(maxLeft, maxRight) - height. Two pointer: process the smaller side first.
+MEMORY TRICK — How to never forget this
+WATER = min(maxL, maxR) - height. Whichever side has smaller max process it. That side max is the
+bottleneck.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int trap(vector less-than int greater-than AND height) {
+    int L = 0, R = (int)height.size()-1;
+    int maxL = 0, maxR = 0, res = 0;
+    while (L less-than R) {
+        if (maxL is at most maxR) {
+            maxL = max(maxL, height[L]);
+            res += maxL - height[L]; L++;
+        } else {
+            maxR = max(maxR, height[R]);
+            res += maxR - height[R]; R--;
+        }
+    }
+    return res;
+}
+#17
+Move Zeroes
+ LC 283
+ Easy
+ 
+HINT — Think about this before looking at code
+Move all zeroes to the end while maintaining relative order of non-zero elements. Two pointers: one for placing
+non-zeroes.
+MEMORY TRICK — How to never forget this
+SLOW FAST POINTERS. Slow tracks where to place next non-zero. Fast scans. When fast finds non-zero
+swap with slow.
+less-than b greater-than Solution (C++): less-than /b greater-than
+void moveZeroes(vector<int>& nums) {
+    int slow=0;
+    for(int fast=0;fast<(int)nums.size();fast++)
+        if(nums[fast]!=0) swap(nums[slow++],nums[fast]);
+}
+
+---PAGE 11---
+NeetCode 200  |  Page 11  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+#18
+Is Subsequence
+ LC 392
+ Easy
+ 
+HINT — Think about this before looking at code
+Check if s appears in t in order (not necessarily contiguous). One pointer for s one for t.
+MEMORY TRICK — How to never forget this
+TWO POINTERS: i for s j for t. When s[i]==t[j] advance i. Always advance j. Done when i reaches end of s.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool isSubsequence(string s, string t) {
+    int i=0,j=0;
+    while(i<(int)s.size()&&j<(int)t.size())
+        if(s[i]==t[j++]) i++;
+    return i==s.size();
+}
+
+---PAGE 12---
+NeetCode 200  |  Page 12  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Sliding Window
+ 7 Problems
+ 
+#19
+Best Time to Buy and Sell Stock
+ LC 121
+ Easy
+ 
+HINT — Think about this before looking at code
+Track the minimum price seen so far. What is the profit if you sell today?
+MEMORY TRICK — How to never forget this
+MIN SO FAR + MAX PROFIT. Two variables one pass. Update minPrice if lower update maxProfit = price -
+minPrice.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int maxProfit(vector less-than int greater-than AND prices) {
+    int L = 0, R = 1, best = 0;
+    while (R less-than (int)prices.size()) {
+        if (prices[R] greater-than prices[L]) best = max(best, prices[R]-prices[L]);
+        else L = R;
+        R++;
+    }
+    return best;
+}
+#20
+Longest Substring Without Repeating Characters
+ LC 3
+ Medium
+HINT — Think about this before looking at code
+When you add a character that already exists in the window shrink from the left until it is gone.
+MEMORY TRICK — How to never forget this
+WINDOW = no duplicates. freq map tracks counts. When freq[c] exceeds 1 shrink L until back to 1. Result =
+max window size.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int lengthOfLongestSubstring(string s) {
+    unordered_map less-than char,int greater-than freq;
+    int L = 0, res = 0;
+    for (int R = 0; R less-than (int)s.size(); R++) {
+        freq[s[R]]++;
+        while (freq[s[R]] greater-than 1) { freq[s[L]]--; L++; }
+        res = max(res, R-L+1);
+    }
+    return res;
+}
+
+---PAGE 13---
+NeetCode 200  |  Page 13  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+#21
+Longest Repeating Character Replacement
+ LC 424
+ Medium
+HINT — Think about this before looking at code
+In any window the characters you replace = windowSize - maxFrequency. If replacements exceed k shrink the
+window.
+MEMORY TRICK — How to never forget this
+REPLACEMENTS = windowSize - maxFreq. If greater than k move L. Track maxFreq and never decrease it.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int characterReplacement(string s, int k) {
+    unordered_map less-than char,int greater-than freq;
+    int L = 0, maxFreq = 0, res = 0;
+    for (int R = 0; R less-than (int)s.size(); R++) {
+        freq[s[R]]++;
+        maxFreq = max(maxFreq, freq[s[R]]);
+        while ((R-L+1) - maxFreq exceeds k) { freq[s[L]]--; L++; }
+        res = max(res, R-L+1);
+    }
+    return res;
+}
+#22
+Permutation in String
+ LC 567
+ Medium
+HINT — Think about this before looking at code
+Fixed window of size len(s1). Check if window character frequencies match s1. Slide window and update
+counts.
+MEMORY TRICK — How to never forget this
+FIXED WINDOW = len(s1). Count chars in s1. Slide same-size window over s2. Add right char remove left char
+compare.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool checkInclusion(string s1, string s2) {
+    if (s1.size() greater-than s2.size()) return false;
+    vector less-than int greater-than need(26,0), have(26,0);
+    for (char c : s1) need[c-'a']++;
+    for (int i = 0; i less-than (int)s1.size(); i++) have[s2[i]-'a']++;
+    if (need == have) return true;
+    for (int i = s1.size(); i less-than (int)s2.size(); i++) {
+        have[s2[i]-'a']++;
+        have[s2[i-s1.size()]-'a']--;
+        if (need == have) return true;
+    }
+    return false;
+}
+
+---PAGE 14---
+NeetCode 200  |  Page 14  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+#23
+Minimum Window Substring
+ LC 76
+ Hard
+ 
+HINT — Think about this before looking at code
+Expand R until window has all chars of t. Then shrink L to minimise. Track have vs need counts.
+MEMORY TRICK — How to never forget this
+HAVE vs NEED. Expand until formed == required. Then shrink L to minimise. formed counter tracks satisfied
+unique chars.
+less-than b greater-than Solution (C++): less-than /b greater-than
+string minWindow(string s, string t) {
+    unordered_map less-than char,int greater-than need, have;
+    for (char c : t) need[c]++;
+    int formed = 0, required = need.size();
+    int L = 0, minLen = INT_MAX, start = 0;
+    for (int R = 0; R less-than (int)s.size(); R++) {
+        char c = s[R]; have[c]++;
+        if (need.count(c) AND have[c] == need[c]) formed++;
+        while (formed == required) {
+            if (R-L+1 less-than minLen) { minLen = R-L+1; start = L; }
+            have[s[L]]--;
+            if (need.count(s[L]) AND have[s[L]] is less than need[s[L]]) formed--;
+            L++;
+        }
+    }
+    return minLen==INT_MAX ? "" : s.substr(start, minLen);
+}
+#24
+Sliding Window Maximum
+ LC 239
+ Hard
+ 
+HINT — Think about this before looking at code
+A deque can track useful candidates. Remove elements outside the window and smaller elements from the
+back.
+MEMORY TRICK — How to never forget this
+MONOTONIC DEQUE: indices in decreasing order of values. Front = max. Pop back anything smaller before
+adding R.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than int greater-than maxSlidingWindow(vector less-than int greater-than AND nums,
+int k) {
+    deque less-than int greater-than dq; vector less-than int greater-than res;
+    for (int i = 0; i less-than (int)nums.size(); i++) {
+        while (!dq.empty() AND nums[dq.back()] is less than nums[i]) dq.pop_back();
+        dq.push_back(i);
+
+---PAGE 15---
+NeetCode 200  |  Page 15  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+        if (dq.front() is at most i-k) dq.pop_front();
+        if (i is at least k-1) res.push_back(nums[dq.front()]);
+    }
+    return res;
+}
+#25
+Maximum Points You Can Obtain from Cards
+LC 1423
+Medium
+HINT — Think about this before looking at code
+You can take k cards from the front or back. Total cards - k stay in middle. Minimise middle window sum.
+MEMORY TRICK — How to never forget this
+REVERSE THINKING: min sum of middle window of size n-k. Total - min_middle = max_cards.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int maxScore(vector<int>& cards, int k) {
+    int n=cards.size(), total=0;
+    for(int c:cards) total+=c;
+    int windowSize=n-k, windowSum=0;
+    for(int i=0;i<windowSize;i++) windowSum+=cards[i];
+    int minWindow=windowSum;
+    for(int i=windowSize;i<n;i++){
+        windowSum+=cards[i]-cards[i-windowSize];
+        minWindow=min(minWindow,windowSum);
+    }
+    return total-minWindow;
+}
+
+---PAGE 16---
+NeetCode 200  |  Page 16  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Stack
+ 9 Problems
+ 
+#26
+Valid Parentheses
+ LC 20
+ Easy
+ 
+HINT — Think about this before looking at code
+Push open brackets onto a stack. When you see a closing bracket check if top of stack is its matching opener.
+MEMORY TRICK — How to never forget this
+STACK = memory of openers. Closing bracket? Peek top. Match? Pop. No match or empty? False. End: stack
+must be empty.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool isValid(string s) {
+    stack less-than char greater-than st;
+    for (char c : s) {
+        if (c=='('ORc=='{'ORc=='[') st.push(c);
+        else {
+            if (st.empty()) return false;
+            char t = st.top(); st.pop();
+            if (c==')'ANDANDt!='(') return false;
+            if (c=='}'ANDANDt!='{') return false;
+            if (c==']'ANDANDt!='[') return false;
+        }
+    }
+    return st.empty();
+}
+#27
+Min Stack
+ LC 155
+ Medium
+HINT — Think about this before looking at code
+Normal stack plus track the minimum. When you push also push the current minimum at that moment.
+MEMORY TRICK — How to never forget this
+TWO STACKS: main + minStack. minStack stores current min AT EACH LEVEL. Push min(new_val,
+minStack.top()) every push.
+less-than b greater-than Solution (C++): less-than /b greater-than
+class MinStack {
+    stack less-than int greater-than st, minSt;
+public:
+    void push(int val) {
+        st.push(val);
+        minSt.push(minSt.empty() ? val : min(val, minSt.top()));
+
+---PAGE 17---
+NeetCode 200  |  Page 17  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    }
+    void pop() { st.pop(); minSt.pop(); }
+    int top() { return st.top(); }
+    int getMin() { return minSt.top(); }
+}
+#28
+Evaluate Reverse Polish Notation
+ LC 150
+ Medium
+HINT — Think about this before looking at code
+Push numbers onto stack. When you see an operator pop two numbers apply operator push result back.
+MEMORY TRICK — How to never forget this
+OPERAND: push. OPERATOR: pop two compute push result. Stack naturally handles order of operations in
+RPN.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int evalRPN(vector less-than string greater-than AND tokens) {
+    stack less-than long greater-than st;
+    for (stringAND t : tokens) {
+        if (t=="+"ORt=="-"ORt=="*"ORt=="/") {
+            long b = st.top(); st.pop();
+            long a = st.top(); st.pop();
+            if (t=="+") st.push(a+b); else if (t=="-") st.push(a-b);
+            else if (t=="*") st.push(a*b); else st.push(a/b);
+        } else st.push(stol(t));
+    }
+    return st.top();
+}
+#29
+Generate Parentheses
+ LC 22
+ Medium
+HINT — Think about this before looking at code
+Add open bracket if open count is less than n. Add close bracket if close count is less than open count. Recurse
+until string length = 2n.
+MEMORY TRICK — How to never forget this
+RULE: open less than n means can add open bracket. close less than open means can add close bracket.
+Never close more than you have opened.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than string greater-than generateParenthesis(int n) {
+    vector less-than string greater-than res;
+    function less-than void(string,int,int) greater-than bt = [AND](string cur, int op, int cl) {
+        if ((int)cur.size() == 2*n) { res.push_back(cur); return; }
+        if (op is less than n) bt(cur+'(', op+1, cl);
+        if (cl less-than op) bt(cur+')', op, cl+1);
+
+---PAGE 18---
+NeetCode 200  |  Page 18  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    };
+    bt("", 0, 0); return res;
+}
+#30
+Daily Temperatures
+ LC 739
+ Medium
+HINT — Think about this before looking at code
+For each day find the next warmer day. Monotonic stack stores indices. When current temp greater-than stack
+top temp pop and record gap.
+MEMORY TRICK — How to never forget this
+MONO STACK of indices decreasing temp. Current greater than top? Pop and answer[top] = i - top. Push
+current index.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than int greater-than dailyTemperatures(vector less-than int greater-than AND T) {
+    vector less-than int greater-than res(T.size(), 0); stack less-than int greater-than st;
+    for (int i = 0; i less-than (int)T.size(); i++) {
+        while (!st.empty() AND T[st.top()] less-than T[i]) {
+            res[st.top()] = i - st.top(); st.pop();
+        }
+        st.push(i);
+    }
+    return res;
+}
+#31
+Car Fleet
+ LC 853
+ Medium
+HINT — Think about this before looking at code
+Sort by position descending. Calculate time each car takes to reach target. A faster car behind joins the fleet
+ahead.
+MEMORY TRICK — How to never forget this
+SORT DESC by position. time = (target-pos)/speed. If time is less-than-or-equal stack top it merges into that
+fleet. Stack size = fleets.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int carFleet(int target, vector less-than int greater-than AND pos, vector less-than int
+greater-than AND speed) {
+    int n = pos.size(); vector less-than pair less-than int,int greater-than greater-than
+cars(n);
+    for (int i = 0; i is less than n; i++) cars[i] = {pos[i], speed[i]};
+    sort(cars.rbegin(), cars.rend());
+    stack less-than double greater-than st;
+    for (autoAND [p, s] : cars) {
+        double t = (double)(target-p)/s;
+        if (st.empty() OR t greater-than st.top()) st.push(t);
+
+---PAGE 19---
+NeetCode 200  |  Page 19  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    }
+    return st.size();
+}
+#32
+Largest Rectangle in Histogram
+ LC 84
+ Hard
+ 
+HINT — Think about this before looking at code
+For each bar the rectangle extends left and right until a shorter bar blocks it. Use a monotonic stack to find
+boundaries.
+MEMORY TRICK — How to never forget this
+MONO STACK increasing. When current is less than top: pop top width = i - stack.top() - 1. Area = height *
+width.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int largestRectangleArea(vector less-than int greater-than AND heights) {
+    stack less-than int greater-than st; int res = 0;
+    heights.push_back(0);
+    for (int i = 0; i less-than (int)heights.size(); i++) {
+        while (!st.empty() AND heights[st.top()] greater-than heights[i]) {
+            int h = heights[st.top()]; st.pop();
+            int w = st.empty() ? i : i - st.top() - 1;
+            res = max(res, h * w);
+        }
+        st.push(i);
+    }
+    return res;
+}
+#33
+Decode String
+ LC 394
+ Medium
+HINT — Think about this before looking at code
+Nested encoded strings like 3[a2[c]]. Use two stacks: one for counts one for current strings.
+MEMORY TRICK — How to never forget this
+TWO STACKS: count stack and string stack. On digit: build number. On open bracket: push curr and count
+reset. On close: pop and repeat.
+less-than b greater-than Solution (C++): less-than /b greater-than
+string decodeString(string s) {
+    stack<int> counts; stack<string> strs;
+    string curr; int num=0;
+    for(char c:s){
+        if(isdigit(c)) num=num*10+(c-'0');
+        else if(c=='['){counts.push(num);strs.push(curr);curr="";num=0;}
+        else if(c==']'){
+
+---PAGE 20---
+NeetCode 200  |  Page 20  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+            int k=counts.top();counts.pop();
+            string prev=strs.top();strs.pop();
+            while(k--) prev+=curr;
+            curr=prev;
+        } else curr+=c;
+    }
+    return curr;
+}
+#34
+Asteroid Collision
+ LC 735
+ Medium
+HINT — Think about this before looking at code
+Positive asteroids move right negative move left. Collision when positive is followed by negative. Larger
+survives.
+MEMORY TRICK — How to never forget this
+STACK of survivors. Positive: push. Negative: while top is positive and smaller: pop (destroy). Equal: destroy
+both. If stack top negative: push.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector<int> asteroidCollision(vector<int>& asteroids) {
+    stack<int> st;
+    for(int a:asteroids){
+        bool alive=true;
+        while(alive&&a<0&&!st.empty()&&st.top()>0){
+            if(st.top()<-a) st.pop();
+            else if(st.top()==-a){st.pop();alive=false;}
+            else alive=false;
+        }
+        if(alive) st.push(a);
+    }
+    vector<int> res(st.size()); int i=res.size()-1;
+    while(!st.empty()){res[i--]=st.top();st.pop();}
+    return res;
+}
+
+---PAGE 21---
+NeetCode 200  |  Page 21  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Binary Search
+ 9 Problems
+ 
+#35
+Binary Search
+ LC 704
+ Easy
+ 
+HINT — Think about this before looking at code
+Compare middle element to target. If equal return. If target bigger search right half. If smaller search left half.
+MEMORY TRICK — How to never forget this
+L + R + MID. mid = L+(R-L)/2. Three cases: equal return, too small L=mid+1, too big R=mid-1o big R=mid-1.
+Loop while L less-than =R.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int search(vector less-than int greater-than AND nums, int target) {
+    int L = 0, R = (int)nums.size()-1;
+    while (L is at most R) {
+        int mid = L+(R-L)/2;
+        if (nums[mid]==target) return mid;
+        else if (nums[mid] less-than target) L = mid+1;
+        else R = mid-1;
+    }
+    return -1;
+}
+#36
+Search a 2D Matrix
+ LC 74
+ Medium
+HINT — Think about this before looking at code
+Treat the 2D matrix as a 1D sorted array. Map 1D index to 2D: row = mid/cols col = mid%cols.
+MEMORY TRICK — How to never forget this
+FLATTEN the matrix. Binary search on [0 m*n-1]. Convert mid to (mid/cols mid%cols). Same as 1D binary
+search.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool searchMatrix(vector less-than vector less-than int greater-than greater-than AND matrix, int
+target) {
+    int m = matrix.size(), n = matrix[0].size();
+    int L = 0, R = m*n-1;
+    while (L is at most R) {
+        int mid = L+(R-L)/2; int val = matrix[mid/n][mid%n];
+        if (val==target) return true;
+        else if (val less-than target) L = mid+1;
+        else R = mid-1;
+    }
+    return false;
+
+---PAGE 22---
+NeetCode 200  |  Page 22  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+}
+#37
+Koko Eating Bananas
+ LC 875
+ Medium
+HINT — Think about this before looking at code
+Binary search on the answer which is eating speed. For a given speed can Koko finish in h hours?
+MEMORY TRICK — How to never forget this
+BINARY SEARCH ON SPEED. min=1 max=max(piles). Check sum(ceil(pile/k)) is less or equal h. If valid try
+slower (R=mid-1).
+less-than b greater-than Solution (C++): less-than /b greater-than
+int minEatingSpeed(vector less-than int greater-than AND piles, int h) {
+    int L = 1, R = *max_element(piles.begin(), piles.end()), res = R;
+    while (L is at most R) {
+        int mid = L+(R-L)/2; long hours = 0;
+        for (int p : piles) hours += (p+mid-1)/mid;
+        if (hours is at most h) { res = mid; R = mid-1; }
+        else L = mid+1;
+    }
+    return res;
+}
+#38
+Find Minimum in Rotated Sorted Array
+ LC 153
+ Medium
+HINT — Think about this before looking at code
+The minimum is in the unsorted half. If left side is sorted the min must be in right half.
+MEMORY TRICK — How to never forget this
+SORTED HALF has no minimum. If nums[L] is less-equal nums[mid] left is sorted so min is in right half
+(L=mid+1). Else R=mid.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int findMin(vector less-than int greater-than AND nums) {
+    int L = 0, R = (int)nums.size()-1;
+    while (L less-than R) {
+        int mid = L+(R-L)/2;
+        if (nums[mid] greater-than nums[R]) L = mid+1;
+        else R = mid;
+    }
+    return nums[L];
+}
+#39
+Search in Rotated Sorted Array
+ LC 33
+ Medium
+HINT — Think about this before looking at code
+
+---PAGE 23---
+NeetCode 200  |  Page 23  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+One half is always sorted. Check which half then decide if target is in that sorted half.
+MEMORY TRICK — How to never forget this
+IDENTIFY SORTED HALF first. If nums[L] is less-equal nums[mid]: left sorted. Is target in range [L mid]? Go
+left. Else go right.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int search(vector less-than int greater-than AND nums, int target) {
+    int L = 0, R = (int)nums.size()-1;
+    while (L is at most R) {
+        int mid = L+(R-L)/2;
+        if (nums[mid]==target) return mid;
+        if (nums[L] is less-equal nums[mid]) {
+            if (nums[L] less-than =target AND target less-than nums[mid]) R = mid-1;
+            else L = mid+1;
+        } else {
+            if (nums[mid] less-than target AND target less-than =nums[R]) L = mid+1;
+            else R = mid-1;
+        }
+    }
+    return -1;
+}
+#40
+Time Based Key-Value Store
+ LC 981
+ Medium
+HINT — Think about this before looking at code
+Store values in a list per key. Timestamps are increasing so binary search for largest timestamp is at most
+given time.
+MEMORY TRICK — How to never forget this
+SORTED TIMESTAMPS = binary search. Store list of timestamp-value pairs. Binary search for rightmost
+timestamp is at most t.
+less-than b greater-than Solution (C++): less-than /b greater-than
+class TimeMap {
+    unordered_map less-than string, vector less-than pair less-than int,string greater-than
+greater-than greater-than store;
+public:
+    void set(string k, string v, int t) { store[k].push_back({t,v}); }
+    string get(string k, int t) {
+        autoAND v = store[k]; int L=0, R=(int)v.size()-1; string res="";
+        while (L less-than =R) {
+            int mid=L+(R-L)/2;
+            if (v[mid].first less-than =t) { res=v[mid].second; L=mid+1; }
+            else R=mid-1;
+        }
+
+---PAGE 24---
+NeetCode 200  |  Page 24  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+        return res;
+    }
+}
+#41
+Median of Two Sorted Arrays
+ LC 4
+ Hard
+ 
+HINT — Think about this before looking at code
+Binary search on the smaller array partition. Find a cut so max of lefts is less-equal min of rightsghts) on both
+arrays.
+MEMORY TRICK — How to never forget this
+PARTITION BOTH ARRAYS. Binary search on smaller array. Ensure maxLeft1 is at most minRight2 AND
+maxLeft2 is at most minRight1.
+less-than b greater-than Solution (C++): less-than /b greater-than
+double findMedianSortedArrays(vector less-than int greater-than AND A, vector less-than int
+greater-than AND B) {
+    if (A.size() greater-than B.size()) return findMedianSortedArrays(B, A);
+    int m=A.size(), n=B.size(), half=(m+n)/2; int L=0, R=m;
+    while (true) {
+        int i=L+(R-L)/2, j=half-i;
+        int Al=i greater-than 0?A[i-1]:INT_MIN, Ar=i less-than m?A[i]:INT_MAX;
+        int Bl=j greater-than 0?B[j-1]:INT_MIN, Br=j less-than n?B[j]:INT_MAX;
+        if (Al less-than =Br AND Bl less-than =Ar) {
+            if ((m+n)%2) return min(Ar,Br);
+            return (max(Al,Bl)+min(Ar,Br))/2.0;
+        } else if (Al greater-than Br) R=i-1; else L=i+1;
+    }
+}
+#42
+First Bad Version
+ LC 278
+ Easy
+ 
+HINT — Think about this before looking at code
+Binary search for the first version where isBadVersion returns true. Classic binary search on answer.
+MEMORY TRICK — How to never forget this
+FIND FIRST TRUE. If mid is bad: R=mid (might be answer). If good: L=mid+1. Return L.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int firstBadVersion(int n) {
+    int L=1,R=n;
+    while(L<R){
+        int mid=L+(R-L)/2;
+        if(isBadVersion(mid)) R=mid;
+        else L=mid+1;
+    }
+
+---PAGE 25---
+NeetCode 200  |  Page 25  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    return L;
+}
+#43
+Search Insert Position
+ LC 35
+ Easy
+ 
+HINT — Think about this before looking at code
+Binary search. If target found return index. If not found return where it would be inserted.
+MEMORY TRICK — How to never forget this
+STANDARD BINARY SEARCH. If not found L is the insertion position. Return L after loop exits.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int searchInsert(vector<int>& nums, int target) {
+    int L=0,R=(int)nums.size()-1;
+    while(L<=R){
+        int mid=L+(R-L)/2;
+        if(nums[mid]==target) return mid;
+        else if(nums[mid]<target) L=mid+1;
+        else R=mid-1;
+    }
+    return L;
+}
+
+---PAGE 26---
+NeetCode 200  |  Page 26  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Linked List
+ 13 Problems
+ 
+#44
+Reverse Linked List
+ LC 206
+ Easy
+ 
+HINT — Think about this before looking at code
+Iteratively change the next pointer of each node to point to the previous node. You need three pointers.
+MEMORY TRICK — How to never forget this
+prev=null curr=head. Loop: save next point curr to prev advance prev and curr. When curr=null prev is new
+head.
+less-than b greater-than Solution (C++): less-than /b greater-than
+ListNode* reverseList(ListNode* head) {
+    ListNode* prev = nullptr, *curr = head;
+    while (curr) {
+        ListNode* next = curr pointer next;
+        curr pointer next = prev; prev = curr; curr = next;
+    }
+    return prev;
+}
+#45
+Merge Two Sorted Lists
+ LC 21
+ Easy
+ 
+HINT — Think about this before looking at code
+Compare heads of both lists. Take the smaller one attach to result advance that pointer.
+MEMORY TRICK — How to never forget this
+SMALLER HEAD WINS. Use a dummy node to simplify head handling. Compare l1 and l2 take smaller move
+that pointer.
+less-than b greater-than Solution (C++): less-than /b greater-than
+ListNode* mergeTwoLists(ListNode* l1, ListNode* l2) {
+    ListNode dummy(0); ListNode* cur = ANDdummy;
+    while (l1 AND l2) {
+        if (l1 pointer val is at most l2 pointer val) { cur pointer next=l1; l1=l1 pointer next; }
+        else { cur pointer next=l2; l2=l2 pointer next; }
+        cur = cur pointer next;
+    }
+    cur pointer next = l1 ? l1 : l2; return dummy.next;
+}
+#46
+Reorder List
+ LC 143
+ Medium
+
+---PAGE 27---
+NeetCode 200  |  Page 27  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+HINT — Think about this before looking at code
+Three steps: find middle reverse second half merge two halves alternately.
+MEMORY TRICK — How to never forget this
+FIND MID then REVERSE SECOND HALF then MERGE. Like folding a list in half and interleaving the two
+halves.
+less-than b greater-than Solution (C++): less-than /b greater-than
+void reorderList(ListNode* head) {
+    ListNode* slow=head, *fast=head;
+    while (fast pointer next AND fast pointer next pointer next) { slow=slow pointer next;
+fast=fast pointer next pointer next; }
+    ListNode* second=slow pointer next; slow pointer next=nullptr;
+    ListNode* prev=nullptr, *curr=second;
+    while (curr) { ListNode* tmp=curr pointer next; curr pointer next=prev; prev=curr; curr=tmp;
+}
+    ListNode* first=head; second=prev;
+    while (second) {
+        ListNode* t1=first pointer next, *t2=second pointer next;
+        first pointer next=second; second pointer next=t1; first=t1; second=t2;
+    }
+}
+#47
+Remove Nth Node From End
+ LC 19
+ Medium
+HINT — Think about this before looking at code
+Move right pointer n steps ahead. Then move both until right reaches end. Delete left's next node.
+MEMORY TRICK — How to never forget this
+GAP OF N. R goes n steps first. Then both move together. When R=null L.next is target. Dummy node handles
+edge cases.
+less-than b greater-than Solution (C++): less-than /b greater-than
+ListNode* removeNthFromEnd(ListNode* head, int n) {
+    ListNode* dummy=new ListNode(0,head);
+    ListNode* L=dummy, *R=head;
+    while (n--) R=R pointer next;
+    while (R) { L=L pointer next; R=R pointer next; }
+    L pointer next=L pointer next pointer next; return dummy pointer next;
+}
+#48
+Copy List with Random Pointer
+ LC 138
+ Medium
+HINT — Think about this before looking at code
+Two passes: first create all new nodes stored in map. Second pass set next and random pointers using the
+map.
+
+---PAGE 28---
+NeetCode 200  |  Page 28  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+MEMORY TRICK — How to never forget this
+MAP OLD to NEW. Pass 1: create copy of every node. Pass 2: copy pointer next = map[orig pointer next] copy
+dot random = map[orig dot random].
+less-than b greater-than Solution (C++): less-than /b greater-than
+Node* copyRandomList(Node* head) {
+    unordered_map less-than Node*,Node* greater-than mp;
+    Node* cur=head;
+    while (cur) { mp[cur]=new Node(cur pointer val); cur=cur pointer next; }
+    cur=head;
+    while (cur) {
+        mp[cur] pointer next=mp[cur pointer next]; mp[cur] dot random=mp[cur dot random]; cur=cur
+pointer next;
+    }
+    return mp[head];
+}
+#49
+Add Two Numbers
+ LC 2
+ Medium
+HINT — Think about this before looking at code
+Simulate addition digit by digit with a carry. Process both lists simultaneously.
+MEMORY TRICK — How to never forget this
+DIGIT BY DIGIT with carry. sum = l1 pointer val + l2 pointer val + carry. New digit = sum%10. carry = sum/10.
+Continue while list or carry remains.
+less-than b greater-than Solution (C++): less-than /b greater-than
+ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+    ListNode dummy(0); ListNode* cur=ANDdummy; int carry=0;
+    while (l1ORl2ORcarry) {
+        int sum=carry;
+        if (l1) { sum+=l1 pointer val; l1=l1 pointer next; }
+        if (l2) { sum+=l2 pointer val; l2=l2 pointer next; }
+        carry=sum/10; cur pointer next=new ListNode(sum%10); cur=cur pointer next;
+    }
+    return dummy.next;
+}
+#50
+Linked List Cycle
+ LC 141
+ Easy
+ 
+HINT — Think about this before looking at code
+Fast pointer moves 2 steps slow moves 1. If there is a cycle fast will eventually lap slow and they will meet.
+MEMORY TRICK — How to never forget this
+FAST LAPS SLOW in a cycle. If fast or fast pointer next is null: no cycle. If fast==slow: cycle detected.
+
+---PAGE 29---
+NeetCode 200  |  Page 29  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool hasCycle(ListNode* head) {
+    ListNode* slow=head, *fast=head;
+    while (fast AND fast pointer next) {
+        slow=slow pointer next; fast=fast pointer next pointer next;
+        if (slow==fast) return true;
+    }
+    return false;
+}
+#51
+Find the Duplicate Number
+ LC 287
+ Medium
+HINT — Think about this before looking at code
+Treat array as linked list where value = next index. Find cycle entry point using Floyd's algorithm.
+MEMORY TRICK — How to never forget this
+FLOYD'S CYCLE DETECTION on array indices. Phase 1: find meeting point. Phase 2: start one pointer at 0
+advance both at speed 1.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int findDuplicate(vector less-than int greater-than AND nums) {
+    int slow=nums[0], fast=nums[0];
+    do { slow=nums[slow]; fast=nums[nums[fast]]; } while (slow!=fast);
+    slow=nums[0];
+    while (slow!=fast) { slow=nums[slow]; fast=nums[fast]; }
+    return slow;
+}
+#52
+LRU Cache
+ LC 146
+ Medium
+HINT — Think about this before looking at code
+Need O(1) get and put. Use a hashmap for O(1) lookup and a doubly linked list to track recency.
+MEMORY TRICK — How to never forget this
+HASHMAP + DOUBLY LINKED LIST. Map key to node. List: head=least recent tail=most recent. On access
+move node to front.
+less-than b greater-than Solution (C++): less-than /b greater-than
+class LRUCache {
+    int cap; list less-than pair less-than int,int greater-than greater-than cache;
+    unordered_map less-than int,list less-than pair less-than int,int greater-than greater-than
+::iterator greater-than mp;
+public:
+    LRUCache(int c):cap(c){}
+    int get(int k) {
+        if (!mp.count(k)) return -1;
+
+---PAGE 30---
+NeetCode 200  |  Page 30  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+        cache.splice(cache.begin(), cache, mp[k]); return mp[k] dot second;
+    }
+    void put(int k, int v) {
+        if (mp.count(k)) cache.erase(mp[k]);
+        else if ((int)cache.size()==cap) { mp.erase(cache.back().first); cache.pop_back(); }
+        cache.push_front({k,v}); mp[k]=cache.begin();
+    }
+}
+#53
+Merge K Sorted Lists
+ LC 23
+ Hard
+ 
+HINT — Think about this before looking at code
+Use a min-heap to always extract the smallest current element. Push the next element of that list into the heap.
+MEMORY TRICK — How to never forget this
+MIN-HEAP of node pointers. Extract min add to result push next node from same list. Heap size stays at most
+K.
+less-than b greater-than Solution (C++): less-than /b greater-than
+ListNode* mergeKLists(vector less-than ListNode* greater-than AND lists) {
+    auto cmp=[](ListNode* a,ListNode* b){return a pointer val greater-than b pointer val;};
+    priority_queue less-than ListNode*,vector less-than ListNode* greater-than ,decltype(cmp)
+greater-than pq(cmp);
+    for (auto l:lists) if (l) pq.push(l);
+    ListNode dummy(0); ListNode* cur=ANDdummy;
+    while (!pq.empty()) {
+        cur pointer next=pq.top(); pq.pop(); cur=cur pointer next;
+        if (cur pointer next) pq.push(cur pointer next);
+    }
+    return dummy.next;
+}
+#54
+Reverse Nodes in k-Group
+ LC 25
+ Hard
+ 
+HINT — Think about this before looking at code
+Count k nodes reverse them recurse for the rest. Connect reversed group to the recursed result.
+MEMORY TRICK — How to never forget this
+COUNT K then REVERSE GROUP then RECURSE TAIL. If fewer than k nodes remain leave as is. Connect
+group tail to recursive result.
+less-than b greater-than Solution (C++): less-than /b greater-than
+ListNode* reverseKGroup(ListNode* head, int k) {
+    ListNode* cur=head; int count=0;
+    while (cur AND count less-than k) { cur=cur pointer next; count++; }
+    if (count less-than k) return head;
+
+---PAGE 31---
+NeetCode 200  |  Page 31  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    ListNode* prev=nullptr, *node=head;
+    for (int i=0;i less-than k;i++) { ListNode* nxt=node pointer next; node pointer next=prev;
+prev=node; node=nxt; }
+    head pointer next=reverseKGroup(node,k); return prev;
+}
+#55
+Palindrome Linked List
+ LC 234
+ Easy
+ 
+HINT — Think about this before looking at code
+Find middle reverse second half compare with first half.
+MEMORY TRICK — How to never forget this
+FIND MID then REVERSE SECOND HALF then COMPARE. Classic three-step linked list pattern.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool isPalindrome(ListNode* head) {
+    ListNode* slow=head,*fast=head;
+    while(fast&&fast->next){slow=slow->next;fast=fast->next->next;}
+    ListNode* prev=nullptr,*curr=slow;
+    while(curr){ListNode* nxt=curr->next;curr->next=prev;prev=curr;curr=nxt;}
+    ListNode* left=head,*right=prev;
+    while(right){if(left->val!=right->val) return false;left=left->next;right=right->next;}
+    return true;
+}
+#56
+Swap Nodes in Pairs
+ LC 24
+ Medium
+HINT — Think about this before looking at code
+Swap every two adjacent nodes. Use recursion: swap first pair then recurse on the rest.
+MEMORY TRICK — How to never forget this
+SWAP PAIR then RECURSE. head->next = swapPairs(second->next). second->next = head. Return second.
+less-than b greater-than Solution (C++): less-than /b greater-than
+ListNode* swapPairs(ListNode* head) {
+    if(!head||!head->next) return head;
+    ListNode* second=head->next;
+    head->next=swapPairs(second->next);
+    second->next=head;
+    return second;
+}
+
+---PAGE 32---
+NeetCode 200  |  Page 32  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Trees
+ 20 Problems
+ 
+#57
+Invert Binary Tree
+ LC 226
+ Easy
+ 
+HINT — Think about this before looking at code
+Swap left and right children at each node then recursively do the same for both subtrees.
+MEMORY TRICK — How to never forget this
+SWAP THEN RECURSE. At every node swap left and right then recurse on both children.
+less-than b greater-than Solution (C++): less-than /b greater-than
+TreeNode* invertTree(TreeNode* root) {
+    if (!root) return nullptr;
+    swap(root dot left, root dot right);
+    invertTree(root dot left); invertTree(root dot right);
+    return root;
+}
+#58
+Maximum Depth of Binary Tree
+ LC 104
+ Easy
+ 
+HINT — Think about this before looking at code
+The depth = 1 + max depth of left or right subtree. Base case: null node has depth 0.
+MEMORY TRICK — How to never forget this
+DEPTH = 1 + max(left right). Trust the recursion. Null returns 0.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int maxDepth(TreeNode* root) {
+    if (!root) return 0;
+    return 1 + max(maxDepth(root dot left), maxDepth(root dot right));
+}
+#59
+Diameter of Binary Tree
+ LC 543
+ Easy
+ 
+HINT — Think about this before looking at code
+Diameter at each node = leftHeight + rightHeight. Track global max. Return height to parent.
+MEMORY TRICK — How to never forget this
+DIAMETER = leftH + rightH at each node. Helper returns height. Track global max. Diameter passes through
+subtree root.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int diameterOfBinaryTree(TreeNode* root) {
+
+---PAGE 33---
+NeetCode 200  |  Page 33  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    int res = 0;
+    function less-than int(TreeNode*) greater-than dfs = [AND](TreeNode* node) {
+        if (!node) return 0;
+        int L = dfs(node dot left), R = dfs(node dot right);
+        res = max(res, L+R); return 1 + max(L, R);
+    };
+    dfs(root); return res;
+}
+#60
+Balanced Binary Tree
+ LC 110
+ Easy
+ 
+HINT — Think about this before looking at code
+A tree is balanced if every node left and right subtree heights differ by at most 1. Return -1 if unbalanced.
+MEMORY TRICK — How to never forget this
+HEIGHT = -1 means unbalanced. Return -1 early if subtree is unbalanced OR heights differ by more than 1.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool isBalanced(TreeNode* root) {
+    function less-than int(TreeNode*) greater-than h = [AND](TreeNode* n) dot int {
+        if (!n) return 0;
+        int L = h(n dot left); if (L==-1) return -1;
+        int R = h(n dot right); if (R==-1) return -1;
+        if (abs(L-R) greater-than 1) return -1;
+        return 1 + max(L,R);
+    };
+    return h(root) != -1;
+}
+#61
+Same Tree
+ LC 100
+ Easy
+ 
+HINT — Think about this before looking at code
+Two trees are the same if roots have same value AND left subtrees are same AND right subtrees are same.
+MEMORY TRICK — How to never forget this
+SAME = same val + same left + same right. Both null = true. One null = false. Values differ = false.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool isSameTree(TreeNode* p, TreeNode* q) {
+    if (!p AND !q) return true;
+    if (!p OR !q OR p pointer val!=q pointer val) return false;
+    return isSameTree(p dot left,q dot left) AND isSameTree(p dot right,q dot right);
+}
+#62
+Subtree of Another Tree
+ LC 572
+ Easy
+ 
+---PAGE 34---
+NeetCode 200  |  Page 34  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+HINT — Think about this before looking at code
+For each node in the main tree check if the subtree rooted there is identical to the given subtree.
+MEMORY TRICK — How to never forget this
+IS SAME TREE at every node. Call isSameTree(root sub). If false recurse on left and right children.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool isSubtree(TreeNode* root, TreeNode* sub) {
+    if (!root) return false;
+    if (isSameTree(root, sub)) return true;
+    return isSubtree(root dot left,sub) OR isSubtree(root dot right,sub);
+}
+#63
+Lowest Common Ancestor of BST
+ LC 235
+ Medium
+HINT — Think about this before looking at code
+In a BST if both p and q are less than root go left. If both greater go right. Otherwise root is the LCA.
+MEMORY TRICK — How to never forget this
+BST PROPERTY GUIDES YOU. Both is less than root: go left. Both greater-than root: go right. Split means root
+is LCA.
+less-than b greater-than Solution (C++): less-than /b greater-than
+TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    while (root) {
+        if (p pointer val less-than root pointer val AND q pointer val less-than root pointer val)
+root=root dot left;
+        else if (p pointer val greater-than root pointer val AND q pointer val greater-than root
+pointer val) root=root dot right;
+        else return root;
+    }
+    return nullptr;
+}
+#64
+Binary Tree Level Order Traversal
+ LC 102
+ Medium
+HINT — Think about this before looking at code
+BFS with a queue. Process all nodes at current level push their children. Track level size to separate levels.
+MEMORY TRICK — How to never forget this
+BFS + LEVEL SIZE SNAPSHOT. int sz = q.size() before processing. Process exactly sz nodes per level.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than vector less-than int greater-than greater-than levelOrder(TreeNode* root) {
+    vector less-than vector less-than int greater-than greater-than res; if (!root) return res;
+    queue less-than TreeNode* greater-than q; q.push(root);
+
+---PAGE 35---
+NeetCode 200  |  Page 35  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    while (!q.empty()) {
+        int sz=q.size(); vector less-than int greater-than level;
+        for (int i=0;i less-than sz;i++) {
+            TreeNode* n=q.front(); q.pop(); level.push_back(n pointer val);
+            if (n dot left) q.push(n dot left); if (n dot right) q.push(n dot right);
+        }
+        res.push_back(level);
+    }
+    return res;
+}
+#65
+Binary Tree Right Side View
+ LC 199
+ Medium
+HINT — Think about this before looking at code
+BFS level by level. The last node processed at each level is visible from the right side.
+MEMORY TRICK — How to never forget this
+LAST NODE PER LEVEL = right view. BFS take the last element of each level.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than int greater-than rightSideView(TreeNode* root) {
+    vector less-than int greater-than res; if (!root) return res;
+    queue less-than TreeNode* greater-than q; q.push(root);
+    while (!q.empty()) {
+        int sz=q.size();
+        for (int i=0;i less-than sz;i++) {
+            TreeNode* n=q.front(); q.pop();
+            if (i==sz-1) res.push_back(n pointer val);
+            if (n dot left) q.push(n dot left); if (n dot right) q.push(n dot right);
+        }
+    }
+    return res;
+}
+#66
+Count Good Nodes in Binary Tree
+LC 1448
+Medium
+HINT — Think about this before looking at code
+A node is good if no ancestor has a greater value. DFS track max value on path from root to current node.
+MEMORY TRICK — How to never forget this
+GOOD = val is at least maxOnPath. DFS passing current max. If node pointer val is at least max it is good.
+Update max as you go deeper.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int goodNodes(TreeNode* root) {
+    function less-than int(TreeNode*,int) greater-than dfs=[AND](TreeNode* node, int maxVal){
+
+---PAGE 36---
+NeetCode 200  |  Page 36  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+        if (!node) return 0;
+        int res = node pointer val greater-than =maxVal ? 1 : 0;
+        maxVal = max(maxVal, node pointer val);
+        return res+dfs(node dot left,maxVal)+dfs(node dot right,maxVal);
+    };
+    return dfs(root, INT_MIN);
+}
+#67
+Validate Binary Search Tree
+ LC 98
+ Medium
+HINT — Think about this before looking at code
+Each node must be within a valid range (min max). Pass these bounds down recursively.
+MEMORY TRICK — How to never forget this
+PASS BOUNDS DOWN. isValid(node min max). Left: max becomes node pointer val. Right: min becomes node
+pointer val. Reject if out of range.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool isValidBST(TreeNode* root) {
+    function less-than bool(TreeNode*,long,long) greater-than ok=[AND](TreeNode* n, long lo, long
+hi){
+        if (!n) return true;
+        if (n pointer val less-than =lo OR n pointer val greater-than =hi) return false;
+        return ok(n dot left,lo,n pointer val) AND ok(n dot right,n pointer val,hi);
+    };
+    return ok(root, LONG_MIN, LONG_MAX);
+}
+#68
+Kth Smallest Element in a BST
+ LC 230
+ Medium
+HINT — Think about this before looking at code
+Inorder traversal of BST gives sorted order. The kth element visited in inorder is the answer.
+MEMORY TRICK — How to never forget this
+INORDER = SORTED in BST. Count nodes in inorder. When count reaches k that is your answer.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int kthSmallest(TreeNode* root, int k) {
+    int count=0, res=0;
+    function less-than void(TreeNode*) greater-than inorder=[AND](TreeNode* n){
+        if (!nORcount greater-than =k) return;
+        inorder(n dot left);
+        if (++count==k) { res=n pointer val; return; }
+        inorder(n dot right);
+    };
+    inorder(root); return res;
+
+---PAGE 37---
+NeetCode 200  |  Page 37  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+}
+#69
+Construct Binary Tree from Preorder and Inorder
+ LC 105
+ Medium
+HINT — Think about this before looking at code
+Preorder[0] is always the root. Find root in inorder. Elements left of it are left subtree right are right subtree.
+MEMORY TRICK — How to never forget this
+PREORDER[0] = ROOT. Find it in inorder. Left of it = left subtree size. Use that to split both arrays. Recurse.
+less-than b greater-than Solution (C++): less-than /b greater-than
+TreeNode* buildTree(vector less-than int greater-than AND pre, vector less-than int greater-than
+AND in) {
+    unordered_map less-than int,int greater-than idx;
+    for (int i=0;i less-than (int)in.size();i++) idx[in[i]]=i;
+    function less-than TreeNode*(int,int,int,int) greater-than build=[AND](int ps,int pe,int
+is,int ie) dot TreeNode*{
+        if (ps greater-than pe) return nullptr;
+        TreeNode* root=new TreeNode(pre[ps]);
+        int mid=idx[pre[ps]]-is;
+        root dot left=build(ps+1,ps+mid,is,idx[pre[ps]]-1);
+        root dot right=build(ps+mid+1,pe,idx[pre[ps]]+1,ie);
+        return root;
+    };
+    return build(0,pre.size()-1,0,in.size()-1);
+}
+#70
+Binary Tree Maximum Path Sum
+ LC 124
+ Hard
+ 
+HINT — Think about this before looking at code
+At each node path through it = node pointer val + max(0 leftGain) + max(0 rightGain). Return only one branch to
+parent.
+MEMORY TRICK — How to never forget this
+GLOBAL MAX at each node. Gain = max(0 recurse). Path through node = val+left+right. Return val+max(left
+right) to parent.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int maxPathSum(TreeNode* root) {
+    int res=INT_MIN;
+    function less-than int(TreeNode*) greater-than dfs=[AND](TreeNode* n) dot int{
+        if (!n) return 0;
+        int L=max(0,dfs(n dot left)), R=max(0,dfs(n dot right));
+        res=max(res, n pointer val+L+R); return n pointer val+max(L,R);
+    };
+    dfs(root); return res;
+
+---PAGE 38---
+NeetCode 200  |  Page 38  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+}
+#71
+Serialize and Deserialize Binary Tree
+ LC 297
+ Hard
+ 
+HINT — Think about this before looking at code
+Preorder DFS to serialize writing val or N for null. Deserialize using a queue of tokens rebuild recursively.
+MEMORY TRICK — How to never forget this
+PREORDER + NULL MARKERS. Serialize: write val recurse left right write N for null. Deserialize: read token
+create node recurse.
+less-than b greater-than Solution (C++): less-than /b greater-than
+string serialize(TreeNode* root) {
+    if (!root) return "N,";
+    return to_string(root pointer val)+","+serialize(root dot left)+serialize(root dot right);
+}
+TreeNode* deserialize(string data) {
+    queue less-than string greater-than q; stringstream ss(data); string tok;
+    while(getline(ss,tok,',')) q.push(tok);
+    function less-than TreeNode*() greater-than dfs=[AND]() dot TreeNode*{
+        string v=q.front(); q.pop();
+        if (v=="N") return nullptr;
+        TreeNode* n=new TreeNode(stoi(v));
+        n dot left=dfs(); n dot right=dfs(); return n;
+    };
+    return dfs();
+}
+#72
+Path Sum
+ LC 112
+ Easy
+ 
+HINT — Think about this before looking at code
+DFS checking if any root-to-leaf path sums to target. Subtract node value as you go down.
+MEMORY TRICK — How to never forget this
+DFS subtracting. If leaf and remaining==0: found. Recurse left and right with reduced target.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool hasPathSum(TreeNode* root, int target) {
+    if(!root) return false;
+    if(!root->left&&!root->right) return root->val==target;
+    return hasPathSum(root->left,target-root->val)||hasPathSum(root->right,target-root->val);
+}
+#73
+Symmetric Tree
+ LC 101
+ Easy
+ 
+---PAGE 39---
+NeetCode 200  |  Page 39  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+HINT — Think about this before looking at code
+A tree is symmetric if left subtree mirrors right subtree. Compare outer and inner pairs recursively.
+MEMORY TRICK — How to never forget this
+MIRROR CHECK. isMirror(left right). left->val == right->val AND isMirror(left->left right->right) AND
+isMirror(left->right right->left).
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool isSymmetric(TreeNode* root) {
+    function<bool(TreeNode*,TreeNode*)> mirror=[&](TreeNode* l,TreeNode* r)->bool{
+        if(!l&&!r) return true;
+        if(!l||!r||l->val!=r->val) return false;
+        return mirror(l->left,r->right)&&mirror(l->right,r->left);
+    };
+    return mirror(root->left,root->right);
+}
+#74
+Average of Levels in Binary Tree
+ LC 637
+ Easy
+ 
+HINT — Think about this before looking at code
+BFS level by level. Average the values at each level.
+MEMORY TRICK — How to never forget this
+BFS + AVERAGE PER LEVEL. Same as level order traversal but compute average of each level vector.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector<double> averageOfLevels(TreeNode* root) {
+    vector<double> res; if(!root) return res;
+    queue<TreeNode*> q; q.push(root);
+    while(!q.empty()){
+        int sz=q.size(); double sum=0;
+        for(int i=0;i<sz;i++){
+            auto n=q.front();q.pop(); sum+=n->val;
+            if(n->left) q.push(n->left); if(n->right) q.push(n->right);
+        }
+        res.push_back(sum/sz);
+    }
+    return res;
+}
+#75
+Binary Tree Paths
+ LC 257
+ Easy
+ 
+HINT — Think about this before looking at code
+DFS collecting all root-to-leaf paths. Build path string as you go down append to result at leaf.
+
+---PAGE 40---
+NeetCode 200  |  Page 40  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+MEMORY TRICK — How to never forget this
+DFS with path string. At each node append value. At leaf append to result. Backtrack by passing path by value.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector<string> binaryTreePaths(TreeNode* root) {
+    vector<string> res;
+    function<void(TreeNode*,string)> dfs=[&](TreeNode* n,string path){
+        if(!n) return;
+        path+=(path.empty()?"":"->")+to_string(n->val);
+        if(!n->left&&!n->right) res.push_back(path);
+        dfs(n->left,path); dfs(n->right,path);
+    };
+    dfs(root,""); return res;
+}
+#76
+Minimum Depth of Binary Tree
+ LC 111
+ Easy
+ 
+HINT — Think about this before looking at code
+BFS finds shortest path to leaf fastest. Or DFS: depth = 1 + min of non-null children.
+MEMORY TRICK — How to never forget this
+BFS SHORTEST PATH TO LEAF. First leaf found in BFS = minimum depth. DFS: be careful with nodes that
+have only one child.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int minDepth(TreeNode* root) {
+    if(!root) return 0;
+    queue<TreeNode*> q; q.push(root); int depth=1;
+    while(!q.empty()){
+        int sz=q.size();
+        while(sz--){
+            auto n=q.front();q.pop();
+            if(!n->left&&!n->right) return depth;
+            if(n->left) q.push(n->left); if(n->right) q.push(n->right);
+        }
+        depth++;
+    }
+    return depth;
+}
+
+---PAGE 41---
+NeetCode 200  |  Page 41  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Heap AND Priority Queue
+ 7 Problems
+ 
+#77
+Kth Largest Element in Array
+ LC 215
+ Medium
+HINT — Think about this before looking at code
+Use a min-heap of size k. If heap size exceeds k pop the minimum. The top is always the kth largest.
+MEMORY TRICK — How to never forget this
+MIN-HEAP size K. When size exceeds K pop min. Top = Kth largest. Heap evicts anyone not in top K.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int findKthLargest(vector less-than int greater-than AND nums, int k) {
+    priority_queue less-than int,vector less-than int greater-than ,greater less-than int
+greater-than greater-than minH;
+    for (int n : nums) {
+        minH.push(n);
+        if ((int)minH.size() exceeds k) minH.pop();
+    }
+    return minH.top();
+}
+#78
+K Closest Points to Origin
+ LC 973
+ Medium
+HINT — Think about this before looking at code
+Compute distance squared (no sqrt needed). Use a max-heap of size k evict farthest when size exceeds k.
+MEMORY TRICK — How to never forget this
+MAX-HEAP size K on distance. When size exceeds K pop max (farthest). What remains = K closest. Compare
+x*x+y*y.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than vector less-than int greater-than greater-than kClosest(vector less-than vector
+less-than int greater-than greater-than AND pts, int k) {
+    priority_queue less-than pair less-than int,int greater-than greater-than maxH;
+    for (int i=0;i less-than (int)pts.size();i++) {
+        int d=pts[i][0]*pts[i][0]+pts[i][1]*pts[i][1];
+        maxH.push({d,i});
+        if ((int)maxH.size() greater-than k) maxH.pop();
+    }
+    vector less-than vector less-than int greater-than greater-than res;
+    while (!maxH.empty()) { res.push_back(pts[maxH.top().second]); maxH.pop(); }
+    return res;
+}
+
+---PAGE 42---
+NeetCode 200  |  Page 42  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+#79
+Task Scheduler
+ LC 621
+ Medium
+HINT — Think about this before looking at code
+The bottleneck is the most frequent task. Gap = (maxFreq-1)*(n+1) + count of tasks with maxFreq.
+MEMORY TRICK — How to never forget this
+FORMULA: (maxFreq-1)*(n+1) + countOfMaxFreqTasks. Answer = max(this len(tasks)). Most frequent task
+determines idle time.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int leastInterval(vector less-than char greater-than AND tasks, int n) {
+    vector less-than int greater-than freq(26,0);
+    for (char c:tasks) freq[c-'A']++;
+    int maxFreq=*max_element(freq.begin(),freq.end());
+    int maxCount=count(freq.begin(),freq.end(),maxFreq);
+    return max((int)tasks.size(), (maxFreq-1)*(n+1)+maxCount);
+}
+#80
+Design Twitter
+ LC 355
+ Medium
+HINT — Think about this before looking at code
+Map userId to list of (timestamp tweetId). For getNewsFeed collect tweets from followees and self use
+max-heap for top 10.
+MEMORY TRICK — How to never forget this
+MAP + MAX-HEAP. Store tweets per user with timestamp. getNewsFeed: gather all relevant tweets heap-select
+top 10.
+less-than b greater-than Solution (C++): less-than /b greater-than
+class Twitter {
+    unordered_map less-than int,vector less-than pair less-than int,int greater-than greater-than
+greater-than tweets;
+    unordered_map less-than int,unordered_set less-than int greater-than greater-than follows;
+    int time=0;
+public:
+    void postTweet(int u,int t){tweets[u].push_back({time++,t});}
+    vector less-than int greater-than getNewsFeed(int u){
+        priority_queue less-than pair less-than int,int greater-than greater-than pq;
+        for(autoAND t:tweets[u]) pq.push(t);
+        for(int f:follows[u]) for(autoAND t:tweets[f]) pq.push(t);
+        vector less-than int greater-than res;
+        while(!pq.empty()ANDAND(int)res.size() less-than
+10){res.push_back(pq.top().second);pq.pop();}
+        return res;
+    }
+    void follow(int u,int f){follows[u].insert(f);}
+
+---PAGE 43---
+NeetCode 200  |  Page 43  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    void unfollow(int u,int f){follows[u].erase(f);}
+}
+#81
+Find Median from Data Stream
+ LC 295
+ Hard
+ 
+HINT — Think about this before looking at code
+Two heaps: max-heap for lower half min-heap for upper half. Balance them so sizes differ by at most 1.
+MEMORY TRICK — How to never forget this
+TWO HEAPS: maxH (lower half) + minH (upper half). Keep balanced. Median = top of bigger heap or average
+of both tops.
+less-than b greater-than Solution (C++): less-than /b greater-than
+class MedianFinder {
+    priority_queue less-than int greater-than maxH;
+    priority_queue less-than int,vector less-than int greater-than ,greater less-than int
+greater-than greater-than minH;
+public:
+    void addNum(int n) {
+        maxH.push(n);
+        minH.push(maxH.top()); maxH.pop();
+        if (minH.size() greater-than maxH.size()) { maxH.push(minH.top()); minH.pop(); }
+    }
+    double findMedian() {
+        if (maxH.size() greater-than minH.size()) return maxH.top();
+        return (maxH.top()+minH.top())/2.0;
+    }
+}
+#82
+Kth Largest Element in a Stream
+ LC 703
+ Easy
+ 
+HINT — Think about this before looking at code
+Maintain a min-heap of size k. The top is always the kth largest. On add: push and pop if exceeds k.
+MEMORY TRICK — How to never forget this
+MIN-HEAP size K = permanent top K. add(): push then if size exceeds k pop. Top = kth largest always.
+less-than b greater-than Solution (C++): less-than /b greater-than
+class KthLargest {
+    priority_queue<int,vector<int>,greater<int>> minH;
+    int k;
+public:
+    KthLargest(int k,vector<int>& nums):k(k){ for(int n:nums) add(n); }
+    int add(int val){
+        minH.push(val);
+        if((int)minH.size()>k) minH.pop();
+
+---PAGE 44---
+NeetCode 200  |  Page 44  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+        return minH.top();
+    }
+}
+#83
+Last Stone Weight
+LC 1046
+ Easy
+ 
+HINT — Think about this before looking at code
+Simulate: always smash the two heaviest. Use a max-heap.
+MEMORY TRICK — How to never forget this
+MAX-HEAP: always extract two largest. If not equal push the difference back. Repeat until 0 or 1 stone.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int lastStoneWeight(vector<int>& stones) {
+    priority_queue<int> pq(stones.begin(),stones.end());
+    while(pq.size()>1){
+        int a=pq.top();pq.pop();
+        int b=pq.top();pq.pop();
+        if(a!=b) pq.push(a-b);
+    }
+    return pq.empty()?0:pq.top();
+}
+
+---PAGE 45---
+NeetCode 200  |  Page 45  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Backtracking
+ 10 Problems
+ 
+#84
+Subsets
+ LC 78
+ Medium
+HINT — Think about this before looking at code
+At each element include it or do not. Backtrack by adding to current recurse with next index then remove.
+MEMORY TRICK — How to never forget this
+INCLUDE or EXCLUDE. For each element: push recurse from next index pop. Every recursive call state is a
+valid subset.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than vector less-than int greater-than greater-than subsets(vector less-than int
+greater-than AND nums) {
+    vector less-than vector less-than int greater-than greater-than res; vector less-than int
+greater-than cur;
+    function less-than void(int) greater-than bt=[AND](int i){
+        res.push_back(cur);
+        for (int j=i;j less-than (int)nums.size();j++) {
+            cur.push_back(nums[j]); bt(j+1); cur.pop_back();
+        }
+    };
+    bt(0); return res;
+}
+#85
+Combination Sum
+ LC 39
+ Medium
+HINT — Think about this before looking at code
+Same element can be reused. For each candidate add it recurse at same index (reuse allowed) then pop.
+MEMORY TRICK — How to never forget this
+REUSE = recurse at same index i not i+1. Stop when target is negative. When target == 0 add to result.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than vector less-than int greater-than greater-than combinationSum(vector less-than
+int greater-than AND candidates, int target) {
+    vector less-than vector less-than int greater-than greater-than res; vector less-than int
+greater-than cur;
+    function less-than void(int,int) greater-than bt=[AND](int i,int rem){
+        if (rem==0){res.push_back(cur);return;}
+        if (rem less-than 0ORi greater-than =(int)candidates.size()) return;
+        cur.push_back(candidates[i]); bt(i,rem-candidates[i]); cur.pop_back();
+        bt(i+1,rem);
+    };
+
+---PAGE 46---
+NeetCode 200  |  Page 46  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    bt(0,target); return res;
+}
+#86
+Permutations
+ LC 46
+ Medium
+HINT — Think about this before looking at code
+Use a visited array. At each step try all unvisited elements. Mark visited before recurse unmark after.
+MEMORY TRICK — How to never forget this
+VISITED ARRAY. Try every element at every position but skip already used. used[i]=true recurse used[i]=false.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than vector less-than int greater-than greater-than permute(vector less-than int
+greater-than AND nums) {
+    vector less-than vector less-than int greater-than greater-than res; vector less-than int
+greater-than cur;
+    vector less-than bool greater-than used(nums.size(),false);
+    function less-than void() greater-than bt=[AND](){
+        if ((int)cur.size()==(int)nums.size()){res.push_back(cur);return;}
+        for (int i=0;i less-than (int)nums.size();i++){
+            if(used[i]) continue;
+            used[i]=true; cur.push_back(nums[i]); bt(); used[i]=false; cur.pop_back();
+        }
+    };
+    bt(); return res;
+}
+#87
+Subsets II
+ LC 90
+ Medium
+HINT — Think about this before looking at code
+Sort first. Skip duplicate elements at the same recursion level. Allow same element in deeper levels.
+MEMORY TRICK — How to never forget this
+SORT + SKIP DUPS AT SAME LEVEL. if i greater-than start AND nums[i]==nums[i-1]: skip. Avoids duplicate
+subsets.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than vector less-than int greater-than greater-than subsetsWithDup(vector less-than
+int greater-than AND nums) {
+    sort(nums.begin(),nums.end());
+    vector less-than vector less-than int greater-than greater-than res; vector less-than int
+greater-than cur;
+    function less-than void(int) greater-than bt=[AND](int start){
+        res.push_back(cur);
+        for(int i=start;i less-than (int)nums.size();i++){
+            if(i greater-than startANDANDnums[i]==nums[i-1]) continue;
+            cur.push_back(nums[i]); bt(i+1); cur.pop_back();
+
+---PAGE 47---
+NeetCode 200  |  Page 47  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+        }
+    };
+    bt(0); return res;
+}
+#88
+Combination Sum II
+ LC 40
+ Medium
+HINT — Think about this before looking at code
+Each element used once skip duplicates at same level. Sort first. if i greater-than start AND nums[i]==nums[i-1]:
+skip.
+MEMORY TRICK — How to never forget this
+SORT + SKIP DUPS + NO REUSE (i+1). One-time use means recurse with i+1. Skip same value at same
+depth.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than vector less-than int greater-than greater-than combinationSum2(vector less-than
+int greater-than AND c, int target) {
+    sort(c.begin(),c.end());
+    vector less-than vector less-than int greater-than greater-than res; vector less-than int
+greater-than cur;
+    function less-than void(int,int) greater-than bt=[AND](int i,int rem){
+        if(rem==0){res.push_back(cur);return;}
+        for(int j=i;j less-than (int)c.size()ANDANDc[j] less-than =rem;j++){
+            if(j greater-than iANDANDc[j]==c[j-1]) continue;
+            cur.push_back(c[j]); bt(j+1,rem-c[j]); cur.pop_back();
+        }
+    };
+    bt(0,target); return res;
+}
+#89
+Word Search
+ LC 79
+ Medium
+HINT — Think about this before looking at code
+DFS from every cell matching word[0]. Mark cell as visited (modify in-place) recurse in 4 directions unmark
+after.
+MEMORY TRICK — How to never forget this
+DFS + MARK VISITED IN PLACE. Change cell to '#' to mark. Restore after backtrack. 4-directional DFS.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool exist(vector less-than vector less-than char greater-than greater-than AND board, string
+word) {
+    int m=board.size(),n=board[0].size();
+    function less-than bool(int,int,int) greater-than dfs=[AND](int r,int c,int i) dot bool{
+        if(i==(int)word.size()) return true;
+
+---PAGE 48---
+NeetCode 200  |  Page 48  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+        if(r less-than 0ORr greater-than =mORc less-than 0ORc greater-than
+=nORboard[r][c]!=word[i]) return false;
+        char tmp=board[r][c]; board[r][c]='#';
+        bool res=dfs(r+1,c,i+1)ORdfs(r-1,c,i+1)ORdfs(r,c+1,i+1)ORdfs(r,c-1,i+1);
+        board[r][c]=tmp; return res;
+    };
+    for(int r=0;r less-than m;r++) for(int c=0;c less-than n;c++) if(dfs(r,c,0)) return true;
+    return false;
+}
+#90
+Palindrome Partitioning
+ LC 131
+ Medium
+HINT — Think about this before looking at code
+Backtrack trying all substrings from current index. If it is a palindrome add it and recurse from after it.
+MEMORY TRICK — How to never forget this
+BACKTRACK + PALINDROME CHECK. For each end index if substr is palindrome: add to path recurse pop.
+Collect when i reaches end.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than vector less-than string greater-than greater-than partition(string s) {
+    vector less-than vector less-than string greater-than greater-than res; vector less-than
+string greater-than cur;
+    function less-than bool(int,int) greater-than isPalin=[AND](int l,int r){ while(l less-than
+r) if(s[l++]!=s[r--]) return false; return true; };
+    function less-than void(int) greater-than bt=[AND](int start){
+        if(start==(int)s.size()){res.push_back(cur);return;}
+        for(int end=start;end less-than (int)s.size();end++){
+            if(isPalin(start,end)){
+                cur.push_back(s.substr(start,end-start+1)); bt(end+1); cur.pop_back();
+            }
+        }
+    };
+    bt(0); return res;
+}
+#91
+Letter Combinations of a Phone Number
+ LC 17
+ Medium
+HINT — Think about this before looking at code
+Map each digit to its letters. Backtrack: for each digit letters add one recurse to next digit pop.
+MEMORY TRICK — How to never forget this
+DIGIT MAP + BACKTRACK. For each digit try all its letters. When path length = digits length add to result.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than string greater-than letterCombinations(string digits) {
+    if(digits.empty()) return {};
+
+---PAGE 49---
+NeetCode 200  |  Page 49  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    vector less-than string greater-than map={"abc","def","ghi","jkl","mno","pqrs","tuv","wxyz"};
+    vector less-than string greater-than res; string cur;
+    function less-than void(int) greater-than bt=[AND](int i){
+        if(i==(int)digits.size()){res.push_back(cur);return;}
+        for(char c:map[digits[i]-'2']){cur+=c;bt(i+1);cur.pop_back();}
+    };
+    bt(0); return res;
+}
+#92
+N-Queens
+ LC 51
+ Hard
+ 
+HINT — Think about this before looking at code
+Place queens row by row. A position is safe if no queen in same column or diagonals. Use sets to track
+occupied slots.
+MEMORY TRICK — How to never forget this
+SETS for col diag (r-c) anti-diag (r+c). Try each column in each row. If safe place and recurse. Unplace on
+backtrack.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than vector less-than string greater-than greater-than solveNQueens(int n) {
+    vector less-than vector less-than string greater-than greater-than res; vector less-than
+string greater-than board(n, string(n,'.'));
+    set less-than int greater-than cols,diag,anti;
+    function less-than void(int) greater-than bt=[AND](int r){
+        if(r==n){res.push_back(board);return;}
+        for(int c=0;c less-than n;c++){
+            if(cols.count(c)ORdiag.count(r-c)ORanti.count(r+c)) continue;
+            board[r][c]='Q'; cols.insert(c); diag.insert(r-c); anti.insert(r+c);
+            bt(r+1);
+            board[r][c]='.'; cols.erase(c); diag.erase(r-c); anti.erase(r+c);
+        }
+    };
+    bt(0); return res;
+}
+#93
+Combination Sum III
+ LC 216
+ Medium
+HINT — Think about this before looking at code
+Find all combinations of k numbers from 1-9 that sum to n. Backtrack with start index.
+MEMORY TRICK — How to never forget this
+K NUMBERS FROM 1-9 summing to n. Backtrack: pick from start to 9 decreasing remaining. Stop when k items
+found.
+less-than b greater-than Solution (C++): less-than /b greater-than
+
+---PAGE 50---
+NeetCode 200  |  Page 50  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+vector<vector<int>> combinationSum3(int k, int n) {
+    vector<vector<int>> res; vector<int> cur;
+    function<void(int,int)> bt=[&](int start,int rem){
+        if((int)cur.size()==k&&rem==0){res.push_back(cur);return;}
+        if((int)cur.size()==k||rem<0) return;
+        for(int i=start;i<=9;i++){
+            cur.push_back(i); bt(i+1,rem-i); cur.pop_back();
+        }
+    };
+    bt(1,n); return res;
+}
+
+---PAGE 51---
+NeetCode 200  |  Page 51  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Graphs
+ 15 Problems
+ 
+#94
+Number of Islands
+ LC 200
+ Medium
+HINT — Think about this before looking at code
+For each unvisited 1 do DFS to mark the whole island as visited. Count how many times you start a new DFS.
+MEMORY TRICK — How to never forget this
+DFS from every 1. Mark visited by setting to 0. Each DFS start = one island. Count DFS starts.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int numIslands(vector less-than vector less-than char greater-than greater-than AND grid) {
+    int m=grid.size(),n=grid[0].size(),res=0;
+    function less-than void(int,int) greater-than dfs=[AND](int r,int c){
+        if(r less-than 0ORr greater-than =mORc less-than 0ORc greater-than =nORgrid[r][c]!='1')
+return;
+        grid[r][c]='0';
+        dfs(r+1,c);dfs(r-1,c);dfs(r,c+1);dfs(r,c-1);
+    };
+    for(int r=0;r less-than m;r++) for(int c=0;c less-than n;c++)
+        if(grid[r][c]=='1'){dfs(r,c);res++;}
+    return res;
+}
+#95
+Clone Graph
+ LC 133
+ Medium
+HINT — Think about this before looking at code
+BFS from the start node. Use a map from original to clone. For each node clone it then clone its neighbors.
+MEMORY TRICK — How to never forget this
+MAP OLD to NEW. DFS: if already cloned return clone. Else create new node add to map recurse on
+neighbors.
+less-than b greater-than Solution (C++): less-than /b greater-than
+Node* cloneGraph(Node* node) {
+    unordered_map less-than Node*,Node* greater-than mp;
+    function less-than Node*(Node*) greater-than dfs=[AND](Node* n) dot Node*{
+        if(!n) return nullptr;
+        if(mp.count(n)) return mp[n];
+        mp[n]=new Node(n pointer val);
+        for(auto nb:n dot neighbors) mp[n] dot neighbors.push_back(dfs(nb));
+        return mp[n];
+    };
+    return dfs(node);
+
+---PAGE 52---
+NeetCode 200  |  Page 52  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+}
+#96
+Max Area of Island
+ LC 695
+ Medium
+HINT — Think about this before looking at code
+Same as number of islands but return the size of the largest island. DFS returns the size of the island it visited.
+MEMORY TRICK — How to never forget this
+DFS RETURNS SIZE. Each DFS call returns 1 + sum of neighbor DFS calls. Track max area seen.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int maxAreaOfIsland(vector less-than vector less-than int greater-than greater-than AND grid) {
+    int m=grid.size(),n=grid[0].size(),res=0;
+    function less-than int(int,int) greater-than dfs=[AND](int r,int c) dot int{
+        if(r less-than 0ORr greater-than =mORc less-than 0ORc greater-than =nORgrid[r][c]==0)
+return 0;
+        grid[r][c]=0;
+        return 1+dfs(r+1,c)+dfs(r-1,c)+dfs(r,c+1)+dfs(r,c-1);
+    };
+    for(int r=0;r less-than m;r++) for(int c=0;c less-than n;c++) res=max(res,dfs(r,c));
+    return res;
+}
+#97
+Pacific Atlantic Water Flow
+ LC 417
+ Medium
+HINT — Think about this before looking at code
+Reverse flow: BFS from Pacific edges and Atlantic edges separately. Answer = cells reachable from both.
+MEMORY TRICK — How to never forget this
+REVERSE FLOW: BFS FROM BORDERS. Pacific = top+left edges. Atlantic = bottom+right edges. Cell in both
+= answer.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than vector less-than int greater-than greater-than pacificAtlantic(vector less-than
+vector less-than int greater-than greater-than AND h) {
+    int m=h.size(),n=h[0].size();
+    vector less-than vector less-than bool greater-than greater-than pac(m,vector less-than bool
+greater-than (n,false)),atl(m,vector less-than bool greater-than (n,false));
+    auto bfs=[AND](queue less-than pair less-than int,int greater-than greater-than AND q, vector
+less-than vector less-than bool greater-than greater-than AND vis){
+        int d[][2]={{1,0},{-1,0},{0,1},{0,-1}};
+        while(!q.empty()){
+            auto[r,c]=q.front();q.pop();
+            for(autoANDdr:d){int nr=r+dr[0],nc=c+dr[1];
+                if(nr greater-than =0ANDANDnr less-than mANDANDnc greater-than =0ANDANDnc
+less-than nANDAND!vis[nr][nc]ANDANDh[nr][nc] greater-than =h[r][c])
+                {vis[nr][nc]=true;q.push({nr,nc});}}}
+
+---PAGE 53---
+NeetCode 200  |  Page 53  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    };
+    queue less-than pair less-than int,int greater-than greater-than pq,aq;
+    for(int i=0;i less-than
+m;i++){pac[i][0]=true;pq.push({i,0});atl[i][n-1]=true;aq.push({i,n-1});}
+    for(int j=0;j less-than
+n;j++){pac[0][j]=true;pq.push({0,j});atl[m-1][j]=true;aq.push({m-1,j});}
+    bfs(pq,pac);bfs(aq,atl);
+    vector less-than vector less-than int greater-than greater-than res;
+    for(int r=0;r less-than m;r++) for(int c=0;c less-than n;c++) if(pac[r][c]ANDANDatl[r][c])
+res.push_back({r,c});
+    return res;
+}
+#98
+Surrounded Regions
+ LC 130
+ Medium
+HINT — Think about this before looking at code
+O's connected to the border cannot be captured. DFS from all border O's and mark them safe. Flip unmarked
+O's.
+MEMORY TRICK — How to never forget this
+BORDER-CONNECTED O's ARE SAFE. DFS from all border O's mark as S. Then O becomes X (captured) S
+becomes O (restore).
+less-than b greater-than Solution (C++): less-than /b greater-than
+void solve(vector less-than vector less-than char greater-than greater-than AND board) {
+    int m=board.size(),n=board[0].size();
+    function less-than void(int,int) greater-than dfs=[AND](int r,int c){
+        if(r less-than 0ORr greater-than =mORc less-than 0ORc greater-than =nORboard[r][c]!='O')
+return;
+        board[r][c]='S';
+        dfs(r+1,c);dfs(r-1,c);dfs(r,c+1);dfs(r,c-1);
+    };
+    for(int r=0;r less-than m;r++){dfs(r,0);dfs(r,n-1);}
+    for(int c=0;c less-than n;c++){dfs(0,c);dfs(m-1,c);}
+    for(int r=0;r less-than m;r++) for(int c=0;c less-than n;c++){
+        if(board[r][c]=='O') board[r][c]='X';
+        else if(board[r][c]=='S') board[r][c]='O';
+    }
+}
+#99
+Rotting Oranges
+ LC 994
+ Medium
+HINT — Think about this before looking at code
+Multi-source BFS from all initially rotten oranges simultaneously. Each BFS level = 1 minute.
+MEMORY TRICK — How to never forget this
+MULTI-SOURCE BFS. Start from ALL rotten oranges at once. Spread each minute. Count fresh left after BFS.
+
+---PAGE 54---
+NeetCode 200  |  Page 54  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+less-than b greater-than Solution (C++): less-than /b greater-than
+int orangesRotting(vector less-than vector less-than int greater-than greater-than AND grid) {
+    int m=grid.size(),n=grid[0].size(),fresh=0,mins=0;
+    queue less-than pair less-than int,int greater-than greater-than q;
+    for(int r=0;r less-than m;r++) for(int c=0;c less-than n;c++){
+        if(grid[r][c]==2) q.push({r,c}); if(grid[r][c]==1) fresh++;
+    }
+    int d[][2]={{1,0},{-1,0},{0,1},{0,-1}};
+    while(!q.empty()ANDANDfresh greater-than 0){
+        int sz=q.size(); mins++;
+        while(sz--){auto[r,c]=q.front();q.pop();
+            for(autoANDdr:d){int nr=r+dr[0],nc=c+dr[1];
+                if(nr greater-than =0ANDANDnr less-than mANDANDnc greater-than =0ANDANDnc
+less-than nANDANDgrid[nr][nc]==1)
+                {grid[nr][nc]=2;fresh--;q.push({nr,nc});}}}
+    }
+    return fresh==0?mins:-1;
+}
+#10
+0
+Walls and Gates
+ LC 286
+ Medium
+HINT — Think about this before looking at code
+Multi-source BFS from all gates (value 0) simultaneously. Spread outward updating distance for each empty
+room.
+MEMORY TRICK — How to never forget this
+MULTI-SOURCE BFS from all 0s. BFS distance = steps from nearest gate. Like ripples from multiple sources.
+less-than b greater-than Solution (C++): less-than /b greater-than
+void wallsAndGates(vector less-than vector less-than int greater-than greater-than AND rooms) {
+    int m=rooms.size(),n=rooms[0].size();
+    queue less-than pair less-than int,int greater-than greater-than q;
+    for(int r=0;r less-than m;r++) for(int c=0;c less-than n;c++) if(rooms[r][c]==0)
+q.push({r,c});
+    int d[][2]={{1,0},{-1,0},{0,1},{0,-1}};
+    while(!q.empty()){auto[r,c]=q.front();q.pop();
+        for(autoANDdr:d){int nr=r+dr[0],nc=c+dr[1];
+            if(nr greater-than =0ANDANDnr less-than mANDANDnc greater-than =0ANDANDnc less-than
+nANDANDrooms[nr][nc]==INT_MAX)
+            {rooms[nr][nc]=rooms[r][c]+1;q.push({nr,nc});}}}
+}
+#10
+1
+Course Schedule
+ LC 207
+ Medium
+HINT — Think about this before looking at code
+
+---PAGE 55---
+NeetCode 200  |  Page 55  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Detect a cycle in directed graph. If cycle exists: impossible. Use DFS with 3 states: unvisited visiting visited.
+MEMORY TRICK — How to never forget this
+CYCLE DETECTION with 3-color DFS. 0=unvisited 1=in-progress 2=done. Visiting a node in-progress = cycle.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool canFinish(int n, vector less-than vector less-than int greater-than greater-than AND
+prereqs) {
+    vector less-than vector less-than int greater-than greater-than adj(n);
+    for(autoANDp:prereqs) adj[p[1]].push_back(p[0]);
+    vector less-than int greater-than state(n,0);
+    function less-than bool(int) greater-than dfs=[AND](int v) dot bool{
+        if(state[v]==1) return false; if(state[v]==2) return true;
+        state[v]=1;
+        for(int nb:adj[v]) if(!dfs(nb)) return false;
+        state[v]=2; return true;
+    };
+    for(int i=0;i less-than n;i++) if(!dfs(i)) return false;
+    return true;
+}
+#10
+2
+Course Schedule II
+ LC 210
+ Medium
+HINT — Think about this before looking at code
+Topological sort. DFS: post-order add to result. Detect cycles using 3-state approach. Reverse the result.
+MEMORY TRICK — How to never forget this
+TOPO SORT = reverse post-order DFS. Add node AFTER all neighbors processed. Reverse at end. Empty if
+cycle.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than int greater-than findOrder(int n, vector less-than vector less-than int
+greater-than greater-than AND prereqs) {
+    vector less-than vector less-than int greater-than greater-than adj(n);
+    for(autoANDp:prereqs) adj[p[1]].push_back(p[0]);
+    vector less-than int greater-than state(n,0), order;
+    function less-than bool(int) greater-than dfs=[AND](int v) dot bool{
+        if(state[v]==1) return false; if(state[v]==2) return true;
+        state[v]=1;
+        for(int nb:adj[v]) if(!dfs(nb)) return false;
+        state[v]=2; order.push_back(v); return true;
+    };
+    for(int i=0;i less-than n;i++) if(!dfs(i)) return {};
+    reverse(order.begin(),order.end()); return order;
+}
+
+---PAGE 56---
+NeetCode 200  |  Page 56  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+#10
+3
+Graph Valid Tree
+ LC 261
+ Medium
+HINT — Think about this before looking at code
+A valid tree has n-1 edges and no cycles. Use Union-Find or DFS. Tree = connected + no cycles.
+MEMORY TRICK — How to never forget this
+VALID TREE = n-1 edges + no cycle. Check edges count first. Then DFS for cycle detection. Check full
+connectivity.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool validTree(int n, vector less-than vector less-than int greater-than greater-than AND edges)
+{
+    if((int)edges.size()!=n-1) return false;
+    vector less-than vector less-than int greater-than greater-than adj(n);
+    for(autoANDe:edges){adj[e[0]].push_back(e[1]);adj[e[1]].push_back(e[0]);}
+    vector less-than bool greater-than vis(n,false);
+    function less-than void(int) greater-than dfs=[AND](int v){
+        vis[v]=true; for(int nb:adj[v]) if(!vis[nb]) dfs(nb);
+    };
+    dfs(0);
+    for(bool b:vis) if(!b) return false;
+    return true;
+}
+#10
+4
+Number of Connected Components
+ LC 323
+ Medium
+HINT — Think about this before looking at code
+Use Union-Find or DFS. Each DFS from unvisited node discovers one component. Count DFS starts.
+MEMORY TRICK — How to never forget this
+UNION-FIND: start with n components. Each union merging different components reduces count by 1.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int countComponents(int n, vector less-than vector less-than int greater-than greater-than AND
+edges) {
+    vector less-than int greater-than parent(n); iota(parent.begin(),parent.end(),0);
+    function less-than int(int) greater-than find=[AND](int x) dot int{
+        return parent[x]==x?x:parent[x]=find(parent[x]);
+    };
+    int res=n;
+    for(autoANDe:edges){
+        int a=find(e[0]),b=find(e[1]);
+        if(a!=b){parent[a]=b;res--;}
+    }
+    return res;
+
+---PAGE 57---
+NeetCode 200  |  Page 57  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+}
+#10
+5
+Redundant Connection
+ LC 684
+ Medium
+HINT — Think about this before looking at code
+Union-Find: process edges one by one. If both endpoints already in same component this edge is redundant.
+MEMORY TRICK — How to never forget this
+UNION-FIND: first edge that tries to union already-connected nodes = redundant. Return that edge.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than int greater-than findRedundantConnection(vector less-than vector less-than int
+greater-than greater-than AND edges) {
+    int n=edges.size(); vector less-than int greater-than parent(n+1);
+iota(parent.begin(),parent.end(),0);
+    function less-than int(int) greater-than find=[AND](int x) dot int{
+        return parent[x]==x?x:parent[x]=find(parent[x]);
+    };
+    for(autoANDe:edges){
+        int a=find(e[0]),b=find(e[1]);
+        if(a==b) return e; parent[a]=b;
+    }
+    return {};
+}
+#10
+6
+Word Ladder
+ LC 127
+ Hard
+ 
+HINT — Think about this before looking at code
+BFS: each word is a node edges connect words differing by 1 letter. Find shortest path from begin to end.
+MEMORY TRICK — How to never forget this
+BFS ON WORD GRAPH. Try changing each character to a-z. If new word in wordList add to queue. BFS =
+shortest path.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int ladderLength(string begin, string end, vector less-than string greater-than AND wordList) {
+    unordered_set less-than string greater-than ws(wordList.begin(),wordList.end());
+    if(!ws.count(end)) return 0;
+    queue less-than string greater-than q; q.push(begin); int steps=1;
+    while(!q.empty()){
+        int sz=q.size();
+        while(sz--){string w=q.front();q.pop();
+            for(int i=0;i less-than (int)w.size();i++){
+                string tmp=w;
+                for(char c='a';c less-than ='z';c++){tmp[i]=c;
+
+---PAGE 58---
+NeetCode 200  |  Page 58  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+                    if(tmp==end) return steps+1;
+                    if(ws.count(tmp)){ws.erase(tmp);q.push(tmp);}}}}
+        steps++;
+    }
+    return 0;
+}
+#10
+7
+Find if Path Exists in Graph
+LC 1971
+ Easy
+ 
+HINT — Think about this before looking at code
+BFS or DFS from source. Check if destination is reachable.
+MEMORY TRICK — How to never forget this
+SIMPLE DFS or BFS. Mark visited. If destination found return true. Standard graph reachability.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool validPath(int n, vector<vector<int>>& edges, int src, int dst) {
+    vector<vector<int>> adj(n);
+    for(auto&e:edges){adj[e[0]].push_back(e[1]);adj[e[1]].push_back(e[0]);}
+    vector<bool> vis(n,false);
+    function<bool(int)> dfs=[&](int v)->bool{
+        if(v==dst) return true; vis[v]=true;
+        for(int nb:adj[v]) if(!vis[nb]&&dfs(nb)) return true;
+        return false;
+    };
+    return dfs(src);
+}
+#10
+8
+All Paths From Source to Target
+ LC 797
+ Medium
+HINT — Think about this before looking at code
+DFS from node 0 to node n-1. Collect all paths using backtracking.
+MEMORY TRICK — How to never forget this
+DFS + BACKTRACKING. Build path as you go. When you reach n-1 add current path to result. Pop when
+backtracking.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector<vector<int>> allPathsSourceTarget(vector<vector<int>>& graph) {
+    vector<vector<int>> res; vector<int> path={0};
+    function<void(int)> dfs=[&](int v){
+        if(v==(int)graph.size()-1){res.push_back(path);return;}
+        for(int nb:graph[v]){path.push_back(nb);dfs(nb);path.pop_back();}
+    };
+    dfs(0); return res;
+
+---PAGE 59---
+NeetCode 200  |  Page 59  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+}
+
+---PAGE 60---
+NeetCode 200  |  Page 60  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Dynamic Programming 1D
+ 14 Problems
+ 
+#10
+9
+Climbing Stairs
+ LC 70
+ Easy
+ 
+HINT — Think about this before looking at code
+To reach step n you came from step n-1 or n-2. So ways(n) = ways(n-1) + ways(n-2). It is Fibonacci!
+MEMORY TRICK — How to never forget this
+FIBONACCI IN DISGUISE. dp[i] = dp[i-1] + dp[i-2]. Base: dp[1]=1 dp[2]=2. Space optimise to two variables.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int climbStairs(int n) {
+    if(n less-than =2) return n;
+    int a=1,b=2;
+    for(int i=3;i less-than =n;i++){int c=a+b;a=b;b=c;}
+    return b;
+}
+#11
+0
+Min Cost Climbing Stairs
+ LC 746
+ Easy
+ 
+HINT — Think about this before looking at code
+dp[i] = cost[i] + min(dp[i-1] dp[i-2]). Start from either step 0 or 1. Answer is min of last two steps.
+MEMORY TRICK — How to never forget this
+COST + min(prev two). Can start from index 0 or 1. Answer = min(dp[n-1] dp[n-2]).
+less-than b greater-than Solution (C++): less-than /b greater-than
+int minCostClimbingStairs(vector less-than int greater-than AND cost) {
+    int n=cost.size();
+    for(int i=2;i less-than n;i++) cost[i]+=min(cost[i-1],cost[i-2]);
+    return min(cost[n-1],cost[n-2]);
+}
+#11
+1
+House Robber
+ LC 198
+ Medium
+HINT — Think about this before looking at code
+At each house: rob it (plus what you got 2 houses ago) OR skip it (same as previous). Take the max.
+MEMORY TRICK — How to never forget this
+ROB or SKIP. dp[i] = max(dp[i-2]+nums[i] dp[i-1]). Space optimise: track prev2 and prev1.
+
+---PAGE 61---
+NeetCode 200  |  Page 61  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+less-than b greater-than Solution (C++): less-than /b greater-than
+int rob(vector less-than int greater-than AND nums) {
+    int prev2=0,prev1=0;
+    for(int n:nums){int cur=max(prev1,prev2+n);prev2=prev1;prev1=cur;}
+    return prev1;
+}
+#11
+2
+House Robber II
+ LC 213
+ Medium
+HINT — Think about this before looking at code
+Houses in a circle: first and last cannot both be robbed. Run House Robber I twice on [0 n-2] and [1 n-1].
+MEMORY TRICK — How to never forget this
+CIRCULAR = TWO LINEAR PASSES. Exclude last house once exclude first house once. Take max of both
+results.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int rob(vector less-than int greater-than AND nums) {
+    int n=nums.size(); if(n==1) return nums[0];
+    auto rob1=[AND](int l,int r){
+        int p2=0,p1=0;
+        for(int i=l;i less-than =r;i++){int c=max(p1,p2+nums[i]);p2=p1;p1=c;}
+        return p1;
+    };
+    return max(rob1(0,n-2),rob1(1,n-1));
+}
+#11
+3
+Longest Palindromic Substring
+ LC 5
+ Medium
+HINT — Think about this before looking at code
+Expand around center for each character and each pair. Track the longest expansion found.
+MEMORY TRICK — How to never forget this
+EXPAND AROUND CENTER. For each i: expand odd-length (center=i) and even-length (center=i i+1). Return
+longest.
+less-than b greater-than Solution (C++): less-than /b greater-than
+string longestPalindrome(string s) {
+    int start=0,maxLen=1;
+    auto expand=[AND](int l,int r){
+        while(l greater-than =0ANDANDr less-than (int)s.size()ANDANDs[l]==s[r]){
+            if(r-l+1 greater-than maxLen){maxLen=r-l+1;start=l;} l--;r++;
+        }
+    };
+
+---PAGE 62---
+NeetCode 200  |  Page 62  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    for(int i=0;i less-than (int)s.size();i++){expand(i,i);expand(i,i+1);}
+    return s.substr(start,maxLen);
+}
+#11
+4
+Palindromic Substrings
+ LC 647
+ Medium
+HINT — Think about this before looking at code
+Count palindromes by expanding around each center. Both odd and even length centers.
+MEMORY TRICK — How to never forget this
+EXPAND AROUND CENTER COUNT EACH VALID EXPANSION. Add 1 for each expansion step that gives a
+palindrome.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int countSubstrings(string s) {
+    int res=0;
+    auto expand=[AND](int l,int r){
+        while(l greater-than =0ANDANDr less-than (int)s.size()ANDANDs[l]==s[r]){res++;l--;r++;}
+    };
+    for(int i=0;i less-than (int)s.size();i++){expand(i,i);expand(i,i+1);}
+    return res;
+}
+#11
+5
+Decode Ways
+ LC 91
+ Medium
+HINT — Think about this before looking at code
+dp[i] = ways to decode s[0..i-1]. Single digit (1-9) contributes dp[i-1]. Two-digit (10-26) contributes dp[i-2].
+MEMORY TRICK — How to never forget this
+SINGLE OR DOUBLE DIGIT. dp[i] += dp[i-1] if s[i-1] valid. dp[i] += dp[i-2] if s[i-2..i-1] is 10-26.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int numDecodings(string s) {
+    int n=s.size(); vector less-than int greater-than dp(n+1,0);
+    dp[0]=1; dp[1]=s[0]!='0'?1:0;
+    for(int i=2;i less-than =n;i++){
+        if(s[i-1]!='0') dp[i]+=dp[i-1];
+        int two=stoi(s.substr(i-2,2));
+        if(two greater-than =10ANDANDtwo less-than =26) dp[i]+=dp[i-2];
+    }
+    return dp[n];
+}
+
+---PAGE 63---
+NeetCode 200  |  Page 63  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+#11
+6
+Coin Change
+ LC 322
+ Medium
+HINT — Think about this before looking at code
+dp[i] = min coins to make amount i. For each coin dp[i] = min(dp[i] dp[i-coin]+1).
+MEMORY TRICK — How to never forget this
+BOTTOM-UP DP. Init dp with amount+1 (impossible). dp[0]=0. For each amount try all coins.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int coinChange(vector less-than int greater-than AND coins, int amount) {
+    vector less-than int greater-than dp(amount+1,amount+1); dp[0]=0;
+    for(int i=1;i less-than =amount;i++)
+        for(int c:coins) if(c less-than =i) dp[i]=min(dp[i],dp[i-c]+1);
+    return dp[amount] greater-than amount?-1:dp[amount];
+}
+#11
+7
+Maximum Product Subarray
+ LC 152
+ Medium
+HINT — Think about this before looking at code
+Track both max and min product ending at current position. Min matters because negatives can flip to max.
+MEMORY TRICK — How to never forget this
+TRACK MAX AND MIN. Negative * negative = positive. At each step: new max = max(num curMax*num
+curMin*num).
+less-than b greater-than Solution (C++): less-than /b greater-than
+int maxProduct(vector less-than int greater-than AND nums) {
+    int res=nums[0],curMax=nums[0],curMin=nums[0];
+    for(int i=1;i less-than (int)nums.size();i++){
+        int n=nums[i],tmp=curMax;
+        curMax=max({n,curMax*n,curMin*n});
+        curMin=min({n,tmp*n,curMin*n});
+        res=max(res,curMax);
+    }
+    return res;
+}
+#11
+8
+Word Break
+ LC 139
+ Medium
+HINT — Think about this before looking at code
+dp[i] = true if s[0..i-1] can be segmented. For each j less-than i if dp[j] and s[j..i-1] in wordDict then dp[i]=true.
+MEMORY TRICK — How to never forget this
+
+---PAGE 64---
+NeetCode 200  |  Page 64  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+DP ON STRING. dp[i] = can break s[0..i-1]. For each position check all words ending there.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool wordBreak(string s, vector less-than string greater-than AND wordDict) {
+    unordered_set less-than string greater-than ws(wordDict.begin(),wordDict.end());
+    int n=s.size(); vector less-than bool greater-than dp(n+1,false); dp[0]=true;
+    for(int i=1;i less-than =n;i++)
+        for(int j=0;j less-than i;j++)
+            if(dp[j]ANDANDws.count(s.substr(j,i-j))){dp[i]=true;break;}
+    return dp[n];
+}
+#11
+9
+Longest Increasing Subsequence
+ LC 300
+ Medium
+HINT — Think about this before looking at code
+dp[i] = length of LIS ending at index i. For each j less-than i if nums[j] is less than nums[i] then dp[i] = max(dp[i]
+dp[j]+1).
+MEMORY TRICK — How to never forget this
+LIS ENDING AT i. dp[i] = 1 + max(dp[j]) for all j less-than i where nums[j] is less than nums[i]. Result = max of
+all dp values.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int lengthOfLIS(vector less-than int greater-than AND nums) {
+    int n=nums.size(); vector less-than int greater-than dp(n,1); int res=1;
+    for(int i=1;i less-than n;i++){
+        for(int j=0;j less-than i;j++) if(nums[j] is less than nums[i]) dp[i]=max(dp[i],dp[j]+1);
+        res=max(res,dp[i]);
+    }
+    return res;
+}
+#12
+0
+Partition Equal Subset Sum
+ LC 416
+ Medium
+HINT — Think about this before looking at code
+Target = sum/2. Can we pick elements summing to target? 0/1 knapsack: dp[j] = can we form sum j?
+MEMORY TRICK — How to never forget this
+KNAPSACK: dp[j] = can make sum j. Iterate backwards to prevent reuse. If dp[target] true: yes.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool canPartition(vector less-than int greater-than AND nums) {
+    int sum=0; for(int n:nums) sum+=n;
+    if(sum%2) return false;
+
+---PAGE 65---
+NeetCode 200  |  Page 65  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    int t=sum/2; vector less-than bool greater-than dp(t+1,false); dp[0]=true;
+    for(int n:nums) for(int j=t;j greater-than =n;j--) dp[j]=dp[j]ORdp[j-n];
+    return dp[t];
+}
+#12
+1
+Jump Game VII
+LC 1871
+Medium
+HINT — Think about this before looking at code
+Use prefix sums to efficiently check if any position in the jump range was reachable.
+MEMORY TRICK — How to never forget this
+PREFIX SUM on reachable positions. For each i check if sum in range [i-maxJump i-minJump] is positive.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool canReach(string s, int minJump, int maxJump) {
+    int n=s.size(); vector<int> pre(n+1,0);
+    pre[1]=s[0]=='0'?1:0;
+    for(int i=2;i<=n;i++){
+        pre[i]=pre[i-1]+(s[i-1]=='0'?1:0);
+        if(s[i-1]!='0'){pre[i]=pre[i-1];continue;}
+        int lo=max(0,i-maxJump-1),hi=i-minJump-1;
+        if(hi>=0&&pre[min(hi+1,n)]-pre[lo]>0) pre[i]=pre[i-1]+1;
+        else pre[i]=pre[i-1];
+    }
+    return pre[n]>pre[n-1];
+}
+#12
+2
+N-th Tribonacci Number
+LC 1137
+ Easy
+ 
+HINT — Think about this before looking at code
+Like Fibonacci but three previous numbers. dp[i] = dp[i-1] + dp[i-2] + dp[i-3].
+MEMORY TRICK — How to never forget this
+TRIBONACCI: each number = sum of previous THREE. Base cases: T0=0 T1=1 T2=1. Space optimise to three
+vars.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int tribonacci(int n) {
+    if(n==0) return 0; if(n<=2) return 1;
+    int a=0,b=1,c=1;
+    for(int i=3;i<=n;i++){int d=a+b+c;a=b;b=c;c=d;}
+    return c;
+}
+
+---PAGE 66---
+NeetCode 200  |  Page 66  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Dynamic Programming 2D
+ 14 Problems
+ 
+#12
+3
+Unique Paths
+ LC 62
+ Medium
+HINT — Think about this before looking at code
+dp[i][j] = ways to reach cell (i j) = dp[i-1][j] + dp[i][j-1]. First row and column are all 1s.
+MEMORY TRICK — How to never forget this
+SUM OF ABOVE + LEFT. Fill row by row. First row = all 1s. First col = all 1s.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int uniquePaths(int m, int n) {
+    vector less-than vector less-than int greater-than greater-than dp(m,vector less-than int
+greater-than (n,1));
+    for(int i=1;i less-than m;i++) for(int j=1;j less-than n;j++) dp[i][j]=dp[i-1][j]+dp[i][j-1];
+    return dp[m-1][n-1];
+}
+#12
+4
+Longest Common Subsequence
+LC 1143
+Medium
+HINT — Think about this before looking at code
+dp[i][j] = LCS of text1[0..i-1] and text2[0..j-1]. If chars match: dp[i-1][j-1]+1. Else: max(dp[i-1][j] dp[i][j-1]).
+MEMORY TRICK — How to never forget this
+MATCH = DIAGONAL+1. No match = max(left above). If characters match extend. Else skip one from either
+string.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int longestCommonSubsequence(string t1, string t2) {
+    int m=t1.size(),n=t2.size();
+    vector less-than vector less-than int greater-than greater-than dp(m+1,vector less-than int
+greater-than (n+1,0));
+    for(int i=1;i less-than =m;i++) for(int j=1;j less-than =n;j++)
+        dp[i][j]=t1[i-1]==t2[j-1]?dp[i-1][j-1]+1:max(dp[i-1][j],dp[i][j-1]);
+    return dp[m][n];
+}
+#12
+5
+Buy and Sell Stock with Cooldown
+ LC 309
+ Medium
+HINT — Think about this before looking at code
+States: holding sold (cooldown) idle. Transitions: holding can buy from idle sell to sold. Sold transitions to idle.
+
+---PAGE 67---
+NeetCode 200  |  Page 67  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+MEMORY TRICK — How to never forget this
+3 STATES: hold sold idle. hold = max(hold idle-price). sold = hold+price. idle = max(idle prev_sold).
+less-than b greater-than Solution (C++): less-than /b greater-than
+int maxProfit(vector less-than int greater-than AND prices) {
+    int hold=INT_MIN,sold=0,idle=0;
+    for(int p:prices){
+        int prevSold=sold;
+        sold=hold+p; hold=max(hold,idle-p); idle=max(idle,prevSold);
+    }
+    return max(sold,idle);
+}
+#12
+6
+Coin Change II
+ LC 518
+ Medium
+HINT — Think about this before looking at code
+Count ways to make amount using coins with unlimited use. For each coin update dp[coin..amount] forward.
+MEMORY TRICK — How to never forget this
+UNBOUNDED KNAPSACK: iterate j FORWARD (allows reuse). dp[j] += dp[j-coin]. Count combinations not
+permutations.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int change(int amount, vector less-than int greater-than AND coins) {
+    vector less-than int greater-than dp(amount+1,0); dp[0]=1;
+    for(int c:coins) for(int j=c;j less-than =amount;j++) dp[j]+=dp[j-c];
+    return dp[amount];
+}
+#12
+7
+Target Sum
+ LC 494
+ Medium
+HINT — Think about this before looking at code
+Each number is either added or subtracted. dp[sum] = ways to reach sum. Update new possible sums for each
+number.
+MEMORY TRICK — How to never forget this
+DP ON SUMS using map. For each number: new[sum+n] += cnt and new[sum-n] += cnt. Start with dp[0]=1.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int findTargetSumWays(vector less-than int greater-than AND nums, int target) {
+    unordered_map less-than int,int greater-than dp; dp[0]=1;
+    for(int n:nums){
+        unordered_map less-than int,int greater-than next;
+        for(autoAND[s,cnt]:dp){next[s+n]+=cnt;next[s-n]+=cnt;}
+
+---PAGE 68---
+NeetCode 200  |  Page 68  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+        dp=next;
+    }
+    return dp.count(target)?dp[target]:0;
+}
+#12
+8
+Interleaving String
+ LC 97
+ Medium
+HINT — Think about this before looking at code
+dp[i][j] = can s1[0..i-1] and s2[0..j-1] interleave to form s3[0..i+j-1].
+MEMORY TRICK — How to never forget this
+dp[i][j] = (dp[i-1][j] AND s1[i-1]==s3[i+j-1]) OR (dp[i][j-1] AND s2[j-1]==s3[i+j-1]). Both sources contribute.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool isInterleave(string s1, string s2, string s3) {
+    int m=s1.size(),n=s2.size();
+    if(m+n!=(int)s3.size()) return false;
+    vector less-than vector less-than bool greater-than greater-than dp(m+1,vector less-than bool
+greater-than (n+1,false)); dp[0][0]=true;
+    for(int i=1;i less-than =m;i++) dp[i][0]=dp[i-1][0]ANDANDs1[i-1]==s3[i-1];
+    for(int j=1;j less-than =n;j++) dp[0][j]=dp[0][j-1]ANDANDs2[j-1]==s3[j-1];
+    for(int i=1;i less-than =m;i++) for(int j=1;j less-than =n;j++)
+        dp[i][j]=(dp[i-1][j]ANDANDs1[i-1]==s3[i+j-1])OR(dp[i][j-1]ANDANDs2[j-1]==s3[i+j-1]);
+    return dp[m][n];
+}
+#12
+9
+Longest Increasing Path in Matrix
+ LC 329
+ Hard
+ 
+HINT — Think about this before looking at code
+DFS with memoization from each cell. A cell value = 1 + max(neighbors with strictly larger value).
+MEMORY TRICK — How to never forget this
+DFS + MEMO. From each cell explore 4 directions where value is strictly larger. Memoize longest path from (r
+c).
+less-than b greater-than Solution (C++): less-than /b greater-than
+int longestIncreasingPath(vector less-than vector less-than int greater-than greater-than AND
+matrix) {
+    int m=matrix.size(),n=matrix[0].size(),res=0;
+    vector less-than vector less-than int greater-than greater-than memo(m,vector less-than int
+greater-than (n,0));
+    int d[][2]={{1,0},{-1,0},{0,1},{0,-1}};
+    function less-than int(int,int) greater-than dfs=[AND](int r,int c) dot int{
+        if(memo[r][c]) return memo[r][c]; memo[r][c]=1;
+        for(autoANDdr:d){int nr=r+dr[0],nc=c+dr[1];
+
+---PAGE 69---
+NeetCode 200  |  Page 69  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+            if(nr greater-than =0ANDANDnr less-than mANDANDnc greater-than =0ANDANDnc less-than
+nANDANDmatrix[nr][nc] greater-than matrix[r][c])
+            memo[r][c]=max(memo[r][c],1+dfs(nr,nc));}
+        return memo[r][c];
+    };
+    for(int r=0;r less-than m;r++) for(int c=0;c less-than n;c++) res=max(res,dfs(r,c));
+    return res;
+}
+#13
+0
+Distinct Subsequences
+ LC 115
+ Hard
+ 
+HINT — Think about this before looking at code
+dp[i][j] = ways s[0..i-1] appears as subsequence in t[0..j-1]. Match: add diagonal. No match: just copy skip value.
+MEMORY TRICK — How to never forget this
+MATCH adds diagonal. No match just copies the skip (dp[i][j-1]). Think: how many ways to form s using t first j
+chars.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int numDistinct(string s, string t) {
+    int m=s.size(),n=t.size();
+    vector<vector<long>> dp(m+1,vector<long>(n+1,0));
+    for(int j=0;j<=n;j++) dp[0][j]=1;
+    for(int i=1;i<=m;i++) for(int j=1;j<=n;j++){
+        dp[i][j]=dp[i][j-1];
+        if(s[i-1]==t[j-1]) dp[i][j]+=dp[i-1][j-1];
+    }
+    return dp[m][n];
+}
+#13
+1
+Edit Distance
+ LC 72
+ Hard
+ 
+HINT — Think about this before looking at code
+dp[i][j] = min ops to convert word1[0..i-1] to word2[0..j-1]. Match: diagonal. Else 1 + min(insert delete replace).
+MEMORY TRICK — How to never forget this
+3 OPERATIONS = 3 NEIGHBORS. Replace=diagonal+1 Delete=above+1 Insert=left+1. Match=copy diagonal.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int minDistance(string w1, string w2) {
+    int m=w1.size(),n=w2.size();
+    vector less-than vector less-than int greater-than greater-than dp(m+1,vector less-than int
+greater-than (n+1,0));
+    for(int i=0;i less-than =m;i++) dp[i][0]=i; for(int j=0;j less-than =n;j++) dp[0][j]=j;
+    for(int i=1;i less-than =m;i++) for(int j=1;j less-than =n;j++)
+
+---PAGE 70---
+NeetCode 200  |  Page 70  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+        dp[i][j]=w1[i-1]==w2[j-1]?dp[i-1][j-1]:1+min({dp[i-1][j],dp[i][j-1],dp[i-1][j-1]});
+    return dp[m][n];
+}
+#13
+2
+Burst Balloons
+ LC 312
+ Hard
+ 
+HINT — Think about this before looking at code
+Think about which balloon to burst LAST in a range. dp[l][r] = max coins for that range.
+MEMORY TRICK — How to never forget this
+LAST BALLOON IN RANGE. dp[l][r]: try each k as last burst in (l r). coins = nums[l-1]*nums[k]*nums[r+1] + left
++ right.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int maxCoins(vector less-than int greater-than AND nums) {
+    nums.insert(nums.begin(),1); nums.push_back(1); int n=nums.size();
+    vector less-than vector less-than int greater-than greater-than dp(n,vector less-than int
+greater-than (n,0));
+    for(int len=2;len less-than n;len++) for(int l=0;l less-than n-len;l++){
+        int r=l+len;
+        for(int k=l+1;k less-than r;k++)
+            dp[l][r]=max(dp[l][r],nums[l]*nums[k]*nums[r]+dp[l][k]+dp[k][r]);
+    }
+    return dp[0][n-1];
+}
+#13
+3
+Regular Expression Matching
+ LC 10
+ Hard
+ 
+HINT — Think about this before looking at code
+dp[i][j] = does s[0..i-1] match p[0..j-1]. Handle star: zero uses (dp[i][j-2]) or one+ uses if char matches.
+MEMORY TRICK — How to never forget this
+STAR = ZERO or MORE. dp[i][j] = dp[i][j-2] (skip x*) OR (s[i-1] matches p[j-2]) AND dp[i-1][j].
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool isMatch(string s, string p) {
+    int m=s.size(),n=p.size();
+    vector less-than vector less-than bool greater-than greater-than dp(m+1,vector less-than bool
+greater-than (n+1,false)); dp[0][0]=true;
+    for(int j=2;j less-than =n;j++) if(p[j-1]=='*') dp[0][j]=dp[0][j-2];
+    for(int i=1;i<=m;i++) for(int j=1;j<=n;j++){
+        if(p[j-1]=='*')
+            dp[i][j]=dp[i][j-2]OR(p[j-2]=='.'ORp[j-2]==s[i-1])ANDANDdp[i-1][j];
+        else dp[i][j]=(p[j-1]=='.'ORp[j-1]==s[i-1])ANDANDdp[i-1][j-1];
+    }
+
+---PAGE 71---
+NeetCode 200  |  Page 71  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    return dp[m][n];
+}
+#13
+4
+Triangle
+ LC 120
+ Medium
+HINT — Think about this before looking at code
+dp[i][j] = min path sum from triangle[i][j] to bottom. Work bottom up.
+MEMORY TRICK — How to never forget this
+BOTTOM UP DP. Start from second-to-last row. dp[j] += min(dp[j] dp[j+1]) below. Answer = dp[0].
+less-than b greater-than Solution (C++): less-than /b greater-than
+int minimumTotal(vector<vector<int>>& triangle) {
+    int n=triangle.size();
+    vector<int> dp=triangle[n-1];
+    for(int i=n-2;i>=0;i--)
+        for(int j=0;j<=i;j++)
+            dp[j]=triangle[i][j]+min(dp[j],dp[j+1]);
+    return dp[0];
+}
+#13
+5
+Minimum Path Sum
+ LC 64
+ Medium
+HINT — Think about this before looking at code
+dp[i][j] = min cost to reach cell (i j) = grid[i][j] + min(dp[i-1][j] dp[i][j-1]).
+MEMORY TRICK — How to never forget this
+MIN OF ABOVE AND LEFT plus current cell. Fill grid in-place or use dp array. Classic 2D DP.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int minPathSum(vector<vector<int>>& grid) {
+    int m=grid.size(),n=grid[0].size();
+    for(int i=0;i<m;i++) for(int j=0;j<n;j++){
+        if(i==0&&j==0) continue;
+        else if(i==0) grid[i][j]+=grid[i][j-1];
+        else if(j==0) grid[i][j]+=grid[i-1][j];
+        else grid[i][j]+=min(grid[i-1][j],grid[i][j-1]);
+    }
+    return grid[m-1][n-1];
+}
+#13
+6
+Maximum Score from Performing Multiplication
+Operations
+LC 1770
+Medium
+
+---PAGE 72---
+NeetCode 200  |  Page 72  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+HINT — Think about this before looking at code
+dp[i][j] = max score using i operations with i-j from left and j from right.
+MEMORY TRICK — How to never forget this
+DP on (ops left right). dp[i][j] means i ops done j from right. Transition: take from left or right.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int maximumScore(vector<int>& nums, vector<int>& mult) {
+    int n=nums.size(),m=mult.size();
+    vector<vector<int>> dp(m+1,vector<int>(m+1,INT_MIN));
+    dp[0][0]=0;
+    int res=INT_MIN;
+    for(int i=0;i<m;i++) for(int j=0;j<=i;j++){
+        if(dp[i][j]==INT_MIN) continue;
+        int left=j,right=i-j;
+        dp[i+1][j+1]=max(dp[i+1][j+1],dp[i][j]+mult[i]*nums[left]);
+        dp[i+1][j]=max(dp[i+1][j],dp[i][j]+mult[i]*nums[n-1-right]);
+    }
+    for(int j=0;j<=m;j++) res=max(res,dp[m][j]);
+    return res;
+}
+
+---PAGE 73---
+NeetCode 200  |  Page 73  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Greedy
+ 10 Problems
+ 
+#13
+7
+Maximum Subarray
+ LC 53
+ Medium
+HINT — Think about this before looking at code
+Kadane's algorithm: extend current subarray or start fresh. If currentSum is negative starting fresh is better.
+MEMORY TRICK — How to never forget this
+KADANE'S: curSum = max(num curSum+num). If adding previous sum makes it worse start over. Track global
+max.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int maxSubArray(vector less-than int greater-than AND nums) {
+    int cur=nums[0],res=nums[0];
+    for(int i=1;i less-than (int)nums.size();i++){
+        cur=max(nums[i],cur+nums[i]); res=max(res,cur);
+    }
+    return res;
+}
+#13
+8
+Jump Game
+ LC 55
+ Medium
+HINT — Think about this before looking at code
+Track the farthest index reachable. If current index exceeds maxReach it is impossible.
+MEMORY TRICK — How to never forget this
+MAX REACH. If i greater-than maxReach: return false. Else maxReach = max(maxReach i+nums[i]). Simple
+greedy scan.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool canJump(vector less-than int greater-than AND nums) {
+    int maxR=0;
+    for(int i=0;i less-than (int)nums.size();i++){
+        if(i greater-than maxR) return false;
+        maxR=max(maxR,i+nums[i]);
+    }
+    return true;
+}
+#13
+9
+Jump Game II
+ LC 45
+ Medium
+
+---PAGE 74---
+NeetCode 200  |  Page 74  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+HINT — Think about this before looking at code
+BFS-like greedy: track current level boundary and next level farthest reach. When you hit boundary increment
+jumps.
+MEMORY TRICK — How to never forget this
+LEVELS LIKE BFS. curEnd = farthest this jump reaches. farthest = max reachable next. When i==curEnd:
+jump++ curEnd=farthest.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int jump(vector less-than int greater-than AND nums) {
+    int jumps=0,curEnd=0,farthest=0;
+    for(int i=0;i less-than (int)nums.size()-1;i++){
+        farthest=max(farthest,i+nums[i]);
+        if(i==curEnd){jumps++;curEnd=farthest;}
+    }
+    return jumps;
+}
+#14
+0
+Gas Station
+ LC 134
+ Medium
+HINT — Think about this before looking at code
+If total gas is at least total cost a solution exists. Start from 0 if tank goes negative the next station must be the
+start.
+MEMORY TRICK — How to never forget this
+TOTAL is at least COST = solvable. If tank is negative at station i start over from i+1. The last valid start is the
+answer.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int canCompleteCircuit(vector less-than int greater-than AND gas, vector less-than int
+greater-than AND cost) {
+    int total=0,tank=0,start=0;
+    for(int i=0;i less-than (int)gas.size();i++){
+        int diff=gas[i]-cost[i]; total+=diff; tank+=diff;
+        if(tank less-than 0){start=i+1;tank=0;}
+    }
+    return total greater-than =0?start:-1;
+}
+#14
+1
+Hand of Straights
+ LC 846
+ Medium
+HINT — Think about this before looking at code
+Sort cards. Always try to form a group starting from the smallest card. Use an ordered frequency map.
+MEMORY TRICK — How to never forget this
+
+---PAGE 75---
+NeetCode 200  |  Page 75  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+GREEDY FROM SMALLEST. Use ordered map. For each smallest card try to form group of W consecutive
+cards.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool isNStraightHand(vector less-than int greater-than AND hand, int groupSize) {
+    if(hand.size()%groupSize) return false;
+    map less-than int,int greater-than cnt; for(int h:hand) cnt[h]++;
+    while(!cnt.empty()){
+        int first=cnt.begin() dot first;
+        for(int i=0;i less-than groupSize;i++){
+            if(!cnt.count(first+i)) return false;
+            if(--cnt[first+i]==0) cnt.erase(first+i);
+        }
+    }
+    return true;
+}
+#14
+2
+Merge Triplets to Form Target Triplet
+LC 1899
+Medium
+HINT — Think about this before looking at code
+Only use triplets where no value exceeds target in any position. From those check if max of each position
+equals target.
+MEMORY TRICK — How to never forget this
+FILTER then MAX. Skip triplets where any value exceeds target at same position. Max of each position should
+equal target.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool mergeTriplets(vector less-than vector less-than int greater-than greater-than AND triplets,
+vector less-than int greater-than AND target) {
+    vector less-than int greater-than res(3,0);
+    for(autoANDt:triplets){
+        if(t[0] greater-than target[0]ORt[1] greater-than target[1]ORt[2] greater-than target[2])
+continue;
+        for(int i=0;i less-than 3;i++) res[i]=max(res[i],t[i]);
+    }
+    return res==target;
+}
+#14
+3
+Partition Labels
+ LC 763
+ Medium
+HINT — Think about this before looking at code
+Each character must stay in one part. Record last occurrence of each char. Greedily extend current partition.
+MEMORY TRICK — How to never forget this
+
+---PAGE 76---
+NeetCode 200  |  Page 76  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+LAST OCCURRENCE MAP. Track end = max(end last[c]). When i==end: partition ends here start new one.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than int greater-than partitionLabels(string s) {
+    unordered_map less-than char,int greater-than last;
+    for(int i=0;i less-than (int)s.size();i++) last[s[i]]=i;
+    vector less-than int greater-than res; int start=0,end=0;
+    for(int i=0;i less-than (int)s.size();i++){
+        end=max(end,last[s[i]]);
+        if(i==end){res.push_back(end-start+1);start=i+1;}
+    }
+    return res;
+}
+#14
+4
+Valid Parenthesis String
+ LC 678
+ Medium
+HINT — Think about this before looking at code
+Track range [minOpen maxOpen]. Star can be open close or empty. If maxOpen is negative: impossible. Clamp
+minOpen to 0.
+MEMORY TRICK — How to never forget this
+RANGE OF POSSIBLE OPEN COUNTS. Star shifts both min and max. If max is negative: false. If min is
+negative: clamp to 0. End: min==0.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool checkValidString(string s) {
+    int minO=0,maxO=0;
+    for(char c:s){
+        if(c=='('){minO++;maxO++;}
+        else if(c==')'){minO--;maxO--;}
+        else{minO--;maxO++;}
+        if(maxO less-than 0) return false; minO=max(minO,0);
+    }
+    return minO==0;
+}
+#14
+5
+Lemonade Change
+ LC 860
+ Easy
+ 
+HINT — Think about this before looking at code
+Greedily make change. For $10: use a $5. For $20: prefer $10+$5 over three $5s.
+MEMORY TRICK — How to never forget this
+GREEDY CHANGE. Track $5 and $10 counts. $20 customer: give $10+$5 if possible else three $5s.
+less-than b greater-than Solution (C++): less-than /b greater-than
+
+---PAGE 77---
+NeetCode 200  |  Page 77  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+bool lemonadeChange(vector<int>& bills) {
+    int five=0,ten=0;
+    for(int b:bills){
+        if(b==5) five++;
+        else if(b==10){if(!five) return false;five--;ten++;}
+        else{
+            if(ten&&five){ten--;five--;}
+            else if(five>=3) five-=3;
+            else return false;
+        }
+    }
+    return true;
+}
+#14
+6
+Best Time to Buy and Sell Stock II
+ LC 122
+ Medium
+HINT — Think about this before looking at code
+Buy and sell on every upward slope. Add every positive difference between consecutive days.
+MEMORY TRICK — How to never forget this
+COLLECT EVERY UPSLOPE. profit += max(0 prices[i]-prices[i-1]). Equivalent to buying and selling every day
+there is profit.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int maxProfit(vector<int>& prices) {
+    int profit=0;
+    for(int i=1;i<(int)prices.size();i++)
+        profit+=max(0,prices[i]-prices[i-1]);
+    return profit;
+}
+
+---PAGE 78---
+NeetCode 200  |  Page 78  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Intervals
+ 6 Problems
+ 
+#14
+7
+Insert Interval
+ LC 57
+ Medium
+HINT — Think about this before looking at code
+Three phases: add intervals ending before new one merge overlapping add remaining.
+MEMORY TRICK — How to never forget this
+THREE PHASES. 1) Add intervals ending before newInterval starts. 2) Merge overlapping. 3) Add remaining.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than vector less-than int greater-than greater-than insert(vector less-than vector
+less-than int greater-than greater-than AND intervals, vector less-than int greater-than AND
+newInterval) {
+    vector less-than vector less-than int greater-than greater-than res; int
+i=0,n=intervals.size();
+    while(i less-than nANDANDintervals[i][1] less-than newInterval[0])
+res.push_back(intervals[i++]);
+    while(i less-than nANDANDintervals[i][0] less-than =newInterval[1]){
+        newInterval[0]=min(newInterval[0],intervals[i][0]);
+        newInterval[1]=max(newInterval[1],intervals[i][1]); i++;
+    }
+    res.push_back(newInterval);
+    while(i less-than n) res.push_back(intervals[i++]);
+    return res;
+}
+#14
+8
+Merge Intervals
+ LC 56
+ Medium
+HINT — Think about this before looking at code
+Sort by start. For each interval: if it overlaps previous extend the end. Else start new interval.
+MEMORY TRICK — How to never forget this
+SORT + MERGE. Sort by start. If cur.start is at most prev.end: merge (update end). Else push prev update prev
+to cur.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than vector less-than int greater-than greater-than merge(vector less-than vector
+less-than int greater-than greater-than AND intervals) {
+    sort(intervals.begin(),intervals.end());
+    vector less-than vector less-than int greater-than greater-than res;
+    for(autoANDiv:intervals){
+        if(res.empty()ORres.back()[1] less-than iv[0]) res.push_back(iv);
+
+---PAGE 79---
+NeetCode 200  |  Page 79  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+        else res.back()[1]=max(res.back()[1],iv[1]);
+    }
+    return res;
+}
+#14
+9
+Non-overlapping Intervals
+ LC 435
+ Medium
+HINT — Think about this before looking at code
+Sort by end time. Keep interval with earliest end. On overlap discard the one ending later.
+MEMORY TRICK — How to never forget this
+SORT BY END. Keep earliest ending interval. On overlap: discard later-ending one (blocks more future
+intervals).
+less-than b greater-than Solution (C++): less-than /b greater-than
+int eraseOverlapIntervals(vector less-than vector less-than int greater-than greater-than AND
+intervals) {
+    sort(intervals.begin(),intervals.end(),[](autoANDa,autoANDb){return a[1] less-than b[1];});
+    int res=0,prevEnd=INT_MIN;
+    for(autoANDiv:intervals){
+        if(iv[0] greater-than =prevEnd) prevEnd=iv[1];
+        else res++;
+    }
+    return res;
+}
+#15
+0
+Meeting Rooms
+ LC 252
+ Easy
+ 
+HINT — Think about this before looking at code
+Sort by start time. If any meeting starts before the previous one ends return false.
+MEMORY TRICK — How to never forget this
+SORT BY START. Check consecutive pairs. If intervals[i].start is less than intervals[i-1].end: overlap = false.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool canAttendMeetings(vector less-than vector less-than int greater-than greater-than AND
+intervals) {
+    sort(intervals.begin(),intervals.end());
+    for(int i=1;i less-than (int)intervals.size();i++)
+        if(intervals[i][0] less-than intervals[i-1][1]) return false;
+    return true;
+}
+#15
+1
+Meeting Rooms II
+ LC 253
+ Medium
+
+---PAGE 80---
+NeetCode 200  |  Page 80  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+HINT — Think about this before looking at code
+Min-heap of end times. For each meeting if room available reuse it. Else add new room. Heap size = rooms
+needed.
+MEMORY TRICK — How to never forget this
+MIN-HEAP of end times. Sort by start. For each meeting: if heap.top is at most start pop (reuse room). Push
+current end.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int minMeetingRooms(vector less-than vector less-than int greater-than greater-than AND
+intervals) {
+    sort(intervals.begin(),intervals.end());
+    priority_queue less-than int,vector less-than int greater-than ,greater less-than int
+greater-than greater-than pq;
+    for(autoANDiv:intervals){
+        if(!pq.empty()ANDANDpq.top() less-than =iv[0]) pq.pop();
+        pq.push(iv[1]);
+    }
+    return pq.size();
+}
+#15
+2
+Minimum Number of Arrows to Burst Balloons
+ LC 452
+ Medium
+HINT — Think about this before looking at code
+Sort by end position. One arrow at end[0] bursts all overlapping. Move to next non-overlapping balloon.
+MEMORY TRICK — How to never forget this
+SORT BY END. Arrow at first balloon end. Skip all overlapping balloons. Count arrows when gap appears.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int findMinArrowShots(vector<vector<int>>& points) {
+    sort(points.begin(),points.end(),[](auto&a,auto&b){return a[1]<b[1];});
+    int arrows=1, end=points[0][1];
+    for(auto&p:points)
+        if(p[0]>end){arrows++;end=p[1];}
+    return arrows;
+}
+
+---PAGE 81---
+NeetCode 200  |  Page 81  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Math AND Geometry
+ 10 Problems
+ 
+#15
+3
+Rotate Image
+ LC 48
+ Medium
+HINT — Think about this before looking at code
+Two steps: transpose the matrix (swap [i][j] with [j][i]) then reverse each row.
+MEMORY TRICK — How to never forget this
+TRANSPOSE then REVERSE ROWS. Transpose mirrors along main diagonal. Reverse rows = 90 degree
+clockwise rotation.
+less-than b greater-than Solution (C++): less-than /b greater-than
+void rotate(vector less-than vector less-than int greater-than greater-than AND matrix) {
+    int n=matrix.size();
+    for(int i=0;i less-than n;i++) for(int j=i+1;j less-than n;j++)
+swap(matrix[i][j],matrix[j][i]);
+    for(autoANDrow:matrix) reverse(row.begin(),row.end());
+}
+#15
+4
+Spiral Matrix
+ LC 54
+ Medium
+HINT — Think about this before looking at code
+Maintain top bottom left right boundaries. Traverse right down left up. Shrink boundary after each direction.
+MEMORY TRICK — How to never forget this
+FOUR BOUNDARIES: top bottom left right. Traverse each direction then shrink. Stop when top greater-than
+bottom or left greater-than right.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than int greater-than spiralOrder(vector less-than vector less-than int greater-than
+greater-than AND matrix) {
+    vector less-than int greater-than res;
+    int top=0,bot=matrix.size()-1,left=0,right=matrix[0].size()-1;
+    while(top less-than =botANDANDleft less-than =right){
+        for(int c=left;c less-than =right;c++) res.push_back(matrix[top][c]); top++;
+        for(int r=top;r less-than =bot;r++) res.push_back(matrix[r][right]); right--;
+        if(top less-than =bot){for(int c=right;c greater-than =left;c--)
+res.push_back(matrix[bot][c]); bot--;}
+        if(left less-than =right){for(int r=bot;r greater-than =top;r--)
+res.push_back(matrix[r][left]); left++;}
+    }
+    return res;
+}
+
+---PAGE 82---
+NeetCode 200  |  Page 82  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+#15
+5
+Set Matrix Zeroes
+ LC 73
+ Medium
+HINT — Think about this before looking at code
+Use first row and first column as markers. Record which rows/cols need zeroing. Apply zeroes using markers.
+MEMORY TRICK — How to never forget this
+USE MATRIX ITSELF AS MEMO. Record zeros needed in first row/col. Apply them last. Handle first row/col
+flags separately.
+less-than b greater-than Solution (C++): less-than /b greater-than
+void setZeroes(vector less-than vector less-than int greater-than greater-than AND matrix) {
+    int m=matrix.size(),n=matrix[0].size();
+    bool firstRow=false,firstCol=false;
+    for(int j=0;j less-than n;j++) if(matrix[0][j]==0) firstRow=true;
+    for(int i=0;i less-than m;i++) if(matrix[i][0]==0) firstCol=true;
+    for(int i=1;i less-than m;i++) for(int j=1;j less-than n;j++)
+        if(matrix[i][j]==0){matrix[i][0]=0;matrix[0][j]=0;}
+    for(int i=1;i less-than m;i++) for(int j=1;j less-than n;j++)
+        if(matrix[i][0]==0ORmatrix[0][j]==0) matrix[i][j]=0;
+    if(firstRow) for(int j=0;j less-than n;j++) matrix[0][j]=0;
+    if(firstCol) for(int i=0;i less-than m;i++) matrix[i][0]=0;
+}
+#15
+6
+Happy Number
+ LC 202
+ Easy
+ 
+HINT — Think about this before looking at code
+Detect cycle using slow/fast pointers. If you reach 1 it is happy. If you cycle it is not.
+MEMORY TRICK — How to never forget this
+FAST/SLOW on digit sum sequence. If you see 1: happy. If pointers meet at non-1: not happy.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool isHappy(int n) {
+    auto sumSq=[](int x){int s=0;while(x){int d=x%10;s+=d*d;x/=10;}return s;};
+    int slow=n,fast=n;
+    do{slow=sumSq(slow);fast=sumSq(sumSq(fast));}while(slow!=fast);
+    return slow==1;
+}
+#15
+7
+Plus One
+ LC 66
+ Easy
+ 
+HINT — Think about this before looking at code
+Add one from the last digit. Handle carries. If all 9s prepend a 1.
+
+---PAGE 83---
+NeetCode 200  |  Page 83  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+MEMORY TRICK — How to never forget this
+CARRY FROM END. Go right to left. If digit less-than 9: increment and return. If digit == 9: set to 0 continue. If
+all zeros: prepend 1.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than int greater-than plusOne(vector less-than int greater-than AND digits) {
+    for(int i=(int)digits.size()-1;i greater-than =0;i--){
+        if(digits[i] less-than 9){digits[i]++;return digits;}
+        digits[i]=0;
+    }
+    digits.insert(digits.begin(),1); return digits;
+}
+#15
+8
+Pow(x,n)
+ LC 50
+ Medium
+HINT — Think about this before looking at code
+Fast exponentiation: if n is even x^n = (x^2)^(n/2). If odd x^n = x * x^(n-1). Handle negative n.
+MEMORY TRICK — How to never forget this
+FAST POWER: halve exponent each step. If odd: multiply one extra x. Negative n: use 1/x with absolute n.
+O(log n).
+less-than b greater-than Solution (C++): less-than /b greater-than
+double myPow(double x, int n) {
+    long exp=n; if(exp less-than 0){x=1/x;exp=-exp;}
+    double res=1;
+    while(exp greater-than 0){
+        if(exp%2==1) res*=x;
+        x*=x; exp/=2;
+    }
+    return res;
+}
+#15
+9
+Multiply Strings
+ LC 43
+ Medium
+HINT — Think about this before looking at code
+Simulate grade school multiplication. nums1[i]*nums2[j] contributes to result[i+j] and result[i+j+1].
+MEMORY TRICK — How to never forget this
+POSITION TRICK: digit at i * digit at j goes to positions [i+j i+j+1]. Process carries at end.
+less-than b greater-than Solution (C++): less-than /b greater-than
+string multiply(string num1, string num2) {
+    int m=num1.size(),n=num2.size(); vector less-than int greater-than pos(m+n,0);
+
+---PAGE 84---
+NeetCode 200  |  Page 84  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    for(int i=m-1;i greater-than =0;i--) for(int j=n-1;j greater-than =0;j--){
+        int mul=(num1[i]-'0')*(num2[j]-'0');
+        int p1=i+j,p2=i+j+1; int sum=mul+pos[p2];
+        pos[p2]=sum%10; pos[p1]+=sum/10;
+    }
+    string res;
+    for(int d:pos) if(!(res.empty()ANDANDd==0)) res+=to_string(d);
+    return res.empty()?"0":res;
+}
+#16
+0
+Detect Squares
+LC 2013
+Medium
+HINT — Think about this before looking at code
+Store points in a map. For each query point find diagonal points. Check if all 4 corners of the square exist.
+MEMORY TRICK — How to never forget this
+COUNT POINT OCCURRENCES. For query (px py): for each diagonal point (x y) check (px y) and (x py) exist.
+Multiply counts.
+less-than b greater-than Solution (C++): less-than /b greater-than
+class DetectSquares {
+    map less-than pair less-than int,int greater-than ,int greater-than cnt; set less-than pair
+less-than int,int greater-than greater-than pts;
+public:
+    void add(vector less-than int greater-than AND
+p){cnt[{p[0],p[1]}]++;pts.insert({p[0],p[1]});}
+    int count(vector less-than int greater-than AND p){
+        int res=0,px=p[0],py=p[1];
+        for(autoAND[x,y]:pts){
+            if(abs(px-x)!=abs(py-y)ORpx==xORpy==y) continue;
+            res+=cnt[{px,y}]*cnt[{x,py}]*cnt[{x,y}];
+        }
+        return res;
+    }
+}
+#16
+1
+Count Primes
+ LC 204
+ Medium
+HINT — Think about this before looking at code
+Sieve of Eratosthenes. Mark all multiples of each prime as composite.
+MEMORY TRICK — How to never forget this
+SIEVE: start with all true. For each i from 2: if prime mark all multiples as false. Count remaining trues.
+less-than b greater-than Solution (C++): less-than /b greater-than
+
+---PAGE 85---
+NeetCode 200  |  Page 85  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+int countPrimes(int n) {
+    if(n<2) return 0;
+    vector<bool> isPrime(n,true); isPrime[0]=isPrime[1]=false;
+    for(int i=2;(long)i*i<n;i++)
+        if(isPrime[i]) for(int j=i*i;j<n;j+=i) isPrime[j]=false;
+    return count(isPrime.begin(),isPrime.end(),true);
+}
+#16
+2
+Roman to Integer
+ LC 13
+ Easy
+ 
+HINT — Think about this before looking at code
+Map Roman numerals. If current value is less than next value subtract it otherwise add it.
+MEMORY TRICK — How to never forget this
+IV = 4 not 6. If current symbol value is less than next: subtract. Otherwise: add. Process left to right.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int romanToInt(string s) {
+    unordered_map<char,int>
+val={{'I',1},{'V',5},{'X',10},{'L',50},{'C',100},{'D',500},{'M',1000}};
+    int res=0;
+    for(int i=0;i<(int)s.size();i++){
+        if(i+1<(int)s.size()&&val[s[i]]<val[s[i+1]]) res-=val[s[i]];
+        else res+=val[s[i]];
+    }
+    return res;
+}
+
+---PAGE 86---
+NeetCode 200  |  Page 86  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Bit Manipulation
+ 9 Problems
+ 
+#16
+3
+Single Number
+ LC 136
+ Easy
+ 
+HINT — Think about this before looking at code
+XOR of a number with itself is 0. XOR of a number with 0 is itself. XOR all numbers and duplicates cancel out.
+MEMORY TRICK — How to never forget this
+XOR CANCELS PAIRS. a XOR a = 0. a XOR 0 = a. XOR everything together. All duplicates cancel single
+number remains.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int singleNumber(vector less-than int greater-than AND nums) {
+    int res=0; for(int n:nums) res^=n; return res;
+}
+#16
+4
+Number of 1 Bits
+ LC 191
+ Easy
+ 
+HINT — Think about this before looking at code
+Use n AND (n-1) to remove the lowest set bit each iteration. Count iterations until n = 0.
+MEMORY TRICK — How to never forget this
+n AND (n-1) REMOVES LOWEST SET BIT. Count how many times before n=0. That is the number of 1 bits.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int hammingWeight(uint32_t n) {
+    int res=0; while(n){nAND=n-1;res++;} return res;
+}
+#16
+5
+Counting Bits
+ LC 338
+ Easy
+ 
+HINT — Think about this before looking at code
+dp[i] = dp[i greater-than greater-than 1] + (i AND 1). Bit count of i equals bit count of i/2 plus the last bit.
+MEMORY TRICK — How to never forget this
+dp[i] = dp[i/2] + last bit. Shift right = divide by 2. Last bit = iAND1. Build dp array for 0 to n.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than int greater-than countBits(int n) {
+    vector less-than int greater-than dp(n+1,0);
+    for(int i=1;i less-than =n;i++) dp[i]=dp[i greater-than greater-than 1]+(iAND1);
+
+---PAGE 87---
+NeetCode 200  |  Page 87  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    return dp;
+}
+#16
+6
+Reverse Bits
+ LC 190
+ Easy
+ 
+HINT — Think about this before looking at code
+Process bit by bit. Shift result left add rightmost bit of n shift n right. Repeat 32 times.
+MEMORY TRICK — How to never forget this
+BUILD RESULT BIT BY BIT. res = (res less-than less-than 1)|(nAND1). Then n greater-than greater-than =1.
+Repeat 32 times. Builds number in reverse bit order.
+less-than b greater-than Solution (C++): less-than /b greater-than
+uint32_t reverseBits(uint32_t n) {
+    uint32_t res=0;
+    for(int i=0;i less-than 32;i++){res=(res less-than less-than 1)|(nAND1);n greater-than
+greater-than =1;}
+    return res;
+}
+#16
+7
+Missing Number
+ LC 268
+ Easy
+ 
+HINT — Think about this before looking at code
+Expected sum = n*(n+1)/2. Subtract actual sum. The difference is the missing number.
+MEMORY TRICK — How to never forget this
+GAUSS FORMULA. Expected sum = n*(n+1)/2. Missing = expected - actual. Simple one-liner.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int missingNumber(vector less-than int greater-than AND nums) {
+    int n=nums.size(),sum=n*(n+1)/2;
+    for(int x:nums) sum-=x; return sum;
+}
+#16
+8
+Sum of Two Integers
+ LC 371
+ Medium
+HINT — Think about this before looking at code
+XOR gives sum without carry. AND then shift left gives the carry. Repeat until no carry.
+MEMORY TRICK — How to never forget this
+XOR = SUM WITHOUT CARRY. AND less-than less-than 1 = CARRY. Repeat: a = a XOR b (sum) b = (a_old
+AND b) less-than less-than 1 (carry). Until b=0.
+less-than b greater-than Solution (C++): less-than /b greater-than
+
+---PAGE 88---
+NeetCode 200  |  Page 88  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+int getSum(int a, int b) {
+    while(b){ int carry=(unsigned)(aANDb) less-than less-than 1; a=a^b; b=carry; }
+    return a;
+}
+#16
+9
+Reverse Integer
+ LC 7
+ Medium
+HINT — Think about this before looking at code
+Pop last digit with n%10 push to result with result*10+digit. Check overflow before multiplying.
+MEMORY TRICK — How to never forget this
+POP and PUSH digits. pop = n%10 n/=10. push = result*10+pop. Check INT_MAX/10 overflow condition before
+each push.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int reverse(int x) {
+    int res=0;
+    while(x){
+        int pop=x%10; x/=10;
+        if(res greater-than INT_MAX/10OR(res==INT_MAX/10ANDANDpop greater-than 7)) return 0;
+        if(res less-than INT_MIN/10OR(res==INT_MIN/10ANDANDpop less-than -8)) return 0;
+        res=res*10+pop;
+    }
+    return res;
+}
+#17
+0
+Power of Two
+ LC 231
+ Easy
+ 
+HINT — Think about this before looking at code
+A power of 2 has exactly one bit set. n AND (n-1) removes the lowest set bit. Power of 2: n AND (n-1) == 0.
+MEMORY TRICK — How to never forget this
+SINGLE BIT SET. n AND (n-1) clears lowest bit. If result is 0 and n is positive: power of 2.
+less-than b greater-than Solution (C++): less-than /b greater-than
+bool isPowerOfTwo(int n) {
+    return n>0 && (n&(n-1))==0;
+}
+#17
+1
+Number of 1 Bits (Hamming Weight Variant)
+ LC 191
+ Easy
+ 
+HINT — Think about this before looking at code
+Count set bits using Brian Kernighan algorithm: n AND (n-1) removes lowest set bit each iteration.
+
+---PAGE 89---
+NeetCode 200  |  Page 89  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+MEMORY TRICK — How to never forget this
+KERNIGHAN: n = n AND (n-1) removes lowest set bit. Count until n=0. O(number of set bits).
+less-than b greater-than Solution (C++): less-than /b greater-than
+int hammingWeight2(uint32_t n) {
+    int res=0;
+    while(n){n&=(n-1);res++;}
+    return res;
+}
+
+---PAGE 90---
+NeetCode 200  |  Page 90  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Trie
+ 6 Problems
+ 
+#17
+2
+Implement Trie
+ LC 208
+ Medium
+HINT — Think about this before looking at code
+Each node has 26 children and an isEnd flag. Insert: walk path create nodes. Search: walk path check isEnd.
+MEMORY TRICK — How to never forget this
+TRIE NODE = children[26] + isEnd. Insert: traverse chars create if missing mark end. Search: traverse check
+isEnd.
+less-than b greater-than Solution (C++): less-than /b greater-than
+struct TrieNode { TrieNode* ch[26]{}; bool end=false; };
+class Trie {
+    TrieNode* root=new TrieNode();
+public:
+    void insert(string w){
+        TrieNode* cur=root;
+        for(char c:w){int i=c-'a';if(!cur dot ch[i])cur dot ch[i]=new TrieNode();cur=cur dot
+ch[i];}
+        cur dot end=true;
+    }
+    bool search(string w){
+        TrieNode* cur=root;
+        for(char c:w){int i=c-'a';if(!cur dot ch[i])return false;cur=cur dot ch[i];}
+        return cur dot end;
+    }
+    bool startsWith(string p){
+        TrieNode* cur=root;
+        for(char c:p){int i=c-'a';if(!cur dot ch[i])return false;cur=cur dot ch[i];}
+        return true;
+    }
+}
+#17
+3
+Design Add and Search Words Data Structure
+ LC 211
+ Medium
+HINT — Think about this before looking at code
+Trie with wildcard search. Dot can match any character. When dot recursively try all 26 children.
+MEMORY TRICK — How to never forget this
+TRIE + DFS FOR DOT. Normal chars: navigate trie. Dot: try all 26 children recursively. Like Trie but branching
+on wildcard.
+
+---PAGE 91---
+NeetCode 200  |  Page 91  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+less-than b greater-than Solution (C++): less-than /b greater-than
+struct WNode{WNode* ch[26]{};bool end=false;};
+class WordDictionary{
+    WNode* root=new WNode();
+public:
+    void addWord(string w){
+        WNode* cur=root;
+        for(char c:w){if(!cur dot ch[c-'a'])cur dot ch[c-'a']=new WNode();cur=cur dot ch[c-'a'];}
+        cur dot end=true;
+    }
+    bool search(string w){
+        function less-than bool(WNode*,int) greater-than dfs=[AND](WNode* node,int i) dot bool{
+            if(i==(int)w.size()) return node dot end;
+            if(w[i]=='.'){
+                for(int j=0;j less-than 26;j++) if(node dot ch[j]ANDANDdfs(node dot ch[j],i+1))
+return true;
+                return false;
+            }
+            int c=w[i]-'a'; return node dot ch[c]ANDANDdfs(node dot ch[c],i+1);
+        };
+        return dfs(root,0);
+    }
+}
+#17
+4
+Word Search II
+ LC 212
+ Hard
+ 
+HINT — Think about this before looking at code
+Build Trie from words. DFS on the board. At each cell navigate the Trie. If end node record the word.
+MEMORY TRICK — How to never forget this
+TRIE + BOARD DFS. Insert all words in Trie. DFS from each cell. Navigate trie with board chars. Mark visited
+in-place.
+less-than b greater-than Solution (C++): less-than /b greater-than
+struct TN{TN* ch[26]{};string word;};
+vector less-than string greater-than findWords(vector less-than vector less-than char
+greater-than greater-than AND board,vector less-than string greater-than AND words){
+    TN* root=new TN();
+    for(autoANDw:words){TN* cur=root;for(char c:w){if(!cur dot ch[c-'a'])cur dot ch[c-'a']=new
+TN();cur=cur dot ch[c-'a'];}cur dot word=w;}
+    int m=board.size(),n=board[0].size(); vector less-than string greater-than res;
+    function less-than void(TN*,int,int) greater-than dfs=[AND](TN* node,int r,int c){
+        if(r less-than 0ORr greater-than =mORc less-than 0ORc greater-than
+=nOR!board[r][c]OR!node dot ch[board[r][c]-'a']) return;
+        TN* next=node dot ch[board[r][c]-'a'];
+        if(!next dot word.empty()){res.push_back(next dot word);next dot word="";}
+        char tmp=board[r][c]; board[r][c]=0;
+
+---PAGE 92---
+NeetCode 200  |  Page 92  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+        dfs(next,r+1,c);dfs(next,r-1,c);dfs(next,r,c+1);dfs(next,r,c-1);
+        board[r][c]=tmp;
+    };
+    for(int r=0;r less-than m;r++) for(int c=0;c less-than n;c++) dfs(root,r,c);
+    return res;
+}
+#17
+5
+Replace Words
+ LC 648
+ Medium
+HINT — Think about this before looking at code
+Build trie from dictionary of roots. For each word in sentence replace with shortest matching root.
+MEMORY TRICK — How to never forget this
+TRIE OF ROOTS. For each sentence word: traverse trie until end marker or trie miss. Replace with shortest
+root found.
+less-than b greater-than Solution (C++): less-than /b greater-than
+string replaceWords(vector<string>& dict, string sentence) {
+    struct TN{TN* ch[26]{};bool end=false;};
+    TN* root=new TN();
+    for(auto&w:dict){TN* c=root;for(char x:w){if(!c->ch[x-'a'])c->ch[x-'a']=new
+TN();c=c->ch[x-'a'];}c->end=true;}
+    istringstream iss(sentence); string word, res;
+    while(iss>>word){
+        TN* c=root; string rep="";
+        for(char x:word){if(!c->ch[x-'a']) break;c=c->ch[x-'a'];rep+=x;if(c->end) break;}
+        if(!res.empty()) res+=" "; res+=(c->end?rep:word);
+    }
+    return res;
+}
+#17
+6
+Longest Word in Dictionary
+ LC 720
+ Easy
+ 
+HINT — Think about this before looking at code
+Insert all words in trie. Valid word: every prefix is also in dictionary. BFS/DFS on trie to find longest.
+MEMORY TRICK — How to never forget this
+BUILD TRIE check prefix completeness. Sort by length then lex. For each word check all prefixes exist in dict.
+less-than b greater-than Solution (C++): less-than /b greater-than
+string longestWord(vector<string>& words) {
+    sort(words.begin(),words.end());
+    unordered_set<string> built; built.insert("");
+    string res="";
+    for(auto&w:words){
+
+---PAGE 93---
+NeetCode 200  |  Page 93  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+        if(built.count(w.substr(0,w.size()-1))){
+            built.insert(w);
+            if(w.size()>res.size()) res=w;
+        }
+    }
+    return res;
+}
+#17
+7
+Index Pairs of a String
+LC 1065
+ Easy
+ 
+HINT — Think about this before looking at code
+Build trie from all words. For each position in text scan trie to find all matching words starting there.
+MEMORY TRICK — How to never forget this
+TRIE + SCAN FROM EACH POSITION. For each index i: walk trie with text chars from i. Each end marker =
+found word.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector<vector<int>> indexPairs(string text, vector<string>& words) {
+    struct TN{TN* ch[26]{};bool end=false;};
+    TN* root=new TN();
+    for(auto&w:words){TN* c=root;for(char x:w){if(!c->ch[x-'a'])c->ch[x-'a']=new
+TN();c=c->ch[x-'a'];}c->end=true;}
+    vector<vector<int>> res;
+    for(int i=0;i<(int)text.size();i++){
+        TN* c=root;
+        for(int j=i;j<(int)text.size();j++){
+            if(!c->ch[text[j]-'a']) break;
+            c=c->ch[text[j]-'a'];
+            if(c->end) res.push_back({i,j});
+        }
+    }
+    return res;
+}
+
+---PAGE 94---
+NeetCode 200  |  Page 94  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+Advanced Graphs
+ 8 Problems
+ 
+#17
+8
+Reconstruct Itinerary
+ LC 332
+ Hard
+ 
+HINT — Think about this before looking at code
+Hierholzer's algorithm for Eulerian path. DFS greedily choosing lexicographically smallest neighbor. Add to
+result post-order.
+MEMORY TRICK — How to never forget this
+HIERHOLZER: DFS from JFK. Always pick smallest next airport. Add to result AFTER exploring (post-order).
+Reverse result at end.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector less-than string greater-than findItinerary(vector less-than vector less-than string
+greater-than greater-than AND tickets) {
+    map less-than string,multiset less-than string greater-than greater-than adj;
+    for(autoANDt:tickets) adj[t[0]].insert(t[1]);
+    vector less-than string greater-than res;
+    function less-than void(string) greater-than dfs=[AND](string src){
+        while(!adj[src].empty()){
+            string next=*adj[src].begin(); adj[src].erase(adj[src].begin()); dfs(next);
+        }
+        res.push_back(src);
+    };
+    dfs("JFK"); reverse(res.begin(),res.end()); return res;
+}
+#17
+9
+Min Cost to Connect All Points
+LC 1584
+Medium
+HINT — Think about this before looking at code
+Prim's MST. Manhattan distance as edge weight. Greedily add cheapest edge connecting unvisited node.
+MEMORY TRICK — How to never forget this
+PRIM'S MST. Start from node 0. Min-heap of {cost node}. Add cheapest unvisited node each time. Stop when
+all visited.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int minCostConnectPoints(vector less-than vector less-than int greater-than greater-than AND pts)
+{
+    int n=pts.size(); vector less-than bool greater-than vis(n,false);
+    priority_queue less-than pair less-than int,int greater-than ,vector less-than pair less-than
+int,int greater-than greater-than ,greater less-than greater-than greater-than pq;
+    pq.push({0,0}); int res=0,count=0;
+
+---PAGE 95---
+NeetCode 200  |  Page 95  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    while(count less-than n){
+        auto[cost,i]=pq.top();pq.pop();
+        if(vis[i]) continue;
+        vis[i]=true; res+=cost; count++;
+        for(int j=0;j less-than n;j++) if(!vis[j])
+            pq.push({abs(pts[i][0]-pts[j][0])+abs(pts[i][1]-pts[j][1]),j});
+    }
+    return res;
+}
+#18
+0
+Network Delay Time
+ LC 743
+ Medium
+HINT — Think about this before looking at code
+Dijkstra shortest path from source k to all nodes. Answer = max of all shortest paths. Return -1 if any
+unreachable.
+MEMORY TRICK — How to never forget this
+DIJKSTRA from k. Min-heap {distance node}. Relax edges. Track dist array. Answer = max(dist). -1 if any =
+infinity.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int networkDelayTime(vector less-than vector less-than int greater-than greater-than AND times,
+int n, int k) {
+    vector less-than vector less-than pair less-than int,int greater-than greater-than
+greater-than adj(n+1);
+    for(autoANDt:times) adj[t[0]].push_back({t[1],t[2]});
+    vector less-than int greater-than dist(n+1,INT_MAX); dist[k]=0;
+    priority_queue less-than pair less-than int,int greater-than ,vector less-than pair less-than
+int,int greater-than greater-than ,greater less-than greater-than greater-than pq;
+pq.push({0,k});
+    while(!pq.empty()){
+        auto[d,u]=pq.top();pq.pop(); if(d greater-than dist[u]) continue;
+        for(autoAND[v,w]:adj[u]) if(dist[u]+w less-than
+dist[v]){dist[v]=dist[u]+w;pq.push({dist[v],v});}
+    }
+    int res=*max_element(dist.begin()+1,dist.end());
+    return res==INT_MAX?-1:res;
+}
+#18
+1
+Swim in Rising Water
+ LC 778
+ Hard
+ 
+HINT — Think about this before looking at code
+Dijkstra where cost = max grid value on path. Min-heap on max height encountered.
+MEMORY TRICK — How to never forget this
+
+---PAGE 96---
+NeetCode 200  |  Page 96  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+DIJKSTRA: cost = max height on path. Min-heap on max height. Relax: new cost = max(cur_cost neighbor
+height).
+less-than b greater-than Solution (C++): less-than /b greater-than
+int swimInWater(vector less-than vector less-than int greater-than greater-than AND grid) {
+    int n=grid.size();
+    priority_queue less-than tuple less-than int,int,int greater-than ,vector less-than tuple
+less-than int,int,int greater-than greater-than ,greater less-than greater-than greater-than pq;
+    pq.push({grid[0][0],0,0}); vector less-than vector less-than bool greater-than greater-than
+vis(n,vector less-than bool greater-than (n,false));
+    int d[][2]={{1,0},{-1,0},{0,1},{0,-1}};
+    while(!pq.empty()){
+        auto[t,r,c]=pq.top();pq.pop();
+        if(r==n-1ANDANDc==n-1) return t;
+        if(vis[r][c]) continue; vis[r][c]=true;
+        for(autoANDdr:d){int nr=r+dr[0],nc=c+dr[1];
+            if(nr greater-than =0ANDANDnr less-than nANDANDnc greater-than =0ANDANDnc less-than
+nANDAND!vis[nr][nc])
+            pq.push({max(t,grid[nr][nc]),nr,nc});}
+    }
+    return -1;
+}
+#18
+2
+Alien Dictionary
+ LC 269
+ Hard
+ 
+HINT — Think about this before looking at code
+Build directed graph from character order comparisons between adjacent words. Topological sort gives the
+order.
+MEMORY TRICK — How to never forget this
+BUILD GRAPH from adjacent word comparisons. First differing char gives an edge. Topo sort. Check cycles
+and prefix violations.
+less-than b greater-than Solution (C++): less-than /b greater-than
+string alienOrder(vector less-than string greater-than AND words) {
+    map less-than char,set less-than char greater-than greater-than adj; map less-than char,int
+greater-than indegree;
+    for(autoANDw:words) for(char c:w) if(!indegree.count(c)) indegree[c]=0;
+    for(int i=0;i less-than (int)words.size()-1;i++){
+        stringANDa=words[i],ANDb=words[i+1]; int len=min(a.size(),b.size());
+        if(a.size() greater-than b.size()ANDANDa.substr(0,len)==b.substr(0,len)) return "";
+        for(int j=0;j less-than (int)len;j++)
+if(a[j]!=b[j]){if(!adj[a[j]].count(b[j])){adj[a[j]].insert(b[j]);indegree[b[j]]++;}break;}
+    }
+    queue less-than char greater-than q; for(autoAND[c,d]:indegree) if(d==0) q.push(c);
+    string res;
+
+---PAGE 97---
+NeetCode 200  |  Page 97  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    while(!q.empty()){char c=q.front();q.pop();res+=c;for(char
+nb:adj[c])if(--indegree[nb]==0)q.push(nb);}
+    return res.size()==indegree.size()?res:"";
+}
+#18
+3
+Cheapest Flights Within K Stops
+ LC 787
+ Medium
+HINT — Think about this before looking at code
+Bellman-Ford limited to K+1 iterations. Copy prices array each iteration to avoid using edges from same round.
+MEMORY TRICK — How to never forget this
+BELLMAN-FORD K+1 times. Copy prices each round to prevent using same-round edges. dp[dst] after K+1
+rounds.
+less-than b greater-than Solution (C++): less-than /b greater-than
+int findCheapestPrice(int n,vector less-than vector less-than int greater-than greater-than AND
+flights,int src,int dst,int k){
+    vector less-than int greater-than prices(n,INT_MAX); prices[src]=0;
+    for(int i=0;i less-than =k;i++){
+        vector less-than int greater-than tmp=prices;
+        for(autoANDf:flights)
+            if(prices[f[0]]!=INT_MAXANDANDprices[f[0]]+f[2] less-than tmp[f[1]])
+                tmp[f[1]]=prices[f[0]]+f[2];
+        prices=tmp;
+    }
+    return prices[dst]==INT_MAX?-1:prices[dst];
+}
+#18
+4
+Path with Maximum Probability
+LC 1514
+Medium
+HINT — Think about this before looking at code
+Dijkstra variant maximising probability product instead of minimising distance. Use max-heap on probability.
+MEMORY TRICK — How to never forget this
+MAX-HEAP on probability. Bellman-Ford or modified Dijkstra. prob[v] = max(prob[v] prob[u]*edge_prob).
+less-than b greater-than Solution (C++): less-than /b greater-than
+double maxProbability(int n, vector<vector<int>>& edges, vector<double>& prob, int src, int dst)
+{
+    vector<vector<pair<int,double>>> adj(n);
+    for(int i=0;i<(int)edges.size();i++){
+        adj[edges[i][0]].push_back({edges[i][1],prob[i]});
+        adj[edges[i][1]].push_back({edges[i][0],prob[i]});
+    }
+    vector<double> dist(n,0); dist[src]=1;
+
+---PAGE 98---
+NeetCode 200  |  Page 98  |  Hint + Memory Trick + C++ Solution  |  Printable Edition
+    priority_queue<pair<double,int>> pq; pq.push({1,src});
+    while(!pq.empty()){
+        auto[p,u]=pq.top();pq.pop();
+        if(u==dst) return p;
+        if(p<dist[u]) continue;
+        for(auto&[v,w]:adj[u]) if(dist[u]*w>dist[v]){dist[v]=dist[u]*w;pq.push({dist[v],v});}
+    }
+    return 0;
+}
+#18
+5
+Evaluate Division
+ LC 399
+ Medium
+HINT — Think about this before looking at code
+Build weighted directed graph. BFS/DFS to find path from a to b multiplying edge weights.
+MEMORY TRICK — How to never forget this
+WEIGHTED GRAPH: a/b = edge weight. BFS from source to target multiplying weights. If no path return -1.
+less-than b greater-than Solution (C++): less-than /b greater-than
+vector<double> calcEquation(vector<vector<string>>& eqs, vector<double>& vals,
+vector<vector<string>>& queries) {
+    unordered_map<string,vector<pair<string,double>>> adj;
+    for(int i=0;i<(int)eqs.size();i++){
+        adj[eqs[i][0]].push_back({eqs[i][1],vals[i]});
+        adj[eqs[i][1]].push_back({eqs[i][0],1.0/vals[i]});
+    }
+    auto bfs=[&](string src,string dst)->double{
+        if(!adj.count(src)||!adj.count(dst)) return -1;
+        unordered_map<string,double> vis; vis[src]=1;
+        queue<string> q; q.push(src);
+        while(!q.empty()){
+            string cur=q.front();q.pop();
+            if(cur==dst) return vis[cur];
+            for(auto&[nb,w]:adj[cur]) if(!vis.count(nb)){vis[nb]=vis[cur]*w;q.push(nb);}
+        }
+        return -1;
+    };
+    vector<double> res;
+    for(auto&q:queries) res.push_back(bfs(q[0],q[1]));
+    return res;
+}

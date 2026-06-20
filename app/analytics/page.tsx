@@ -97,6 +97,19 @@ export default function AnalyticsPage() {
 
   const overallPct = Math.round(((solved.size / totalDSA) + (mastered.size / totalSD) + (completed.size / totalSE)) / 3 * 100);
   const today = new Date().toISOString().split("T")[0];
+
+  // Last 5 solved problems (most recent first)
+  const { solvedDates } = useProgressStore();
+  const recentlySolved = useMemo(() => {
+    return Object.entries(solvedDates ?? {})
+      .sort((a, b) => b[1].localeCompare(a[1]))
+      .slice(0, 5)
+      .map(([id, date]) => {
+        const prob = allProblems.find((p) => p.id === id);
+        return prob ? { id, title: prob.title, difficulty: prob.difficulty, date } : null;
+      })
+      .filter(Boolean) as { id: string; title: string; difficulty: string; date: string }[];
+  }, [solvedDates, allProblems]);
   const weekAgo = new Date();
   weekAgo.setDate(weekAgo.getDate() - 7);
   const solvedThisWeek = Object.values(useProgressStore.getState().solvedDates ?? {}).filter((d) => new Date(d) >= weekAgo).length;
@@ -161,6 +174,37 @@ export default function AnalyticsPage() {
             </div>
           ))}
         </div>
+
+        {/* Recent Activity */}
+        {recentlySolved.length > 0 && (
+          <div className="rounded-xl p-5 mb-8" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
+            <h2 className="text-sm font-semibold mb-3" style={{ color: "var(--text-primary)" }}>Recent Activity</h2>
+            <div className="space-y-2">
+              {recentlySolved.map((p, i) => (
+                <Link key={p.id} href={`/problems/${p.id}`} style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                  padding: "8px 12px", borderRadius: 8, textDecoration: "none",
+                  background: i === 0 ? "rgba(47,191,113,0.05)" : "var(--bg-secondary)",
+                  border: `1px solid ${i === 0 ? "rgba(47,191,113,0.2)" : "var(--border-subtle)"}`,
+                  transition: "opacity 0.1s",
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontSize: 10, color: "#2FBF71", fontFamily: "var(--font-mono)" }}>✓</span>
+                    <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{p.title}</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{
+                      fontSize: 10, fontFamily: "var(--font-mono)", padding: "2px 6px", borderRadius: 3,
+                      color: p.difficulty === "Easy" ? "#2FBF71" : p.difficulty === "Medium" ? "#F5A524" : "#EF4444",
+                      background: p.difficulty === "Easy" ? "rgba(47,191,113,0.1)" : p.difficulty === "Medium" ? "rgba(245,165,36,0.1)" : "rgba(239,68,68,0.1)",
+                    }}>{p.difficulty}</span>
+                    <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>{p.date}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="rounded-xl p-5 mb-8" style={{ background: "rgba(79,140,255,0.06)", border: "1px solid rgba(79,140,255,0.2)" }}>
           <h2 className="text-sm font-semibold mb-2" style={{ color: "#4F8CFF" }}>Prep Coach</h2>

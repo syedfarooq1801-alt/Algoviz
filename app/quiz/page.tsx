@@ -237,7 +237,7 @@ export default function QuizPage() {
                         style={{ background: `${correctColor}15`, color: correctColor, border: `1px solid ${correctColor}30` }}>
                         Study {quiz.patternTitle} →
                       </Link>
-                      <Link href={quiz.problem.hasVisualization ? `/visualizations/${quiz.problem.id}` : `/problems/${quiz.problem.id}`}
+                      <Link href={`/problems/${quiz.problem.id}`}
                         className="text-xs px-3 py-1.5 rounded-lg"
                         style={{ background: "var(--bg-hover)", color: "var(--text-muted)", border: "1px solid var(--border)" }}>
                         View problem →
