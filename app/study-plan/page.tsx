@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { generateStudyPlan, PHASE_COLOR, type DayPlan, type PlanTask } from "@/lib/studyPlan";
 import { useProgressStore } from "@/lib/store";
@@ -43,6 +43,23 @@ export default function StudyPlanPage() {
   const week = weeks[activeWeek] ?? [];
   const totalWeeks = weeks.length;
   const [activeDayIdx, setActiveDayIdx] = useState<number>(0);
+
+  const didAutoInit = useRef(false);
+  useEffect(() => {
+    if (didAutoInit.current) return;
+    didAutoInit.current = true;
+    for (let i = 0; i < plan.days.length; i++) {
+      const d = plan.days[i];
+      if (d.type === "rest") continue;
+      if (d.tasks.some((t) => t.domain !== "behavioral" && !isTaskDone(t))) {
+        setActiveWeek(Math.floor(i / 7));
+        setActiveDayIdx(i % 7);
+        return;
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const focusDay = week[activeDayIdx] ?? week.find((d) => d.type !== "rest") ?? week[0];
 
   function changeWeek(next: number) {
