@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/authContext";
+import AuthGuard from "@/components/AuthGuard";
 import CommandPalette from "@/components/CommandPalette";
 import MobileNav from "@/components/MobileNav";
 import Sidebar from "@/components/Sidebar";
@@ -39,12 +40,14 @@ export default function RootLayout({
       </head>
       <body className="min-h-full" style={{ background: "var(--bg-primary)" }}>
         <AuthProvider>
-          <CommandPalette />
-          <div className="lg:grid min-h-screen" style={{ gridTemplateColumns: "220px 1fr" }}>
-            <Sidebar />
-            <div className="pb-16 lg:pb-0 min-h-screen">{children}</div>
-          </div>
-          <MobileNav />
+          <AuthGuard>
+            <CommandPalette />
+            <div className="lg:grid min-h-screen" style={{ gridTemplateColumns: "220px 1fr" }}>
+              <Sidebar />
+              <div className="pb-16 lg:pb-0 min-h-screen">{children}</div>
+            </div>
+            <MobileNav />
+          </AuthGuard>
         </AuthProvider>
       </body>
     </html>
