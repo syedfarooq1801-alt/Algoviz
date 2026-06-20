@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState, useEffect, useRef } from "react";
+import { useMobile } from "@/lib/useMobile";
 import Link from "next/link";
 import { generateStudyPlan, PHASE_COLOR, type DayPlan, type PlanTask } from "@/lib/studyPlan";
 import { useProgressStore } from "@/lib/store";
@@ -21,6 +22,7 @@ function todayISO() {
 }
 
 export default function StudyPlanPage() {
+  const isMobile = useMobile();
   const { solved, toggleSolved, studyPlanDuration, setStudyPlanDuration } = useProgressStore();
   const { mastered, toggleMastered } = useSDStore();
   const { completed, toggleChapter } = useSEStore();
@@ -91,7 +93,7 @@ export default function StudyPlanPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      <main style={{ maxWidth: 860, margin: "0 auto", padding: "28px 20px 48px" }}>
+      <main style={{ maxWidth: 860, margin: "0 auto", padding: isMobile ? "20px 14px 80px" : "28px 20px 48px" }}>
 
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
@@ -161,7 +163,7 @@ export default function StudyPlanPage() {
 
         {/* Two-column: tasks + milestones */}
         {focusDay && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 260px", gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 260px", gap: 14 }}>
             {/* Task list */}
             <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, padding: 16 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
