@@ -129,7 +129,7 @@ export default function PatternPage({ params }: Props) {
                     {probs.map((p) => {
                       const isSolved = solved.has(p.id);
                       return (
-                        <Link key={p.id} href={p.hasVisualization ? `/visualizations/${p.id}` : `/problems/${p.id}`}
+                        <Link key={p.id} href={`/problems/${p.id}`}
                           className="group flex items-center gap-3 px-3 py-2 rounded-lg transition-colors"
                           style={{ background: "transparent" }}
                           onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-hover)")}

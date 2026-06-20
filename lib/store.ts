@@ -24,6 +24,8 @@ interface ProgressState {
     streak: number;
     lastActivity: string;
     studyPlanDuration?: 30 | 60 | 90;
+    solvedDates?: Record<string, string>;
+    solveTimes?: Record<string, number>;
   }) => void;
   resetForUser: () => void;
 }
@@ -96,6 +98,8 @@ export const useProgressStore = create<ProgressState>()(
         streak: data.streak,
         lastActivity: data.lastActivity,
         studyPlanDuration: data.studyPlanDuration ?? 30,
+        solvedDates: data.solvedDates ?? {},
+        solveTimes: data.solveTimes ?? {},
       }),
 
       resetForUser: () => set({

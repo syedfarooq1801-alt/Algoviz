@@ -10,6 +10,7 @@ import { useProgressStore } from "./store";
 import { useSDStore } from "./sdStore";
 import { useSEStore } from "./seStore";
 import { useFlashcardStore } from "./flashcardStore";
+import { usePrepStore } from "./prepStore";
 
 interface AuthContextType {
   user: User | null;
@@ -52,6 +53,13 @@ async function loadUserData(uid: string) {
     streak: d.streak ?? 0,
     lastActivity: d.lastActivity ?? "",
     studyPlanDuration: ([30, 60, 90].includes(d.studyPlanDuration) ? d.studyPlanDuration : 30) as 30 | 60 | 90,
+    solvedDates: d.solvedDates ?? {},
+    solveTimes: d.solveTimes ?? {},
+  });
+  usePrepStore.getState().hydrateFromFirestore({
+    reviewDue: d.reviewDue ?? {},
+    problemStates: d.problemStates ?? {},
+    selectedTrack: d.selectedTrack,
   });
   useSDStore.getState().hydrateFromFirestore({
     mastered: new Set<string>(d.sdMastered ?? []),
@@ -69,16 +77,19 @@ async function loadUserData(uid: string) {
 }
 
 async function syncAllToFirestore(uid: string) {
-  const { solved, bookmarked, xp, streak, lastActivity, studyPlanDuration } = useProgressStore.getState();
+  const { solved, bookmarked, xp, streak, lastActivity, studyPlanDuration, solvedDates, solveTimes } = useProgressStore.getState();
   const { mastered: sdMastered, bookmarked: sdBookmarked } = useSDStore.getState();
   const { completed: seCompleted } = useSEStore.getState();
   const { known: flashcardKnown, weak: flashcardWeak, nextReview: flashcardNextReview, level: flashcardLevel } = useFlashcardStore.getState();
+  const { reviewDue, problemStates, selectedTrack } = usePrepStore.getState();
 
   const ref = doc(db, "users", uid);
   await updateDoc(ref, {
     solved: Array.from(solved),
     bookmarked: Array.from(bookmarked),
     xp, streak, lastActivity, studyPlanDuration,
+    solvedDates,
+    solveTimes,
     sdMastered: Array.from(sdMastered),
     sdBookmarked: Array.from(sdBookmarked),
     seCompleted: Array.from(seCompleted),
@@ -86,6 +97,9 @@ async function syncAllToFirestore(uid: string) {
     flashcardWeak: Array.from(flashcardWeak),
     flashcardNextReview,
     flashcardLevel,
+    reviewDue,
+    problemStates,
+    selectedTrack,
   });
 }
 
@@ -124,8 +138,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const u2 = useSDStore.subscribe(syncDebounced);
     const u3 = useSEStore.subscribe(syncDebounced);
     const u4 = useFlashcardStore.subscribe(syncDebounced);
+    const u5 = usePrepStore.subscribe(syncDebounced);
 
-    return () => { u1(); u2(); u3(); u4(); clearTimeout(timer); };
+    return () => { u1(); u2(); u3(); u4(); u5(); clearTimeout(timer); };
   }, [user]);
 
   const signIn = async () => {

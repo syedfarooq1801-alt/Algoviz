@@ -21,10 +21,15 @@ function ProfileContent() {
     solved: p.problems.filter((pr) => solved.has(pr.id)).length,
   }));
 
-  // Recently solved
-  const recentlySolved = PATTERNS.flatMap((p) =>
+  const { solvedDates } = useProgressStore();
+
+  // Recently solved — sorted by date descending
+  const allSolved = PATTERNS.flatMap((p) =>
     p.problems.filter((pr) => solved.has(pr.id)).map((pr) => ({ ...pr, pattern: p.title }))
-  ).slice(0, 10);
+  );
+  const recentlySolved = allSolved
+    .sort((a, b) => ((solvedDates[b.id] ?? "") > (solvedDates[a.id] ?? "") ? 1 : -1))
+    .slice(0, 10);
 
   if (!user) return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
