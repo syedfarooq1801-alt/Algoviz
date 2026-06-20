@@ -10,6 +10,7 @@ import { useSDStore } from "@/lib/sdStore";
 import { useSEStore } from "@/lib/seStore";
 import { useInterviewStore } from "@/lib/interviewStore";
 import { usePrepStore } from "@/lib/prepStore";
+import { useAuth } from "@/lib/authContext";
 
 function pct(done: number, total: number) {
   return total ? Math.round((done / total) * 100) : 0;
@@ -19,10 +20,166 @@ function todayIso() {
   return new Date().toISOString().split("T")[0];
 }
 
+const FEATURES = [
+  {
+    icon: "⚡",
+    title: "Spaced Repetition",
+    desc: "Schedule problem reviews on a 1→3→7→21 day cycle. Never re-forget what you once understood.",
+  },
+  {
+    icon: "🏢",
+    title: "Company Filters",
+    desc: "Filter any problem set by Google, Amazon, Meta, Apple, Microsoft, LinkedIn, or Netflix.",
+  },
+  {
+    icon: "📐",
+    title: "Pattern-First Learning",
+    desc: "Every problem is tagged to a pattern with full theory. Learn the pattern once, solve 10 problems from memory.",
+  },
+  {
+    icon: "📅",
+    title: "Adaptive Study Plan",
+    desc: "30/60/90-day plan generator. Set your interview date and get a daily schedule that adapts to your progress.",
+  },
+  {
+    icon: "🃏",
+    title: "SRS Flashcards",
+    desc: "Concept cards with spaced repetition. Due cards surface automatically — no manual scheduling.",
+  },
+  {
+    icon: "🎯",
+    title: "No Coding Here",
+    desc: "This is your study layer. Understand the problem deeply here, then code it on LeetCode. Clean separation of concerns.",
+  },
+];
+
+const VS_NEETCODE = [
+  { feature: "Spaced repetition for problems", us: true, them: false },
+  { feature: "Company-filtered problem sets", us: true, them: false },
+  { feature: "Pattern theory + problems on one page", us: true, them: false },
+  { feature: "Adaptive study plan with interview date", us: true, them: false },
+  { feature: "SRS flashcards with due tracking", us: true, them: false },
+  { feature: "Focused study (no editor distraction)", us: true, them: false },
+];
+
+function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
+  const { signIn, user } = useAuth();
+  const total = getTotalProblems();
+  return (
+    <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
+      {/* Hero */}
+      <section style={{ maxWidth: 760, margin: "0 auto", padding: "80px 24px 60px", textAlign: "center" }}>
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 6,
+          padding: "4px 14px", borderRadius: 20, marginBottom: 24,
+          background: "rgba(79,140,255,0.1)", border: "1px solid rgba(79,140,255,0.25)",
+          fontSize: 12, color: "var(--accent)", fontWeight: 600,
+        }}>
+          {total}+ problems · SRS scheduling · Pattern theory
+        </div>
+
+        <h1 style={{
+          fontSize: "clamp(2rem, 5vw, 3.2rem)", fontWeight: 800,
+          color: "var(--text-primary)", lineHeight: 1.15, letterSpacing: "-0.03em",
+          marginBottom: 20,
+        }}>
+          Study smart.<br />
+          <span style={{ color: "var(--accent)" }}>Code on LeetCode.</span><br />
+          Beat the FAANG interview.
+        </h1>
+
+        <p style={{ fontSize: 16, color: "var(--text-secondary)", lineHeight: 1.7, maxWidth: 520, margin: "0 auto 36px", fontWeight: 400 }}>
+          AlgoVis is your structured study layer — pattern theory, spaced repetition, company filters, and a personalized study plan. No editor, no distraction. Understand deeply here, then code on LeetCode.
+        </p>
+
+        <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
+          <button
+            onClick={user ? onGetStarted : signIn}
+            style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              padding: "12px 28px", borderRadius: 10, fontSize: 14, fontWeight: 700,
+              background: "var(--accent)", color: "#fff", border: "none", cursor: "pointer",
+              transition: "opacity 0.15s",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.88")}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+          >
+            {user ? "Go to dashboard" : "Start free — no account needed"}
+            <ArrowRight size={16} />
+          </button>
+          <Link href="/dsa" style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
+            padding: "12px 24px", borderRadius: 10, fontSize: 14, fontWeight: 600,
+            color: "var(--text-secondary)", border: "1px solid var(--border)",
+            textDecoration: "none", transition: "border-color 0.15s",
+          }}>
+            Browse problems
+          </Link>
+        </div>
+      </section>
+
+      {/* Feature grid */}
+      <section style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px 64px" }}>
+        <div style={{
+          display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16,
+        }}>
+          {FEATURES.map((f) => (
+            <div key={f.title} style={{
+              padding: "20px 22px", borderRadius: 12,
+              background: "var(--bg-card)", border: "1px solid var(--border)",
+            }}>
+              <div style={{ fontSize: 22, marginBottom: 10 }}>{f.icon}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", marginBottom: 6 }}>{f.title}</div>
+              <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.65 }}>{f.desc}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* vs NeetCode comparison */}
+      <section style={{ maxWidth: 640, margin: "0 auto", padding: "0 24px 80px" }}>
+        <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)", textAlign: "center", marginBottom: 24, letterSpacing: "-0.02em" }}>
+          Why not just use NeetCode?
+        </h2>
+        <div style={{ borderRadius: 12, border: "1px solid var(--border)", overflow: "hidden" }}>
+          {/* Header */}
+          <div style={{
+            display: "grid", gridTemplateColumns: "1fr 100px 100px",
+            padding: "10px 20px", background: "var(--bg-secondary)",
+            borderBottom: "1px solid var(--border)",
+            fontSize: 11, fontWeight: 700, fontFamily: "var(--font-mono)",
+            color: "var(--text-muted)", letterSpacing: "0.06em",
+          }}>
+            <span>FEATURE</span>
+            <span style={{ textAlign: "center", color: "var(--accent)" }}>ALGOVIS</span>
+            <span style={{ textAlign: "center" }}>NEETCODE</span>
+          </div>
+          {VS_NEETCODE.map((row, i) => (
+            <div key={row.feature} style={{
+              display: "grid", gridTemplateColumns: "1fr 100px 100px",
+              padding: "11px 20px", alignItems: "center",
+              borderBottom: i < VS_NEETCODE.length - 1 ? "1px solid var(--border-subtle)" : "none",
+              background: i % 2 === 0 ? "transparent" : "rgba(255,255,255,0.01)",
+            }}>
+              <span style={{ fontSize: 12, color: "var(--text-secondary)" }}>{row.feature}</span>
+              <span style={{ textAlign: "center", fontSize: 14 }}>{row.us ? "✓" : "✗"}</span>
+              <span style={{ textAlign: "center", fontSize: 14, color: "var(--text-muted)" }}>{row.them ? "✓" : "✗"}</span>
+            </div>
+          ))}
+        </div>
+        <p style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center", marginTop: 12 }}>
+          NeetCode has great video explanations. AlgoVis has the structured study workflow around them.
+        </p>
+      </section>
+    </div>
+  );
+}
+
 export default function Home() {
   const { solved, solvedDates } = useProgressStore();
   const { mastered } = useSDStore();
   const { completed } = useSEStore();
+  const isNewUser = solved.size === 0 && mastered.size === 0 && completed.size === 0;
   const { targetDate, targetCompany, daysUntil } = useInterviewStore();
   const { reviewDue, mockSessions } = usePrepStore();
   const days = daysUntil();
@@ -108,6 +265,10 @@ export default function Home() {
 
   const diffColor = (d: string) =>
     d === "Easy" ? "var(--accent-green)" : d === "Medium" ? "var(--accent-orange)" : "var(--accent-red)";
+
+  if (isNewUser) {
+    return <LandingPage onGetStarted={() => {}} />;
+  }
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>

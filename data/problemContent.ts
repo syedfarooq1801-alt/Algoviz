@@ -6012,6 +6012,141 @@ public:
     ],
     memoryTrick: "\"It's a marriage contract — must be faithful both ways. s commits to t AND t commits back to s. One-sided loyalty fails: two people can't marry the same person.\"",
   },
+
+  "merge-intervals": {
+    intuition:
+      "Sort intervals by start time. Then walk through: if the current interval overlaps the last merged one (current.start ≤ merged.end), extend the end. Otherwise push a new interval. Overlap condition after sorting: current.start ≤ previous.end.",
+    approach: [
+      "Sort intervals by start value.",
+      "Initialize result with the first interval.",
+      "For each remaining interval:",
+      "  — If current.start ≤ result.back().end → overlap. Extend: result.back().end = max(result.back().end, current.end).",
+      "  — Otherwise no overlap. Push current interval to result.",
+      "Return result.",
+    ],
+    cppSolution: `class Solution {
+public:
+    vector<vector<int>> merge(vector<vector<int>>& intervals) {
+        sort(intervals.begin(), intervals.end()); // sort by start
+        vector<vector<int>> res;
+        res.push_back(intervals[0]);
+        for (int i = 1; i < (int)intervals.size(); i++) {
+            auto& last = res.back();
+            if (intervals[i][0] <= last[1]) {
+                last[1] = max(last[1], intervals[i][1]); // extend
+            } else {
+                res.push_back(intervals[i]); // no overlap
+            }
+        }
+        return res;
+    }
+};`,
+    timeComplexity: "O(n log n)",
+    timeExplanation: "Sorting dominates. The merge pass is O(n).",
+    spaceComplexity: "O(n)",
+    spaceExplanation: "Output array in worst case holds all n intervals (no merges happen).",
+    edgeCases: [
+      "Single interval — return as-is.",
+      "All intervals overlap — collapses to one interval.",
+      "Touching intervals [1,3] and [3,5] — condition ≤ (not <) merges them into [1,5].",
+      "Intervals given in reverse order — sort handles it.",
+      "[1,4] and [2,3] — fully contained: max(4,3)=4, stays [1,4].",
+    ],
+    memoryTrick: "\"Sort first, then greedy extend. If new start ≤ current end, they touch or overlap — stretch the end. Otherwise, start fresh.\"",
+  },
+
+  "top-k-frequent": {
+    intuition:
+      "Count frequencies with a hash map. To find top-k without full sort: use bucket sort. Create an array of size n+1 where index = frequency. Bucket[i] holds all numbers that appear exactly i times. Scan buckets from high to low, collect until you have k elements.",
+    approach: [
+      "Count frequency of each number using hash map.",
+      "Create bucket array of size n+1 (max possible frequency).",
+      "For each (num, freq) pair, add num to bucket[freq].",
+      "Iterate bucket from index n down to 0, collecting numbers.",
+      "Stop once k elements collected — return result.",
+    ],
+    cppSolution: `class Solution {
+public:
+    vector<int> topKFrequent(vector<int>& nums, int k) {
+        unordered_map<int, int> freq;
+        for (int n : nums) freq[n]++;
+
+        // bucket[i] = numbers that appear exactly i times
+        vector<vector<int>> bucket(nums.size() + 1);
+        for (auto& [val, cnt] : freq)
+            bucket[cnt].push_back(val);
+
+        vector<int> res;
+        for (int i = (int)bucket.size() - 1; i >= 0 && (int)res.size() < k; i--)
+            for (int v : bucket[i])
+                res.push_back(v);
+
+        return res;
+    }
+};`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Frequency count O(n), bucket fill O(n), bucket scan O(n). Beats heap's O(n log k).",
+    spaceComplexity: "O(n)",
+    spaceExplanation: "Frequency map + bucket array, both O(n).",
+    edgeCases: [
+      "k = 1 — return the single most frequent element.",
+      "k = n — all elements qualify, but they may all have frequency 1.",
+      "Multiple elements with same frequency — bucket holds them all; order within bucket doesn't matter.",
+      "Negative numbers — hash map handles negatives.",
+    ],
+    memoryTrick: "\"Bucket sort by frequency. High-frequency buckets at the back. Walk backwards, fill until k.\" Avoids sorting entirely — O(n) not O(n log n).",
+  },
+
+  "median-two-sorted": {
+    intuition:
+      "Binary search on the smaller array. Pick a cut point i in array A (0..m) and derive cut j = (m+n)/2 - i in array B. A valid cut means A[i-1] ≤ B[j] AND B[j-1] ≤ A[i] — left halves are all ≤ right halves. Binary search i until this holds. Then read median from the 4 boundary elements.",
+    approach: [
+      "Ensure A is the smaller array (swap if needed) — binary search on smaller = fewer iterations.",
+      "Binary search i in [0, m]. j = half - i where half = (m+n)/2.",
+      "Boundary values: Aleft = A[i-1] or -∞, Aright = A[i] or +∞. Same for B.",
+      "If Aleft ≤ Bright AND Bleft ≤ Aright → valid partition found.",
+      "  — Even total: median = (max(Aleft,Bleft) + min(Aright,Bright)) / 2.0.",
+      "  — Odd total: median = min(Aright, Bright).",
+      "If Aleft > Bright → i too big → R = i - 1.",
+      "If Bleft > Aright → i too small → L = i + 1.",
+    ],
+    cppSolution: `class Solution {
+public:
+    double findMedianSortedArrays(vector<int>& A, vector<int>& B) {
+        if (A.size() > B.size()) return findMedianSortedArrays(B, A);
+        int m = A.size(), n = B.size(), half = (m + n) / 2;
+        int L = 0, R = m;
+        while (true) {
+            int i = L + (R - L) / 2; // cut in A
+            int j = half - i;         // cut in B
+            int Aleft  = i > 0 ? A[i-1] : INT_MIN;
+            int Aright = i < m ? A[i]   : INT_MAX;
+            int Bleft  = j > 0 ? B[j-1] : INT_MIN;
+            int Bright = j < n ? B[j]   : INT_MAX;
+            if (Aleft <= Bright && Bleft <= Aright) {
+                if ((m + n) % 2 == 1) return min(Aright, Bright);
+                return (max(Aleft, Bleft) + min(Aright, Bright)) / 2.0;
+            } else if (Aleft > Bright) {
+                R = i - 1;
+            } else {
+                L = i + 1;
+            }
+        }
+    }
+};`,
+    timeComplexity: "O(log(min(m, n)))",
+    timeExplanation: "Binary search on the smaller array of size min(m,n).",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "Only boundary variables — no extra arrays.",
+    edgeCases: [
+      "One array empty — median is the median of the other array.",
+      "Arrays of equal length — both cuts split evenly.",
+      "All elements of A < all elements of B — i=0 or i=m immediately valid.",
+      "Even vs odd total length — different median formulas.",
+      "INT_MIN/INT_MAX sentinels — handle edge cuts where i=0 or i=m (no left/right element).",
+    ],
+    memoryTrick: "\"Binary search the CUT, not the value. Cut A at i, B at j=half-i. Valid cut: left side of A ≤ right side of B, and left side of B ≤ right side of A. Use ±∞ sentinels at boundaries.\"",
+  },
 };
 
 // Merged: generated base + rich overrides + python solutions
