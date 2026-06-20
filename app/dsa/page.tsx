@@ -25,6 +25,7 @@ function DSAContent() {
   const [activeTopic, setActiveTopic] = useState("all");
   const [diff, setDiff] = useState<Diff>("All");
   const [company, setCompany] = useState<Company>("All");
+  const [search, setSearch] = useState("");
   const total = getTotalProblems();
 
   const problems = useMemo(() => {
@@ -32,8 +33,9 @@ function DSAContent() {
       ? PATTERNS.flatMap((p) => p.problems)
       : (PATTERNS.find((p) => p.id === activeTopic)?.problems ?? []);
     const byDiff = diff === "All" ? base : base.filter((p) => p.difficulty === diff);
-    return company === "All" ? byDiff : byDiff.filter((p) => (p.companies ?? []).includes(company));
-  }, [activeTopic, diff, company]);
+    const byCompany = company === "All" ? byDiff : byDiff.filter((p) => (p.companies ?? []).includes(company));
+    return search.trim() ? byCompany.filter((p) => p.title.toLowerCase().includes(search.toLowerCase())) : byCompany;
+  }, [activeTopic, diff, company, search]);
 
   const firstUnsolved = problems.find((p) => !solved.has(p.id))?.id;
   const filteredSolved = problems.filter((p) => solved.has(p.id)).length;
@@ -122,8 +124,27 @@ function DSAContent() {
             borderBottom: "1px solid var(--border-subtle)",
             background: "var(--bg-primary)", flexShrink: 0,
           }}>
+            {/* Search + count row */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 20px", gap: 12 }}>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search problems..."
+                style={{
+                  background: "var(--bg-hover)",
+                  border: "1px solid var(--border)",
+                  color: "var(--text-secondary)",
+                  padding: "4px 10px",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  outline: "none",
+                  width: 180,
+                  flexShrink: 0,
+                }}
+              />
+            </div>
             {/* Difficulty + count row */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 20px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px 8px" }}>
               <div style={{ display: "flex", gap: 3 }}>
                 {(["All", "Easy", "Medium", "Hard"] as Diff[]).map((d) => (
                   <button key={d} onClick={() => setDiff(d)} style={{

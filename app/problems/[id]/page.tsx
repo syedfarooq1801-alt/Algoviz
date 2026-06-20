@@ -35,7 +35,6 @@ export default function ProblemPage({ params }: Props) {
     setReviewScheduled(true);
     setTimeout(() => setReviewScheduled(false), 2000);
   };
-  const [lang, setLang] = useState<"python" | "cpp">("python");
   const [codeCopied, setCodeCopied] = useState(false);
   const [noteText, setNoteText] = useState(() => getNote(id));
   const [noteSaved, setNoteSaved] = useState(false);
@@ -168,30 +167,15 @@ export default function ProblemPage({ params }: Props) {
               )}
 
               <WorkspaceSection title="Solution">
-                <div className="flex items-center gap-1 mb-3">
-                  {(["python", "cpp"] as const).map((item) => (
-                    <button
-                      key={item}
-                      onClick={() => setLang(item)}
-                      className="px-3 py-1 rounded text-xs font-medium"
-                      style={{
-                        background: lang === item ? "var(--accent-soft)" : "var(--bg-hover)",
-                        color: lang === item ? "var(--accent)" : "var(--text-muted)",
-                        border: "1px solid var(--border)",
-                      }}
-                    >
-                      {item === "python" ? "Python" : "C++"}
-                    </button>
-                  ))}
+                <div className="flex items-center justify-end mb-3">
                   <button
                     onClick={() => {
-                      const code = lang === "python" ? (content.pythonSolution ?? "") : (content.cppSolution ?? "");
-                      navigator.clipboard.writeText(code).then(() => {
+                      navigator.clipboard.writeText(content.cppSolution ?? "").then(() => {
                         setCodeCopied(true);
                         setTimeout(() => setCodeCopied(false), 2000);
                       });
                     }}
-                    className="ml-auto px-3 py-1 rounded text-xs font-medium"
+                    className="px-3 py-1 rounded text-xs font-medium"
                     style={{
                       background: codeCopied ? "rgba(47,191,113,0.12)" : "var(--bg-hover)",
                       color: codeCopied ? "#2FBF71" : "var(--text-muted)",
@@ -202,7 +186,7 @@ export default function ProblemPage({ params }: Props) {
                     {codeCopied ? "Copied!" : "Copy"}
                   </button>
                 </div>
-                <pre className="text-xs"><code>{lang === "python" ? (content.pythonSolution ?? "# Python solution coming soon") : content.cppSolution}</code></pre>
+                <pre className="text-xs"><code>{content.cppSolution}</code></pre>
               </WorkspaceSection>
 
               <WorkspaceSection title="Notes">

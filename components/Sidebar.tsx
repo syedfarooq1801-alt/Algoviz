@@ -19,15 +19,17 @@ import {
 import { useInterviewStore } from "@/lib/interviewStore";
 import { useAuth } from "@/lib/authContext";
 import { useTheme } from "@/lib/themeStore";
+import { usePrepStore } from "@/lib/prepStore";
 
 interface NavItem {
   href: string;
   label: string;
   icon: React.ElementType;
   active: boolean;
+  badge?: number;
 }
 
-function NavLink({ href, label, icon: Icon, active }: NavItem) {
+function NavLink({ href, label, icon: Icon, active, badge }: NavItem) {
   return (
     <Link
       href={href}
@@ -40,6 +42,16 @@ function NavLink({ href, label, icon: Icon, active }: NavItem) {
     >
       <Icon size={15} />
       {label}
+      {badge != null && badge > 0 && (
+        <span style={{
+          marginLeft: "auto", fontSize: 10, fontWeight: 700,
+          minWidth: 18, height: 18, borderRadius: 9,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "0 4px", background: "#F5A524", color: "#000", flexShrink: 0,
+        }}>
+          {badge > 99 ? "99+" : badge}
+        </span>
+      )}
     </Link>
   );
 }
@@ -49,7 +61,10 @@ export default function Sidebar() {
   const { targetDate, targetCompany, daysUntil } = useInterviewStore();
   const { user, signOut } = useAuth();
   const { theme, toggle } = useTheme();
+  const { reviewDue } = usePrepStore();
   const days = daysUntil();
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const dueCount = Object.values(reviewDue).filter((d) => d <= todayIso).length;
 
   const initials = user?.displayName
     ? user.displayName.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
@@ -67,6 +82,7 @@ export default function Sidebar() {
         pathname.startsWith("/problems") ||
         pathname.startsWith("/patterns") ||
         pathname.startsWith("/visualizations"),
+      badge: dueCount || undefined,
     },
     {
       href: "/system-design",

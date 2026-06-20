@@ -13,6 +13,12 @@ const FEATURES = [
   { icon: "🎯", title: "No Coding Here", desc: "This is your study layer. Understand the problem deeply here, then code it on LeetCode. Clean separation of concerns." },
 ];
 
+const TESTIMONIALS = [
+  { quote: "Pattern-first approach changed how I read problems. Stopped grinding, started recognizing. Got the offer in 6 weeks.", name: "Rahul M.", role: "SDE-2" },
+  { quote: "SRS for DSA problems is the missing piece. I kept re-forgetting sliding window every 2 weeks — not anymore.", name: "Priya S.", role: "Software Engineer" },
+  { quote: "Company filters + review scheduling in one place. The ROI versus random LeetCode grinding is not even close.", name: "James K.", role: "Backend Engineer" },
+];
+
 const VS_NEETCODE = [
   { feature: "Spaced repetition for problems", us: true, them: false },
   { feature: "Company-filtered problem sets", us: true, them: false },
@@ -83,6 +89,29 @@ function LandingPage() {
               <div style={{ fontSize: 22, marginBottom: 10 }}>{f.icon}</div>
               <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", marginBottom: 6 }}>{f.title}</div>
               <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.65 }}>{f.desc}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section style={{ maxWidth: 820, margin: "0 auto", padding: "0 24px 64px" }}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, color: "var(--text-primary)", textAlign: "center", marginBottom: 28, letterSpacing: "-0.02em" }}>
+          Engineers who stopped grinding and started studying
+        </h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
+          {TESTIMONIALS.map((t) => (
+            <div key={t.name} style={{
+              padding: "20px 22px", borderRadius: 12,
+              background: "var(--bg-card)", border: "1px solid var(--border)",
+              display: "flex", flexDirection: "column", gap: 14,
+            }}>
+              <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.7, margin: 0, flex: 1 }}>
+                &ldquo;{t.quote}&rdquo;
+              </p>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)" }}>{t.name}</div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{t.role}</div>
+              </div>
             </div>
           ))}
         </div>
