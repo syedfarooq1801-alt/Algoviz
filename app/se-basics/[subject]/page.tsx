@@ -68,10 +68,12 @@ export default function SubjectPage({ params }: Props) {
           </div>
         </div>
 
-        <div className="grid justify-center gap-12 lg:grid-cols-[260px_minmax(0,760px)_280px]">
-          <aside className="hidden self-start lg:sticky lg:top-20 lg:block">
-            <div className="mb-4 px-1 text-[11px] font-medium" style={{ color: "var(--text-muted)" }}>{subject.title}</div>
-            <nav className="max-h-[72vh] space-y-1 overflow-y-auto pr-2">
+        <div className="grid justify-center gap-12 lg:grid-cols-[248px_minmax(0,760px)_280px]">
+          <aside className="hidden self-start lg:sticky lg:top-20 lg:block" style={{ maxHeight: "calc(100vh - 80px)", overflowY: "auto" }}>
+            <div style={{ fontSize: 9, letterSpacing: "0.1em", color: "var(--text-muted)", fontFamily: "var(--font-mono)", marginBottom: 10, padding: "0 4px" }}>
+              {subject.title.toUpperCase()}
+            </div>
+            <nav style={{ display: "flex", flexDirection: "column", gap: 1 }}>
               {subject.chapters.map((c) => {
                 const cDone = isComplete(`${subjectId}/${c.id}`);
                 const active = c.id === activeId;
@@ -79,13 +81,21 @@ export default function SubjectPage({ params }: Props) {
                   <button
                     key={c.id}
                     onClick={() => { setActiveId(c.id); window.history.replaceState(null, "", `#${c.id}`); }}
-                    className="flex w-full items-start gap-3 py-1.5 text-left text-sm transition-colors"
-                    style={{ color: active ? "var(--text-primary)" : "var(--text-muted)", fontWeight: active ? 600 : 400 }}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 8, width: "100%",
+                      padding: "6px 8px", fontSize: 12, textAlign: "left", cursor: "pointer",
+                      background: active ? "var(--accent-soft)" : "transparent",
+                      color: active ? "var(--accent)" : cDone ? "var(--text-secondary)" : "var(--text-muted)",
+                      borderRadius: 5, fontWeight: active ? 600 : 400,
+                      outline: active ? "1px solid rgba(79,140,255,0.18)" : "1px solid transparent",
+                      transition: "all 0.1s",
+                    }}
                   >
-                    <span className="w-5 shrink-0 pt-[2px] text-right text-xs" style={{ color: cDone ? "var(--accent-green)" : active ? meta.accent : "var(--text-muted)" }}>
+                    <span style={{ width: 18, textAlign: "right", flexShrink: 0, fontSize: 10,
+                      fontFamily: "var(--font-mono)", color: cDone ? "#2FBF71" : active ? "var(--accent)" : "var(--text-muted)" }}>
                       {cDone ? "✓" : c.num}
                     </span>
-                    <span className="truncate">{c.title}</span>
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.title}</span>
                   </button>
                 );
               })}

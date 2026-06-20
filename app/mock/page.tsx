@@ -145,84 +145,91 @@ export default function MockPage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
-      <div className="max-w-5xl mx-auto px-4 py-7">
+    <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
+      <div style={{ maxWidth: 860, margin: "0 auto", padding: "28px 20px 48px" }}>
         {phase === "setup" && (
           <div>
-            <Link href="/" className="text-xs" style={{ color: "var(--text-muted)" }}>Home</Link>
-            <h1 className="text-2xl font-bold mt-3 mb-1" style={{ color: "var(--text-primary)" }}>Mock Interview</h1>
-            <p className="text-sm mb-8" style={{ color: "var(--text-secondary)" }}>
-              Timed practice with a real post-interview rubric: correctness, complexity, edge cases, hint discipline, and explanation clarity.
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.02em", marginBottom: 4 }}>Mock Interview</h1>
+            <p style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 24 }}>
+              Timed practice with a real post-interview rubric.
             </p>
 
-            <div className="card p-6 mb-5">
-              <div className="text-xs font-semibold mb-3" style={{ color: "var(--text-muted)" }}>DIFFICULTY</div>
-              <div className="flex gap-2 mb-6 flex-wrap">
+            {/* Difficulty + Company */}
+            <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, padding: 16, marginBottom: 14 }}>
+              <div style={{ fontSize: 9, letterSpacing: "0.1em", color: "var(--text-muted)", fontFamily: "var(--font-mono)", marginBottom: 8 }}>DIFFICULTY</div>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 18 }}>
                 {DIFFS.map((d) => (
-                  <button key={d} onClick={() => setDiff(d)}
-                    className="px-3.5 py-1.5 rounded-lg text-sm transition-all"
-                    style={{
-                      background: diff === d ? "var(--accent-soft)" : "var(--bg-hover)",
-                      color: diff === d ? "var(--accent)" : "var(--text-secondary)",
-                      border: `1px solid ${diff === d ? "rgba(91,140,255,0.35)" : "var(--border)"}`,
-                    }}>
-                    {d}
-                  </button>
+                  <button key={d} onClick={() => setDiff(d)} style={{
+                    padding: "5px 14px", fontSize: 12, borderRadius: 5, cursor: "pointer",
+                    background: diff === d ? "var(--accent-soft)" : "transparent",
+                    color: diff === d ? "var(--accent)" : "var(--text-muted)",
+                    border: diff === d ? "1px solid rgba(79,140,255,0.25)" : "1px solid var(--border-subtle)",
+                    fontWeight: diff === d ? 600 : 400, transition: "all 0.1s",
+                  }}>{d}</button>
                 ))}
               </div>
 
-              <div className="text-xs font-semibold mb-3" style={{ color: "var(--text-muted)" }}>COMPANY FOCUS</div>
-              <div className="flex gap-2 mb-6 flex-wrap">
+              <div style={{ fontSize: 9, letterSpacing: "0.1em", color: "var(--text-muted)", fontFamily: "var(--font-mono)", marginBottom: 8 }}>COMPANY FOCUS</div>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {MOCK_COMPANIES.map((c) => (
-                  <button key={c} onClick={() => setCompany(c)}
-                    className="px-3.5 py-1.5 rounded-lg text-sm transition-all"
-                    style={{
-                      background: company === c ? "var(--accent-soft)" : "var(--bg-hover)",
-                      color: company === c ? "var(--accent)" : "var(--text-secondary)",
-                      border: `1px solid ${company === c ? "rgba(91,140,255,0.35)" : "var(--border)"}`,
-                    }}>
-                    {c}
-                  </button>
+                  <button key={c} onClick={() => setCompany(c)} style={{
+                    padding: "5px 14px", fontSize: 12, borderRadius: 5, cursor: "pointer",
+                    background: company === c ? "rgba(167,139,250,0.12)" : "transparent",
+                    color: company === c ? "#A78BFA" : "var(--text-muted)",
+                    border: company === c ? "1px solid rgba(167,139,250,0.25)" : "1px solid var(--border-subtle)",
+                    fontWeight: company === c ? 600 : 400, transition: "all 0.1s",
+                  }}>{c}</button>
                 ))}
               </div>
+            </div>
 
-              <div className="text-xs font-semibold mb-3" style={{ color: "var(--text-muted)" }}>SESSION LENGTH</div>
-              <div className="grid sm:grid-cols-3 gap-3">
-                {DURATIONS.map((d) => (
-                  <button key={d.label} onClick={() => start(d.mins, d.count)} className="card card-hover p-5 text-left">
-                    <div className="text-lg font-bold mb-0.5" style={{ color: "var(--text-primary)" }}>{d.label}</div>
-                    <div className="text-xs" style={{ color: "var(--text-muted)" }}>{d.count} problem{d.count > 1 ? "s" : ""}</div>
-                  </button>
-                ))}
-              </div>
+            {/* Duration cards */}
+            <div style={{ fontSize: 9, letterSpacing: "0.1em", color: "var(--text-muted)", fontFamily: "var(--font-mono)", marginBottom: 8 }}>SESSION LENGTH — click to start</div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
+              {DURATIONS.map((d) => (
+                <button key={d.label} onClick={() => start(d.mins, d.count)} style={{
+                  background: "var(--bg-card)", border: "1px solid var(--border)",
+                  borderRadius: 10, padding: "18px 16px", textAlign: "left", cursor: "pointer",
+                  transition: "border-color 0.15s, background 0.15s",
+                }}>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: "var(--text-primary)", marginBottom: 2, fontFamily: "var(--font-mono)" }}>{d.label}</div>
+                  <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{d.count} problem{d.count > 1 ? "s" : ""}</div>
+                </button>
+              ))}
             </div>
           </div>
         )}
 
         {phase === "running" && problems[active] && (
           <div>
-            <div className="flex items-center justify-between mb-5 sticky top-16 z-10 card px-4 py-3"
-              style={{ borderColor: lowTime ? "rgba(240,82,75,0.4)" : "var(--border)" }}>
-              <div className="flex items-center gap-3">
-                <div className="text-2xl font-bold font-mono tabular-nums"
-                  style={{ color: lowTime ? "var(--accent-red)" : "var(--text-primary)" }}>
-                  {fmt(secsLeft)}
-                </div>
-                <span className="text-xs" style={{ color: "var(--text-muted)" }}>{solvedCount}/{problems.length} solved</span>
+            {/* Timer bar */}
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              background: "var(--bg-card)", border: `1px solid ${lowTime ? "rgba(239,68,68,0.4)" : "var(--border)"}`,
+              borderRadius: 9, padding: "10px 16px", marginBottom: 16,
+              position: "sticky", top: 0, zIndex: 20,
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{
+                  fontSize: 22, fontWeight: 700, fontFamily: "var(--font-mono)",
+                  color: lowTime ? "#EF4444" : "var(--text-primary)", letterSpacing: "0.05em",
+                }}>{fmt(secsLeft)}</span>
+                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{solvedCount}/{problems.length} solved</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                 {problems.map((p, i) => (
-                  <button key={p.id} onClick={() => switchProblem(i)}
-                    className="w-7 h-7 rounded-lg text-xs font-bold transition-all"
-                    style={{
-                      background: i === active ? "var(--accent)" : reviews[p.id]?.solved ? "var(--accent-soft)" : "var(--bg-hover)",
-                      color: i === active ? "#fff" : reviews[p.id]?.solved ? "var(--accent-green)" : "var(--text-muted)",
-                      border: "1px solid var(--border)",
-                    }}>
-                    {reviews[p.id]?.solved ? "✓" : i + 1}
-                  </button>
+                  <button key={p.id} onClick={() => switchProblem(i)} style={{
+                    width: 28, height: 28, borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer",
+                    background: i === active ? "var(--accent)" : reviews[p.id]?.solved ? "rgba(47,191,113,0.15)" : "transparent",
+                    color: i === active ? "#fff" : reviews[p.id]?.solved ? "#2FBF71" : "var(--text-muted)",
+                    border: `1px solid ${i === active ? "transparent" : "var(--border-subtle)"}`,
+                  }}>{reviews[p.id]?.solved ? "✓" : i + 1}</button>
                 ))}
-                <button onClick={finish} className="btn-ghost px-3 py-1.5 text-xs ml-2">End</button>
+                <button onClick={finish} style={{
+                  marginLeft: 4, padding: "4px 12px", fontSize: 11, borderRadius: 5, cursor: "pointer",
+                  background: "rgba(239,68,68,0.1)", color: "#EF4444",
+                  border: "1px solid rgba(239,68,68,0.25)",
+                }}>End</button>
               </div>
             </div>
 

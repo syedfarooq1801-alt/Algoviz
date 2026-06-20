@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 
 function ProfileContent() {
-  const { user, signIn, signOut } = useAuth();
+  const { user, signIn, signOut, signInError } = useAuth();
   const { solved, bookmarked, xp, streak } = useProgressStore();
   const total = getTotalProblems();
   const solvedCount = solved.size;
@@ -50,6 +50,12 @@ function ProfileContent() {
           </svg>
           Continue with Google
         </button>
+        {signInError && (
+          <div className="mt-4 max-w-sm mx-auto text-xs px-4 py-3 rounded-lg text-left"
+            style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", color: "#ef4444" }}>
+            {signInError}
+          </div>
+        )}
       </div>
     </div>
   );

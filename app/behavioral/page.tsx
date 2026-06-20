@@ -320,8 +320,8 @@ export default function BehavioralPage() {
               <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{company.tipsheet}</p>
             </div>
 
-            {/* Questions */}
-            <div className="space-y-3">
+            {/* Questions — 2-col card grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
               {company.questions.map((q) => (
                 <div key={q.id} className="rounded-xl overflow-hidden" style={{ border: `1px solid ${openQ === q.id ? company.color + "40" : "var(--border)"}` }}>
                   <button
@@ -419,6 +419,7 @@ export default function BehavioralPage() {
                 These questions appear in almost every MAANG behavioral round. Prepare a specific STAR story for each.
               </p>
             </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10 }}>
             {COMMON_QUESTIONS.map((q) => (
               <div key={q.question} className="rounded-xl overflow-hidden"
                 style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
@@ -450,6 +451,7 @@ export default function BehavioralPage() {
                 )}
               </div>
             ))}
+            </div>
           </div>
         )}
       </main>

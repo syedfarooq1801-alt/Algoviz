@@ -60,31 +60,21 @@ export default function SystemDesignPage() {
           <SDLearningPath />
         </section>
 
-        {/* Filter bar */}
-        <div className="flex items-center gap-2 mb-5 mt-16 flex-wrap">
-          <div className="flex gap-1 p-1 rounded-xl flex-wrap" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-            {FILTERS.map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-                style={{
-                  background: filter === f ? "rgba(79,140,255,0.18)" : "transparent",
-                  color: filter === f ? "#4F8CFF" : "var(--text-muted)",
-                  border: filter === f ? "1px solid rgba(79,140,255,0.35)" : "1px solid transparent",
-                }}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-          <button
-            onClick={() => setExpandAll(!expandAll)}
-            className="ml-auto text-xs px-3 py-1.5 rounded-lg transition-all"
-            style={{ color: "var(--text-muted)", border: "1px solid var(--border)" }}
-          >
-            {expandAll ? "Collapse All" : "Expand All"}
-          </button>
+        {/* Filter pills + expand */}
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 20, marginTop: 32, flexWrap: "wrap" }}>
+          {FILTERS.map((f) => (
+            <button key={f} onClick={() => setFilter(f)} style={{
+              padding: "5px 14px", fontSize: 12, borderRadius: 20, cursor: "pointer",
+              background: filter === f ? "var(--accent-soft)" : "transparent",
+              color: filter === f ? "var(--accent)" : "var(--text-muted)",
+              border: filter === f ? "1px solid rgba(79,140,255,0.25)" : "1px solid var(--border-subtle)",
+              fontWeight: filter === f ? 600 : 400, transition: "all 0.1s",
+            }}>{f}</button>
+          ))}
+          <button onClick={() => setExpandAll(!expandAll)} style={{
+            marginLeft: "auto", padding: "5px 12px", fontSize: 11, borderRadius: 5, cursor: "pointer",
+            color: "var(--text-muted)", border: "1px solid var(--border-subtle)", background: "transparent",
+          }}>{expandAll ? "Collapse All" : "Expand All"}</button>
         </div>
 
         {/* Chapter list */}
