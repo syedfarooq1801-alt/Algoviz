@@ -60,6 +60,7 @@ async function loadUserData(uid: string) {
     reviewDue: d.reviewDue ?? {},
     problemStates: d.problemStates ?? {},
     selectedTrack: d.selectedTrack,
+    behavioralDrafts: d.behavioralDrafts ?? {},
   });
   useSDStore.getState().hydrateFromFirestore({
     mastered: new Set<string>(d.sdMastered ?? []),
@@ -81,7 +82,7 @@ async function syncAllToFirestore(uid: string) {
   const { mastered: sdMastered, bookmarked: sdBookmarked } = useSDStore.getState();
   const { completed: seCompleted } = useSEStore.getState();
   const { known: flashcardKnown, weak: flashcardWeak, nextReview: flashcardNextReview, level: flashcardLevel } = useFlashcardStore.getState();
-  const { reviewDue, problemStates, selectedTrack } = usePrepStore.getState();
+  const { reviewDue, problemStates, selectedTrack, behavioralDrafts } = usePrepStore.getState();
 
   const ref = doc(db, "users", uid);
   await updateDoc(ref, {
@@ -100,6 +101,7 @@ async function syncAllToFirestore(uid: string) {
     reviewDue,
     problemStates,
     selectedTrack,
+    behavioralDrafts,
   });
 }
 

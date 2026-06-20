@@ -36,6 +36,7 @@ export default function ProblemPage({ params }: Props) {
     setTimeout(() => setReviewScheduled(false), 2000);
   };
   const [lang, setLang] = useState<"python" | "cpp">("python");
+  const [codeCopied, setCodeCopied] = useState(false);
   const [noteText, setNoteText] = useState(() => getNote(id));
   const [noteSaved, setNoteSaved] = useState(false);
 
@@ -182,6 +183,24 @@ export default function ProblemPage({ params }: Props) {
                       {item === "python" ? "Python" : "C++"}
                     </button>
                   ))}
+                  <button
+                    onClick={() => {
+                      const code = lang === "python" ? (content.pythonSolution ?? "") : (content.cppSolution ?? "");
+                      navigator.clipboard.writeText(code).then(() => {
+                        setCodeCopied(true);
+                        setTimeout(() => setCodeCopied(false), 2000);
+                      });
+                    }}
+                    className="ml-auto px-3 py-1 rounded text-xs font-medium"
+                    style={{
+                      background: codeCopied ? "rgba(47,191,113,0.12)" : "var(--bg-hover)",
+                      color: codeCopied ? "#2FBF71" : "var(--text-muted)",
+                      border: `1px solid ${codeCopied ? "rgba(47,191,113,0.3)" : "var(--border)"}`,
+                      transition: "all 0.15s",
+                    }}
+                  >
+                    {codeCopied ? "Copied!" : "Copy"}
+                  </button>
                 </div>
                 <pre className="text-xs"><code>{lang === "python" ? (content.pythonSolution ?? "# Python solution coming soon") : content.cppSolution}</code></pre>
               </WorkspaceSection>

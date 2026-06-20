@@ -80,7 +80,7 @@ interface PrepState {
   codeAttempts: CodeAttempt[];
   behavioralDrafts: Record<string, BehavioralDraft>;
   selectedTrack: PrepTrackId;
-  hydrateFromFirestore: (data: { reviewDue?: Record<string, string>; problemStates?: Record<string, ReadinessState>; selectedTrack?: PrepTrackId }) => void;
+  hydrateFromFirestore: (data: { reviewDue?: Record<string, string>; problemStates?: Record<string, ReadinessState>; selectedTrack?: PrepTrackId; behavioralDrafts?: Record<string, BehavioralDraft> }) => void;
   setProblemState: (problemId: string, state: ReadinessState) => void;
   scheduleReview: (problemId: string, outcome: "solved" | "failed" | "reviewed-fast" | "mastered") => void;
   addMockSession: (session: Omit<MockSessionReview, "id" | "date" | "score" | "insights">) => MockSessionReview;
@@ -167,6 +167,7 @@ export const usePrepStore = create<PrepState>()(
         ...(data.reviewDue !== undefined ? { reviewDue: data.reviewDue } : {}),
         ...(data.problemStates !== undefined ? { problemStates: data.problemStates } : {}),
         ...(data.selectedTrack !== undefined ? { selectedTrack: data.selectedTrack } : {}),
+        ...(data.behavioralDrafts !== undefined ? { behavioralDrafts: data.behavioralDrafts } : {}),
       }),
 
       setProblemState: (problemId, state) =>
