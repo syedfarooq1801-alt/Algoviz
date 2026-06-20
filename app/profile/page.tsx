@@ -23,7 +23,7 @@ function ProfileContent() {
   const pct = total > 0 ? Math.round((solvedCount / total) * 100) : 0;
   const [copied, setCopied] = useState(false);
 
-  const shareText = `🔥 ${streak}-day streak on AlgoVis\n✅ ${solvedCount}/${total} DSA problems solved (${pct}%)\n🏗️ ${mastered.size}/${sdTotal} System Design mastered\n📚 ${completed.size}/${seTotal} SE Basics complete\n\nStudying for FAANG @ algovis.app\n#AlgoVis #LeetCode #FAANG`;
+  const shareText = `🔥 ${streak}-day streak on Code Algo\n✅ ${solvedCount}/${total} DSA problems solved (${pct}%)\n🏗️ ${mastered.size}/${sdTotal} System Design mastered\n📚 ${completed.size}/${seTotal} SE Basics complete\n\nStudying for FAANG @ codealgo.app\n#CodeAlgo #LeetCode #FAANG`;
 
   const copyShare = () => {
     navigator.clipboard.writeText(shareText).then(() => {

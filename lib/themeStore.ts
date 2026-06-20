@@ -7,7 +7,7 @@ export function useTheme() {
   const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
-    const stored = (localStorage.getItem("algovis-theme") as Theme) ?? "dark";
+    const stored = (localStorage.getItem("codealgo-theme") as Theme) ?? "dark";
     setTheme(stored);
     document.documentElement.setAttribute("data-theme", stored);
   }, []);
@@ -15,7 +15,7 @@ export function useTheme() {
   const toggle = () => {
     const next: Theme = theme === "dark" ? "light" : "dark";
     setTheme(next);
-    localStorage.setItem("algovis-theme", next);
+    localStorage.setItem("codealgo-theme", next);
     document.documentElement.setAttribute("data-theme", next);
   };
 

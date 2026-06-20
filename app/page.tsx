@@ -89,7 +89,7 @@ function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
         </h1>
 
         <p style={{ fontSize: 16, color: "var(--text-secondary)", lineHeight: 1.7, maxWidth: 520, margin: "0 auto 36px", fontWeight: 400 }}>
-          AlgoVis is your structured study layer — pattern theory, spaced repetition, company filters, and a personalized study plan. No editor, no distraction. Understand deeply here, then code on LeetCode.
+          Code Algo is your structured study layer — pattern theory, spaced repetition, company filters, and a personalized study plan. No editor, no distraction. Understand deeply here, then code on LeetCode.
         </p>
 
         <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
@@ -159,7 +159,7 @@ function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
             color: "var(--text-muted)", letterSpacing: "0.06em",
           }}>
             <span>FEATURE</span>
-            <span style={{ textAlign: "center", color: "var(--accent)" }}>ALGOVIS</span>
+            <span style={{ textAlign: "center", color: "var(--accent)" }}>CODE ALGO</span>
             <span style={{ textAlign: "center" }}>NEETCODE</span>
           </div>
           {VS_NEETCODE.map((row, i) => (
@@ -176,7 +176,7 @@ function LandingPage({ onGetStarted }: { onGetStarted: () => void }) {
           ))}
         </div>
         <p style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center", marginTop: 12 }}>
-          NeetCode has great video explanations. AlgoVis has the structured study workflow around them.
+          NeetCode has great video explanations. Code Algo has the structured study workflow around them.
         </p>
       </section>
     </div>

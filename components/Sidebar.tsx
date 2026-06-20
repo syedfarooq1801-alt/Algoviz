@@ -144,7 +144,7 @@ export default function Sidebar() {
             <BrainCircuit size={16} />
           </span>
           <span className="font-semibold text-sm" style={{ color: "var(--text-primary)" }}>
-            AlgoVis
+            Code Algo
           </span>
         </Link>
       </div>

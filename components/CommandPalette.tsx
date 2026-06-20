@@ -125,7 +125,7 @@ export default function CommandPalette() {
         <div className="flex items-center gap-4 px-4 py-2.5 text-xs" style={{ borderTop: "1px solid var(--border-subtle)", color: "var(--text-muted)" }}>
           <span><kbd>↑</kbd> <kbd>↓</kbd> navigate</span>
           <span><kbd>↵</kbd> open</span>
-          <span className="ml-auto">AlgoVis Command</span>
+          <span className="ml-auto">Code Algo Command</span>
         </div>
       </div>
     </div>

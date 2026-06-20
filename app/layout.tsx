@@ -19,7 +19,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AlgoVis Studio — Interview Prep",
+  title: "Code Algo Studio — Interview Prep",
   description: "A focused platform for DSA, system design, CS fundamentals, mocks, and behavioral interview prep.",
 };
 
@@ -33,7 +33,7 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem('algovis-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}`,
+            __html: `try{var t=localStorage.getItem('codealgo-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}`,
           }}
         />
       </head>

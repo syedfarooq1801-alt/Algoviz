@@ -72,7 +72,7 @@ function HeaderContent({ searchQuery = "", onSearchChange }: HeaderProps) {
             style={{ background: "var(--accent-soft)", color: "var(--accent)", border: "1px solid rgba(79,140,255,0.28)" }}>
             <BrainCircuit size={17} />
           </span>
-          <span className="font-semibold text-sm hidden sm:inline" style={{ color: "var(--text-primary)" }}>AlgoVis</span>
+          <span className="font-semibold text-sm hidden sm:inline" style={{ color: "var(--text-primary)" }}>Code Algo</span>
         </Link>
 
         <nav className="hidden lg:flex p-0.5 rounded-lg gap-0.5" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
