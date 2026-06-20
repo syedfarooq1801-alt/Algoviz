@@ -76,7 +76,7 @@ function buildDSATasks(): PlanTask[] {
         domain: "dsa" as const,
         id: p.id,
         title: p.title,
-        href: p.hasVisualization ? `/visualizations/${p.id}` : `/problems/${p.id}`,
+        href: `/problems/${p.id}`,
         difficulty: p.difficulty,
         tag: pattern.title,
         priority: dsaPriority(p.difficulty, freq),

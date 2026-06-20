@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { generateStudyPlan, PHASE_COLOR, type DayPlan, type PlanTask } from "@/lib/studyPlan";
 import { useProgressStore } from "@/lib/store";
 import { useSDStore } from "@/lib/sdStore";
@@ -41,7 +42,15 @@ export default function StudyPlanPage() {
 
   const week = weeks[activeWeek] ?? [];
   const totalWeeks = weeks.length;
-  const focusDay = week.find((d) => d.type !== "rest") ?? week[0];
+  const [activeDayIdx, setActiveDayIdx] = useState<number>(0);
+  const focusDay = week[activeDayIdx] ?? week.find((d) => d.type !== "rest") ?? week[0];
+
+  function changeWeek(next: number) {
+    setActiveWeek(next);
+    const nextWeek = weeks[next] ?? [];
+    const firstNonRest = nextWeek.findIndex((d) => d.type !== "rest");
+    setActiveDayIdx(firstNonRest >= 0 ? firstNonRest : 0);
+  }
 
   function isTaskDone(task: PlanTask): boolean {
     if (task.domain === "dsa") return solved.has(task.id);
@@ -92,12 +101,12 @@ export default function StudyPlanPage() {
         {/* Weekly calendar card */}
         <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, padding: 16, marginBottom: 20 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-            <button onClick={() => setActiveWeek((w) => Math.max(0, w - 1))} disabled={activeWeek === 0}
+            <button onClick={() => changeWeek(Math.max(0, activeWeek - 1))} disabled={activeWeek === 0}
               style={{ fontSize: 16, color: "var(--text-secondary)", background: "none", border: "none", cursor: "pointer", opacity: activeWeek === 0 ? 0.3 : 1 }}>‹</button>
             <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", fontFamily: "var(--font-mono)" }}>
               Week {activeWeek + 1} / {totalWeeks}
             </span>
-            <button onClick={() => setActiveWeek((w) => Math.min(totalWeeks - 1, w + 1))} disabled={activeWeek === totalWeeks - 1}
+            <button onClick={() => changeWeek(Math.min(totalWeeks - 1, activeWeek + 1))} disabled={activeWeek === totalWeeks - 1}
               style={{ fontSize: 16, color: "var(--text-secondary)", background: "none", border: "none", cursor: "pointer", opacity: activeWeek === totalWeeks - 1 ? 0.3 : 1 }}>›</button>
           </div>
 
@@ -109,11 +118,13 @@ export default function StudyPlanPage() {
               const isRest = day.type === "rest";
               const dayDone = isRest ? 0 : tasksDoneCount(day.tasks);
               const dayTotal = isRest ? 0 : day.tasks.filter(t => t.domain !== "behavioral").length;
+              const isActive = wi === activeDayIdx;
               return (
-                <div key={wi} style={{
-                  background: isRest ? "transparent" : `${color}14`,
-                  border: `1px solid ${isRest ? "var(--border-subtle)" : color + "33"}`,
+                <div key={wi} onClick={() => setActiveDayIdx(wi)} style={{
+                  background: isActive ? `${color}28` : isRest ? "transparent" : `${color}14`,
+                  border: `2px solid ${isActive ? color : isRest ? "var(--border-subtle)" : color + "33"}`,
                   borderRadius: 7, padding: "8px 4px", textAlign: "center",
+                  cursor: "pointer", transition: "all 0.12s",
                 }}>
                   <div style={{ fontSize: 9, color: "var(--text-muted)", fontFamily: "var(--font-mono)", letterSpacing: "0.06em", marginBottom: 4 }}>{label}</div>
                   <div style={{ fontSize: 10, fontWeight: 600, color: isRest ? "var(--text-muted)" : color }}>
@@ -161,30 +172,46 @@ export default function StudyPlanPage() {
                         padding: "8px 10px", borderRadius: 6,
                         background: done ? "rgba(47,191,113,0.05)" : "var(--bg-secondary)",
                         border: `1px solid ${done ? "rgba(47,191,113,0.2)" : "var(--border-subtle)"}`,
-                        transition: "border-color 0.1s", cursor: canToggle ? "pointer" : "default",
+                        transition: "border-color 0.1s",
                       }}
-                      onClick={() => canToggle && toggleTask(task)}
                     >
-                      {/* Checkbox */}
-                      <div style={{
-                        width: 16, height: 16, borderRadius: 4, flexShrink: 0,
-                        background: done ? "#2FBF71" : "transparent",
-                        border: `1.5px solid ${done ? "#2FBF71" : "var(--border)"}`,
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                      }}>
-                        {done && <span style={{ fontSize: 9, color: "#fff" }}>✓</span>}
-                      </div>
+                      {/* Checkbox — separate toggle */}
+                      <button
+                        onClick={() => canToggle && toggleTask(task)}
+                        disabled={!canToggle}
+                        style={{
+                          width: 18, height: 18, borderRadius: 4, flexShrink: 0,
+                          background: done ? "#2FBF71" : "transparent",
+                          border: `1.5px solid ${done ? "#2FBF71" : "var(--border)"}`,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          cursor: canToggle ? "pointer" : "default", padding: 0,
+                        }}
+                      >
+                        {done && <span style={{ fontSize: 9, color: "#fff", lineHeight: 1 }}>✓</span>}
+                      </button>
+
+                      {/* Title — navigates to topic/problem */}
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{
-                          fontSize: 12, fontWeight: 500,
-                          color: done ? "var(--text-muted)" : "var(--text-primary)",
-                          textDecoration: done ? "line-through" : "none",
-                          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                        }}>{task.title}</div>
+                        {task.href ? (
+                          <Link href={task.href} style={{
+                            display: "block", fontSize: 12, fontWeight: 500,
+                            color: done ? "var(--text-muted)" : "var(--accent)",
+                            textDecoration: done ? "line-through" : "none",
+                            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                          }}>{task.title}</Link>
+                        ) : (
+                          <div style={{
+                            fontSize: 12, fontWeight: 500,
+                            color: done ? "var(--text-muted)" : "var(--text-primary)",
+                            textDecoration: done ? "line-through" : "none",
+                            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                          }}>{task.title}</div>
+                        )}
                         {task.tag && (
                           <div style={{ fontSize: 10, color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>{task.tag}</div>
                         )}
                       </div>
+
                       {task.difficulty && task.difficulty !== "Theory" && (
                         <span style={{
                           fontSize: 10, fontFamily: "var(--font-mono)", padding: "2px 6px", borderRadius: 3,

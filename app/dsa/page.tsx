@@ -5,6 +5,8 @@ import { useState, useMemo, Suspense } from "react";
 import Link from "next/link";
 
 type Diff = "All" | "Easy" | "Medium" | "Hard";
+type Company = "All" | "Google" | "Amazon" | "Meta" | "Apple" | "Microsoft" | "LinkedIn" | "Netflix";
+const COMPANIES: Company[] = ["All", "Google", "Amazon", "Meta", "Apple", "Microsoft", "LinkedIn", "Netflix"];
 
 const DIFF_COLOR: Record<string, string> = { Easy: "#2FBF71", Medium: "#F5A524", Hard: "#EF4444" };
 const DIFF_BG: Record<string, string> = {
@@ -19,14 +21,16 @@ function DSAContent() {
   const { solved, toggleSolved } = useProgressStore();
   const [activeTopic, setActiveTopic] = useState("all");
   const [diff, setDiff] = useState<Diff>("All");
+  const [company, setCompany] = useState<Company>("All");
   const total = getTotalProblems();
 
   const problems = useMemo(() => {
     const base = activeTopic === "all"
       ? PATTERNS.flatMap((p) => p.problems)
       : (PATTERNS.find((p) => p.id === activeTopic)?.problems ?? []);
-    return diff === "All" ? base : base.filter((p) => p.difficulty === diff);
-  }, [activeTopic, diff]);
+    const byDiff = diff === "All" ? base : base.filter((p) => p.difficulty === diff);
+    return company === "All" ? byDiff : byDiff.filter((p) => (p.companies ?? []).includes(company));
+  }, [activeTopic, diff, company]);
 
   const firstUnsolved = problems.find((p) => !solved.has(p.id))?.id;
   const filteredSolved = problems.filter((p) => solved.has(p.id)).length;
@@ -46,14 +50,12 @@ function DSAContent() {
             TOPICS
           </div>
 
-          {[{ id: "all", title: "All Topics", count: total, done: solved.size }, ...PATTERNS.map((p) => ({
-            id: p.id, title: p.title,
-            count: p.problems.length,
-            done: p.problems.filter((pr) => solved.has(pr.id)).length,
-          }))].map((item) => {
-            const active = activeTopic === item.id;
+          {/* All Topics filter button */}
+          {(() => {
+            const allItem = { id: "all", title: "All Topics", count: total, done: solved.size };
+            const active = activeTopic === "all";
             return (
-              <button key={item.id} onClick={() => setActiveTopic(item.id)} style={{
+              <button key="all" onClick={() => setActiveTopic("all")} style={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
                 width: "100%", padding: "6px 8px", fontSize: 12, textAlign: "left", cursor: "pointer",
                 background: active ? "var(--accent-soft)" : "transparent",
@@ -63,12 +65,49 @@ function DSAContent() {
                 transition: "all 0.1s",
               }}>
                 <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
-                  {item.title}
+                  {allItem.title}
                 </span>
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, opacity: 0.55, flexShrink: 0, marginLeft: 4 }}>
-                  {item.done}/{item.count}
+                  {allItem.done}/{allItem.count}
                 </span>
               </button>
+            );
+          })()}
+
+          {/* Individual patterns — filter click + theory link */}
+          {PATTERNS.map((p) => {
+            const active = activeTopic === p.id;
+            const done = p.problems.filter((pr) => solved.has(pr.id)).length;
+            return (
+              <div key={p.id} style={{ display: "flex", alignItems: "center", marginBottom: 1, gap: 2 }}>
+                <button onClick={() => setActiveTopic(p.id)} style={{
+                  flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between",
+                  padding: "6px 8px", fontSize: 12, textAlign: "left", cursor: "pointer",
+                  background: active ? "var(--accent-soft)" : "transparent",
+                  color: active ? "var(--accent)" : "var(--text-secondary)",
+                  borderRadius: 5, fontWeight: active ? 600 : 400,
+                  outline: active ? "1px solid rgba(79,140,255,0.18)" : "1px solid transparent",
+                  transition: "all 0.1s", minWidth: 0,
+                }}>
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+                    {p.title}
+                  </span>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, opacity: 0.55, flexShrink: 0, marginLeft: 4 }}>
+                    {done}/{p.problems.length}
+                  </span>
+                </button>
+                <Link href={`/patterns/${p.id}`} title="View theory" style={{
+                  flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                  width: 20, height: 24, borderRadius: 4, fontSize: 11,
+                  color: "var(--text-muted)", textDecoration: "none", opacity: 0.6,
+                  transition: "opacity 0.1s",
+                }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}
+                >
+                  ↗
+                </Link>
+              </div>
             );
           })}
         </aside>
@@ -77,32 +116,75 @@ function DSAContent() {
         <main style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, overflow: "hidden" }}>
           {/* Filter bar */}
           <div style={{
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            padding: "10px 20px", borderBottom: "1px solid var(--border-subtle)",
+            borderBottom: "1px solid var(--border-subtle)",
             background: "var(--bg-primary)", flexShrink: 0,
           }}>
-            <div style={{ display: "flex", gap: 3 }}>
-              {(["All", "Easy", "Medium", "Hard"] as Diff[]).map((d) => (
-                <button key={d} onClick={() => setDiff(d)} style={{
-                  padding: "4px 12px", fontSize: 12, borderRadius: 5, cursor: "pointer",
-                  fontWeight: diff === d ? 600 : 400,
-                  background: diff === d ? "var(--accent-soft)" : "transparent",
-                  color: diff === d ? (d === "All" ? "var(--accent)" : DIFF_COLOR[d]) : "var(--text-muted)",
-                  border: diff === d
-                    ? `1px solid ${d === "All" ? "rgba(79,140,255,0.22)" : DIFF_COLOR[d] + "55"}`
-                    : "1px solid transparent",
-                  transition: "all 0.1s",
-                }}>{d}</button>
-              ))}
+            {/* Difficulty + count row */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 20px" }}>
+              <div style={{ display: "flex", gap: 3 }}>
+                {(["All", "Easy", "Medium", "Hard"] as Diff[]).map((d) => (
+                  <button key={d} onClick={() => setDiff(d)} style={{
+                    padding: "4px 12px", fontSize: 12, borderRadius: 5, cursor: "pointer",
+                    fontWeight: diff === d ? 600 : 400,
+                    background: diff === d ? "var(--accent-soft)" : "transparent",
+                    color: diff === d ? (d === "All" ? "var(--accent)" : DIFF_COLOR[d]) : "var(--text-muted)",
+                    border: diff === d
+                      ? `1px solid ${d === "All" ? "rgba(79,140,255,0.22)" : DIFF_COLOR[d] + "55"}`
+                      : "1px solid transparent",
+                    transition: "all 0.1s",
+                  }}>{d}</button>
+                ))}
+              </div>
+              <span style={{
+                fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-muted)",
+                background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)",
+                borderRadius: 4, padding: "3px 8px",
+              }}>
+                {filteredSolved} / {problems.length}
+              </span>
             </div>
-            <span style={{
-              fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text-muted)",
-              background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)",
-              borderRadius: 4, padding: "3px 8px",
-            }}>
-              {filteredSolved} / {problems.length}
-            </span>
+            {/* Company filter row */}
+            <div style={{ display: "flex", gap: 4, padding: "0 20px 8px", flexWrap: "wrap" }}>
+              {COMPANIES.map((c) => {
+                const active = company === c;
+                const color = COMPANY_COLORS[c] ?? "var(--accent)";
+                return (
+                  <button key={c} onClick={() => setCompany(c)} style={{
+                    padding: "3px 10px", fontSize: 11, borderRadius: 20, cursor: "pointer",
+                    fontWeight: active ? 600 : 400,
+                    background: active ? (c === "All" ? "var(--accent-soft)" : color + "22") : "transparent",
+                    color: active ? (c === "All" ? "var(--accent)" : color) : "var(--text-muted)",
+                    border: active
+                      ? `1px solid ${c === "All" ? "rgba(79,140,255,0.3)" : color + "55"}`
+                      : "1px solid var(--border-subtle)",
+                    transition: "all 0.1s",
+                  }}>{c}</button>
+                );
+              })}
+            </div>
           </div>
+
+          {/* Theory banner — only when specific topic selected */}
+          {activeTopic !== "all" && (
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "8px 20px", borderBottom: "1px solid var(--border-subtle)",
+              background: "rgba(79,140,255,0.04)",
+            }}>
+              <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                {PATTERNS.find(p => p.id === activeTopic)?.title}
+              </span>
+              <Link href={`/patterns/${activeTopic}`} style={{
+                fontSize: 11, fontWeight: 600, color: "var(--accent)",
+                textDecoration: "none", display: "flex", alignItems: "center", gap: 4,
+                padding: "3px 10px", borderRadius: 5,
+                border: "1px solid rgba(79,140,255,0.3)",
+                background: "rgba(79,140,255,0.08)",
+              }}>
+                View Theory ↗
+              </Link>
+            </div>
+          )}
 
           {/* Table header */}
           <div style={{
