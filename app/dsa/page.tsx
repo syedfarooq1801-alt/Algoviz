@@ -285,14 +285,17 @@ function DSAContent() {
                   </button>
 
                   <button
-                    onClick={() => toggleBookmark(prob.id)}
+                    onClick={(e) => { e.stopPropagation(); toggleBookmark(prob.id); }}
                     title={bookmarked ? "Remove bookmark" : "Bookmark"}
                     style={{
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      background: "none", border: "none", cursor: "pointer", padding: 0,
-                      fontSize: 13, color: bookmarked ? "#F5A524" : "var(--border)",
-                      transition: "color 0.15s",
+                      background: "none", border: "none", cursor: "pointer", padding: "0 4px",
+                      fontSize: 14, color: bookmarked ? "#F5A524" : "var(--text-muted)",
+                      opacity: bookmarked ? 1 : 0.45,
+                      transition: "color 0.15s, opacity 0.15s",
                     }}
+                    onMouseEnter={(e) => { if (!bookmarked) e.currentTarget.style.opacity = "1"; }}
+                    onMouseLeave={(e) => { if (!bookmarked) e.currentTarget.style.opacity = "0.45"; }}
                   >
                     {bookmarked ? "★" : "☆"}
                   </button>
