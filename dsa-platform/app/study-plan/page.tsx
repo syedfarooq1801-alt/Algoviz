@@ -93,7 +93,7 @@ export default function StudyPlanPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      <main style={{ maxWidth: 860, margin: "0 auto", padding: isMobile ? "20px 14px 80px" : "28px 20px 48px" }}>
+      <main style={{ maxWidth: 1152, margin: "0 auto", padding: isMobile ? "20px 14px 80px" : "28px 20px 48px" }}>
 
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
