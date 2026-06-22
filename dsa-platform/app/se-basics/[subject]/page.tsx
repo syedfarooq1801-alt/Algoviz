@@ -21,11 +21,16 @@ export default function SubjectPage({ params }: Props) {
   const [rightOpen, setRightOpen] = useState(true);
 
   // Predefined (so Tailwind compiles them) column templates per panel state.
+  const bothClosed = !leftOpen && !rightOpen;
+  const oneClosed = leftOpen !== rightOpen;
   const gridClass =
-    leftOpen && rightOpen ? "lg:grid-cols-[248px_minmax(0,700px)_280px]"
-    : leftOpen && !rightOpen ? "lg:grid-cols-[248px_minmax(0,820px)]"
-    : !leftOpen && rightOpen ? "lg:grid-cols-[minmax(0,820px)_280px]"
-    : "lg:grid-cols-[minmax(0,900px)]";
+    leftOpen && rightOpen ? "lg:grid-cols-[248px_minmax(0,1fr)_280px]"
+    : leftOpen && !rightOpen ? "lg:grid-cols-[248px_minmax(0,1fr)]"
+    : !leftOpen && rightOpen ? "lg:grid-cols-[minmax(0,1fr)_280px]"
+    : "lg:grid-cols-[minmax(0,1fr)]";
+  // Reading measure + article cap widen as panels close so content fills the space.
+  const measure = bothClosed ? "92ch" : oneClosed ? "80ch" : "68ch";
+  const articleMax = bothClosed ? 1040 : oneClosed ? 860 : 700;
 
   useEffect(() => {
     const hash = window.location.hash.replace("#", "");
@@ -139,7 +144,11 @@ export default function SubjectPage({ params }: Props) {
           </aside>
           )}
 
-          <article className="min-w-0 max-w-[700px] prose-se" key={activeId}>
+          <article
+            className="prose-se mx-auto w-full min-w-0"
+            style={{ maxWidth: articleMax, ["--measure" as string]: measure }}
+            key={activeId}
+          >
             {activeChapter && (
               <>
                 <div className="reveal reveal-1">
