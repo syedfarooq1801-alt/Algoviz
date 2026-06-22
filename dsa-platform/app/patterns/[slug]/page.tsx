@@ -42,7 +42,7 @@ export default function PatternPage({ params }: Props) {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      <main className="max-w-4xl mx-auto px-6 pb-8">
+      <main className="read-prose max-w-6xl mx-auto px-6 pb-8">
         {/* Breadcrumb */}
         <div className="pt-6 pb-2 text-xs" style={{ color: "var(--text-muted)" }}>
           <Link href="/dsa" className="hover:text-white transition-colors">DSA</Link>

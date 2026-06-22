@@ -160,6 +160,15 @@ h1, h2, h3, h4 { letter-spacing: 0; }
 /* Body copy: fill the column (flush like the System Design pages), looser rhythm */
 .prose-se p { font-size: 0.96rem; line-height: 1.85; margin-bottom: 1.4rem; }
 
+/* Consistent reading body across DSA + System Design theory/problem pages.
+   Keyed off body-text line-height markers so labels/eyebrows stay untouched. */
+.read-prose :is(p, li)[class*="leading-relaxed"],
+.read-prose :is(p, li)[class*="leading-6"],
+.read-prose :is(p, li)[class*="leading-5"] {
+  font-size: 0.96rem;
+  line-height: 1.8;
+}
+
 /* Reading-width container — content-first, not full-bleed */
 .reading { max-width: 62rem; margin-left: auto; margin-right: auto; }
 

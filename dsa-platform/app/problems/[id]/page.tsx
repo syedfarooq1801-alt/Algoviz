@@ -49,7 +49,7 @@ export default function ProblemPage({ params }: Props) {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 py-6 pb-8">
+      <main className="read-prose max-w-6xl mx-auto px-4 sm:px-6 py-6 pb-8">
         <div className="mb-5 text-xs" style={{ color: "var(--text-muted)" }}>
           <Link href="/" className="hover:underline">Home</Link>
           <span className="mx-2">/</span>

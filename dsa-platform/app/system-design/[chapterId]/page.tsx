@@ -27,7 +27,7 @@ export default function ChapterPage({ params }: Props) {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      <main className="max-w-4xl mx-auto px-4 pb-8">
+      <main className="max-w-6xl mx-auto px-4 pb-8">
         {/* Breadcrumb */}
         <div className="pt-6 pb-2 text-xs" style={{ color: "var(--text-muted)" }}>
           <Link href="/system-design" className="hover:text-white transition-colors">System Design</Link>

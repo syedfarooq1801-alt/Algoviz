@@ -41,7 +41,7 @@ export default function ConceptPage({ params }: Props) {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      <main className="max-w-5xl mx-auto px-6 pb-8">
+      <main className="read-prose max-w-6xl mx-auto px-6 pb-8">
         {/* Breadcrumb */}
         <div className="pt-6 pb-2 text-xs" style={{ color: "var(--text-muted)" }}>
           <Link href="/system-design" className="hover:text-white transition-colors">System Design</Link>
