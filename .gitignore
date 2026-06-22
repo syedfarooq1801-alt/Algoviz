@@ -1,41 +1,27 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Monorepo root — per-project .gitignore files live in dsa-platform/ and codealgo-app/
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+# Dependencies
+node_modules/
+**/node_modules/
 
-# testing
-/coverage
+# Env / secrets (defense-in-depth; sub-projects also ignore these)
+.env
+**/.env
+.env*.local
+**/.env*.local
 
-# next.js
-/.next/
-/out/
+# Editor / agent / session data
+.claude/
+.agents/
+.vscode/
+.idea/
 
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-# typescript
+# Build artifacts
+**/.next/
+**/dist/
+**/.expo/
 *.tsbuildinfo
-next-env.d.ts
+
+# Root-level scratch / handoff junk (root-anchored — keep any committed inside sub-projects)
+/*.zip
+/*.dc.html
