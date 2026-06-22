@@ -1,5 +1,5 @@
-// Admin allowlist — emails with access to /admin dashboard.
-// To add admins, append their email here (and keep Firestore rules in sync if you lock reads down).
+// Admin allowlist — only these emails can view the dashboard.
+// Keep in sync with the Firestore security rules (firestore.rules in the web project).
 export const ADMIN_EMAILS = [
   "syedfarooq1095@gmail.com",
 ];
