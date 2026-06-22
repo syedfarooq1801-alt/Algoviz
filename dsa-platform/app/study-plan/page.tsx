@@ -64,6 +64,24 @@ export default function StudyPlanPage() {
     return Math.max(0, Math.min(diff, plan.days.length - 1));
   }, [startDate, today, plan.days.length]);
 
+  // Effective "current" day = earliest day (up to today) with unfinished work.
+  // Missed days roll forward instead of being skipped; advances only when done.
+  const currentIdx = useMemo(() => {
+    const isDone = (t: PlanTask) =>
+      t.domain === "dsa" ? solved.has(t.id)
+      : t.domain === "sd" ? mastered.has(t.id)
+      : t.domain === "se" ? completed.has(t.id)
+      : true; // behavioral has no toggle
+    for (let i = 0; i <= todayIdx; i++) {
+      const d = plan.days[i];
+      if (!d || d.type === "rest") continue;
+      const todo = d.tasks.filter((t) => t.domain !== "behavioral");
+      if (todo.length && !todo.every(isDone)) return i;
+    }
+    return todayIdx; // all caught up → real today
+  }, [plan, todayIdx, solved, mastered, completed]);
+  const daysBehind = todayIdx - currentIdx;
+
   const weeks: DayPlan[][] = useMemo(() => {
     const w: DayPlan[][] = [];
     for (let i = 0; i < plan.days.length; i += 7) w.push(plan.days.slice(i, i + 7));
@@ -74,15 +92,15 @@ export default function StudyPlanPage() {
   const totalWeeks = weeks.length;
   const [activeDayIdx, setActiveDayIdx] = useState<number>(0);
 
-  // Open on today's week/day so the plan tracks the calendar.
+  // Open on the current (earliest unfinished) day so missed work surfaces.
   const didAutoInit = useRef(false);
   useEffect(() => {
     if (didAutoInit.current) return;
     didAutoInit.current = true;
-    setActiveWeek(Math.floor(todayIdx / 7));
-    setActiveDayIdx(todayIdx % 7);
+    setActiveWeek(Math.floor(currentIdx / 7));
+    setActiveDayIdx(currentIdx % 7);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [todayIdx]);
+  }, [currentIdx]);
 
   const focusDay = week[activeDayIdx] ?? week.find((d) => d.type !== "rest") ?? week[0];
 
@@ -125,6 +143,11 @@ export default function StudyPlanPage() {
             </h1>
             <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "2px 0 0" }}>
               {completedTasks} tasks done · {totalTasks - completedTasks} remaining
+              {daysBehind > 0 && (
+                <span style={{ color: "#F5A524" }}>
+                  {" · "}{daysBehind} day{daysBehind > 1 ? "s" : ""} behind — catch up
+                </span>
+              )}
             </p>
           </div>
           <div style={{ display: "flex", gap: 3, background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)", borderRadius: 6, padding: 3 }}>
