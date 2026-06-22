@@ -9,8 +9,8 @@ import { Card, ScreenHeader } from "@/components/ui";
 
 interface Leader {
   uid: string;
+  username: string | null;
   displayName: string | null;
-  email: string | null;
   xp: number;
   streak: number;
   solved: string[];
@@ -18,10 +18,12 @@ interface Leader {
 
 type Tab = "xp" | "streak" | "solved";
 
-function initials(name: string | null, email: string | null): string {
-  if (name) return name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
-  if (email) return email[0].toUpperCase();
-  return "?";
+function publicName(l: Leader): string {
+  return l.username ?? l.displayName ?? "Anonymous";
+}
+
+function initials(name: string): string {
+  return name.split(/[\s_]+/).map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "?";
 }
 
 const MEDALS = ["🥇", "🥈", "🥉"];
@@ -41,8 +43,8 @@ export default function LeaderboardScreen() {
       (snap) => {
         const data: Leader[] = snap.docs.map((d) => ({
           uid: d.id,
+          username: d.data().username ?? null,
           displayName: d.data().displayName ?? null,
-          email: d.data().email ?? null,
           xp: d.data().xp ?? 0,
           streak: d.data().streak ?? 0,
           solved: d.data().solved ?? [],
@@ -121,11 +123,11 @@ export default function LeaderboardScreen() {
                     )}
                   </View>
                   <View style={styles.avatar}>
-                    <Text style={styles.avatarText}>{initials(leader.displayName, leader.email)}</Text>
+                    <Text style={styles.avatarText}>{initials(publicName(leader))}</Text>
                   </View>
                   <View style={styles.nameCol}>
                     <Text style={[styles.name, isMe && { color: colors.accent }]} numberOfLines={1}>
-                      {leader.displayName ?? leader.email?.split("@")[0] ?? "Anonymous"}
+                      {publicName(leader)}
                       {isMe ? "  (You)" : ""}
                     </Text>
                     <Text style={styles.subStat}>

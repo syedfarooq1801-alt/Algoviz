@@ -84,6 +84,7 @@ function hydrateAllStores(d: Record<string, unknown>) {
       ? d.studyPlanDuration : 30) as 30 | 60 | 90,
     solvedDates: (d.solvedDates as Record<string, string>) ?? {},
     solveTimes: (d.solveTimes as Record<string, number>) ?? {},
+    username: (d.username as string) ?? "",
   });
   usePrepStore.getState().hydrateFromFirestore({
     reviewDue: (d.reviewDue as Record<string, string>) ?? {},

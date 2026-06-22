@@ -1,9 +1,8 @@
 "use client";
 import { useAuth } from "@/lib/authContext";
-import { ArrowRight } from "lucide-react";
-import Link from "next/link";
 import { getTotalProblems } from "@/data/problems";
 import { LogoBadge } from "@/components/Logo";
+import UsernameGate from "@/components/UsernameGate";
 
 const FEATURES = [
   { icon: "⚡", title: "Spaced Repetition", desc: "Schedule problem reviews on a 1→3→7→21 day cycle. Never re-forget what you once understood." },
@@ -172,5 +171,5 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   if (!user) return <LandingPage />;
 
-  return <>{children}</>;
+  return <UsernameGate>{children}</UsernameGate>;
 }

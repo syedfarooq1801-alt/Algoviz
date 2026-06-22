@@ -11,6 +11,8 @@ interface ProgressState {
   solvedDates: Record<string, string>;
   solveTimes: Record<string, number>;
   studyPlanDuration: 30 | 60 | 90;
+  username: string;
+  setUsername: (name: string) => void;
   toggleSolved: (id: string, syncFn?: () => void, timeSecs?: number) => void;
   toggleBookmark: (id: string, syncFn?: () => void) => void;
   isSolved: (id: string) => boolean;
@@ -26,6 +28,7 @@ interface ProgressState {
     studyPlanDuration?: 30 | 60 | 90;
     solvedDates?: Record<string, string>;
     solveTimes?: Record<string, number>;
+    username?: string;
   }) => void;
   resetForUser: () => void;
 }
@@ -41,6 +44,9 @@ export const useProgressStore = create<ProgressState>()(
       solvedDates: {},
       solveTimes: {},
       studyPlanDuration: 30 as 30 | 60 | 90,
+      username: "",
+
+      setUsername: (name) => set({ username: name }),
 
       toggleSolved: (id, syncFn, timeSecs) =>
         set((state) => {
@@ -100,6 +106,7 @@ export const useProgressStore = create<ProgressState>()(
         studyPlanDuration: data.studyPlanDuration ?? 30,
         solvedDates: data.solvedDates ?? {},
         solveTimes: data.solveTimes ?? {},
+        username: data.username ?? "",
       }),
 
       resetForUser: () => set({
@@ -111,6 +118,7 @@ export const useProgressStore = create<ProgressState>()(
         solvedDates: {},
         solveTimes: {},
         studyPlanDuration: 30,
+        username: "",
       }),
     }),
     {

@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { View, Text, Pressable, StyleSheet, ScrollView, Switch, Alert, TextInput, ViewStyle } from "react-native";
+import { View, Text, Pressable, StyleSheet, ScrollView, Switch, Alert, TextInput, ViewStyle, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { usePrepStore, PREP_TRACKS, PrepTrackId } from "@/lib/prepStore";
 import { useProgressStore } from "@/lib/store";
+import { useAuth } from "@/lib/authContext";
+import { validateUsername, isUsernameAvailable, claimUsername } from "@/lib/username";
 import { colors, font, spacing, radius } from "@/lib/theme";
 import { Card, ScreenHeader } from "@/components/ui";
 import { registerForNotifications, scheduleDailyReviewNotification, scheduleDailyChallengeNotification, cancelAllNotifications } from "@/lib/notifications";
@@ -32,13 +34,38 @@ function isValidDate(str: string): boolean {
 }
 
 export default function SettingsScreen() {
-  const { studyPlanDuration, setStudyPlanDuration, interviewDate, setInterviewDate } = useProgressStore();
+  const { studyPlanDuration, setStudyPlanDuration, interviewDate, setInterviewDate, username, setUsername } = useProgressStore();
   const { selectedTrack, setTrack, reviewDue } = usePrepStore();
+  const { user } = useAuth();
   const [notifEnabled, setNotifEnabled] = useState(false);
   const [dateInput, setDateInput] = useState(interviewDate);
+  const [nameInput, setNameInput] = useState(username);
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [savingName, setSavingName] = useState(false);
 
   const today = new Date().toISOString().split("T")[0];
   const dueCount = Object.values(reviewDue).filter((d) => d <= today).length;
+
+  const saveUsername = async () => {
+    if (!user) return;
+    setNameError(null);
+    const v = nameInput.trim();
+    const invalid = validateUsername(v);
+    if (invalid) { setNameError(invalid); return; }
+    if (v.toLowerCase() === username.toLowerCase()) return;
+    setSavingName(true);
+    try {
+      const free = await isUsernameAvailable(v, user.uid);
+      if (!free) { setNameError("That username is taken."); setSavingName(false); return; }
+      await claimUsername(user.uid, v, username);
+      setUsername(v);
+      Alert.alert("Saved", `Username updated to @${v}`);
+    } catch (e) {
+      setNameError((e as Error).message ?? "Could not save.");
+    } finally {
+      setSavingName(false);
+    }
+  };
 
   const handleNotifToggle = async (val: boolean) => {
     if (val) {
@@ -77,7 +104,36 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <ScreenHeader title="Settings" back />
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+
+        {/* Username */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Username</Text>
+          <Text style={styles.sectionSub}>Shown on the leaderboard and public profile</Text>
+          <View style={styles.dateRow}>
+            <View style={[styles.unameWrap, nameError ? { borderColor: colors.red } : null]}>
+              <Text style={styles.unameAt}>@</Text>
+              <TextInput
+                style={styles.unameInput}
+                value={nameInput}
+                onChangeText={(t) => { setNameInput(t); setNameError(null); }}
+                placeholder="your_handle"
+                placeholderTextColor={colors.textMuted}
+                autoCapitalize="none"
+                autoCorrect={false}
+                maxLength={20}
+              />
+            </View>
+            {savingName ? (
+              <View style={styles.dateSetBtn}><ActivityIndicator color={colors.accent} size="small" /></View>
+            ) : (
+              <Pressable style={styles.dateSetBtn} onPress={saveUsername}>
+                <Text style={styles.dateSetText}>Save</Text>
+              </Pressable>
+            )}
+          </View>
+          {nameError ? <Text style={styles.unameErr}>{nameError}</Text> : null}
+        </View>
 
         {/* Interview Date */}
         <View style={styles.section}>
@@ -218,6 +274,22 @@ const styles = StyleSheet.create({
   section: { gap: spacing.md },
   sectionTitle: { fontSize: font.size.md, fontWeight: font.weight.semibold, color: colors.textPrimary },
   sectionSub: { fontSize: font.size.sm, color: colors.textMuted },
+
+  // Username
+  unameWrap: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.md,
+  },
+  unameAt: { fontSize: font.size.base, color: colors.textMuted },
+  unameInput: { flex: 1, color: colors.textPrimary, fontSize: font.size.base, paddingVertical: 10 },
+  unameErr: { fontSize: font.size.xs, color: colors.red },
 
   // Interview date
   presetRow: { flexDirection: "row", gap: spacing.sm },

@@ -10,6 +10,7 @@ import { LogOut, Shield } from "lucide-react";
 
 interface AdminUser {
   uid: string;
+  username: string | null;
   displayName: string | null;
   email: string | null;
   xp: number;
@@ -52,6 +53,7 @@ export default function AdminPage() {
       (snap) => {
         setUsers(snap.docs.map((d) => ({
           uid: d.id,
+          username: d.data().username ?? null,
           displayName: d.data().displayName ?? null,
           email: d.data().email ?? null,
           xp: d.data().xp ?? 0,
@@ -81,7 +83,9 @@ export default function AdminPage() {
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter((u) =>
-        u.displayName?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)
+        u.username?.toLowerCase().includes(q) ||
+        u.displayName?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q)
       );
     }
     return [...list].sort((a, b) => {
@@ -204,7 +208,7 @@ export default function AdminPage() {
           filtered.map((u, i) => (
             <div key={u.uid} style={{ display: "grid", gridTemplateColumns: "1fr 90px 70px 70px 110px", padding: "11px 16px", alignItems: "center", borderBottom: i < filtered.length - 1 ? "1px solid var(--border-subtle)" : "none" }}>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{u.displayName ?? "Anonymous"}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{u.username ?? u.displayName ?? "Anonymous"}</div>
                 <div style={{ fontSize: 11, color: "var(--text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{u.email ?? "—"}</div>
               </div>
               <div style={{ fontSize: 13, color: "var(--accent)", fontWeight: 600, textAlign: "right" }}>{u.xp.toLocaleString()}</div>

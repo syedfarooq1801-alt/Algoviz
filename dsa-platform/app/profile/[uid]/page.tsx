@@ -8,6 +8,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
 interface PublicProfile {
+  username: string | null;
   displayName: string | null;
   email: string | null;
   photoURL: string | null;
@@ -19,10 +20,8 @@ interface PublicProfile {
   selectedTrack?: string;
 }
 
-function initials(name: string | null, email: string | null): string {
-  if (name) return name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
-  if (email) return email[0].toUpperCase();
-  return "?";
+function initials(name: string): string {
+  return name.split(/[\s_]+/).map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "?";
 }
 
 export default function PublicProfilePage({ params }: { params: Promise<{ uid: string }> }) {
@@ -38,6 +37,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ uid: s
         if (!snap.exists()) { setNotFound(true); return; }
         const d = snap.data();
         setProfile({
+          username: d.username ?? null,
           displayName: d.displayName ?? null,
           email: d.email ?? null,
           photoURL: d.photoURL ?? null,
@@ -90,11 +90,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ uid: s
           display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: 26, fontWeight: 700, color: "var(--accent)",
         }}>
-          {initials(profile.displayName, profile.email)}
+          {initials(profile.username ?? profile.displayName ?? "?")}
         </div>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
-            {profile.displayName ?? profile.email?.split("@")[0] ?? "Anonymous"}
+            {profile.username ?? profile.displayName ?? "Anonymous"}
           </h1>
           <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>
             Joined {joinedDate}{profile.selectedTrack ? ` · ${profile.selectedTrack} track` : ""}

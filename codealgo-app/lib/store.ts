@@ -13,6 +13,7 @@ interface ProgressState {
   solveTimes: Record<string, number>;
   hasCompletedOnboarding: boolean;
   interviewDate: string; // YYYY-MM-DD or ""
+  username: string;
   isSolved: (id: string) => boolean;
   isBookmarked: (id: string) => boolean;
   toggleSolved: (id: string) => void;
@@ -21,11 +22,13 @@ interface ProgressState {
   setHasCompletedOnboarding: (v: boolean) => void;
   setInterviewDate: (d: string) => void;
   setSolveTime: (id: string, minutes: number) => void;
+  setUsername: (name: string) => void;
   addXP: (amount: number) => void;
   hydrateFromFirestore: (data: Partial<{
     solved: Set<string>; bookmarked: Set<string>; xp: number; streak: number;
     lastActivity: string; studyPlanDuration: 30 | 60 | 90;
     solvedDates: Record<string, string>; solveTimes: Record<string, number>;
+    username: string;
   }>) => void;
   resetForUser: () => void;
 }
@@ -47,6 +50,7 @@ export const useProgressStore = create<ProgressState>()(
       solveTimes: {},
       hasCompletedOnboarding: false,
       interviewDate: "",
+      username: "",
 
       isSolved: (id) => get().solved.has(id),
       isBookmarked: (id) => get().bookmarked.has(id),
@@ -83,6 +87,7 @@ export const useProgressStore = create<ProgressState>()(
       setHasCompletedOnboarding: (v) => set({ hasCompletedOnboarding: v }),
       setInterviewDate: (d) => set({ interviewDate: d }),
       setSolveTime: (id, minutes) => set((s) => ({ solveTimes: { ...s.solveTimes, [id]: minutes } })),
+      setUsername: (name) => set({ username: name }),
       addXP: (amount) => set((s) => ({ xp: s.xp + amount })),
 
       hydrateFromFirestore: (data) =>
@@ -95,12 +100,13 @@ export const useProgressStore = create<ProgressState>()(
           studyPlanDuration: data.studyPlanDuration ?? s.studyPlanDuration,
           solvedDates: data.solvedDates ?? s.solvedDates,
           solveTimes: data.solveTimes ?? s.solveTimes,
+          username: data.username ?? s.username,
         })),
 
       resetForUser: () =>
         set({
           solved: new Set(), bookmarked: new Set(), xp: 0, streak: 0,
-          lastActivity: "", solvedDates: {}, solveTimes: {},
+          lastActivity: "", solvedDates: {}, solveTimes: {}, username: "",
           // hasCompletedOnboarding and interviewDate intentionally NOT reset — device-level flags
         }),
     }),

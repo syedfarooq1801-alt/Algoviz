@@ -7,8 +7,8 @@ import Link from "next/link";
 
 interface Leader {
   uid: string;
+  username: string | null;
   displayName: string | null;
-  email: string | null;
   photoURL: string | null;
   xp: number;
   streak: number;
@@ -16,10 +16,13 @@ interface Leader {
   createdAt: string;
 }
 
-function initials(name: string | null, email: string | null): string {
-  if (name) return name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
-  if (email) return email[0].toUpperCase();
-  return "?";
+// Public display name — prefer the user-chosen handle; never expose email.
+function publicName(l: Leader): string {
+  return l.username ?? l.displayName ?? "Anonymous";
+}
+
+function initials(name: string): string {
+  return name.split(/[\s_]+/).map((n) => n[0]).join("").slice(0, 2).toUpperCase() || "?";
 }
 
 function rankBadge(rank: number) {
@@ -42,8 +45,8 @@ export default function LeaderboardPage() {
     const unsub = onSnapshot(q, (snap) => {
       const data = snap.docs.map((d) => ({
         uid: d.id,
+        username: d.data().username ?? null,
         displayName: d.data().displayName ?? null,
-        email: d.data().email ?? null,
         photoURL: d.data().photoURL ?? null,
         xp: d.data().xp ?? 0,
         streak: d.data().streak ?? 0,
@@ -168,14 +171,14 @@ export default function LeaderboardPage() {
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontSize: 11, fontWeight: 700, color: "var(--accent)",
                   }}>
-                    {initials(leader.displayName, leader.email)}
+                    {initials(publicName(leader))}
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <div style={{
                       fontSize: 13, fontWeight: 600, color: isMe ? "var(--accent)" : "var(--text-primary)",
                       whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                     }}>
-                      {leader.displayName ?? leader.email?.split("@")[0] ?? "Anonymous"}
+                      {publicName(leader)}
                       {isMe && <span style={{ fontSize: 10, color: "var(--accent)", marginLeft: 6, fontWeight: 700 }}>YOU</span>}
                     </div>
                   </div>

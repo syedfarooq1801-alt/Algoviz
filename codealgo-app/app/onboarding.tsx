@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import { View, Text, Pressable, StyleSheet, ScrollView, TextInput, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { usePrepStore, PREP_TRACKS, PrepTrackId } from "@/lib/prepStore";
 import { useProgressStore } from "@/lib/store";
+import { useAuth } from "@/lib/authContext";
+import { validateUsername, isUsernameAvailable, claimUsername } from "@/lib/username";
 import { colors, font, spacing, radius } from "@/lib/theme";
 import { Button } from "@/components/ui";
 
@@ -17,13 +19,36 @@ const DURATION_LABELS: Record<typeof DURATIONS[number], string> = {
 
 export default function OnboardingScreen() {
   const router = useRouter();
+  const { user } = useAuth();
   const { setTrack, selectedTrack } = usePrepStore();
-  const { setStudyPlanDuration, studyPlanDuration, setHasCompletedOnboarding } = useProgressStore();
-  const [step, setStep] = useState<1 | 2>(1);
+  const { setStudyPlanDuration, studyPlanDuration, setHasCompletedOnboarding, setUsername } = useProgressStore();
+  const [step, setStep] = useState<1 | 2 | 3>(1);
 
-  const finish = () => {
-    setHasCompletedOnboarding(true);
-    router.replace("/(tabs)");
+  const suggested = (user?.displayName ?? user?.email?.split("@")[0] ?? "")
+    .replace(/[^a-zA-Z0-9_]/g, "")
+    .slice(0, 20);
+  const [nameInput, setNameInput] = useState(suggested);
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const finish = async () => {
+    if (!user) return;
+    setNameError(null);
+    const v = nameInput.trim();
+    const invalid = validateUsername(v);
+    if (invalid) { setNameError(invalid); return; }
+    setSaving(true);
+    try {
+      const free = await isUsernameAvailable(v, user.uid);
+      if (!free) { setNameError("That username is taken. Try another."); setSaving(false); return; }
+      await claimUsername(user.uid, v);
+      setUsername(v);
+      setHasCompletedOnboarding(true);
+      router.replace("/(tabs)");
+    } catch (e) {
+      setNameError((e as Error).message ?? "Could not save username.");
+      setSaving(false);
+    }
   };
 
   if (step === 1) {
@@ -66,7 +91,7 @@ export default function OnboardingScreen() {
     );
   }
 
-  return (
+  if (step === 2) return (
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.top}>
@@ -99,7 +124,49 @@ export default function OnboardingScreen() {
           <Pressable onPress={() => setStep(1)} style={styles.backBtn}>
             <Text style={styles.backBtnText}>← Back</Text>
           </Pressable>
-          <Button label="Let's start 🚀" onPress={finish} style={{ flex: 1 }} />
+          <Button label="Next →" onPress={() => setStep(3)} style={{ flex: 1 }} />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+
+  // Step 3 — choose a unique username
+  return (
+    <SafeAreaView style={styles.safe}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        <View style={styles.top}>
+          <Text style={styles.emoji}>🪪</Text>
+          <Text style={styles.title}>Pick your username</Text>
+          <Text style={styles.sub}>Shown on the leaderboard and your public profile. Must be unique.</Text>
+        </View>
+
+        <View style={[styles.nameInputWrap, nameError ? { borderColor: colors.red } : null]}>
+          <Text style={styles.at}>@</Text>
+          <TextInput
+            value={nameInput}
+            onChangeText={(t) => { setNameInput(t); setNameError(null); }}
+            placeholder="your_handle"
+            placeholderTextColor={colors.textMuted}
+            autoCapitalize="none"
+            autoCorrect={false}
+            maxLength={20}
+            style={styles.nameInput}
+          />
+        </View>
+        {nameError ? <Text style={styles.nameErr}>{nameError}</Text> : null}
+        <Text style={styles.nameHint}>3–20 characters · letters, numbers, underscore</Text>
+
+        <View style={styles.btnRow}>
+          <Pressable onPress={() => setStep(2)} style={styles.backBtn} disabled={saving}>
+            <Text style={styles.backBtnText}>← Back</Text>
+          </Pressable>
+          {saving ? (
+            <View style={[styles.savingBox, { flex: 1 }]}>
+              <ActivityIndicator color={colors.accent} />
+            </View>
+          ) : (
+            <Button label="Let's start 🚀" onPress={finish} style={{ flex: 1 }} />
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -160,4 +227,32 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   backBtnText: { fontSize: font.size.base, color: colors.textSecondary },
+  nameInputWrap: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.bgCard,
+  },
+  at: { fontSize: font.size.lg, color: colors.textMuted },
+  nameInput: {
+    flex: 1,
+    paddingVertical: 14,
+    color: colors.textPrimary,
+    fontSize: font.size.lg,
+  },
+  nameErr: { fontSize: font.size.xs, color: colors.red, marginTop: -spacing.md },
+  nameHint: { fontSize: font.size.xs, color: colors.textMuted, marginTop: -spacing.md },
+  savingBox: {
+    paddingVertical: 12,
+    borderRadius: radius.md,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.accentSoft,
+    borderWidth: 1,
+    borderColor: colors.accent,
+  },
 });

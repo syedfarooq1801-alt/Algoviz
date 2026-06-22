@@ -9,10 +9,39 @@ import { getTotalSEChapters } from "@/data/seBasics";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, Suspense } from "react";
+import { validateUsername, isUsernameAvailable, claimUsername } from "@/lib/username";
 
 function ProfileContent() {
   const { user, signIn, signOut, signInError } = useAuth();
   const { solved, bookmarked, xp, streak } = useProgressStore();
+  const username = useProgressStore((s) => s.username);
+  const setUsername = useProgressStore((s) => s.setUsername);
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [savingName, setSavingName] = useState(false);
+
+  const startEditName = () => { setNameInput(username); setNameError(null); setEditingName(true); };
+  const saveName = async () => {
+    if (!user) return;
+    setNameError(null);
+    const v = nameInput.trim();
+    const invalid = validateUsername(v);
+    if (invalid) { setNameError(invalid); return; }
+    if (v.toLowerCase() === username.toLowerCase()) { setEditingName(false); return; }
+    setSavingName(true);
+    try {
+      const free = await isUsernameAvailable(v, user.uid);
+      if (!free) { setNameError("That username is taken."); setSavingName(false); return; }
+      await claimUsername(user.uid, v, username);
+      setUsername(v);
+      setEditingName(false);
+    } catch (e) {
+      setNameError((e as Error).message ?? "Could not save.");
+    } finally {
+      setSavingName(false);
+    }
+  };
   const { mastered } = useSDStore();
   const { completed } = useSEStore();
   const total = getTotalProblems();
@@ -99,9 +128,43 @@ function ProfileContent() {
               {user.displayName?.[0]}
             </div>
           )}
-          <div className="flex-1">
-            <h1 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>{user.displayName}</h1>
-            <p className="text-sm" style={{ color: "var(--text-muted)" }}>{user.email}</p>
+          <div className="flex-1" style={{ minWidth: 0 }}>
+            {editingName ? (
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "0 10px", borderRadius: 8, background: "var(--bg-secondary)", border: `1px solid ${nameError ? "#EF4444" : "var(--border)"}` }}>
+                    <span style={{ color: "var(--text-muted)", fontSize: 14 }}>@</span>
+                    <input
+                      autoFocus value={nameInput}
+                      onChange={(e) => { setNameInput(e.target.value); setNameError(null); }}
+                      onKeyDown={(e) => { if (e.key === "Enter" && !savingName) saveName(); }}
+                      maxLength={20} placeholder="your_handle"
+                      style={{ width: 160, padding: "8px 0", background: "transparent", border: "none", outline: "none", color: "var(--text-primary)", fontSize: 15 }}
+                    />
+                  </div>
+                  <button onClick={saveName} disabled={savingName}
+                    style={{ padding: "7px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, background: "var(--accent)", color: "#fff", border: "none", cursor: "pointer", opacity: savingName ? 0.7 : 1 }}>
+                    {savingName ? "…" : "Save"}
+                  </button>
+                  <button onClick={() => setEditingName(false)}
+                    style={{ padding: "7px 12px", borderRadius: 8, fontSize: 12, background: "transparent", color: "var(--text-muted)", border: "1px solid var(--border)", cursor: "pointer" }}>
+                    Cancel
+                  </button>
+                </div>
+                {nameError && <p style={{ fontSize: 11, color: "#EF4444", marginTop: 6 }}>{nameError}</p>}
+              </div>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <h1 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>
+                  {username ? `@${username}` : (user.displayName ?? "Set a username")}
+                </h1>
+                <button onClick={startEditName}
+                  style={{ padding: "4px 10px", borderRadius: 6, fontSize: 11, fontWeight: 600, background: "var(--accent-soft)", color: "var(--accent)", border: "1px solid rgba(79,140,255,0.3)", cursor: "pointer" }}>
+                  Edit
+                </button>
+              </div>
+            )}
+            <p className="text-sm" style={{ color: "var(--text-muted)", marginTop: 4 }}>{user.email}</p>
           </div>
           <button onClick={signOut} className="px-3 py-1.5 rounded-lg text-xs"
             style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.2)" }}>

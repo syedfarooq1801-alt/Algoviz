@@ -3,12 +3,29 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Admin allowlist — keep in sync with dsa-platform/lib/admin.ts
+    // Admin allowlist — keep in sync with admin-dashboard/lib/admin.ts
     function isAdmin() {
       return request.auth != null
         && request.auth.token.email in [
           'syedfarooq1095@gmail.com'
         ];
+    }
+
+    // Unique username reservations. Doc id = lowercased handle, value = { uid }.
+    // Existence of a doc means the handle is taken.
+    match /usernames/{handle} {
+      // Anyone signed in can check availability / resolve handle -> uid.
+      allow read: if request.auth != null;
+      // Claim a free handle (create) — reservation must point to the claimer.
+      allow create: if request.auth != null
+        && request.resource.data.uid == request.auth.uid;
+      // Idempotent re-claim of own handle — only the current owner.
+      allow update: if request.auth != null
+        && resource.data.uid == request.auth.uid
+        && request.resource.data.uid == request.auth.uid;
+      // Release own handle (when switching to a new one).
+      allow delete: if request.auth != null
+        && resource.data.uid == request.auth.uid;
     }
 
     match /users/{uid} {

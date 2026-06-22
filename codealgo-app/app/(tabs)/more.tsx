@@ -57,7 +57,7 @@ function MoreItem({ icon, label, sub, href }: { icon: string; label: string; sub
 
 export default function MoreScreen() {
   const { user, signOut } = useAuth();
-  const { solved, xp, streak } = useProgressStore();
+  const { solved, xp, streak, username } = useProgressStore();
 
   const handleSignOut = () => {
     Alert.alert("Sign Out", "Are you sure you want to sign out?", [
@@ -75,10 +75,10 @@ export default function MoreScreen() {
         <Card style={styles.profileCard}>
           <View style={styles.profileRow}>
             <View style={styles.avatarCircle}>
-              <Text style={styles.avatarText}>{user?.displayName?.[0] ?? "?"}</Text>
+              <Text style={styles.avatarText}>{(username || user?.displayName)?.[0]?.toUpperCase() ?? "?"}</Text>
             </View>
             <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>{user?.displayName ?? "Guest"}</Text>
+              <Text style={styles.profileName}>{username ? `@${username}` : (user?.displayName ?? "Guest")}</Text>
               <Text style={styles.profileEmail}>{user?.email ?? ""}</Text>
             </View>
           </View>
