@@ -20,6 +20,16 @@ export default function SubjectPage({ params }: Props) {
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
 
+  // Remember panel state across refreshes.
+  useEffect(() => {
+    const l = localStorage.getItem("se-left-open");
+    const r = localStorage.getItem("se-right-open");
+    if (l !== null) setLeftOpen(l === "1");
+    if (r !== null) setRightOpen(r === "1");
+  }, []);
+  useEffect(() => { localStorage.setItem("se-left-open", leftOpen ? "1" : "0"); }, [leftOpen]);
+  useEffect(() => { localStorage.setItem("se-right-open", rightOpen ? "1" : "0"); }, [rightOpen]);
+
   // Predefined (so Tailwind compiles them) column templates per panel state.
   const bothClosed = !leftOpen && !rightOpen;
   const oneClosed = leftOpen !== rightOpen;
@@ -145,7 +155,7 @@ export default function SubjectPage({ params }: Props) {
           )}
 
           <article
-            className="prose-se mx-auto w-full min-w-0"
+            className="prose-se w-full min-w-0"
             style={{ maxWidth: articleMax, ["--measure" as string]: measure }}
             key={activeId}
           >
