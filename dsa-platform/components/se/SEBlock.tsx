@@ -35,7 +35,7 @@ export default function SEBlock({ block }: { block: Block }) {
   if (!callout) return <p className="mb-5 text-[15px] leading-8" style={{ color: "var(--text-secondary)" }}>{block.text}</p>;
 
   return (
-    <aside className="my-7 max-w-[700px] px-4 py-3" style={{ background: callout.bg, borderLeft: `2px solid ${callout.color}` }}>
+    <aside className="my-7 px-4 py-3" style={{ maxWidth: "var(--measure, 68ch)", background: callout.bg, borderLeft: `2px solid ${callout.color}` }}>
       <div className="mb-2 flex items-center gap-2">
         <span
           className="inline-flex h-4 w-4 items-center justify-center rounded-sm text-[10px] font-semibold"
@@ -53,7 +53,7 @@ export default function SEBlock({ block }: { block: Block }) {
 
 function InterviewBlock({ qas }: { qas: { q: string; a: string }[] }) {
   return (
-    <section className="my-9 max-w-[700px] px-4 py-3" style={{ background: "rgba(245,166,35,0.04)", borderLeft: "2px solid var(--accent-orange)" }}>
+    <section className="my-9 px-4 py-3" style={{ maxWidth: "var(--measure, 68ch)", background: "rgba(245,166,35,0.04)", borderLeft: "2px solid var(--accent-orange)" }}>
       <div className="mb-3 flex items-center gap-2">
         <span
           className="inline-flex h-4 w-4 items-center justify-center rounded-sm text-[10px] font-semibold"
