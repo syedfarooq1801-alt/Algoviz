@@ -5,9 +5,7 @@ Standalone, private admin dashboard. **Separate deployment from the public web/m
 ## Access control (two layers)
 
 1. **Email allowlist** — only emails in [`lib/admin.ts`](lib/admin.ts) see the dashboard. Anyone else gets "Access denied".
-2. **Firestore rules** — writes to `users/{uid}` are admin-or-owner only (see `dsa-platform/firestore.rules`).
-
-> Note: the dashboard reads the `users` collection, which (for the leaderboard) is readable by any signed-in user. The email gate hides the UI; it is not a data wall. If you want user emails fully private, split a public projection collection (xp/streak/name only) for the leaderboard and lock `users` reads to admin. Ask and this can be wired.
+2. **Firestore rules** — `users/{uid}` (which holds email + full progress) is **readable only by the owner or an admin**. Other signed-in users cannot query it. The leaderboard and public profiles read a separate `leaderboard/{uid}` projection that contains no email. So emails are genuinely private at the data layer, not just hidden in the UI. See `dsa-platform/firestore.rules`.
 
 ## Local dev
 

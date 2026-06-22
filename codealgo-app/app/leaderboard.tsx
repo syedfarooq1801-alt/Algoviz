@@ -10,16 +10,15 @@ import { Card, ScreenHeader } from "@/components/ui";
 interface Leader {
   uid: string;
   username: string | null;
-  displayName: string | null;
   xp: number;
   streak: number;
-  solved: string[];
+  solvedCount: number;
 }
 
 type Tab = "xp" | "streak" | "solved";
 
 function publicName(l: Leader): string {
-  return l.username ?? l.displayName ?? "Anonymous";
+  return l.username || "Anonymous";
 }
 
 function initials(name: string): string {
@@ -35,24 +34,20 @@ export default function LeaderboardScreen() {
   const [tab, setTab] = useState<Tab>("xp");
 
   useEffect(() => {
-    const field = tab === "streak" ? "streak" : "xp";
+    const field = tab === "streak" ? "streak" : tab === "solved" ? "solvedCount" : "xp";
     setLoading(true);
-    const q = query(collection(db, "users"), orderBy(field, "desc"), limit(100));
+    const q = query(collection(db, "leaderboard"), orderBy(field, "desc"), limit(100));
     const unsub = onSnapshot(
       q,
       (snap) => {
         const data: Leader[] = snap.docs.map((d) => ({
           uid: d.id,
           username: d.data().username ?? null,
-          displayName: d.data().displayName ?? null,
           xp: d.data().xp ?? 0,
           streak: d.data().streak ?? 0,
-          solved: d.data().solved ?? [],
+          solvedCount: d.data().solvedCount ?? 0,
         }));
-        const sorted = tab === "solved"
-          ? [...data].sort((a, b) => b.solved.length - a.solved.length)
-          : data;
-        setLeaders(sorted);
+        setLeaders(data);
         setLoading(false);
       },
       (err) => {
@@ -76,7 +71,7 @@ export default function LeaderboardScreen() {
             <Text style={styles.myRankLabel}>Your Rank</Text>
             <Text style={styles.myRankNum}>#{myRank}</Text>
             <Text style={styles.myRankSub}>
-              {leaders[myRank - 1]?.xp.toLocaleString()} XP · {leaders[myRank - 1]?.solved.length} solved
+              {leaders[myRank - 1]?.xp.toLocaleString()} XP · {leaders[myRank - 1]?.solvedCount} solved
             </Text>
           </Card>
         )}
@@ -112,7 +107,7 @@ export default function LeaderboardScreen() {
               const primaryVal =
                 tab === "xp" ? leader.xp.toLocaleString()
                 : tab === "streak" ? `${leader.streak}🔥`
-                : `${leader.solved.length}`;
+                : `${leader.solvedCount}`;
               return (
                 <View key={leader.uid} style={[styles.row, isMe && styles.rowMe]}>
                   <View style={styles.rankCol}>
@@ -131,7 +126,7 @@ export default function LeaderboardScreen() {
                       {isMe ? "  (You)" : ""}
                     </Text>
                     <Text style={styles.subStat}>
-                      {leader.xp.toLocaleString()} XP · {leader.solved.length} solved
+                      {leader.xp.toLocaleString()} XP · {leader.solvedCount} solved
                     </Text>
                   </View>
                   <Text style={[styles.primaryVal, {

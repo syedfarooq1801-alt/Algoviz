@@ -9,13 +9,11 @@ import { ArrowLeft } from "lucide-react";
 
 interface PublicProfile {
   username: string | null;
-  displayName: string | null;
-  email: string | null;
   photoURL: string | null;
   xp: number;
   streak: number;
-  solved: string[];
-  solvedDates: Record<string, string>;
+  solvedCount: number;
+  activeDays: number;
   createdAt: string;
   selectedTrack?: string;
 }
@@ -32,19 +30,18 @@ export default function PublicProfilePage({ params }: { params: Promise<{ uid: s
   const total = getTotalProblems();
 
   useEffect(() => {
-    getDoc(doc(db, "users", uid))
+    // Read the public projection only — never the private users doc.
+    getDoc(doc(db, "leaderboard", uid))
       .then((snap) => {
         if (!snap.exists()) { setNotFound(true); return; }
         const d = snap.data();
         setProfile({
           username: d.username ?? null,
-          displayName: d.displayName ?? null,
-          email: d.email ?? null,
           photoURL: d.photoURL ?? null,
           xp: d.xp ?? 0,
           streak: d.streak ?? 0,
-          solved: d.solved ?? [],
-          solvedDates: d.solvedDates ?? {},
+          solvedCount: d.solvedCount ?? 0,
+          activeDays: d.activeDays ?? 0,
           createdAt: d.createdAt ?? "",
           selectedTrack: d.selectedTrack,
         });
@@ -66,12 +63,10 @@ export default function PublicProfilePage({ params }: { params: Promise<{ uid: s
     );
   }
 
-  const solvedCount = profile.solved.length;
+  const solvedCount = profile.solvedCount;
   const pct = total > 0 ? Math.round((solvedCount / total) * 100) : 0;
   const joinedDate = profile.createdAt ? new Date(profile.createdAt).toLocaleDateString("en", { month: "short", year: "numeric" }) : "—";
-
-  // Activity streak count of distinct days
-  const activeDays = new Set(Object.values(profile.solvedDates)).size;
+  const activeDays = profile.activeDays;
 
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", padding: "32px 24px 60px" }}>
@@ -90,11 +85,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ uid: s
           display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: 26, fontWeight: 700, color: "var(--accent)",
         }}>
-          {initials(profile.username ?? profile.displayName ?? "?")}
+          {initials(profile.username ?? "?")}
         </div>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>
-            {profile.username ?? profile.displayName ?? "Anonymous"}
+            {profile.username ?? "Anonymous"}
           </h1>
           <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>
             Joined {joinedDate}{profile.selectedTrack ? ` · ${profile.selectedTrack} track` : ""}

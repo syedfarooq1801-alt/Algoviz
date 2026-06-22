@@ -8,17 +8,15 @@ import Link from "next/link";
 interface Leader {
   uid: string;
   username: string | null;
-  displayName: string | null;
   photoURL: string | null;
   xp: number;
   streak: number;
-  solved: string[];
-  createdAt: string;
+  solvedCount: number;
 }
 
-// Public display name — prefer the user-chosen handle; never expose email.
+// Public display name — the user-chosen handle.
 function publicName(l: Leader): string {
-  return l.username ?? l.displayName ?? "Anonymous";
+  return l.username || "Anonymous";
 }
 
 function initials(name: string): string {
@@ -39,25 +37,19 @@ export default function LeaderboardPage() {
   const [tab, setTab] = useState<"xp" | "streak" | "solved">("xp");
 
   useEffect(() => {
-    const field = tab === "xp" ? "xp" : tab === "streak" ? "streak" : "xp";
-    const q = query(collection(db, "users"), orderBy(field, "desc"), limit(100));
+    const field = tab === "xp" ? "xp" : tab === "streak" ? "streak" : "solvedCount";
+    const q = query(collection(db, "leaderboard"), orderBy(field, "desc"), limit(100));
     setLoading(true);
     const unsub = onSnapshot(q, (snap) => {
-      const data = snap.docs.map((d) => ({
+      const data: Leader[] = snap.docs.map((d) => ({
         uid: d.id,
         username: d.data().username ?? null,
-        displayName: d.data().displayName ?? null,
         photoURL: d.data().photoURL ?? null,
         xp: d.data().xp ?? 0,
         streak: d.data().streak ?? 0,
-        solved: d.data().solved ?? [],
-        createdAt: d.data().createdAt ?? "",
+        solvedCount: d.data().solvedCount ?? 0,
       }));
-      const sorted =
-        tab === "solved"
-          ? [...data].sort((a, b) => b.solved.length - a.solved.length)
-          : data;
-      setLeaders(sorted);
+      setLeaders(data);
       setLoading(false);
     });
     return unsub;
@@ -88,7 +80,7 @@ export default function LeaderboardPage() {
             Your rank: #{myRank}
           </span>
           <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
-            {leaders[myRank - 1]?.xp.toLocaleString()} XP · {leaders[myRank - 1]?.solved.length} solved
+            {leaders[myRank - 1]?.xp.toLocaleString()} XP · {leaders[myRank - 1]?.solvedCount} solved
           </span>
         </div>
       )}
@@ -196,7 +188,7 @@ export default function LeaderboardPage() {
 
                 {/* Solved */}
                 <div style={{ fontSize: 13, fontWeight: tab === "solved" ? 700 : 400, color: tab === "solved" ? "#2FBF71" : "var(--text-secondary)", textAlign: "right" }}>
-                  {leader.solved.length}
+                  {leader.solvedCount}
                 </div>
               </div>
             );

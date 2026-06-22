@@ -28,15 +28,22 @@ service cloud.firestore {
         && resource.data.uid == request.auth.uid;
     }
 
+    // Private user docs — hold email + full progress. Readable ONLY by the owner
+    // or an admin. Other users can never query emails here.
     match /users/{uid} {
-      // Any signed-in user can READ user docs.
-      // Needed for: leaderboard (top 100), public profiles, admin dashboard.
-      // Only non-sensitive progress fields are surfaced in the UI.
-      allow read: if request.auth != null;
-
-      // A user may only WRITE their own document. Admins may write any (moderation).
+      allow read: if request.auth != null
+        && (request.auth.uid == uid || isAdmin());
       allow create, update, delete: if request.auth != null
         && (request.auth.uid == uid || isAdmin());
+    }
+
+    // Public projection — safe subset for leaderboard + public profiles.
+    // Contains ONLY: username, photoURL, xp, streak, solvedCount, activeDays,
+    // selectedTrack, createdAt. NO email, no raw progress maps.
+    match /leaderboard/{uid} {
+      allow read: if request.auth != null;            // any signed-in user
+      allow write: if request.auth != null
+        && request.auth.uid == uid;                   // owner maintains own projection
     }
 
     // Deny everything else by default.

@@ -31,6 +31,7 @@ export async function claimUsername(uid: string, newName: string, oldName?: stri
     }
     tx.set(newRef, { uid });
     tx.set(doc(db, "users", uid), { username: display }, { merge: true });
+    tx.set(doc(db, "leaderboard", uid), { username: display }, { merge: true }); // public projection
     if (oldName && oldName.trim().toLowerCase() !== lower) {
       tx.delete(doc(db, "usernames", oldName.trim().toLowerCase()));
     }

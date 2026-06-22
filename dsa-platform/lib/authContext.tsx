@@ -32,6 +32,7 @@ let unsubSnapshot: (() => void) | null = null;
 async function saveNewUser(u: User) {
   const ref = doc(db, "users", u.uid);
   const snap = await getDoc(ref);
+  const createdAt = new Date().toISOString();
   if (!snap.exists()) {
     await setDoc(ref, {
       displayName: u.displayName, email: u.email, photoURL: u.photoURL,
@@ -39,13 +40,19 @@ async function saveNewUser(u: User) {
       sdMastered: [], sdBookmarked: [],
       seCompleted: [],
       flashcardKnown: [], flashcardWeak: [],
-      createdAt: new Date().toISOString(),
+      createdAt,
     });
+    // Seed the public projection (no email here).
+    await setDoc(doc(db, "leaderboard", u.uid), {
+      username: "", photoURL: u.photoURL, xp: 0, streak: 0,
+      solvedCount: 0, activeDays: 0, selectedTrack: "", createdAt,
+    }, { merge: true });
   } else {
-    // Refresh identity each sign-in so name/avatar changes propagate to leaderboard/profiles.
+    // Refresh identity each sign-in so avatar changes propagate.
     await setDoc(ref, {
       displayName: u.displayName, email: u.email, photoURL: u.photoURL,
     }, { merge: true });
+    await setDoc(doc(db, "leaderboard", u.uid), { photoURL: u.photoURL }, { merge: true });
   }
 }
 
@@ -100,7 +107,7 @@ async function loadAndSubscribe(uid: string) {
 }
 
 async function syncAllToFirestore(uid: string) {
-  const { solved, bookmarked, xp, streak, lastActivity, studyPlanDuration, solvedDates, solveTimes } = useProgressStore.getState();
+  const { solved, bookmarked, xp, streak, lastActivity, studyPlanDuration, solvedDates, solveTimes, username } = useProgressStore.getState();
   const { mastered: sdMastered, bookmarked: sdBookmarked } = useSDStore.getState();
   const { completed: seCompleted } = useSEStore.getState();
   const { known: flashcardKnown, weak: flashcardWeak, nextReview: flashcardNextReview, level: flashcardLevel } = useFlashcardStore.getState();
@@ -108,6 +115,18 @@ async function syncAllToFirestore(uid: string) {
 
   const ref = doc(db, "users", uid);
   lastLocalWriteAt = Date.now(); // mark before write to suppress bounce-back
+
+  // Public projection — non-sensitive subset for leaderboard + public profiles.
+  await setDoc(doc(db, "leaderboard", uid), {
+    username,
+    photoURL: auth.currentUser?.photoURL ?? null,
+    xp,
+    streak,
+    solvedCount: solved.size,
+    activeDays: new Set(Object.values(solvedDates)).size,
+    selectedTrack: selectedTrack ?? "",
+  }, { merge: true });
+
   await updateDoc(ref, {
     solved: Array.from(solved),
     bookmarked: Array.from(bookmarked),
