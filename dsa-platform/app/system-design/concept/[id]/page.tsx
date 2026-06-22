@@ -69,7 +69,7 @@ export default function ConceptPage({ params }: Props) {
               {isMastered ? "✓ Understood" : "Mark as Understood"}
             </button>
           </div>
-          <p className="lede max-w-2xl">{concept.summary}</p>
+          <p className="lede">{concept.summary}</p>
         </section>
 
         {/* Visualization */}

@@ -54,7 +54,7 @@ export default function PatternPage({ params }: Props) {
         <section className="mt-6 mb-10 reveal reveal-1">
           <p className="eyebrow mb-2">Pattern {currentIndex + 1} of {PATTERNS.length}</p>
           <h1 className="title-1 mb-4" style={{ color: "var(--text-primary)" }}>{pattern.title}</h1>
-          <p className="lede max-w-2xl mb-7">{pattern.description}</p>
+          <p className="lede mb-7">{pattern.description}</p>
 
           {/* Visualization is the hero */}
           <div className="rounded-2xl p-5" style={{ background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)" }}>
@@ -77,7 +77,7 @@ export default function PatternPage({ params }: Props) {
         <hr className="hairline my-10" />
 
         {/* ── 2. MENTAL MODEL ── */}
-        <section className="mb-10 reading">
+        <section className="mb-10">
           <p className="eyebrow mb-3">Mental model</p>
           <p className="text-xl leading-relaxed mb-5" style={{ color: "var(--text-primary)", fontWeight: 500 }}>
             &ldquo;{pattern.realWorldAnalogy}&rdquo;

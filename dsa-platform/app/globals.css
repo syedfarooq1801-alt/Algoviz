@@ -162,7 +162,7 @@ h1, h2, h3, h4 { letter-spacing: 0; }
 
 /* Consistent reading body across DSA + System Design theory/problem pages.
    Keyed off body-text line-height markers so labels/eyebrows stay untouched. */
-.read-prose :is(p, li)[class*="leading-relaxed"],
+.read-prose :is(p, li)[class*="leading-relaxed"]:not([class*="text-lg"]):not([class*="text-xl"]):not([class*="text-2xl"]),
 .read-prose :is(p, li)[class*="leading-6"],
 .read-prose :is(p, li)[class*="leading-5"] {
   font-size: 0.96rem;
