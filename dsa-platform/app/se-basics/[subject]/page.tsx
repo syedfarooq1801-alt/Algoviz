@@ -68,7 +68,7 @@ export default function SubjectPage({ params }: Props) {
           </div>
         </div>
 
-        <div className="grid justify-center gap-12 lg:grid-cols-[248px_minmax(0,760px)_280px]">
+        <div className="grid justify-center gap-14 lg:grid-cols-[248px_minmax(0,700px)_280px]">
           <aside className="hidden self-start lg:sticky lg:top-20 lg:block" style={{ maxHeight: "calc(100vh - 80px)", overflowY: "auto" }}>
             <div style={{ fontSize: 9, letterSpacing: "0.1em", color: "var(--text-muted)", fontFamily: "var(--font-mono)", marginBottom: 10, padding: "0 4px" }}>
               {subject.title.toUpperCase()}
@@ -102,7 +102,7 @@ export default function SubjectPage({ params }: Props) {
             </nav>
           </aside>
 
-          <article className="min-w-0 max-w-[760px] prose-se" key={activeId}>
+          <article className="min-w-0 max-w-[700px] prose-se" key={activeId}>
             {activeChapter && (
               <>
                 <div className="reveal reveal-1">
