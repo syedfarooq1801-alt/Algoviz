@@ -17,6 +17,15 @@ export default function SubjectPage({ params }: Props) {
   const meta = SUBJECT_META[subjectId];
   const { toggleChapter, isComplete } = useSEStore();
   const [activeId, setActiveId] = useState<string>(subject.chapters[0]?.id ?? "");
+  const [leftOpen, setLeftOpen] = useState(true);
+  const [rightOpen, setRightOpen] = useState(true);
+
+  // Predefined (so Tailwind compiles them) column templates per panel state.
+  const gridClass =
+    leftOpen && rightOpen ? "lg:grid-cols-[248px_minmax(0,700px)_280px]"
+    : leftOpen && !rightOpen ? "lg:grid-cols-[248px_minmax(0,820px)]"
+    : !leftOpen && rightOpen ? "lg:grid-cols-[minmax(0,820px)_280px]"
+    : "lg:grid-cols-[minmax(0,900px)]";
 
   useEffect(() => {
     const hash = window.location.hash.replace("#", "");
@@ -66,9 +75,36 @@ export default function SubjectPage({ params }: Props) {
               </Link>
             ))}
           </div>
+          <div className="ml-4 hidden items-center gap-2 lg:flex">
+            <button
+              onClick={() => setLeftOpen((v) => !v)}
+              title={leftOpen ? "Hide chapters" : "Show chapters"}
+              className="rounded-md px-2 py-1 transition-colors"
+              style={{
+                border: "1px solid var(--border)",
+                color: leftOpen ? "var(--accent)" : "var(--text-muted)",
+                background: leftOpen ? "var(--accent-soft)" : "transparent",
+              }}
+            >
+              {leftOpen ? "❮ Chapters" : "Chapters ❯"}
+            </button>
+            <button
+              onClick={() => setRightOpen((v) => !v)}
+              title={rightOpen ? "Hide notes" : "Show notes"}
+              className="rounded-md px-2 py-1 transition-colors"
+              style={{
+                border: "1px solid var(--border)",
+                color: rightOpen ? "var(--accent)" : "var(--text-muted)",
+                background: rightOpen ? "var(--accent-soft)" : "transparent",
+              }}
+            >
+              {rightOpen ? "Notes ❯" : "❮ Notes"}
+            </button>
+          </div>
         </div>
 
-        <div className="grid justify-center gap-14 lg:grid-cols-[248px_minmax(0,700px)_280px]">
+        <div className={`grid justify-center gap-14 ${gridClass}`}>
+          {leftOpen && (
           <aside className="hidden self-start lg:sticky lg:top-20 lg:block" style={{ maxHeight: "calc(100vh - 80px)", overflowY: "auto" }}>
             <div style={{ fontSize: 9, letterSpacing: "0.1em", color: "var(--text-muted)", fontFamily: "var(--font-mono)", marginBottom: 10, padding: "0 4px" }}>
               {subject.title.toUpperCase()}
@@ -101,6 +137,7 @@ export default function SubjectPage({ params }: Props) {
               })}
             </nav>
           </aside>
+          )}
 
           <article className="min-w-0 max-w-[700px] prose-se" key={activeId}>
             {activeChapter && (
@@ -129,6 +166,7 @@ export default function SubjectPage({ params }: Props) {
             )}
           </article>
 
+          {rightOpen && (
           <aside className="hidden self-start lg:sticky lg:top-20 lg:block">
             {activeChapter && (
               <div className="space-y-10">
@@ -167,6 +205,7 @@ export default function SubjectPage({ params }: Props) {
               </div>
             )}
           </aside>
+          )}
         </div>
       </main>
     </div>
