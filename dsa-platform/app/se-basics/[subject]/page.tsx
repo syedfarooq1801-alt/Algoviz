@@ -17,16 +17,12 @@ export default function SubjectPage({ params }: Props) {
   const meta = SUBJECT_META[subjectId];
   const { toggleChapter, isComplete } = useSEStore();
   const [activeId, setActiveId] = useState<string>(subject.chapters[0]?.id ?? "");
-  const [leftOpen, setLeftOpen] = useState(true);
-  const [rightOpen, setRightOpen] = useState(true);
+  // Init synchronously from localStorage so there's no open->closed flash on load.
+  const [leftOpen, setLeftOpen] = useState(() =>
+    typeof window === "undefined" ? true : localStorage.getItem("se-left-open") !== "0");
+  const [rightOpen, setRightOpen] = useState(() =>
+    typeof window === "undefined" ? true : localStorage.getItem("se-right-open") !== "0");
 
-  // Remember panel state across refreshes.
-  useEffect(() => {
-    const l = localStorage.getItem("se-left-open");
-    const r = localStorage.getItem("se-right-open");
-    if (l !== null) setLeftOpen(l === "1");
-    if (r !== null) setRightOpen(r === "1");
-  }, []);
   useEffect(() => { localStorage.setItem("se-left-open", leftOpen ? "1" : "0"); }, [leftOpen]);
   useEffect(() => { localStorage.setItem("se-right-open", rightOpen ? "1" : "0"); }, [rightOpen]);
 
@@ -69,7 +65,7 @@ export default function SubjectPage({ params }: Props) {
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
+    <div suppressHydrationWarning style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
       <main className="mx-auto max-w-[1380px] px-6 pb-8">
         <div className="flex flex-wrap items-center gap-2 pb-8 pt-8 text-xs" style={{ color: "var(--text-muted)" }}>
           <Link href="/se-basics" className="hover:underline">SE Basics</Link>
