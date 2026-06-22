@@ -14,12 +14,15 @@ import {
   Server,
   Sun,
   Swords,
+  Trophy,
+  Shield,
 } from "lucide-react";
 import { LogoIcon } from "@/components/Logo";
 import { useInterviewStore } from "@/lib/interviewStore";
 import { useAuth } from "@/lib/authContext";
 import { useTheme } from "@/lib/themeStore";
 import { usePrepStore } from "@/lib/prepStore";
+import { isAdmin } from "@/lib/admin";
 
 interface NavItem {
   href: string;
@@ -135,7 +138,22 @@ export default function Sidebar() {
       icon: Swords,
       active: pathname.startsWith("/mock"),
     },
+    {
+      href: "/leaderboard",
+      label: "Leaderboard",
+      icon: Trophy,
+      active: pathname.startsWith("/leaderboard"),
+    },
   ];
+
+  if (isAdmin(user?.email)) {
+    tools.push({
+      href: "/admin",
+      label: "Admin",
+      icon: Shield,
+      active: pathname.startsWith("/admin"),
+    });
+  }
 
   return (
     <aside

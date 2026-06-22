@@ -4,7 +4,7 @@ import {
   User, signInWithPopup, signInWithRedirect, getRedirectResult,
   signOut as firebaseSignOut, onAuthStateChanged,
 } from "firebase/auth";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import { auth, db, googleProvider } from "./firebase";
 import { useProgressStore } from "./store";
 import { useSDStore } from "./sdStore";
@@ -25,6 +25,10 @@ const AuthContext = createContext<AuthContextType>({
   signIn: async () => {}, signOut: async () => {},
 });
 
+// Track when we last wrote to Firestore — prevents bouncing our own writes back
+let lastLocalWriteAt = 0;
+let unsubSnapshot: (() => void) | null = null;
+
 async function saveNewUser(u: User) {
   const ref = doc(db, "users", u.uid);
   const snap = await getDoc(ref);
@@ -37,44 +41,61 @@ async function saveNewUser(u: User) {
       flashcardKnown: [], flashcardWeak: [],
       createdAt: new Date().toISOString(),
     });
+  } else {
+    // Refresh identity each sign-in so name/avatar changes propagate to leaderboard/profiles.
+    await setDoc(ref, {
+      displayName: u.displayName, email: u.email, photoURL: u.photoURL,
+    }, { merge: true });
   }
 }
 
-async function loadUserData(uid: string) {
-  const ref = doc(db, "users", uid);
-  const snap = await getDoc(ref);
-  if (!snap.exists()) return;
-  const d = snap.data();
-
+function hydrateAllStores(d: Record<string, unknown>) {
   useProgressStore.getState().hydrateFromFirestore({
-    solved: new Set<string>(d.solved ?? []),
-    bookmarked: new Set<string>(d.bookmarked ?? []),
-    xp: d.xp ?? 0,
-    streak: d.streak ?? 0,
-    lastActivity: d.lastActivity ?? "",
-    studyPlanDuration: ([30, 60, 90].includes(d.studyPlanDuration) ? d.studyPlanDuration : 30) as 30 | 60 | 90,
-    solvedDates: d.solvedDates ?? {},
-    solveTimes: d.solveTimes ?? {},
+    solved: new Set<string>((d.solved as string[]) ?? []),
+    bookmarked: new Set<string>((d.bookmarked as string[]) ?? []),
+    xp: (d.xp as number) ?? 0,
+    streak: (d.streak as number) ?? 0,
+    lastActivity: (d.lastActivity as string) ?? "",
+    studyPlanDuration: ([30, 60, 90].includes(d.studyPlanDuration as number)
+      ? d.studyPlanDuration : 30) as 30 | 60 | 90,
+    solvedDates: (d.solvedDates as Record<string, string>) ?? {},
+    solveTimes: (d.solveTimes as Record<string, number>) ?? {},
   });
   usePrepStore.getState().hydrateFromFirestore({
-    reviewDue: d.reviewDue ?? {},
-    problemStates: d.problemStates ?? {},
-    selectedTrack: d.selectedTrack,
-    behavioralDrafts: d.behavioralDrafts ?? {},
+    reviewDue: (d.reviewDue as Record<string, string>) ?? {},
+    problemStates: (d.problemStates as never) ?? {},
+    selectedTrack: d.selectedTrack as never,
+    behavioralDrafts: (d.behavioralDrafts as never) ?? {},
   });
   useSDStore.getState().hydrateFromFirestore({
-    mastered: new Set<string>(d.sdMastered ?? []),
-    bookmarked: new Set<string>(d.sdBookmarked ?? []),
+    mastered: new Set<string>((d.sdMastered as string[]) ?? []),
+    bookmarked: new Set<string>((d.sdBookmarked as string[]) ?? []),
   });
   useSEStore.getState().hydrateFromFirestore({
-    completed: new Set<string>(d.seCompleted ?? []),
+    completed: new Set<string>((d.seCompleted as string[]) ?? []),
   });
   useFlashcardStore.getState().hydrateFromFirestore({
-    known: new Set<string>(d.flashcardKnown ?? []),
-    weak: new Set<string>(d.flashcardWeak ?? []),
-    nextReview: d.flashcardNextReview ?? {},
-    level: d.flashcardLevel ?? {},
+    known: new Set<string>((d.flashcardKnown as string[]) ?? []),
+    weak: new Set<string>((d.flashcardWeak as string[]) ?? []),
+    nextReview: (d.flashcardNextReview as Record<string, string>) ?? {},
+    level: (d.flashcardLevel as Record<string, number>) ?? {},
   });
+}
+
+async function loadAndSubscribe(uid: string) {
+  // Initial load — fast one-time read
+  const ref = doc(db, "users", uid);
+  const snap = await getDoc(ref);
+  if (snap.exists()) hydrateAllStores(snap.data() as Record<string, unknown>);
+
+  // Real-time listener — fires on changes from OTHER devices
+  if (unsubSnapshot) unsubSnapshot();
+  unsubSnapshot = onSnapshot(ref, (s) => {
+    if (!s.exists()) return;
+    // Skip if we wrote this within the last 3s (our own debounced sync bouncing back)
+    if (Date.now() - lastLocalWriteAt < 3000) return;
+    hydrateAllStores(s.data() as Record<string, unknown>);
+  }, (err) => console.error("[RT sync]", err));
 }
 
 async function syncAllToFirestore(uid: string) {
@@ -85,6 +106,7 @@ async function syncAllToFirestore(uid: string) {
   const { reviewDue, problemStates, selectedTrack, behavioralDrafts } = usePrepStore.getState();
 
   const ref = doc(db, "users", uid);
+  lastLocalWriteAt = Date.now(); // mark before write to suppress bounce-back
   await updateDoc(ref, {
     solved: Array.from(solved),
     bookmarked: Array.from(bookmarked),
@@ -110,7 +132,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [signInError, setSignInError] = useState<string | null>(null);
 
-  // Auth state listener
   useEffect(() => {
     getRedirectResult(auth).then(async (result) => {
       if (result?.user) await saveNewUser(result.user);
@@ -118,14 +139,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
-      if (u) await loadUserData(u.uid);
-      else useProgressStore.getState().resetForUser();
+      if (u) await loadAndSubscribe(u.uid);
+      else {
+        unsubSnapshot?.();
+        unsubSnapshot = null;
+        useProgressStore.getState().resetForUser();
+      }
       setLoading(false);
     });
-    return unsub;
+    return () => { unsub(); unsubSnapshot?.(); unsubSnapshot = null; };
   }, []);
 
-  // Auto-sync all stores to Firestore whenever any store changes (debounced 1.5s)
+  // Debounced write-back to Firestore on any store change
   useEffect(() => {
     if (!user) return;
     const uid = user.uid;
@@ -168,6 +193,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     await firebaseSignOut(auth);
+    unsubSnapshot?.();
+    unsubSnapshot = null;
     useProgressStore.getState().resetForUser();
   };
 
@@ -180,5 +207,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export const useAuth = () => useContext(AuthContext);
 
-// Keep named export for any direct callers
 export { syncAllToFirestore as syncToFirestore };
