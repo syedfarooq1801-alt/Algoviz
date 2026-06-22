@@ -157,9 +157,8 @@ h1, h2, h3, h4 { letter-spacing: 0; }
 .title-2 { font-size: 1.3rem; font-weight: 650; letter-spacing: 0; }
 .eyebrow { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
 .lede { font-size: 1.12rem; line-height: 1.6; color: var(--text-secondary); }
-/* Body copy: comfortable measure (driven by --measure), looser rhythm, clear gaps */
-.prose-se p { font-size: 0.96rem; line-height: 1.85; margin-bottom: 1.4rem; max-width: var(--measure, 68ch); }
-.prose-se h3 { max-width: var(--measure, 68ch); }
+/* Body copy: fill the column (flush like the System Design pages), looser rhythm */
+.prose-se p { font-size: 0.96rem; line-height: 1.85; margin-bottom: 1.4rem; }
 
 /* Reading-width container — content-first, not full-bleed */
 .reading { max-width: 62rem; margin-left: auto; margin-right: auto; }
