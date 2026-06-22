@@ -21,20 +21,48 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
+function daysBetween(fromISO: string, toISO: string): number {
+  const a = new Date(fromISO + "T00:00:00").getTime();
+  const b = new Date(toISO + "T00:00:00").getTime();
+  return Math.round((b - a) / 86400000);
+}
+
+function fmtDate(iso: string): string {
+  const d = new Date(iso + "T00:00:00");
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en", { weekday: "short", month: "short", day: "numeric" });
+}
+
 export default function StudyPlanPage() {
   const isMobile = useMobile();
-  const { solved, toggleSolved, studyPlanDuration, setStudyPlanDuration } = useProgressStore();
+  const { solved, toggleSolved, studyPlanDuration, setStudyPlanDuration, planStartDate, setPlanStartDate } = useProgressStore();
   const { mastered, toggleMastered } = useSDStore();
   const { completed, toggleChapter } = useSEStore();
   const duration: Duration = studyPlanDuration;
   const [activeWeek, setActiveWeek] = useState(0);
 
+  const today = todayISO();
+  // Anchor the plan to a fixed start date so "today" maps to a real day.
+  // First visit (or after reset) sets it to today.
+  useEffect(() => {
+    if (!planStartDate) setPlanStartDate(today);
+  }, [planStartDate, setPlanStartDate, today]);
+  const startDate = planStartDate || today;
+
   function changeDuration(d: Duration) {
     setStudyPlanDuration(d);
-    setActiveWeek(0);
+    const idx = Math.max(0, Math.min(daysBetween(startDate, today), d - 1));
+    setActiveWeek(Math.floor(idx / 7));
+    setActiveDayIdx(idx % 7);
   }
 
-  const plan = useMemo(() => generateStudyPlan(duration, todayISO()), [duration]);
+  const plan = useMemo(() => generateStudyPlan(duration, startDate), [duration, startDate]);
+
+  // Which day index is "today" within the plan (clamped to the plan range).
+  const todayIdx = useMemo(() => {
+    const diff = daysBetween(startDate, today);
+    return Math.max(0, Math.min(diff, plan.days.length - 1));
+  }, [startDate, today, plan.days.length]);
 
   const weeks: DayPlan[][] = useMemo(() => {
     const w: DayPlan[][] = [];
@@ -46,21 +74,15 @@ export default function StudyPlanPage() {
   const totalWeeks = weeks.length;
   const [activeDayIdx, setActiveDayIdx] = useState<number>(0);
 
+  // Open on today's week/day so the plan tracks the calendar.
   const didAutoInit = useRef(false);
   useEffect(() => {
     if (didAutoInit.current) return;
     didAutoInit.current = true;
-    for (let i = 0; i < plan.days.length; i++) {
-      const d = plan.days[i];
-      if (d.type === "rest") continue;
-      if (d.tasks.some((t) => t.domain !== "behavioral" && !isTaskDone(t))) {
-        setActiveWeek(Math.floor(i / 7));
-        setActiveDayIdx(i % 7);
-        return;
-      }
-    }
+    setActiveWeek(Math.floor(todayIdx / 7));
+    setActiveDayIdx(todayIdx % 7);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [todayIdx]);
 
   const focusDay = week[activeDayIdx] ?? week.find((d) => d.type !== "rest") ?? week[0];
 
@@ -138,14 +160,19 @@ export default function StudyPlanPage() {
               const dayDone = isRest ? 0 : tasksDoneCount(day.tasks);
               const dayTotal = isRest ? 0 : day.tasks.filter(t => t.domain !== "behavioral").length;
               const isActive = wi === activeDayIdx;
+              const isToday = day.date === today;
               return (
                 <div key={wi} onClick={() => setActiveDayIdx(wi)} style={{
+                  position: "relative",
                   background: isActive ? `${color}28` : isRest ? "transparent" : `${color}14`,
-                  border: `2px solid ${isActive ? color : isRest ? "var(--border-subtle)" : color + "33"}`,
+                  border: `2px solid ${isActive ? color : isToday ? "var(--accent)" : isRest ? "var(--border-subtle)" : color + "33"}`,
+                  boxShadow: isToday ? "0 0 0 1px var(--accent) inset" : "none",
                   borderRadius: 7, padding: "8px 4px", textAlign: "center",
                   cursor: "pointer", transition: "all 0.12s",
                 }}>
-                  <div style={{ fontSize: 9, color: "var(--text-muted)", fontFamily: "var(--font-mono)", letterSpacing: "0.06em", marginBottom: 4 }}>{label}</div>
+                  <div style={{ fontSize: 9, color: isToday ? "var(--accent)" : "var(--text-muted)", fontFamily: "var(--font-mono)", letterSpacing: "0.06em", marginBottom: 4 }}>
+                    {isToday ? "TODAY" : label}
+                  </div>
                   <div style={{ fontSize: 10, fontWeight: 600, color: isRest ? "var(--text-muted)" : color }}>
                     {isRest ? "Rest" : PHASE_LABEL[day.phase] ?? day.phase}
                   </div>
@@ -170,6 +197,11 @@ export default function StudyPlanPage() {
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: PHASE_COLOR[focusDay.phase] ?? "var(--accent)" }} />
                 <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
                   Day {focusDay.day} — {focusDay.label}
+                  {focusDay.date && (
+                    <span style={{ fontSize: 11, fontWeight: 400, color: focusDay.date === today ? "var(--accent)" : "var(--text-muted)", marginLeft: 8 }}>
+                      {focusDay.date === today ? "Today · " : ""}{fmtDate(focusDay.date)}
+                    </span>
+                  )}
                 </span>
                 <span style={{
                   marginLeft: "auto", fontSize: 10, fontFamily: "var(--font-mono)",

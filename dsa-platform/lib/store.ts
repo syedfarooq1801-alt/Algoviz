@@ -11,6 +11,8 @@ interface ProgressState {
   solvedDates: Record<string, string>;
   solveTimes: Record<string, number>;
   studyPlanDuration: 30 | 60 | 90;
+  planStartDate: string; // YYYY-MM-DD — anchors the plan to the calendar
+  setPlanStartDate: (d: string) => void;
   username: string;
   setUsername: (name: string) => void;
   toggleSolved: (id: string, syncFn?: () => void, timeSecs?: number) => void;
@@ -29,6 +31,7 @@ interface ProgressState {
     solvedDates?: Record<string, string>;
     solveTimes?: Record<string, number>;
     username?: string;
+    planStartDate?: string;
   }) => void;
   resetForUser: () => void;
 }
@@ -44,8 +47,10 @@ export const useProgressStore = create<ProgressState>()(
       solvedDates: {},
       solveTimes: {},
       studyPlanDuration: 30 as 30 | 60 | 90,
+      planStartDate: "",
       username: "",
 
+      setPlanStartDate: (d) => set({ planStartDate: d }),
       setUsername: (name) => set({ username: name }),
 
       toggleSolved: (id, syncFn, timeSecs) =>
@@ -107,6 +112,7 @@ export const useProgressStore = create<ProgressState>()(
         solvedDates: data.solvedDates ?? {},
         solveTimes: data.solveTimes ?? {},
         username: data.username ?? "",
+        planStartDate: data.planStartDate ?? get().planStartDate ?? "",
       }),
 
       resetForUser: () => set({
@@ -118,6 +124,7 @@ export const useProgressStore = create<ProgressState>()(
         solvedDates: {},
         solveTimes: {},
         studyPlanDuration: 30,
+        planStartDate: "",
         username: "",
       }),
     }),

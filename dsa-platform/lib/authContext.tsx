@@ -68,6 +68,7 @@ function hydrateAllStores(d: Record<string, unknown>) {
     solvedDates: (d.solvedDates as Record<string, string>) ?? {},
     solveTimes: (d.solveTimes as Record<string, number>) ?? {},
     username: (d.username as string) ?? "",
+    planStartDate: (d.planStartDate as string) ?? "",
   });
   usePrepStore.getState().hydrateFromFirestore({
     reviewDue: (d.reviewDue as Record<string, string>) ?? {},
@@ -107,7 +108,7 @@ async function loadAndSubscribe(uid: string) {
 }
 
 async function syncAllToFirestore(uid: string) {
-  const { solved, bookmarked, xp, streak, lastActivity, studyPlanDuration, solvedDates, solveTimes, username } = useProgressStore.getState();
+  const { solved, bookmarked, xp, streak, lastActivity, studyPlanDuration, solvedDates, solveTimes, username, planStartDate } = useProgressStore.getState();
   const { mastered: sdMastered, bookmarked: sdBookmarked } = useSDStore.getState();
   const { completed: seCompleted } = useSEStore.getState();
   const { known: flashcardKnown, weak: flashcardWeak, nextReview: flashcardNextReview, level: flashcardLevel } = useFlashcardStore.getState();
@@ -131,6 +132,7 @@ async function syncAllToFirestore(uid: string) {
     solved: Array.from(solved),
     bookmarked: Array.from(bookmarked),
     xp, streak, lastActivity, studyPlanDuration,
+    planStartDate,
     solvedDates,
     solveTimes,
     sdMastered: Array.from(sdMastered),
