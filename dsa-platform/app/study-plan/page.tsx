@@ -183,7 +183,7 @@ export default function StudyPlanPage() {
               const dayDone = isRest ? 0 : tasksDoneCount(day.tasks);
               const dayTotal = isRest ? 0 : day.tasks.filter(t => t.domain !== "behavioral").length;
               const isActive = wi === activeDayIdx;
-              const isToday = day.date === today;
+              const isToday = activeWeek * 7 + wi === currentIdx;
               return (
                 <div key={wi} onClick={() => setActiveDayIdx(wi)} style={{
                   position: "relative",
@@ -220,11 +220,14 @@ export default function StudyPlanPage() {
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: PHASE_COLOR[focusDay.phase] ?? "var(--accent)" }} />
                 <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
                   Day {focusDay.day} — {focusDay.label}
-                  {focusDay.date && (
-                    <span style={{ fontSize: 11, fontWeight: 400, color: focusDay.date === today ? "var(--accent)" : "var(--text-muted)", marginLeft: 8 }}>
-                      {focusDay.date === today ? "Today · " : ""}{fmtDate(focusDay.date)}
-                    </span>
-                  )}
+                  {focusDay.date && (() => {
+                    const isCurrent = activeWeek * 7 + activeDayIdx === currentIdx;
+                    return (
+                      <span style={{ fontSize: 11, fontWeight: 400, color: isCurrent ? "var(--accent)" : "var(--text-muted)", marginLeft: 8 }}>
+                        {isCurrent ? "Today · " : ""}{fmtDate(focusDay.date)}
+                      </span>
+                    );
+                  })()}
                 </span>
                 <span style={{
                   marginLeft: "auto", fontSize: 10, fontFamily: "var(--font-mono)",
