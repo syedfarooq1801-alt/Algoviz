@@ -5,7 +5,7 @@ import { AuthProvider } from "@/lib/authContext";
 import AuthGuard from "@/components/AuthGuard";
 import CommandPalette from "@/components/CommandPalette";
 import MobileNav from "@/components/MobileNav";
-import Sidebar from "@/components/Sidebar";
+import AppShell from "@/components/AppShell";
 import AskTutor from "@/components/AskTutor";
 import SelectionPopover from "@/components/SelectionPopover";
 
@@ -44,10 +44,7 @@ export default function RootLayout({
         <AuthProvider>
           <AuthGuard>
             <CommandPalette />
-            <div className="lg:grid min-h-screen" style={{ gridTemplateColumns: "220px 1fr" }}>
-              <Sidebar />
-              <div className="pb-16 lg:pb-0 min-h-screen">{children}</div>
-            </div>
+            <AppShell>{children}</AppShell>
             <MobileNav />
             <AskTutor />
             <SelectionPopover />

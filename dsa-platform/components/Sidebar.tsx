@@ -16,6 +16,7 @@ import {
   Swords,
   Trophy,
   MessageCircle,
+  ChevronLeft,
 } from "lucide-react";
 import { LogoIcon } from "@/components/Logo";
 import { useInterviewStore } from "@/lib/interviewStore";
@@ -23,6 +24,7 @@ import { useAuth } from "@/lib/authContext";
 import { useTheme } from "@/lib/themeStore";
 import { usePrepStore } from "@/lib/prepStore";
 import { useTutorStore } from "@/lib/tutorStore";
+import { useSidebarStore } from "@/lib/sidebarStore";
 
 interface NavItem {
   href: string;
@@ -66,6 +68,7 @@ export default function Sidebar() {
   const { theme, toggle } = useTheme();
   const { reviewDue } = usePrepStore();
   const openTutor = useTutorStore((s) => s.open);
+  const { collapsed, toggle: toggleSidebar } = useSidebarStore();
   const days = daysUntil();
   const todayIso = new Date().toISOString().slice(0, 10);
   const dueCount = Object.values(reviewDue).filter((d) => d <= todayIso).length;
@@ -147,6 +150,8 @@ export default function Sidebar() {
     },
   ];
 
+  if (collapsed) return null;
+
   return (
     <aside
       className="hidden lg:flex flex-col sticky top-0 h-screen overflow-y-auto"
@@ -157,8 +162,8 @@ export default function Sidebar() {
       }}
     >
       {/* Logo */}
-      <div className="px-4 pt-5 pb-4">
-        <Link href="/" className="flex items-center gap-2.5">
+      <div className="px-4 pt-5 pb-4 flex items-center justify-between gap-2">
+        <Link href="/" className="flex items-center gap-2.5 min-w-0">
           <span
             className="w-8 h-8 rounded-lg inline-flex items-center justify-center shrink-0"
             style={{
@@ -169,10 +174,18 @@ export default function Sidebar() {
           >
             <LogoIcon size={17} />
           </span>
-          <span className="font-semibold text-sm" style={{ color: "var(--text-primary)" }}>
+          <span className="font-semibold text-sm truncate" style={{ color: "var(--text-primary)" }}>
             Code Algo
           </span>
         </Link>
+        <button
+          onClick={toggleSidebar}
+          aria-label="Hide sidebar"
+          className="shrink-0 inline-flex items-center justify-center rounded-md"
+          style={{ width: 26, height: 26, color: "var(--text-muted)", background: "transparent", border: "1px solid var(--border)", cursor: "pointer" }}
+        >
+          <ChevronLeft size={15} />
+        </button>
       </div>
 
       {/* Interview countdown */}
