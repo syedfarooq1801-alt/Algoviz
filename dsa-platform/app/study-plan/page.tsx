@@ -33,6 +33,14 @@ function fmtDate(iso: string): string {
   return d.toLocaleDateString("en", { weekday: "short", month: "short", day: "numeric" });
 }
 
+// Tag a task link so the detail page's Next button follows the plan sequence.
+function withPlanSrc(href: string): string {
+  const h = href.indexOf("#");
+  const hash = h >= 0 ? href.slice(h) : "";
+  const base = h >= 0 ? href.slice(0, h) : href;
+  return `${base}${base.includes("?") ? "&" : "?"}src=plan${hash}`;
+}
+
 export default function StudyPlanPage() {
   const isMobile = useMobile();
   const { solved, toggleSolved, studyPlanDuration, setStudyPlanDuration, planStartDate, setPlanStartDate } = useProgressStore();
@@ -270,7 +278,7 @@ export default function StudyPlanPage() {
                       {/* Title — navigates to topic/problem */}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         {task.href ? (
-                          <Link href={task.href} target="_blank" rel="noopener noreferrer" style={{
+                          <Link href={withPlanSrc(task.href)} target="_blank" rel="noopener noreferrer" style={{
                             display: "block", fontSize: 12, fontWeight: 500,
                             color: done ? "var(--text-muted)" : "var(--accent)",
                             textDecoration: done ? "line-through" : "none",

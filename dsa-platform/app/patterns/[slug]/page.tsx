@@ -6,6 +6,7 @@ import ProgressRing from "@/components/ProgressRing";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import PatternVizDispatcher from "@/components/visualizations/PatternVizDispatcher";
+import NextNav from "@/components/NextNav";
 import { PROBLEM_CONTENT } from "@/data/problemContent";
 import dynamic from "next/dynamic";
 
@@ -240,6 +241,10 @@ export default function PatternPage({ params }: Props) {
             <Link href="/dsa" style={{ color: "var(--text-muted)" }}>All patterns</Link>
           </div>
         </section>
+        <NextNav
+          currentHref={`/patterns/${slug}`}
+          fallback={nextPattern ? { href: `/patterns/${nextPattern.id}`, label: nextPattern.title } : null}
+        />
       </main>
     </div>
   );

@@ -3,8 +3,9 @@ import { use, useState } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Bookmark, Check, ExternalLink } from "lucide-react";
-import { getProblemById, getPatternById } from "@/data/problems";
+import { getProblemById, getPatternById, getAllProblems } from "@/data/problems";
 import { PROBLEM_CONTENT } from "@/data/problemContent";
+import NextNav from "@/components/NextNav";
 import { useProgressStore } from "@/lib/store";
 import { useNotesStore } from "@/lib/notesStore";
 import { usePrepStore } from "@/lib/prepStore";
@@ -46,6 +47,12 @@ export default function ProblemPage({ params }: Props) {
   };
 
   const diffColor = problem.difficulty === "Easy" ? "var(--accent-green)" : problem.difficulty === "Medium" ? "var(--accent-orange)" : "var(--accent-red)";
+
+  // Default Next: the next problem in the DSA sheet order.
+  const allProblems = getAllProblems();
+  const myIdx = allProblems.findIndex((p) => p.id === id);
+  const nextProblem = myIdx >= 0 && myIdx + 1 < allProblems.length ? allProblems[myIdx + 1] : null;
+  const fallbackNext = nextProblem ? { href: `/problems/${nextProblem.id}`, label: nextProblem.title } : null;
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
@@ -208,6 +215,7 @@ export default function ProblemPage({ params }: Props) {
             <div className="p-8 text-sm" style={{ color: "var(--text-muted)" }}>No local explanation yet. Use the LeetCode link above.</div>
           )}
         </section>
+        <NextNav currentHref={`/problems/${id}`} fallback={fallbackNext} />
       </main>
     </div>
   );

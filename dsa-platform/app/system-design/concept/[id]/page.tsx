@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getConceptById, SD_CHAPTERS } from "@/data/systemDesign";
 import { SD_CONCEPT_CONTENT } from "@/data/systemDesignContent";
 import { useSDStore } from "@/lib/sdStore";
+import NextNav from "@/components/NextNav";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
@@ -173,6 +174,7 @@ export default function ConceptPage({ params }: Props) {
             <Link href={`/system-design/concept/${next.id}`} style={{ color: "var(--accent)" }}>{next.title} →</Link>
           ) : <Link href={`/system-design/${concept.chapterId}`} style={{ color: "var(--text-muted)" }}>Back to chapter</Link>}
         </div>
+        <NextNav currentHref={`/system-design/concept/${id}`} />
       </main>
     </div>
   );

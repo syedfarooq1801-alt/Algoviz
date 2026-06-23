@@ -3,6 +3,7 @@ import { use, useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SEBlock from "@/components/se/SEBlock";
+import NextNav from "@/components/NextNav";
 import { getSEVisual } from "@/components/se/visuals/registry";
 import { getSubject, SUBJECT_META, SE_SUBJECTS } from "@/data/seBasics";
 import { useSEStore } from "@/lib/seStore";
@@ -34,8 +35,14 @@ export default function SubjectPage({ params }: Props) {
     : "lg:grid-cols-[minmax(0,1fr)]";
 
   useEffect(() => {
-    const hash = window.location.hash.replace("#", "");
-    if (hash && subject.chapters.some((c) => c.id === hash)) setActiveId(hash);
+    const applyHash = () => {
+      const hash = window.location.hash.replace("#", "");
+      if (hash && subject.chapters.some((c) => c.id === hash)) setActiveId(hash);
+    };
+    applyHash();
+    // Same-subject "Next" only changes the hash — listen so the chapter switches.
+    window.addEventListener("hashchange", applyHash);
+    return () => window.removeEventListener("hashchange", applyHash);
   }, [subject]);
 
   const doneCount = subject.chapters.filter((c) => isComplete(`${subjectId}/${c.id}`)).length;
@@ -168,6 +175,7 @@ export default function SubjectPage({ params }: Props) {
                   <ChapterNav subject={subject} activeId={activeId} dir={-1} onGo={setActiveId} />
                   <ChapterNav subject={subject} activeId={activeId} dir={1} onGo={setActiveId} />
                 </div>
+                <NextNav currentHref={`/se-basics/${subjectId}#${activeChapter.id}`} />
               </>
             )}
           </article>
