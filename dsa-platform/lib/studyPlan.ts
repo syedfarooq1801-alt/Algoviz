@@ -249,7 +249,10 @@ export function generateStudyPlan(durationDays: 30 | 60 | 90, startDate: string,
   const days: DayPlan[] = [];
   const behavioralDays = durationDays === 30 ? 3 : durationDays === 60 ? 5 : 7;
   const coreEndDay = durationDays - behavioralDays;
-  const coreWorkDays = Array.from({ length: coreEndDay }, (_, i) => i + 1).filter((day) => (day - 1) % 7 !== 6).length;
+  // Real weekday of a plan day (0 = Sunday). Sundays are review days.
+  const weekdayOf = (dn: number) => new Date(addDays(startDate, dn - 1) + "T00:00:00").getDay();
+  const isReview = (dn: number) => weekdayOf(dn) === 0;
+  const coreWorkDays = Array.from({ length: coreEndDay }, (_, i) => i + 1).filter((day) => !isReview(day)).length;
 
   function remainingCoreEffort() {
     return totalEffort(dsaQueue) + totalEffort(sdQueue) + totalEffort(seQueue);
@@ -257,7 +260,7 @@ export function generateStudyPlan(durationDays: 30 | 60 | 90, startDate: string,
 
   function remainingCoreWorkDays(dayNum: number) {
     return Array.from({ length: Math.max(0, coreEndDay - dayNum + 1) }, (_, i) => dayNum + i)
-      .filter((day) => (day - 1) % 7 !== 6).length;
+      .filter((day) => !isReview(day)).length;
   }
 
   for (let dayNum = 1; dayNum <= durationDays; dayNum++) {
@@ -281,7 +284,7 @@ export function generateStudyPlan(durationDays: 30 | 60 | 90, startDate: string,
       continue;
     }
 
-    if (slot === 6) {
+    if (isReview(dayNum)) {
       const isMock = week % 2 === 0;
       const tasks = topByPriority(weeklyWindow.length ? weeklyWindow : assigned, isMock ? 6 : 8);
       days.push({

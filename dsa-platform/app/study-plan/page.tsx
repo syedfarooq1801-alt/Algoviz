@@ -214,6 +214,9 @@ export default function StudyPlanPage() {
               const dayTotal = isRest ? 0 : day.tasks.filter(t => t.domain !== "behavioral").length;
               const isActive = wi === activeDayIdx;
               const isToday = activeWeek * 7 + wi === currentIdx;
+              const weekday = day.date
+                ? new Date(day.date + "T00:00:00").toLocaleDateString("en", { weekday: "short" })
+                : label;
               return (
                 <div key={wi} onClick={() => setActiveDayIdx(wi)} style={{
                   position: "relative",
@@ -224,7 +227,7 @@ export default function StudyPlanPage() {
                   cursor: "pointer", transition: "all 0.12s",
                 }}>
                   <div style={{ fontSize: 9, color: isToday ? "var(--accent)" : "var(--text-muted)", fontFamily: "var(--font-mono)", letterSpacing: "0.06em", marginBottom: 4 }}>
-                    {isToday ? "TODAY" : label}
+                    {isToday ? "TODAY" : weekday}
                   </div>
                   <div style={{ fontSize: 10, fontWeight: 600, color: isRest ? "var(--text-muted)" : color }}>
                     {isRest ? "Rest" : PHASE_LABEL[day.phase] ?? day.phase}
