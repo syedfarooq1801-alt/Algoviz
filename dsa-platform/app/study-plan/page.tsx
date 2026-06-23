@@ -213,7 +213,7 @@ export default function StudyPlanPage() {
               const dayDone = isRest ? 0 : tasksDoneCount(day.tasks);
               const dayTotal = isRest ? 0 : day.tasks.filter(t => t.domain !== "behavioral").length;
               const isActive = wi === activeDayIdx;
-              const isToday = activeWeek * 7 + wi === currentIdx;
+              const isToday = activeWeek * 7 + wi === todayIdx; // real calendar today
               const weekday = day.date
                 ? new Date(day.date + "T00:00:00").toLocaleDateString("en", { weekday: "short" })
                 : label;
@@ -254,10 +254,14 @@ export default function StudyPlanPage() {
                 <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>
                   Day {focusDay.day} — {focusDay.label}
                   {focusDay.date && (() => {
-                    const isCurrent = activeWeek * 7 + activeDayIdx === currentIdx;
+                    const gi = activeWeek * 7 + activeDayIdx;
+                    const isRealToday = gi === todayIdx;
+                    const isBehind = gi < todayIdx;
+                    const prefix = isRealToday ? "Today · " : isBehind ? "Catch up · " : "";
+                    const color = isRealToday ? "var(--accent)" : isBehind ? "#F5A524" : "var(--text-muted)";
                     return (
-                      <span style={{ fontSize: 11, fontWeight: 400, color: isCurrent ? "var(--accent)" : "var(--text-muted)", marginLeft: 8 }}>
-                        {isCurrent ? "Today · " : ""}{fmtDate(focusDay.date)}
+                      <span style={{ fontSize: 11, fontWeight: 400, color, marginLeft: 8 }}>
+                        {prefix}{fmtDate(focusDay.date)}
                       </span>
                     );
                   })()}
