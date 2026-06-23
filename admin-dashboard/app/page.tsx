@@ -1,12 +1,17 @@
 "use client";
-import { useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import {
   User, onAuthStateChanged, signInWithPopup, signOut as fbSignOut,
 } from "firebase/auth";
-import { collection, onSnapshot } from "firebase/firestore";
+import {
+  collection, query, orderBy, limit, startAfter, getDocs, getCountFromServer,
+  type QueryDocumentSnapshot, type DocumentData,
+} from "firebase/firestore";
 import { auth, db, googleProvider } from "@/lib/firebase";
 import { isAdmin } from "@/lib/admin";
 import { LogOut, Shield } from "lucide-react";
+
+const PAGE_SIZE = 50;
 
 interface AdminUser {
   uid: string;
@@ -18,6 +23,21 @@ interface AdminUser {
   solved: string[];
   lastActivity: string;
   createdAt: string;
+}
+
+function toAdminUser(d: QueryDocumentSnapshot<DocumentData>): AdminUser {
+  const x = d.data();
+  return {
+    uid: d.id,
+    username: x.username ?? null,
+    displayName: x.displayName ?? null,
+    email: x.email ?? null,
+    xp: x.xp ?? 0,
+    streak: x.streak ?? 0,
+    solved: x.solved ?? [],
+    lastActivity: x.lastActivity ?? "",
+    createdAt: x.createdAt ?? "",
+  };
 }
 
 function fmtDate(iso: string): string {
@@ -33,6 +53,10 @@ export default function AdminPage() {
   const [signInErr, setSignInErr] = useState<string | null>(null);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalCount, setTotalCount] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<"xp" | "recent" | "solved">("xp");
 
@@ -45,38 +69,49 @@ export default function AdminPage() {
     });
   }, []);
 
+  // Paginated fetch (PAGE_SIZE at a time, ordered by xp) instead of streaming
+  // the whole users collection. Total count via a cheap server aggregation.
+  const loadMore = useCallback(async (reset: boolean) => {
+    const base = [collection(db, "users"), orderBy("xp", "desc")] as const;
+    const q = reset
+      ? query(...base, limit(PAGE_SIZE))
+      : query(...base, startAfter(lastDoc!), limit(PAGE_SIZE));
+    const snap = await getDocs(q);
+    const page = snap.docs.map(toAdminUser);
+    setUsers((prev) => (reset ? page : [...prev, ...page]));
+    setLastDoc(snap.docs[snap.docs.length - 1] ?? lastDoc);
+    setHasMore(snap.docs.length === PAGE_SIZE);
+  }, [lastDoc]);
+
   useEffect(() => {
     if (!admin) return;
     setLoadingUsers(true);
-    const unsub = onSnapshot(
-      collection(db, "users"),
-      (snap) => {
-        setUsers(snap.docs.map((d) => ({
-          uid: d.id,
-          username: d.data().username ?? null,
-          displayName: d.data().displayName ?? null,
-          email: d.data().email ?? null,
-          xp: d.data().xp ?? 0,
-          streak: d.data().streak ?? 0,
-          solved: d.data().solved ?? [],
-          lastActivity: d.data().lastActivity ?? "",
-          createdAt: d.data().createdAt ?? "",
-        })));
-        setLoadingUsers(false);
-      },
-      (err) => { console.error(err); setLoadingUsers(false); }
-    );
-    return unsub;
+    (async () => {
+      try {
+        await loadMore(true);
+        const c = await getCountFromServer(collection(db, "users"));
+        setTotalCount(c.data().count);
+      } catch (e) { console.error(e); }
+      finally { setLoadingUsers(false); }
+    })();
+  // loadMore intentionally excluded — only run on admin gain
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [admin]);
 
+  const handleLoadMore = async () => {
+    setLoadingMore(true);
+    try { await loadMore(false); } catch (e) { console.error(e); }
+    finally { setLoadingMore(false); }
+  };
+
   const stats = useMemo(() => {
-    const totalUsers = users.length;
+    const totalUsers = totalCount ?? users.length;
     const totalXP = users.reduce((s, u) => s + u.xp, 0);
     const totalSolved = users.reduce((s, u) => s + u.solved.length, 0);
     const today = new Date().toISOString().split("T")[0];
     const activeToday = users.filter((u) => u.lastActivity === today).length;
     return { totalUsers, totalXP, totalSolved, activeToday };
-  }, [users]);
+  }, [users, totalCount]);
 
   const filtered = useMemo(() => {
     let list = users;
@@ -220,7 +255,25 @@ export default function AdminPage() {
         )}
       </div>
 
-      <p style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center", marginTop: 20 }}>Live · updates in real-time</p>
+      {hasMore && !search.trim() && (
+        <div style={{ textAlign: "center", marginTop: 16 }}>
+          <button
+            onClick={handleLoadMore}
+            disabled={loadingMore}
+            style={{
+              padding: "8px 18px", borderRadius: 8, fontSize: 12, fontWeight: 600,
+              border: "1px solid var(--border)", background: "var(--bg-card)",
+              color: "var(--text-secondary)", cursor: loadingMore ? "default" : "pointer", opacity: loadingMore ? 0.6 : 1,
+            }}
+          >
+            {loadingMore ? "Loading…" : `Load more (${users.length}/${totalCount ?? "…"})`}
+          </button>
+        </div>
+      )}
+
+      <p style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center", marginTop: 20 }}>
+        {totalCount ?? users.length} users · loaded {users.length} · aggregates reflect loaded rows
+      </p>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
-import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
+import { useCallback, useEffect, useState } from "react";
+import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/authContext";
 import Link from "next/link";
@@ -34,39 +34,59 @@ export default function LeaderboardPage() {
   const { user } = useAuth();
   const [leaders, setLeaders] = useState<Leader[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [tab, setTab] = useState<"xp" | "streak" | "solved">("xp");
 
-  useEffect(() => {
+  // One-time fetch (not a realtime listener) — avoids a per-viewer onSnapshot
+  // that streams 100 docs continuously. Refreshed on tab change + manual button.
+  const load = useCallback(async () => {
     const field = tab === "xp" ? "xp" : tab === "streak" ? "streak" : "solvedCount";
     const q = query(collection(db, "leaderboard"), orderBy(field, "desc"), limit(100));
-    setLoading(true);
-    const unsub = onSnapshot(q, (snap) => {
-      const data: Leader[] = snap.docs.map((d) => ({
+    setRefreshing(true);
+    try {
+      const snap = await getDocs(q);
+      setLeaders(snap.docs.map((d) => ({
         uid: d.id,
         username: d.data().username ?? null,
         photoURL: d.data().photoURL ?? null,
         xp: d.data().xp ?? 0,
         streak: d.data().streak ?? 0,
         solvedCount: d.data().solvedCount ?? 0,
-      }));
-      setLeaders(data);
+      })));
+    } finally {
       setLoading(false);
-    });
-    return unsub;
+      setRefreshing(false);
+    }
   }, [tab]);
+
+  useEffect(() => { setLoading(true); load(); }, [load]);
 
   const myRank = user ? leaders.findIndex((l) => l.uid === user.uid) + 1 : 0;
 
   return (
     <div style={{ maxWidth: 760, margin: "0 auto", padding: "32px 24px 60px" }}>
       {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 800, color: "var(--text-primary)", marginBottom: 6, letterSpacing: "-0.03em" }}>
-          🏆 Leaderboard
-        </h1>
-        <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>
-          Top 100 users ranked by XP, streak, and problems solved. Real-time.
-        </p>
+      <div style={{ marginBottom: 28, display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+        <div>
+          <h1 style={{ fontSize: 24, fontWeight: 800, color: "var(--text-primary)", marginBottom: 6, letterSpacing: "-0.03em" }}>
+            🏆 Leaderboard
+          </h1>
+          <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+            Top 100 users ranked by XP, streak, and problems solved.
+          </p>
+        </div>
+        <button
+          onClick={load}
+          disabled={refreshing}
+          aria-label="Refresh leaderboard"
+          style={{
+            flexShrink: 0, padding: "7px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600,
+            border: "1px solid var(--border)", background: "var(--bg-card)",
+            color: "var(--text-secondary)", cursor: refreshing ? "default" : "pointer", opacity: refreshing ? 0.6 : 1,
+          }}
+        >
+          {refreshing ? "Refreshing…" : "↻ Refresh"}
+        </button>
       </div>
 
       {/* My rank callout */}
@@ -197,7 +217,7 @@ export default function LeaderboardPage() {
       </div>
 
       <p style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center", marginTop: 16 }}>
-        Updates in real-time · Top 100 by XP
+        Top 100 · tap Refresh to update
       </p>
     </div>
   );

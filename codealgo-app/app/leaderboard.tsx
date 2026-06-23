@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Pressable } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Pressable, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
+import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/authContext";
 import { colors, font, spacing, radius } from "@/lib/theme";
@@ -31,39 +31,44 @@ export default function LeaderboardScreen() {
   const { user } = useAuth();
   const [leaders, setLeaders] = useState<Leader[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [tab, setTab] = useState<Tab>("xp");
 
-  useEffect(() => {
+  // One-time fetch instead of a realtime listener (cost) — pull to refresh.
+  const load = useCallback(async () => {
     const field = tab === "streak" ? "streak" : tab === "solved" ? "solvedCount" : "xp";
-    setLoading(true);
     const q = query(collection(db, "leaderboard"), orderBy(field, "desc"), limit(100));
-    const unsub = onSnapshot(
-      q,
-      (snap) => {
-        const data: Leader[] = snap.docs.map((d) => ({
-          uid: d.id,
-          username: d.data().username ?? null,
-          xp: d.data().xp ?? 0,
-          streak: d.data().streak ?? 0,
-          solvedCount: d.data().solvedCount ?? 0,
-        }));
-        setLeaders(data);
-        setLoading(false);
-      },
-      (err) => {
-        console.error("[leaderboard]", err);
-        setLoading(false);
-      }
-    );
-    return unsub;
+    try {
+      const snap = await getDocs(q);
+      setLeaders(snap.docs.map((d) => ({
+        uid: d.id,
+        username: d.data().username ?? null,
+        xp: d.data().xp ?? 0,
+        streak: d.data().streak ?? 0,
+        solvedCount: d.data().solvedCount ?? 0,
+      })));
+    } catch (err) {
+      console.error("[leaderboard]", err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, [tab]);
+
+  useEffect(() => { setLoading(true); load(); }, [load]);
+
+  const onRefresh = () => { setRefreshing(true); load(); };
 
   const myRank = user ? leaders.findIndex((l) => l.uid === user.uid) + 1 : 0;
 
   return (
     <SafeAreaView style={styles.safe}>
       <ScreenHeader title="🏆 Leaderboard" back />
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accent} colors={[colors.accent]} />}
+      >
 
         {/* My rank */}
         {user && myRank > 0 && (
@@ -140,7 +145,7 @@ export default function LeaderboardScreen() {
           </View>
         )}
 
-        <Text style={styles.footer}>Updates in real-time · Top 100</Text>
+        <Text style={styles.footer}>Top 100 · pull down to refresh</Text>
       </ScrollView>
     </SafeAreaView>
   );

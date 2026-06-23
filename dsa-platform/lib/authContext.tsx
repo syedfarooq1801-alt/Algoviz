@@ -5,6 +5,7 @@ import {
   signOut as firebaseSignOut, onAuthStateChanged,
 } from "firebase/auth";
 import { doc, getDoc, setDoc, updateDoc, onSnapshot } from "firebase/firestore";
+import { logError } from "./logger";
 import { auth, db, googleProvider } from "./firebase";
 import { useProgressStore } from "./store";
 import { useSDStore } from "./sdStore";
@@ -104,7 +105,7 @@ async function loadAndSubscribe(uid: string) {
     // Skip if we wrote this within the last 3s (our own debounced sync bouncing back)
     if (Date.now() - lastLocalWriteAt < 3000) return;
     hydrateAllStores(s.data() as Record<string, unknown>);
-  }, (err) => console.error("[RT sync]", err));
+  }, (err) => logError(err, { source: "rt-sync" }));
 }
 
 async function syncAllToFirestore(uid: string) {
@@ -180,7 +181,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const syncDebounced = () => {
       clearTimeout(timer);
-      timer = setTimeout(() => syncAllToFirestore(uid).catch(console.error), 1500);
+      timer = setTimeout(() => syncAllToFirestore(uid).catch((e) => logError(e, { source: "sync" })), 1500);
     };
 
     const u1 = useProgressStore.subscribe(syncDebounced);
