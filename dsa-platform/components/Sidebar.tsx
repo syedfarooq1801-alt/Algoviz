@@ -15,12 +15,14 @@ import {
   Sun,
   Swords,
   Trophy,
+  MessageCircle,
 } from "lucide-react";
 import { LogoIcon } from "@/components/Logo";
 import { useInterviewStore } from "@/lib/interviewStore";
 import { useAuth } from "@/lib/authContext";
 import { useTheme } from "@/lib/themeStore";
 import { usePrepStore } from "@/lib/prepStore";
+import { useTutorStore } from "@/lib/tutorStore";
 
 interface NavItem {
   href: string;
@@ -63,6 +65,7 @@ export default function Sidebar() {
   const { user, signOut } = useAuth();
   const { theme, toggle } = useTheme();
   const { reviewDue } = usePrepStore();
+  const openTutor = useTutorStore((s) => s.open);
   const days = daysUntil();
   const todayIso = new Date().toISOString().slice(0, 10);
   const dueCount = Object.values(reviewDue).filter((d) => d <= todayIso).length;
@@ -214,6 +217,14 @@ export default function Sidebar() {
           Tools
         </div>
         <div className="space-y-0.5">
+          <button
+            onClick={openTutor}
+            className="flex w-full items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors"
+            style={{ background: "transparent", color: "var(--text-secondary)", border: "1px solid transparent", cursor: "pointer" }}
+          >
+            <MessageCircle size={15} />
+            Ask Axon
+          </button>
           {tools.map((item) => (
             <NavLink key={item.href} {...item} />
           ))}
