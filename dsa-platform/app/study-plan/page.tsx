@@ -119,6 +119,12 @@ export default function StudyPlanPage() {
     setActiveDayIdx(firstNonRest >= 0 ? firstNonRest : 0);
   }
 
+  function changeStartDate(d: string) {
+    if (!d) return;
+    setPlanStartDate(d);
+    didAutoInit.current = false; // re-jump to the new current day
+  }
+
   function isTaskDone(task: PlanTask): boolean {
     if (task.domain === "dsa") return solved.has(task.id);
     if (task.domain === "sd") return mastered.has(task.id);
@@ -158,15 +164,31 @@ export default function StudyPlanPage() {
               )}
             </p>
           </div>
-          <div style={{ display: "flex", gap: 3, background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)", borderRadius: 6, padding: 3 }}>
-            {DAYS_OPTIONS.map((d) => (
-              <button key={d} onClick={() => changeDuration(d)} style={{
-                padding: "4px 14px", fontSize: 12, borderRadius: 4, cursor: "pointer",
-                background: duration === d ? "var(--accent)" : "transparent",
-                color: duration === d ? "#fff" : "var(--text-muted)",
-                fontWeight: duration === d ? 600 : 400, border: "none", transition: "all 0.1s",
-              }}>{d}d</button>
-            ))}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            {/* Start date — aligns the plan to the real calendar */}
+            <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "var(--text-muted)" }}>
+              Started
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => changeStartDate(e.target.value)}
+                style={{
+                  fontSize: 12, padding: "4px 8px", borderRadius: 6,
+                  background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)",
+                  color: "var(--text-secondary)", colorScheme: "dark",
+                }}
+              />
+            </label>
+            <div style={{ display: "flex", gap: 3, background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)", borderRadius: 6, padding: 3 }}>
+              {DAYS_OPTIONS.map((d) => (
+                <button key={d} onClick={() => changeDuration(d)} style={{
+                  padding: "4px 14px", fontSize: 12, borderRadius: 4, cursor: "pointer",
+                  background: duration === d ? "var(--accent)" : "transparent",
+                  color: duration === d ? "#fff" : "var(--text-muted)",
+                  fontWeight: duration === d ? 600 : 400, border: "none", transition: "all 0.1s",
+                }}>{d}d</button>
+              ))}
+            </div>
           </div>
         </div>
 
