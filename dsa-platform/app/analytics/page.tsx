@@ -39,7 +39,7 @@ export default function AnalyticsPage() {
   const { mastered } = useSDStore();
   const { completed } = useSEStore();
   const { mockSessions, diagnosisAttempts, reviewDue, selectedTrack } = usePrepStore();
-  const { targetDate, daysUntil } = useInterviewStore();
+  const { daysUntil } = useInterviewStore();
 
   const totalDSA = getTotalProblems();
   const totalSD = getTotalSDConcepts();
@@ -210,7 +210,6 @@ export default function AnalyticsPage() {
           <h2 className="text-sm font-semibold mb-2" style={{ color: "#4F8CFF" }}>Prep Coach</h2>
           <div className="grid md:grid-cols-2 gap-3 text-sm" style={{ color: "var(--text-secondary)" }}>
             <p>Track: {PREP_TRACKS[selectedTrack].title}. {PREP_TRACKS[selectedTrack].focus}</p>
-            <p>{targetDate ? `Interview target: ${targetDate}. ${days !== null ? `${Math.max(0, days)} days left.` : ""}` : "Set an interview date in Study Plan to get pace warnings."}</p>
             <p>{weakPatterns[0] ? `Weakest pattern: ${weakPatterns[0].title} at ${weakPatterns[0].pct}%.` : "No weak pattern under 50% yet."}</p>
             <p>{hardPct < easyPct - 30 ? "You are avoiding hard difficulty relative to easy problems." : "Difficulty balance is not badly skewed."}</p>
             <p>{mockSessions[0]?.insights[0] ?? "Run a mock interview to unlock pressure-tested feedback."}</p>
