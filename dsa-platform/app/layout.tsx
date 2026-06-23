@@ -6,6 +6,8 @@ import AuthGuard from "@/components/AuthGuard";
 import CommandPalette from "@/components/CommandPalette";
 import MobileNav from "@/components/MobileNav";
 import Sidebar from "@/components/Sidebar";
+import AskTutor from "@/components/AskTutor";
+import SelectionPopover from "@/components/SelectionPopover";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -47,6 +49,8 @@ export default function RootLayout({
               <div className="pb-16 lg:pb-0 min-h-screen">{children}</div>
             </div>
             <MobileNav />
+            <AskTutor />
+            <SelectionPopover />
           </AuthGuard>
         </AuthProvider>
       </body>
