@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { MessageCircle, X, Send } from "lucide-react";
+import { useMobile } from "@/lib/useMobile";
 import { useTutorStore } from "@/lib/tutorStore";
 import { getPageContext } from "@/lib/chatContext";
 import { logError } from "@/lib/logger";
@@ -12,6 +13,7 @@ const QUICK = ["Explain the intuition", "Give me a hint", "Why this approach?", 
 
 export default function AskTutor() {
   const pathname = usePathname();
+  const isMobile = useMobile();
   const { isOpen, open, close, consumePending } = useTutorStore();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -87,11 +89,11 @@ export default function AskTutor() {
           onClick={open}
           aria-label="Ask Axon"
           style={{
-            position: "fixed", top: 14, right: 16, zIndex: 60,
+            position: "fixed", bottom: isMobile ? 80 : 24, right: 20, zIndex: 60,
             display: "inline-flex", alignItems: "center", gap: 7,
-            padding: "8px 14px", borderRadius: 999, fontSize: 13, fontWeight: 600,
+            padding: "10px 16px", borderRadius: 999, fontSize: 13, fontWeight: 600,
             background: "var(--accent)", color: "#fff", border: "none", cursor: "pointer",
-            boxShadow: "0 4px 14px rgba(0,0,0,0.35)",
+            boxShadow: "0 6px 20px rgba(0,0,0,0.45)",
           }}
         >
           <MessageCircle size={15} /> Ask Axon
