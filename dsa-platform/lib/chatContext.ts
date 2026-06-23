@@ -78,5 +78,14 @@ export function getPageContext(pathname: string, hash = ""): PageContext {
     }
   }
 
+  // /study-plan
+  if (pathname.startsWith("/study-plan")) {
+    return {
+      kind: "study-plan",
+      title: "Study Plan",
+      body: "This is the user's personalized study plan: a day-by-day schedule (30/60/90-day options) of DSA problems, System Design concepts, and SE Basics chapters. It anchors to a chosen start date, marks TODAY on the real calendar, rolls missed days forward as catch-up (it never strands work in the past), makes Sundays review days, and tracks per-domain weekly progress. Answer questions about how it works, what to study next, pacing, and catching up.",
+    };
+  }
+
   return { kind: "general", title: "Code Algo", body: "" };
 }
