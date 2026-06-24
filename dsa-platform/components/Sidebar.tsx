@@ -17,6 +17,7 @@ import {
   Trophy,
   MessageCircle,
   ChevronLeft,
+  BrainCircuit,
 } from "lucide-react";
 import { LogoIcon } from "@/components/Logo";
 import { useInterviewStore } from "@/lib/interviewStore";
@@ -108,6 +109,12 @@ export default function Sidebar() {
       label: "Behavioral",
       icon: MessageSquareText,
       active: pathname.startsWith("/behavioral"),
+    },
+    {
+      href: "/ai-ml",
+      label: "AI & ML",
+      icon: BrainCircuit,
+      active: pathname.startsWith("/ai-ml"),
     },
   ];
 

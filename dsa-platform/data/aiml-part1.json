@@ -1,0 +1,372 @@
+{
+  "ai-fundamentals": {
+    "id": "ai-fundamentals",
+    "title": "AI Fundamentals",
+    "chapters": [
+      {
+        "id": "what-is-ai",
+        "num": 1,
+        "title": "What is Artificial Intelligence?",
+        "blocks": [
+          { "type": "para", "text": "Artificial Intelligence (AI) is the field of computer science focused on building systems that can perform tasks that normally require human intelligence — reasoning, learning, problem-solving, perception, and language understanding. AI is not a single technology; it is an umbrella term. Under it sit machine learning (systems that learn from data), deep learning (learning with layered neural networks), and generative AI (systems that produce new content). The goal of AI is to create agents that perceive their environment and take actions that maximise their chance of achieving a goal. Modern AI is almost entirely data-driven: instead of programming rules by hand, you feed examples and let the algorithm learn the rules itself." },
+          { "type": "analogy", "text": "Think of AI as teaching a child versus writing a rulebook. Old-school programming is like giving a child a 500-page rulebook: 'If the sky is grey AND the temperature drops, predict rain.' AI is like showing the child 10,000 mornings of weather and saying 'figure out the pattern yourself.' The child (model) learns rules no human could write explicitly." },
+          { "type": "memory-trick", "text": "AI = the big umbrella. ML = learning from data. DL = learning with neural networks. GenAI = generating new content. Each inner circle is a specialisation of the one containing it." },
+          { "type": "interview", "qas": [
+            { "q": "What is the difference between AI, ML, and DL?", "a": "AI is the broadest field — any technique that makes a machine seem intelligent. ML is a subset of AI where machines learn patterns from data rather than following explicit rules. Deep Learning is a subset of ML that uses multi-layer neural networks to learn representations automatically, enabling breakthroughs in vision, speech, and language." },
+            { "q": "Is all AI machine learning?", "a": "No. Early AI used rule-based expert systems with hand-crafted logic (no learning). Modern AI is dominated by ML, but rule-based AI, search algorithms, and planning systems still exist and are still used in production." },
+            { "q": "What is a 'model' in machine learning?", "a": "A model is a mathematical function learned from data that maps inputs to outputs. Training adjusts the model's internal parameters to minimise error on the training set. After training, the model generalises — it predicts outputs for inputs it has never seen." }
+          ]},
+          { "type": "placement", "text": "Interviewers open ML rounds with 'What is AI / ML / DL?' to filter candidates who know the hierarchy vs those who use the terms interchangeably. Always anchor your answer: AI ⊃ ML ⊃ DL ⊃ Generative AI. The ability to draw and explain this nesting diagram separates good from mediocre answers." }
+        ]
+      },
+      {
+        "id": "ai-ml-dl-genai",
+        "num": 2,
+        "title": "AI vs ML vs DL vs Generative AI",
+        "blocks": [
+          { "type": "para", "text": "AI is the goal (machines that think). ML is the approach (learn from data). Deep Learning is the architecture (stacked neural layers). Generative AI is the output type (create new content). Traditional ML uses hand-crafted features + simple algorithms (decision trees, SVMs, logistic regression). Deep Learning learns features automatically from raw data using neural networks. Generative AI uses large deep learning models (LLMs, diffusion models) to generate text, images, audio, and code. The jump from ML to DL happened because of three things converging around 2012: massive labelled datasets (ImageNet), cheap GPU compute, and the backpropagation algorithm proven to work at scale." },
+          { "type": "pre", "text": "AI\n└── Machine Learning\n    ├── Classical ML (linear models, trees, SVMs)\n    └── Deep Learning\n        ├── Supervised DL (CNNs, RNNs, Transformers)\n        └── Generative AI\n            ├── LLMs (GPT, Gemini, Claude)\n            ├── Diffusion models (DALL-E, Stable Diffusion)\n            └── GANs (image synthesis)" },
+          { "type": "memory-trick", "text": "Key distinction: Classical ML needs you to extract features manually (e.g., 'edge length', 'colour histogram'). Deep Learning extracts features automatically from raw pixels/text. Generative AI adds the ability to produce, not just classify." },
+          { "type": "interview", "qas": [
+            { "q": "Why did deep learning outperform classical ML for images and text?", "a": "Classical ML requires hand-engineered features — a domain expert must decide what to measure. DL learns a hierarchy of features automatically: edges → shapes → objects for vision; characters → words → phrases for text. With enough data and compute, learned features beat hand-crafted ones." },
+            { "q": "What makes Generative AI different from discriminative AI?", "a": "Discriminative models learn P(y|x) — the probability of label y given input x. They classify or predict. Generative models learn P(x) or P(x|y) — the distribution of the data itself — and can sample from it to produce new examples. LLMs generate next tokens; diffusion models generate images from noise." }
+          ]},
+          { "type": "placement", "text": "2025 interviews almost always include 'Explain GenAI vs classical ML.' The winning answer explains the discriminative vs generative distinction, names 2-3 GenAI model families, and mentions why scale (data + compute) enabled the jump." }
+        ]
+      },
+      {
+        "id": "types-of-machine-learning",
+        "num": 3,
+        "title": "Types of Machine Learning",
+        "blocks": [
+          { "type": "para", "text": "ML splits into three paradigms based on the type of feedback the learning algorithm receives. Supervised Learning: you provide labelled examples (input → correct output). The algorithm learns a mapping. Used for classification (spam vs not-spam) and regression (predict house price). Unsupervised Learning: no labels. The algorithm finds structure — clusters, patterns, or compressed representations — in unlabelled data. Used for clustering customers, topic modelling, and anomaly detection. Reinforcement Learning: an agent takes actions in an environment, receives rewards or penalties, and learns a policy that maximises cumulative reward. Used in game-playing AI, robotics, and recommendation systems (where user clicks = reward signal)." },
+          { "type": "analogy", "text": "Supervised = exam with an answer key. You practice with labelled questions until you learn the pattern. Unsupervised = sorting a pile of unknown coins with no descriptions — you group by size, colour, and weight yourself. Reinforcement = learning to ride a bike by trying, falling, and adjusting until balance is achieved." },
+          { "type": "memory-trick", "text": "SUR: Supervised (labelled), Unsupervised (unlabelled), Reinforcement (reward). A fourth type — Semi-supervised — uses a small labelled set plus a large unlabelled set. Self-supervised (used in LLMs) generates its own labels from data (e.g., predict next word)." },
+          { "type": "interview", "qas": [
+            { "q": "What is semi-supervised learning and when is it useful?", "a": "Semi-supervised learning uses a small amount of labelled data plus a large amount of unlabelled data. Labelling data is expensive; unlabelled data is cheap. The model learns structure from the unlabelled data and uses the labels to anchor it. Common in medical imaging where labelling requires expert radiologists." },
+            { "q": "What is self-supervised learning? Give an example.", "a": "Self-supervised learning generates pseudo-labels from the data itself without human annotation. GPT is trained to predict the next word — the label is always the next word in the existing text. BERT predicts masked words. This allows training on massive unlabelled corpora." },
+            { "q": "Give a real-world example of each of the three main ML types.", "a": "Supervised: email spam classifier trained on labelled spam/ham emails. Unsupervised: customer segmentation where you cluster users by purchase behaviour with no predefined groups. Reinforcement: AlphaGo learning to play Go by playing millions of games against itself and receiving win/loss signals." }
+          ]},
+          { "type": "placement", "text": "Interviewers ask this in the first 5 minutes of an ML interview to calibrate your foundation. Don't just list the three types — explain them with real examples and state clearly what kind of data each requires. Mentioning self-supervised learning and semi-supervised learning shows you read beyond the textbook." }
+        ]
+      },
+      {
+        "id": "ai-workflow",
+        "num": 4,
+        "title": "The ML / AI Workflow",
+        "blocks": [
+          { "type": "para", "text": "Every ML project follows the same end-to-end pipeline regardless of the algorithm. Step 1 — Problem Definition: What are you predicting? What metric matters? Step 2 — Data Collection: Gather raw data from databases, APIs, web scraping, or sensors. Step 3 — Exploratory Data Analysis (EDA): Understand distributions, correlations, outliers, missing values. Step 4 — Data Preprocessing: Clean, encode, scale, engineer features, split. Step 5 — Model Selection and Training: Choose algorithm family, train, tune hyperparameters. Step 6 — Evaluation: Test on held-out data using the correct metric. Step 7 — Deployment: Serve predictions via API or batch pipeline. Step 8 — Monitoring: Watch for drift, performance degradation, and data quality issues in production." },
+          { "type": "memory-trick", "text": "PCDPMED: Problem → Collect → EDA → Preprocess → Model → Evaluate → Deploy. Most failures happen at step 1 (wrong metric) or step 4 (data leakage). Step 8 (monitoring) is skipped most often in student projects — always mention it in interviews to show production awareness." },
+          { "type": "interview", "qas": [
+            { "q": "Where do most real-world ML projects fail?", "a": "Most fail at data quality (garbage in, garbage out), problem framing (optimising the wrong metric), or deployment (model trained offline but serving online data that has different distribution). A model that gets 95% accuracy in a notebook and fails in production is the most common ML horror story." },
+            { "q": "What is the difference between a data scientist and an ML engineer?", "a": "Data scientists focus on steps 1-6 (exploration, modelling, evaluation). ML engineers focus on steps 5-8 (scalable training, serving infrastructure, monitoring). In practice the boundary blurs, and many companies expect both from a single hire." }
+          ]},
+          { "type": "placement", "text": "Any system design question involving ML (design a recommendation engine, spam filter, fraud detector) should be answered using this workflow. Start with problem definition → metric → data → model → serve → monitor. This structure guarantees a complete answer." }
+        ]
+      }
+    ]
+  },
+  "data-preprocessing": {
+    "id": "data-preprocessing",
+    "title": "Data Preprocessing",
+    "chapters": [
+      {
+        "id": "data-cleaning",
+        "num": 1,
+        "title": "Data Cleaning",
+        "blocks": [
+          { "type": "para", "text": "Data cleaning is the process of detecting and correcting errors, inconsistencies, and inaccuracies in raw data before it reaches the model. Real-world data is messy: duplicate rows, typos, impossible values (age = -5), inconsistent formats (01/01/2024 vs Jan 1 2024), mixed data types, and structural errors. The rule in ML is 'garbage in, garbage out' — a model trained on dirty data learns dirty patterns. Cleaning steps include: (1) Remove or fix duplicate records. (2) Standardise formats (dates, categories, units). (3) Correct impossible values based on domain knowledge. (4) Identify and address missing values (separate step). (5) Handle outliers (separate step). Cleaning is typically the most time-consuming step of any real-world ML project — practitioners spend 60-80% of their time here." },
+          { "type": "analogy", "text": "Data cleaning is like prepping ingredients before cooking. You would not throw muddy vegetables with roots still attached into a pot and expect a good meal. You wash, peel, chop, and standardise first. The better your prep, the better your model — just like the better your prep, the better your dish." },
+          { "type": "memory-trick", "text": "The 4 Ds of data cleaning: Duplicate rows → drop. Dirty formats → standardise. Domain-violating values → fix or flag. Defective structure → reshape. Handle missing values and outliers as separate dedicated steps after the 4 Ds." },
+          { "type": "interview", "qas": [
+            { "q": "How would you handle duplicate rows in a dataset?", "a": "First understand why they exist — is it a data pipeline bug, or legitimate repeated events? For true duplicates (same entity measured twice), drop one. For near-duplicates (same person, slightly different spelling), use fuzzy matching and merge. Use df.duplicated() in pandas to detect them." },
+            { "q": "What is a data quality check and what should it include?", "a": "A data quality check validates: (1) completeness — no unexpected nulls; (2) consistency — same entity has same attributes across records; (3) validity — values within expected ranges; (4) uniqueness — primary keys are actually unique; (5) timeliness — data is not stale. Run these checks as assertions at the start of every pipeline." }
+          ]},
+          { "type": "placement", "text": "Interviewers ask 'Tell me about a challenge you faced with data' — they want to hear about cleaning. The ideal answer includes a specific dirty data problem, what you checked for, how you detected it (EDA, assertions), and what you did about it. Mentioning that you wrote data validation checks shows engineering maturity." }
+        ]
+      },
+      {
+        "id": "missing-values",
+        "num": 2,
+        "title": "Handling Missing Values",
+        "blocks": [
+          { "type": "para", "text": "Missing values occur when no data is recorded for a feature in an observation. Three mechanisms: (1) MCAR (Missing Completely At Random) — missingness is random, no pattern. (2) MAR (Missing At Random) — missingness depends on other observed features (e.g., older people less likely to fill income field). (3) MNAR (Missing Not At Random) — the missing value itself causes the missingness (e.g., very high earners skip income field). Strategies: Drop rows — only safe when MCAR and you have abundant data. Mean/median/mode imputation — fast but distorts variance, use for MCAR. Forward/backward fill — for time-series. KNN imputation — fill based on similar rows. Model-based imputation (mice, iterative imputer) — best for MNAR/MAR. Add indicator column — add a binary column 'feature_was_missing' before imputing; this preserves the signal that something was absent." },
+          { "type": "analogy", "text": "Missing values are like blank entries on a survey. 'Blank because forgot' (MCAR) vs 'blank because embarrassed about income' (MNAR) are fundamentally different. If you just fill in the average for income, you hide the signal that high earners systematically avoid the field. Preserving that missingness as a feature can itself be predictive." },
+          { "type": "memory-trick", "text": "Always add an indicator column BEFORE imputing for any important feature. The fact that a value was missing is often predictive (e.g., patients who skipped a test may be sicker). Imputing without indicators destroys this signal." },
+          { "type": "interview", "qas": [
+            { "q": "Why is it dangerous to impute with the mean?", "a": "Mean imputation reduces variance of the feature artificially (all missing values become the same). It also assumes MCAR. If missingness is actually MNAR, you introduce bias. It destroys correlations between the imputed feature and others. Better options: median (robust to outliers), model-based imputation, or simply flagging missingness as a feature." },
+            { "q": "What is the difference between MCAR, MAR, and MNAR?", "a": "MCAR: missing values have no relationship to anything — safe to impute with mean/median. MAR: missingness depends on other observed variables — model-based imputation works. MNAR: missingness depends on the unobserved value itself — hardest to handle; domain knowledge is required; often best to add an indicator column." },
+            { "q": "How do tree-based models handle missing values?", "a": "XGBoost and LightGBM learn the best direction (left or right split) for missing values during training. They do not require imputation at all. Decision trees can also split on 'is missing' as a criterion. This is one reason tree-based ensembles are preferred for tabular data with many missing values." }
+          ]},
+          { "type": "placement", "text": "Missing value handling is one of the top 3 most-asked data preprocessing questions. The strong answer: identify the mechanism (MCAR/MAR/MNAR), choose imputation strategy based on mechanism, and always add indicator columns for features where missingness is non-trivial. Mentioning that XGBoost handles missingness natively shows practical depth." }
+        ]
+      },
+      {
+        "id": "outliers",
+        "num": 3,
+        "title": "Outlier Detection and Handling",
+        "blocks": [
+          { "type": "para", "text": "Outliers are data points that differ significantly from other observations. They can be legitimate (a billionaire in income data), data errors (age = 999), or rare events (a flash crash in stock prices). Detection methods: Z-score (flag points beyond 3 standard deviations — assumes normal distribution). IQR method (flag points below Q1 - 1.5×IQR or above Q3 + 1.5×IQR — robust, non-parametric). Isolation Forest (ML-based, good for high-dimensional data). DBSCAN marks low-density points as noise. Handling strategies: Drop (only if confirmed data error). Cap/Winsorize (replace extreme values with the 1st/99th percentile). Transform (log transform compresses right-skewed distributions, making outliers less extreme). Keep them (for anomaly detection, the outlier IS the target). The right strategy depends entirely on whether the outlier is an error or a true signal." },
+          { "type": "analogy", "text": "An outlier in salary data showing $10M when everyone else earns $30K-$200K is like a blue square in a bag of red circles. Whether you discard it or study it depends on what you are doing. If you are modelling typical salary, it distorts your line of best fit. If you are building a fraud detector, that unusual point is exactly what you want to find." },
+          { "type": "memory-trick", "text": "Z-score works for normal distributions. IQR works for any distribution. For high-dimensional data, use Isolation Forest. Before removing outliers, always ask: 'Is this a data error or a real extreme event?' Removing real extreme events introduces bias." },
+          { "type": "interview", "qas": [
+            { "q": "How does the IQR method work for outlier detection?", "a": "Calculate Q1 (25th percentile) and Q3 (75th percentile). IQR = Q3 - Q1. Flag any value below Q1 - 1.5×IQR or above Q3 + 1.5×IQR as an outlier. The 1.5 multiplier is the standard (Tukey's method); use 3× for extreme outliers only. The IQR method is robust because Q1 and Q3 are not themselves affected by extreme values." },
+            { "q": "How do outliers affect linear regression?", "a": "Linear regression minimises the sum of squared errors. Squaring gives extreme errors disproportionate weight, so outliers pull the regression line toward them heavily. Even a single outlier can completely change the slope. Solutions: robust regression (uses absolute errors or Huber loss), remove confirmed error outliers, or use tree-based models which are inherently robust to outliers." }
+          ]},
+          { "type": "placement", "text": "Outlier questions often come in the context of regression ('why is my model performing poorly?'). The key insight interviewers want: outliers affect linear models much more than tree-based models because of the squared error loss. Also: always ask whether an outlier is signal or noise before removing it." }
+        ]
+      },
+      {
+        "id": "feature-scaling",
+        "num": 4,
+        "title": "Feature Scaling: Normalisation vs Standardisation",
+        "blocks": [
+          { "type": "para", "text": "Feature scaling transforms numerical features to a common range or distribution. Algorithms that compute distances (KNN, SVM, K-Means, PCA) or use gradient descent (logistic regression, neural networks) are sensitive to feature magnitude — a feature with values 0-100,000 will dominate one with values 0-1. Two main methods: Min-Max Normalisation scales to [0, 1]: X_scaled = (X - X_min) / (X_max - X_min). Preserves the shape of distribution. Sensitive to outliers (outlier becomes 0 or 1, everything else gets compressed). Standardisation (Z-score scaling): X_scaled = (X - mean) / std. Centers at 0, standard deviation 1. Robust to outliers. Does not bound the range. Use normalisation when the feature is bounded and the algorithm needs values in [0,1] (like neural networks with sigmoid output). Use standardisation for most other cases, especially linear models and PCA." },
+          { "type": "analogy", "text": "Scaling is like converting units before comparing: you cannot directly compare a marathon time in minutes (200-300) to a sprint in seconds (10-12) without standardising. If your ML algorithm is 'adding up distances', the marathon column dominates just because its numbers are bigger — not because it is more important." },
+          { "type": "memory-trick", "text": "Tree-based models (Decision Tree, Random Forest, XGBoost) do NOT need scaling — they split on threshold values, not distances. Scaling is mandatory for: KNN, SVM, K-Means, PCA, logistic regression, neural networks. RobustScaler uses median and IQR instead of mean and std — best when data has outliers." },
+          { "type": "interview", "qas": [
+            { "q": "What is the difference between normalisation and standardisation?", "a": "Normalisation (Min-Max) scales to [0,1] using min and max — good when you need bounded inputs but sensitive to outliers. Standardisation (Z-score) subtracts mean and divides by std — results are unbounded but have zero mean and unit variance. Standardisation is more robust to outliers and preferred for most algorithms." },
+            { "q": "Do decision trees need feature scaling? Why?", "a": "No. Decision trees split by comparing feature values to threshold values (e.g., age > 30). Scaling all values uniformly does not change which splits are optimal. The monotonic nature of scaling means the ranking of values is preserved. The same argument applies to all tree-based ensembles: Random Forest, XGBoost, LightGBM." },
+            { "q": "Should you fit the scaler on the training set only or the entire dataset?", "a": "Always fit on the training set only, then transform both train and test. If you fit on the full dataset (including test), test data statistics (min, max, mean, std) leak into the training process — a form of data leakage that inflates evaluation metrics." }
+          ]},
+          { "type": "placement", "text": "The scaling question catches candidates who copy code without understanding it. The two traps: fitting the scaler on all data (data leakage) and applying scaling to tree models (unnecessary but not harmful). Both show interview-level awareness." }
+        ]
+      },
+      {
+        "id": "encoding",
+        "num": 5,
+        "title": "Encoding Categorical Variables",
+        "blocks": [
+          { "type": "para", "text": "ML algorithms work with numbers. Categorical features (colour: red/green/blue, city: London/Paris/Berlin) must be converted to numerical form. Main encoding methods: Label Encoding assigns an integer to each category (red=0, green=1, blue=2). Problem: implies ordinality (green > red). Use only for ordinal categories (small < medium < large) or tree-based models. One-Hot Encoding creates one binary column per category. No false ordinality. Problem: high cardinality (1000 cities = 1000 columns) causes the 'curse of dimensionality'. Use for nominal categories with low cardinality (<20). Ordinal Encoding: explicitly maps categories to ordered integers — use when order is real (cold < warm < hot). Target Encoding replaces each category with the mean target value for that category — powerful for high-cardinality features but risks data leakage (must use cross-validation). Frequency Encoding replaces category with its count/frequency — simple, no leakage." },
+          { "type": "memory-trick", "text": "Rule of thumb: Ordinal categories (have natural order) → ordinal encoding. Nominal low-cardinality (<20 unique values) → one-hot. Nominal high-cardinality (cities, zip codes) → target encoding or frequency encoding. Tree models → label encoding is fine. Linear models / neural networks → never use raw label encoding for nominal features." },
+          { "type": "interview", "qas": [
+            { "q": "Why is label encoding problematic for linear models?", "a": "Label encoding (red=0, green=1, blue=2) implies green is 'twice red' and blue is 'three times red'. Linear models multiply feature values by coefficients, so they will interpret this false ordinality as a real signal, learning wrong relationships. Use one-hot encoding so each category is independent." },
+            { "q": "What is the dummy variable trap?", "a": "When you one-hot encode N categories, you get N binary columns. But knowing N-1 columns perfectly predicts the Nth (if red=0 and green=0, then blue=1). This multicollinearity breaks linear models. The fix: drop one column — use pd.get_dummies(drop_first=True). Tree models and neural networks are immune." },
+            { "q": "What is target encoding and what is its risk?", "a": "Target encoding replaces a category with the mean target value for that category. Powerful for high-cardinality features. Risk: data leakage — if you compute the mean using all rows including the current row, the model sees the target during training through the encoding. Fix: compute encoding using cross-validation (out-of-fold encoding) so each row's encoding only uses other folds' data." }
+          ]},
+          { "type": "placement", "text": "The dummy variable trap and target encoding leakage are favourite interview gotchas. Knowing both puts you in the top 20% of candidates on preprocessing questions." }
+        ]
+      },
+      {
+        "id": "feature-engineering",
+        "num": 6,
+        "title": "Feature Engineering",
+        "blocks": [
+          { "type": "para", "text": "Feature engineering is the process of creating new, more informative features from raw data using domain knowledge and mathematical transformations. It is often the single biggest lever for improving model performance. Common techniques: Interaction features — multiply or combine two features (height × weight = BMI). Polynomial features — add squared/cubed terms to capture non-linearity in linear models. Binning/Discretisation — convert continuous features into buckets (age → child/teen/adult/senior). Date decomposition — extract hour, day, day-of-week, month, quarter, is_weekend from a timestamp. Text features — word count, character count, sentiment score from text fields. Ratio features — feature_A / feature_B (clicks / impressions = CTR). Lag features — for time series, add previous values as features. Cyclical encoding — encode hour-of-day or day-of-week as sin/cos to preserve cyclical nature (23:00 is close to 00:00)." },
+          { "type": "analogy", "text": "Feature engineering is like giving a student better study notes. The raw data (textbook) has all the information, but reformatting it as bullet points and mnemonics (engineered features) makes the key patterns easier to extract. A model, like a student, learns faster from well-organised input." },
+          { "type": "memory-trick", "text": "The best features come from domain knowledge. For e-commerce: 'days since last purchase' is more predictive than 'signup date'. For fraud: 'transaction amount / average amount for this user' is more predictive than raw amount. Always ask: what does a domain expert pay attention to?" },
+          { "type": "interview", "qas": [
+            { "q": "What is the difference between feature engineering and feature selection?", "a": "Feature engineering creates new features from existing ones (combining, transforming, decomposing). Feature selection chooses which features to include from the available set. Engineering adds information; selection removes noise. Both reduce the effective problem complexity but in opposite directions." },
+            { "q": "How would you encode a 'hour of day' feature for a neural network?", "a": "A raw integer (0-23) has the problem that 23 and 0 appear far apart numerically but are actually one hour apart. Cyclical encoding solves this: hour_sin = sin(2π × hour / 24) and hour_cos = cos(2π × hour / 24). The pair of values forms a circle where 23:00 and 00:00 are indeed close together." }
+          ]},
+          { "type": "placement", "text": "Feature engineering questions are project-based. Expect 'Tell me about a feature you engineered that improved your model.' Have a specific story: what raw feature, what transformation, why it worked, how much improvement (e.g., AUC went from 0.82 to 0.87 after adding 3 interaction features)." }
+        ]
+      },
+      {
+        "id": "feature-selection",
+        "num": 7,
+        "title": "Feature Selection",
+        "blocks": [
+          { "type": "para", "text": "Feature selection reduces the number of input features by removing irrelevant or redundant ones. Benefits: reduces overfitting (less noise for the model to fit), speeds up training, improves interpretability, reduces data collection cost. Three categories: Filter Methods evaluate features independently of the model using statistical scores. Mutual Information measures how much a feature reduces uncertainty about the target. Correlation (Pearson) detects linear relationships. Chi-squared test for categorical features and classification targets. Wrapper Methods use a model to evaluate subsets. Forward Selection starts with no features, adds one at a time based on improvement. Backward Elimination starts with all features, removes one at a time. Recursive Feature Elimination (RFE) trains a model, ranks features by importance, removes the weakest. Embedded Methods perform selection during training. Lasso (L1 regularisation) drives weak feature coefficients to exactly zero. Tree feature importances from Random Forest or XGBoost." },
+          { "type": "memory-trick", "text": "Filter: fast, model-agnostic, misses interactions. Wrapper: slow, finds interactions, risk of overfitting. Embedded: best of both — selection happens as part of training (Lasso, tree importance). For practical use: start with correlation + tree importance, then use RFE to fine-tune top candidates." },
+          { "type": "interview", "qas": [
+            { "q": "What is the difference between filter, wrapper, and embedded feature selection?", "a": "Filter methods rank features using statistics (correlation, mutual information) without training a model — fast but miss feature interactions. Wrapper methods train a model on subsets and use its performance as the selection criterion — find interactions but computationally expensive. Embedded methods (Lasso, tree importance) perform selection as part of model training — efficient and model-aware." },
+            { "q": "What is the risk of using high correlation as a feature selection criterion?", "a": "Correlation (Pearson) only detects linear relationships. A feature could have a strong non-linear relationship with the target (e.g., quadratic) and score near-zero correlation. It would be incorrectly dropped. Mutual information captures non-linear dependencies and is more reliable as a filter metric." }
+          ]},
+          { "type": "placement", "text": "Feature selection shows up in 'how would you handle a dataset with 500 features?' questions. The answer: check variance (drop near-zero variance), check correlation (drop highly correlated pairs), use Lasso or tree importance for embedded selection, then optionally RFE. Mention that feature selection and feature engineering compound — first engineer, then select." }
+        ]
+      },
+      {
+        "id": "train-test-split",
+        "num": 8,
+        "title": "Train / Validation / Test Split",
+        "blocks": [
+          { "type": "para", "text": "To evaluate how well a model generalises to unseen data, you must test it on data it has never seen during training. The standard split: Training set (60-80%) — used to fit model parameters. Validation set (10-20%) — used to tune hyperparameters and select among models. Test set (10-20%) — used exactly once at the end to report final performance. A common mistake is tuning on the test set — this causes optimistic bias because you have indirectly leaked test information into model selection. Stratified split: for classification with class imbalance, ensure each split has the same class ratio as the full dataset using stratify parameter in sklearn. Time-based split: for time-series data, never shuffle — the test set must always be strictly in the future. Group split: if multiple rows belong to the same entity (same patient, same user), ensure all rows for one entity are in one split to avoid leakage." },
+          { "type": "analogy", "text": "Think of training/validation/test as studying for an exam. Training = your study material. Validation = practice mock exams (you review them and adjust your study). Test = the real exam — you look at it only once, and your score is your final grade. Peeking at the real exam during preparation (using test set for tuning) inflates your practice score but your real exam performance stays the same — you just didn't know you were cheating." },
+          { "type": "memory-trick", "text": "The test set is untouchable until the final evaluation. If you have used it for any model selection decision, it is no longer a true test set — it is now part of your validation set and your reported metric is optimistically biased. Report final performance only once." },
+          { "type": "interview", "qas": [
+            { "q": "Why do you need a separate validation set if you already have a test set?", "a": "The test set is for unbiased final evaluation. If you tune hyperparameters using the test set, you've optimised for that specific set, and the reported performance is no longer unbiased. The validation set absorbs all tuning decisions, so the test set remains unseen and gives a true estimate of generalisation error." },
+            { "q": "How would you split a time-series dataset?", "a": "Never shuffle time-series data. The test set must be strictly in the future (e.g., train on months 1-10, test on months 11-12). Shuffling causes data leakage because future values inform past predictions. For hyperparameter tuning, use time-series cross-validation (expanding window or rolling window)." }
+          ]},
+          { "type": "placement", "text": "Interviewers frequently ask 'How would you evaluate this model?' to see if you know the difference between validation and test sets and why it matters. The classic mistake: 'I tuned until my test accuracy was 95%' — this is a red flag showing the candidate used the test set as validation." }
+        ]
+      },
+      {
+        "id": "data-leakage",
+        "num": 9,
+        "title": "Data Leakage",
+        "blocks": [
+          { "type": "para", "text": "Data leakage occurs when information from outside the training set is improperly used to build or evaluate a model, resulting in an artificially inflated performance metric that does not replicate in production. Two types: Target Leakage — a feature is derived from or correlated with the target in a way that would not be available at prediction time (e.g., using 'was hospitalised' as a feature to predict 'will be diagnosed' — at prediction time you don't yet know if they'll be hospitalised). Train-test Contamination — statistics computed on the full dataset (including test data) are used to preprocess training data (fitting a scaler, imputer, or encoder on train+test instead of train only). Common leakage sources: Fitting preprocessors on the full dataset. Target encoding computed without cross-validation. Using future information in time-series features. Including proxy features for the target." },
+          { "type": "analogy", "text": "Data leakage is like a teacher accidentally giving students the answer key before the exam. The students score 100% but learned nothing. Your model scores 99% on the test set but fails completely in production — because it was trained on information that cheated. The production environment never has that 'future' information." },
+          { "type": "common-mistake", "text": "The most common leakage mistake: fitting sklearn preprocessing objects (StandardScaler, SimpleImputer) on the entire dataset then splitting. Always split first, then fit on train only. In sklearn Pipelines, the pipeline automatically fits only on train data — this is one of the primary reasons to use Pipelines." },
+          { "type": "interview", "qas": [
+            { "q": "How would you detect data leakage?", "a": "Red flags: test accuracy is suspiciously higher than expected. A feature that appears too informative. Model performance degrades dramatically when deployed. To detect: check feature importances — if one feature dominates unexpectedly, investigate it. Check if any feature is a proxy for the target. Ensure preprocessing was fitted on train only. For time-series, ensure no future data in features." },
+            { "q": "What is target leakage vs train-test contamination?", "a": "Target leakage: a feature is derived from information that includes or implies the target (e.g., for fraud prediction, including 'account frozen' as a feature — accounts are only frozen after fraud is confirmed). Train-test contamination: applying a transformation fit on all data (including test) to both sets — scaler trained on full dataset leaks test statistics into training." },
+            { "q": "How does sklearn Pipeline prevent data leakage?", "a": "Pipeline fits all preprocessing steps only on the training fold and transforms the validation fold using those fitted objects. When you call pipeline.fit(X_train, y_train), every transform in the pipeline is fitted on X_train only. When you call pipeline.transform(X_test), it applies the train-fitted transforms to X_test. No test data ever influences the fit." }
+          ]},
+          { "type": "placement", "text": "Data leakage is a top-5 interview question for data roles. The interviewer wants to know: (1) you know what it is, (2) you know the two types, (3) you know how to prevent it (split first, fit on train, use Pipelines). Candidates who only mention scaling leakage and miss target leakage get partial credit." }
+        ]
+      }
+    ]
+  },
+  "ml-basics": {
+    "id": "ml-basics",
+    "title": "Machine Learning Basics",
+    "chapters": [
+      {
+        "id": "bias-variance-tradeoff",
+        "num": 1,
+        "title": "Bias-Variance Tradeoff",
+        "blocks": [
+          { "type": "para", "text": "The prediction error of any ML model decomposes into three components: Bias — error from wrong assumptions in the model. A high-bias model is too simple; it cannot capture the true pattern (underfits). Variance — error from sensitivity to small fluctuations in the training data. A high-variance model fits the training data too closely, including noise (overfits). Irreducible noise — inherent randomness in the data that no model can eliminate. Total Expected Error = Bias² + Variance + Irreducible Noise. The tradeoff: simple models have high bias, low variance. Complex models have low bias, high variance. The goal is to find the sweet spot — a model complex enough to capture the true pattern but not so complex that it memorises noise. Ensemble methods like bagging reduce variance without increasing bias. Boosting reduces bias but can increase variance." },
+          { "type": "analogy", "text": "Imagine you are throwing darts at a target. Bias = systematic offset (all darts land to the left of the bullseye — you are aiming wrong). Variance = spread (darts are scattered randomly all over the board). Low bias + low variance = all darts cluster tightly at the bullseye. High bias + low variance = tight cluster but consistently off-centre. Low bias + high variance = centred on average but wildly scattered. You want tight and centred — low both." },
+          { "type": "memory-trick", "text": "Simple model → High Bias, Low Variance (consistent but wrong). Complex model → Low Bias, High Variance (right on average but inconsistent). The 'just-right' model minimises the sum. K-fold cross-validation estimates both: consistently poor = bias. Large spread across folds = variance." },
+          { "type": "interview", "qas": [
+            { "q": "How do you detect high bias vs high variance?", "a": "High bias: high training error AND high test error — model is too simple to fit either. High variance: low training error but high test error — model memorises training data but fails on new data. Plot learning curves (train vs validation error vs training set size). High bias: both curves plateau at high error. High variance: large gap between train and validation curves." },
+            { "q": "How does adding more training data affect bias and variance?", "a": "More data reduces variance (model has more examples to average over, less sensitive to any one point) but does not reduce bias (if the model is too simple, more data on which to be wrong doesn't help). If you have a high-bias model, adding data will not help — you need a more complex model or better features." },
+            { "q": "How do bagging and boosting address the bias-variance tradeoff?", "a": "Bagging (e.g., Random Forest) trains many complex models on bootstrapped subsets and averages predictions. Each individual tree has low bias but high variance. Averaging cancels out variance without increasing bias. Boosting (e.g., AdaBoost, XGBoost) trains models sequentially, each correcting the errors of the previous. Each model is simple (high bias), and the ensemble reduces bias. Boosting is more susceptible to overfitting than bagging." }
+          ]},
+          { "type": "placement", "text": "Bias-variance is the most fundamental concept in ML theory — it shows up in every serious ML interview. Know the dart analogy, know the learning curve shapes for each type, and know that bagging reduces variance while boosting reduces bias. This one concept unlocks answers to 20 derivative questions." }
+        ]
+      },
+      {
+        "id": "overfitting-underfitting",
+        "num": 2,
+        "title": "Overfitting and Underfitting",
+        "blocks": [
+          { "type": "para", "text": "Overfitting: the model learns the training data too well, including its noise and random fluctuations. It achieves very low training error but high test error — it has memorised rather than generalised. Signs: large gap between train and validation accuracy. Causes: model too complex (too many parameters), insufficient training data, training for too many epochs, too many features. Fixes: regularisation (L1/L2), dropout (neural nets), cross-validation, pruning (trees), early stopping, more training data, simpler model architecture, feature selection. Underfitting: the model is too simple to capture the true underlying pattern. Both training and test error are high. Signs: high training error. Causes: model too simple, too few features, too much regularisation, insufficient training epochs. Fixes: more complex model, better features, reduce regularisation, train longer, polynomial features." },
+          { "type": "analogy", "text": "Overfitting is like a student who memorises past exam questions verbatim but cannot solve any variation. They score 100% on practice exams but fail the real one. Underfitting is a student who did not study at all — they fail both practice and real exams. The goal is a student who understood the concepts deeply enough to solve new problems." },
+          { "type": "memory-trick", "text": "Overfit: 'I know too much about the past, nothing about the future.' Train error ↓, Test error ↑. Underfit: 'I know nothing about anything.' Both errors high. The validation curve turning upward when model complexity increases marks the overfit point. That complexity - 1 is your sweet spot." },
+          { "type": "interview", "qas": [
+            { "q": "A model has 99% training accuracy and 60% test accuracy. What is wrong?", "a": "Classic overfitting. The model has memorised the training data including noise. Fixes: add regularisation, reduce model complexity, use dropout (if neural network), get more training data, use cross-validation to select the right complexity, or apply early stopping." },
+            { "q": "What is early stopping?", "a": "Early stopping monitors validation loss during training and stops training when validation loss starts increasing, even if training loss is still decreasing. This prevents overfitting in neural networks and gradient boosting. You keep the weights from the epoch with the lowest validation loss, not the final epoch." }
+          ]},
+          { "type": "placement", "text": "Overfitting/underfitting is tested via scenario questions: 'Your model has X train acc, Y test acc — what do you do?' Always compute the gap. Train ≈ Test = generalising well. Train >> Test = overfitting. Both low = underfitting." }
+        ]
+      },
+      {
+        "id": "regularization",
+        "num": 3,
+        "title": "Regularisation (L1, L2, ElasticNet)",
+        "blocks": [
+          { "type": "para", "text": "Regularisation adds a penalty term to the loss function to discourage complex models and reduce overfitting. L2 Regularisation (Ridge): adds the sum of squared weights (λ×Σw²) to the loss. Penalises large weights but rarely drives them to exactly zero — shrinks all features proportionally. L1 Regularisation (Lasso): adds the sum of absolute weights (λ×Σ|w|) to the loss. Can drive individual weights exactly to zero — performs automatic feature selection. ElasticNet: combines L1 and L2 (λ₁×Σ|w| + λ₂×Σw²). Balances between feature selection (Lasso) and grouping correlated features (Ridge). λ (lambda) is the regularisation strength: λ=0 means no regularisation. As λ increases, model becomes simpler (more regularised). Choose λ via cross-validation. In neural networks, L2 is also called 'weight decay'." },
+          { "type": "analogy", "text": "Regularisation is like a budget constraint on a student's exam answer. L2 says 'you can use all topics but pay a small penalty for how much you rely on each.' L1 says 'you can only use a few topics (the rest must be exactly zero) — choose your specialisations.' ElasticNet splits the budget between both rules." },
+          { "type": "memory-trick", "text": "L1 (Lasso) = Lean (sparse — zeros out features). L2 (Ridge) = Round (keeps all, makes them small). L1 creates sparse models good for feature selection. L2 works better when all features are relevant. If you have highly correlated features, Ridge groups them; Lasso arbitrarily picks one." },
+          { "type": "interview", "qas": [
+            { "q": "Why does L1 regularisation produce sparse solutions but L2 does not?", "a": "Geometrically: the L1 constraint region is a diamond (in 2D); the L2 region is a circle. The loss function's contours (ellipses for linear regression) are more likely to touch the diamond at a corner (where one weight = 0) than touch the circle's smooth surface. L1's corners on the axes create sparsity naturally." },
+            { "q": "When would you choose Ridge over Lasso?", "a": "Choose Ridge when: all features are expected to be relevant (you don't want to zero any out), features are highly correlated (Lasso arbitrarily drops correlated features; Ridge distributes the weight), or you care about prediction accuracy more than interpretability." },
+            { "q": "What happens if you set the regularisation parameter λ too high?", "a": "Too high λ → all weights shrink toward zero → model becomes too simple → underfitting. Training and test error both increase. Too low λ → no penalty → overfitting. Optimal λ found by cross-validation, typically plotted as a regularisation path." }
+          ]},
+          { "type": "placement", "text": "The L1 vs L2 geometry question (diamond vs circle) is a classic interview answer that separates theoretical understanding from recipe-following. The practical takeaway: Lasso for feature selection, Ridge for multicollinearity, ElasticNet when both issues exist." }
+        ]
+      },
+      {
+        "id": "curse-of-dimensionality",
+        "num": 4,
+        "title": "Curse of Dimensionality",
+        "blocks": [
+          { "type": "para", "text": "The curse of dimensionality refers to phenomena that arise when working with high-dimensional data that make ML problems exponentially harder. Core problem: as dimensions increase, the volume of the space grows so fast that available data becomes extremely sparse. In 1D, 100 points give reasonable coverage. In 10D with the same 100 points, the space is 100^10 = 10^20 times larger — almost all regions are empty. Effects: Distance metrics break down (in high dimensions, all points are approximately equidistant from each other — K-Means and KNN fail). Exponentially more data needed to maintain the same density. Models overfit more easily. Visualisation becomes impossible. Solutions: Dimensionality reduction (PCA, t-SNE, autoencoders). Feature selection (remove irrelevant dimensions). Feature engineering (combine dimensions meaningfully). Regularisation (constrains model complexity)." },
+          { "type": "analogy", "text": "Imagine searching for a person in a city (2D). Manageable. Now imagine searching in a 100-floor building (3D). Harder. Now a galaxy (3D at astronomical scale). Exponentially harder. Each new dimension you add multiplies the search space. With the same number of data points, your data gets thinner and thinner as dimensions grow — like spreading a fixed amount of butter across an exponentially bigger slice of bread." },
+          { "type": "interview", "qas": [
+            { "q": "Why does KNN fail in high dimensions?", "a": "KNN relies on the assumption that nearby points are similar. In high dimensions, all points become approximately equidistant from each other (distance concentration). The concept of 'nearest neighbour' loses meaning — the ratio of distance to the nearest vs farthest neighbour approaches 1. KNN performs poorly with more than ~20 dimensions unless features are carefully selected." },
+            { "q": "How do you address the curse of dimensionality?", "a": "Dimensionality reduction (PCA compresses variance into fewer dimensions). Feature selection (remove irrelevant dimensions). Deep learning learns lower-dimensional representations (embeddings) automatically. Use algorithms robust to high dimensionality (linear models, tree ensembles). Collect more data (exponentially more needed as dimensions grow, but may not be feasible)." }
+          ]},
+          { "type": "placement", "text": "Curse of dimensionality comes up in questions about KNN ('why does KNN fail?'), PCA ('why do we use PCA?'), and any question about feature selection. The key insight: distance becomes meaningless in high dimensions. This is why deep learning uses learned embeddings rather than raw feature vectors for tasks like similarity search." }
+        ]
+      },
+      {
+        "id": "hyperparameters-vs-parameters",
+        "num": 5,
+        "title": "Parameters vs Hyperparameters",
+        "blocks": [
+          { "type": "para", "text": "Parameters are internal variables of a model that are learned from the training data via optimisation. Examples: weights and biases in a neural network, coefficients in linear regression, split thresholds in a decision tree. You never set these manually — they are adjusted by the training algorithm to minimise loss. Hyperparameters are external configuration settings that control the training process itself. They are set before training begins and not updated by the training algorithm. Examples: learning rate, number of trees in a forest, max depth of a decision tree, regularisation strength λ, number of hidden layers, dropout rate, batch size, number of clusters K in K-Means. Tuning hyperparameters: Grid Search (exhaustive, tries all combinations), Random Search (samples randomly, often finds good solutions faster), Bayesian Optimisation (builds a surrogate model of performance, smarter exploration). Always tune hyperparameters on validation data, not test data." },
+          { "type": "memory-trick", "text": "Parameters: set BY the model (during training). Hyperparameters: set FOR the model (before training). If you see it in model.fit(), it's learned (parameter). If you see it in LinearRegression(alpha=0.1), it's a hyperparameter. The number of parameters in a neural network is a fixed architectural choice — the values of those parameters are learned." },
+          { "type": "interview", "qas": [
+            { "q": "What is the difference between model parameters and hyperparameters?", "a": "Parameters are learned from data during training (e.g., neural network weights). Hyperparameters control the training process and model architecture and are set before training (e.g., learning rate, number of layers, regularisation strength). Parameters are optimised by gradient descent or similar. Hyperparameters are tuned by cross-validation on validation data." },
+            { "q": "What is the difference between Grid Search and Random Search?", "a": "Grid Search evaluates every combination in a defined hyperparameter grid — exhaustive but computationally expensive. Random Search samples random combinations from a defined distribution — often finds equally good results in far fewer evaluations because most hyperparameter importance is concentrated in a few dimensions (the others barely matter, so covering them exhaustively is wasted effort)." }
+          ]},
+          { "type": "placement", "text": "The parameter/hyperparameter distinction is a foundational question. More interesting follow-up: 'Name 5 hyperparameters for XGBoost.' Answer: n_estimators (number of trees), max_depth, learning_rate (shrinkage), subsample (row sampling fraction), colsample_bytree (column sampling fraction). These 5 cover 90% of XGBoost tuning." }
+        ]
+      }
+    ]
+  },
+  "regression": {
+    "id": "regression",
+    "title": "Regression Algorithms",
+    "chapters": [
+      {
+        "id": "linear-regression",
+        "num": 1,
+        "title": "Linear Regression",
+        "blocks": [
+          { "type": "para", "text": "Linear Regression models the relationship between a continuous target variable y and one or more input features X as a linear equation: ŷ = w₀ + w₁x₁ + w₂x₂ + ... + wₙxₙ. The model finds the weight vector w that minimises the Mean Squared Error (MSE) = (1/n)Σ(yᵢ - ŷᵢ)². The closed-form (Ordinary Least Squares) solution is w = (XᵀX)⁻¹Xᵀy. For large datasets, gradient descent is used instead. Assumptions: Linearity (true relationship is linear), Independence (observations are independent), Homoscedasticity (constant variance of errors), Normality of errors (for statistical inference), No multicollinearity (features are not highly correlated). Violation of these assumptions degrades performance and makes confidence intervals unreliable. Time complexity for closed-form: O(n×d² + d³) where n=samples, d=features. For gradient descent: O(n×d) per iteration." },
+          { "type": "analogy", "text": "Linear regression is finding the best-fit straight line through a scatter plot. Imagine plotting house size vs price on a graph — each house is a point. Linear regression draws the single line that minimises the total vertical distance between the line and all points. Once drawn, for any new house size, you read off the price from the line." },
+          { "type": "example", "text": "Predicting house prices: features = [size_sqft, num_bedrooms, age_years]. Model learns: price = 150×size + 20000×bedrooms - 500×age + 50000. Interpretation: each additional sqft adds $150, each bedroom adds $20,000, each year of age reduces price by $500. This interpretability is a key advantage of linear regression over black-box models." },
+          { "type": "memory-trick", "text": "Linear regression assumptions: LINE — Linearity, Independence, Normality of errors, Equal variance (homoscedasticity). Violation checks: residual plot (should look random), Q-Q plot (normality), VIF (multicollinearity). R² = proportion of variance explained (1.0 = perfect, 0 = model is no better than predicting the mean)." },
+          { "type": "interview", "qas": [
+            { "q": "What does R² mean and what are its limitations?", "a": "R² (coefficient of determination) measures what fraction of the target's variance the model explains. R² = 1 − (SS_residual / SS_total). Ranges 0-1 in well-fitted models. Limitations: always increases when you add features, even useless ones — use Adjusted R² which penalises for extra features. R² measures in-sample fit, not generalisation. A model can have high R² but still overfit." },
+            { "q": "When would linear regression fail completely?", "a": "When the true relationship is non-linear (e.g., exponential, polynomial). When there is perfect multicollinearity (XᵀX is singular, OLS cannot be solved). When outliers are extreme (pulls the line severely). When the target is non-continuous (use logistic regression for binary targets). When the target is bounded (e.g., probabilities 0-1 — predictions can exceed bounds)." },
+            { "q": "What is gradient descent and why is it used instead of the closed-form solution?", "a": "Gradient descent iteratively moves in the direction of steepest descent of the loss function, updating weights by w := w − α∇L. Used instead of OLS when: n and d are large (OLS requires inverting an n×n or d×d matrix — O(d³) time, O(d²) memory). For neural networks, closed-form does not exist. OLS is exact and preferred for small-medium datasets; gradient descent scales to millions of examples." }
+          ]},
+          { "type": "placement", "text": "Linear regression is asked in 100% of ML interviews at some level. Know: assumptions and what violating each means, R² vs Adjusted R², closed-form vs gradient descent tradeoff, and when to use Ridge instead (multicollinearity). The answer to 'what is linear regression?' should include the objective function (MSE minimisation), not just 'fits a line.'" }
+        ]
+      },
+      {
+        "id": "polynomial-regression",
+        "num": 2,
+        "title": "Polynomial Regression",
+        "blocks": [
+          { "type": "para", "text": "Polynomial Regression extends linear regression to model non-linear relationships by adding polynomial features. For degree d: ŷ = w₀ + w₁x + w₂x² + ... + wₐxᵈ. The model is still linear in the parameters w — only the features are transformed. In sklearn, use PolynomialFeatures(degree=d) to create the expanded feature matrix, then fit LinearRegression. Key issue: degree too low → underfitting. Degree too high → severe overfitting (the curve wiggles wildly between data points). Cross-validation selects the right degree. For multiple input features, polynomial features include interaction terms: for features x₁ and x₂, degree 2 creates x₁², x₁x₂, x₂². The number of features grows as O(dᵖ/p!) where p is the polynomial degree — quickly becomes intractable for high-dimensional data." },
+          { "type": "memory-trick", "text": "Polynomial regression is linear regression on expanded features. High degree = overfitting. Always regularise high-degree polynomial models with Ridge to prevent overfitting. For truly non-linear relationships, consider tree-based models or neural networks rather than high-degree polynomials." },
+          { "type": "interview", "qas": [
+            { "q": "Is polynomial regression a linear model?", "a": "Yes. Despite the name, polynomial regression is linear in the parameters. The non-linearity is in the features (x²), not the model. The hypothesis is still ŷ = wᵀφ(x) where φ(x) is the polynomial feature map. This matters because all the theory of linear regression (OLS solution, closed-form, etc.) still applies." },
+            { "q": "Why does high polynomial degree cause overfitting?", "a": "A degree-N polynomial can pass through exactly N+1 points perfectly. With enough degree, the model fits every training point including noise, producing wild oscillations between points. The test error explodes. Solution: choose degree via cross-validation or regularise with Ridge to penalise large coefficients, which prevents the oscillations." }
+          ]},
+          { "type": "placement", "text": "Polynomial regression is asked to test whether you understand the linear-in-parameters vs linear-in-features distinction. A common follow-up: 'What degree would you choose?' — answer: use cross-validation to pick degree from {2, 3, 4, 5}, and always apply Ridge regularisation for degree ≥ 3." }
+        ]
+      },
+      {
+        "id": "ridge-regression",
+        "num": 3,
+        "title": "Ridge Regression (L2)",
+        "blocks": [
+          { "type": "para", "text": "Ridge Regression (also called L2 regularisation or Tikhonov regularisation) adds a penalty term to the OLS loss: L = MSE + λ×Σwᵢ². The penalty discourages large coefficients. Closed-form solution: w = (XᵀX + λI)⁻¹Xᵀy. Adding λI makes the matrix invertible even when XᵀX is singular (perfect multicollinearity) — this is one key advantage. Effects: All coefficients are shrunk toward zero proportionally. No coefficient reaches exactly zero (unlike Lasso). As λ→∞, all coefficients→0 (model predicts the mean). As λ→0, solution approaches OLS. Use Ridge when: many features are likely relevant (you don't want to zero any out), features are highly correlated (multicollinearity), or prediction accuracy is more important than interpretability. Time complexity same as OLS: O(n×d² + d³)." },
+          { "type": "memory-trick", "text": "Ridge: Round coefficients (shrink, never zero). Good for multicollinearity — distributes weight among correlated features rather than picking one. The λI addition to XᵀX is the 'ridge' that makes the otherwise singular matrix invertible — that is where the name comes from." },
+          { "type": "interview", "qas": [
+            { "q": "Why does Ridge work better than OLS when features are multicollinear?", "a": "With multicollinear features, XᵀX is near-singular and its inverse is numerically unstable — tiny changes in data cause huge swings in coefficients. Adding λI inflates the diagonal, stabilising the inversion and producing stable, smaller coefficients. Ridge effectively shrinks both correlated features rather than giving all weight to one arbitrarily." },
+            { "q": "What is the effect of increasing λ in Ridge regression?", "a": "As λ increases: all coefficients shrink toward zero, model becomes simpler (more regularised), training error increases, test error first decreases (less overfitting) then increases (underfitting). The optimal λ minimises test error — found by cross-validation across a log-spaced grid (e.g., 0.001, 0.01, 0.1, 1, 10, 100)." }
+          ]},
+          { "type": "placement", "text": "Ridge vs Lasso is one of the most asked regularisation comparison questions. Key: Ridge preserves all features (shrinks, never zeros), Lasso zeros out weak features. Ridge preferred for: many relevant features, high correlation between features. Lasso preferred for: sparse ground truth (only a few features matter), interpretability." }
+        ]
+      },
+      {
+        "id": "lasso-regression",
+        "num": 4,
+        "title": "Lasso Regression (L1)",
+        "blocks": [
+          { "type": "para", "text": "Lasso Regression (Least Absolute Shrinkage and Selection Operator) adds an L1 penalty: L = MSE + λ×Σ|wᵢ|. Unlike Ridge, Lasso can drive individual coefficients exactly to zero, effectively performing feature selection. This is Lasso's key advantage: it produces sparse models where only the most important features have non-zero weights. No closed-form solution (the absolute value is not differentiable at zero). Solved using coordinate descent. Geometrically: the L1 ball (diamond in 2D) has corners on the axes where one or more coordinates are zero. The loss function contours tend to touch these corners, producing exact zeros. Use Lasso when: you believe only a few features are truly relevant (sparse signal), you want automatic feature selection, interpretability matters. Weakness: when features are correlated, Lasso arbitrarily picks one and zeros the rest — Ridge handles correlated groups better." },
+          { "type": "memory-trick", "text": "Lasso = Lean (sparse, zeros out). L1 = Lean. L2 = Round. Lasso does model selection automatically — zero coefficients are irrelevant features. This is critical for high-dimensional data (genomics, NLP bag-of-words) where most features are noise." },
+          { "type": "interview", "qas": [
+            { "q": "Why does Lasso produce sparse solutions but Ridge does not?", "a": "Geometric explanation: the feasible region for L1 is a diamond with corners on the axes. The loss function contours (ellipses) are very likely to touch the diamond at a corner where some weights are exactly zero. The L2 ball is a smooth sphere with no corners — contours touch it tangentially where all weights are non-zero." },
+            { "q": "When would Lasso fail?", "a": "When features are highly correlated. If features x₁ and x₂ are perfectly correlated and both relevant, Lasso arbitrarily zeros out one while giving all weight to the other. The choice is numerically unstable. ElasticNet (L1 + L2) handles this: the L2 component groups correlated features while L1 still provides sparsity." }
+          ]},
+          { "type": "placement", "text": "Lasso is asked in feature selection contexts: 'How would you do automatic feature selection for a model with 1000 features?' Answer: Lasso with cross-validated λ. Features with non-zero coefficients are selected. Mention the correlation caveat and that ElasticNet is preferred when both selection and grouping are needed." }
+        ]
+      },
+      {
+        "id": "elasticnet",
+        "num": 5,
+        "title": "ElasticNet Regression",
+        "blocks": [
+          { "type": "para", "text": "ElasticNet combines L1 and L2 penalties: L = MSE + λ₁×Σ|wᵢ| + λ₂×Σwᵢ². The mixing parameter α controls the ratio: α=1 gives pure Lasso, α=0 gives pure Ridge. ElasticNet inherits both advantages: L1's sparsity (can zero out irrelevant features) and L2's grouping effect (when features are correlated, all get similar weights rather than one being arbitrarily dropped). Two hyperparameters to tune: α (L1 ratio) and the overall regularisation strength λ. In sklearn: ElasticNet(alpha=λ, l1_ratio=α). Best used when: you have many features, you expect some irrelevant (Lasso's job), and you have correlated feature groups (Ridge's job). Common in genomics, text classification, and any domain with thousands of correlated features." },
+          { "type": "memory-trick", "text": "ElasticNet = Lasso + Ridge. Lasso handles sparsity; Ridge handles correlated groups. When unsure whether to use L1 or L2, use ElasticNet and let cross-validation find the optimal mix. α controls the blend: closer to 1 = more Lasso, closer to 0 = more Ridge." },
+          { "type": "interview", "qas": [
+            { "q": "When should you use ElasticNet over pure Lasso or Ridge?", "a": "When features are numerous (>100s) and you expect both sparsity (most features irrelevant) and correlation (groups of related features). Lasso alone will arbitrarily zero correlated features. Ridge alone will keep all features. ElasticNet zeros irrelevant features (L1) while distributing weight among correlated ones (L2). Common choice for genomics and NLP." },
+            { "q": "How many hyperparameters does ElasticNet have and how do you tune them?", "a": "Two: the overall regularisation strength (alpha) and the L1 ratio (l1_ratio, between 0 and 1). Tune both together using Grid Search or Random Search with cross-validation. A typical grid: alpha in [0.001, 0.01, 0.1, 1] and l1_ratio in [0.1, 0.5, 0.7, 0.9, 0.95, 1.0]. sklearn.linear_model.ElasticNetCV automates this efficiently." }
+          ]},
+          { "type": "placement", "text": "ElasticNet shows up in 'compare regularisation methods' questions. A complete answer covers: OLS → overfits without regularisation. Ridge → regularises but keeps all features. Lasso → feature selection but fails with correlated groups. ElasticNet → best of both. Knowing when each fails is what separates thorough from shallow answers." }
+        ]
+      }
+    ]
+  }
+}

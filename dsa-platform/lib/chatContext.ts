@@ -3,6 +3,7 @@ import { PROBLEM_CONTENT } from "@/data/problemContent";
 import { getConceptById } from "@/data/systemDesign";
 import { SD_CONCEPT_CONTENT } from "@/data/systemDesignContent";
 import { getSubject, blockText } from "@/data/seBasics";
+import { getAIMLSubject, blockText as aimlBlockText } from "@/data/aiml";
 
 export interface PageContext {
   kind: string;
@@ -74,6 +75,20 @@ export function getPageContext(pathname: string, hash = ""): PageContext {
       if (ch) {
         const body = ch.blocks.map(blockText).filter(Boolean).join("\n\n");
         return { kind: "se-basics", title: `${subject.title} — ${ch.title}`, body: clip(body) };
+      }
+    }
+  }
+
+  // /ai-ml/[subject]#chapter
+  m = pathname.match(/^\/ai-ml\/([^/]+)/);
+  if (m) {
+    const subject = getAIMLSubject(m[1]);
+    if (subject) {
+      const chId = hash.replace("#", "");
+      const ch = subject.chapters.find((c) => c.id === chId) ?? subject.chapters[0];
+      if (ch) {
+        const body = ch.blocks.map(aimlBlockText).filter(Boolean).join("\n\n");
+        return { kind: "ai-ml", title: `${subject.title} — ${ch.title}`, body: clip(body) };
       }
     }
   }
