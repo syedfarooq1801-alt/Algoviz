@@ -1,4 +1,4 @@
-export type Difficulty = "Easy" | "Medium" | "Hard";
+﻿export type Difficulty = "Easy" | "Medium" | "Hard";
 
 export interface Problem {
   id: string;
@@ -108,7 +108,7 @@ for (int i = 0; i < nums.size(); i++) {
       { id: "product-except-self", title: "Product of Array Except Self", difficulty: "Medium", difficultyScore: 7, pattern: "arrays-hashing", leetcodeUrl: "https://leetcode.com/problems/product-of-array-except-self/", hasVisualization: true, tags: ["Array", "Prefix Product"], companies: ["Amazon", "Apple", "Microsoft"], frequency: "High" },
       { id: "valid-sudoku", title: "Valid Sudoku", difficulty: "Medium", difficultyScore: 6, pattern: "arrays-hashing", leetcodeUrl: "https://leetcode.com/problems/valid-sudoku/", hasVisualization: false, tags: ["Array", "Hash Set", "Matrix"], companies: ["Amazon", "Apple"], frequency: "Medium" },
       { id: "longest-consecutive", title: "Longest Consecutive Sequence", difficulty: "Medium", difficultyScore: 7, pattern: "arrays-hashing", leetcodeUrl: "https://leetcode.com/problems/longest-consecutive-sequence/", hasVisualization: true, tags: ["Array", "Hash Set"], companies: ["Google", "Amazon"], frequency: "High" },
-      { id: "first-missing-positive", title: "First Missing Positive", difficulty: "Hard", difficultyScore: 9, pattern: "arrays-hashing", leetcodeUrl: "https://leetcode.com/problems/first-missing-positive/", hasVisualization: false, tags: ["Array", "Hash Table"], companies: ["Google", "Meta", "Amazon", "Microsoft"], frequency: "High" },
+      { id: "first-missing-positive", title: "First Missing Positive", difficulty: "Hard", difficultyScore: 9, pattern: "arrays-hashing", leetcodeUrl: "https://leetcode.com/problems/first-missing-positive/", hasVisualization: true, tags: ["Array", "Hash Table"], companies: ["Google", "Meta", "Amazon", "Microsoft"], frequency: "High" },
     ]
   },
   {
@@ -178,7 +178,7 @@ while (fast && fast->next) {
       { id: "three-sum", title: "3Sum", difficulty: "Medium", difficultyScore: 6, pattern: "two-pointers", leetcodeUrl: "https://leetcode.com/problems/3sum/", hasVisualization: true, tags: ["Array", "Sorting", "Two Pointers"], companies: ["Amazon", "Google", "Facebook"], frequency: "High" },
       { id: "container-water", title: "Container With Most Water", difficulty: "Medium", difficultyScore: 6, pattern: "two-pointers", leetcodeUrl: "https://leetcode.com/problems/container-with-most-water/", hasVisualization: true, tags: ["Array", "Two Pointers", "Greedy"], companies: ["Amazon", "Google"], frequency: "High" },
       { id: "trapping-rain-water", title: "Trapping Rain Water", difficulty: "Hard", difficultyScore: 9, pattern: "two-pointers", leetcodeUrl: "https://leetcode.com/problems/trapping-rain-water/", hasVisualization: true, tags: ["Array", "Two Pointers", "Stack", "DP"], companies: ["Amazon", "Google", "Microsoft"], frequency: "High" },
-      { id: "count-of-smaller-after-self", title: "Count of Smaller Numbers After Self", difficulty: "Hard", difficultyScore: 9, pattern: "two-pointers", leetcodeUrl: "https://leetcode.com/problems/count-of-smaller-numbers-after-self/", hasVisualization: false, tags: ["Array", "Merge Sort", "BIT", "Divide & Conquer"], companies: ["Google", "Amazon", "LinkedIn"], frequency: "High" },
+      { id: "count-of-smaller-after-self", title: "Count of Smaller Numbers After Self", difficulty: "Hard", difficultyScore: 9, pattern: "two-pointers", leetcodeUrl: "https://leetcode.com/problems/count-of-smaller-numbers-after-self/", hasVisualization: true, tags: ["Array", "Merge Sort", "BIT", "Divide & Conquer"], companies: ["Google", "Amazon", "LinkedIn"], frequency: "High" },
     ]
   },
   {
@@ -252,7 +252,7 @@ for (int i = k; i < n; i++) {
       { id: "max-points-cards", title: "Maximum Points You Can Obtain from Cards", difficulty: "Medium", difficultyScore: 6, pattern: "sliding-window", leetcodeUrl: "https://leetcode.com/problems/maximum-points-you-can-obtain-from-cards/", hasVisualization: true, tags: ["Array", "Sliding Window", "Prefix Sum"], companies: ["Amazon"], frequency: "Medium" },
       { id: "min-window-substring", title: "Minimum Window Substring", difficulty: "Hard", difficultyScore: 9, pattern: "sliding-window", leetcodeUrl: "https://leetcode.com/problems/minimum-window-substring/", hasVisualization: true, tags: ["String", "Sliding Window", "Hash Map"], companies: ["Amazon", "Google", "Facebook"], frequency: "High" },
       { id: "sliding-window-max", title: "Sliding Window Maximum", difficulty: "Hard", difficultyScore: 9, pattern: "sliding-window", leetcodeUrl: "https://leetcode.com/problems/sliding-window-maximum/", hasVisualization: true, tags: ["Array", "Deque", "Sliding Window", "Monotonic Queue"], companies: ["Google", "Amazon"], frequency: "High" },
-      { id: "minimum-window-subsequence", title: "Minimum Window Subsequence", difficulty: "Hard", difficultyScore: 9, pattern: "sliding-window", leetcodeUrl: "https://leetcode.com/problems/minimum-window-subsequence/", hasVisualization: false, tags: ["String", "Sliding Window", "Two Pointers", "DP"], companies: ["Google", "Facebook"], frequency: "High" },
+      { id: "minimum-window-subsequence", title: "Minimum Window Subsequence", difficulty: "Hard", difficultyScore: 9, pattern: "sliding-window", leetcodeUrl: "https://leetcode.com/problems/minimum-window-subsequence/", hasVisualization: true, tags: ["String", "Sliding Window", "Two Pointers", "DP"], companies: ["Google", "Facebook"], frequency: "High" },
     ]
   },
   {
@@ -329,7 +329,7 @@ for (int i = 0; i < n; i++) {
       { id: "decode-string", title: "Decode String", difficulty: "Medium", difficultyScore: 7, pattern: "stack", leetcodeUrl: "https://leetcode.com/problems/decode-string/", hasVisualization: true, tags: ["String", "Stack", "Recursion"], companies: ["Amazon", "Google"], frequency: "High" },
       { id: "asteroid-collision", title: "Asteroid Collision", difficulty: "Medium", difficultyScore: 6, pattern: "stack", leetcodeUrl: "https://leetcode.com/problems/asteroid-collision/", hasVisualization: true, tags: ["Array", "Stack"], companies: ["Amazon", "Salesforce"], frequency: "Medium" },
       { id: "largest-rectangle-histogram", title: "Largest Rectangle in Histogram", difficulty: "Hard", difficultyScore: 9, pattern: "stack", leetcodeUrl: "https://leetcode.com/problems/largest-rectangle-in-histogram/", hasVisualization: true, tags: ["Array", "Stack", "Monotonic Stack"], companies: ["Amazon", "Google"], frequency: "High" },
-      { id: "maximal-rectangle", title: "Maximal Rectangle", difficulty: "Hard", difficultyScore: 10, pattern: "stack", leetcodeUrl: "https://leetcode.com/problems/maximal-rectangle/", hasVisualization: false, tags: ["Array", "Stack", "Monotonic Stack", "Matrix", "DP"], companies: ["Amazon", "Google", "Microsoft"], frequency: "High" },
+      { id: "maximal-rectangle", title: "Maximal Rectangle", difficulty: "Hard", difficultyScore: 10, pattern: "stack", leetcodeUrl: "https://leetcode.com/problems/maximal-rectangle/", hasVisualization: true, tags: ["Array", "Stack", "Monotonic Stack", "Matrix", "DP"], companies: ["Amazon", "Google", "Microsoft"], frequency: "High" },
     ]
   },
   {
@@ -484,7 +484,7 @@ return nullptr;`,
       { id: "swap-pairs", title: "Swap Nodes in Pairs", difficulty: "Medium", difficultyScore: 6, pattern: "linked-list", leetcodeUrl: "https://leetcode.com/problems/swap-nodes-in-pairs/", hasVisualization: true, tags: ["Linked List", "Recursion"], companies: ["Amazon", "Microsoft"], frequency: "Medium" },
       { id: "merge-k-sorted", title: "Merge K Sorted Lists", difficulty: "Hard", difficultyScore: 9, pattern: "linked-list", leetcodeUrl: "https://leetcode.com/problems/merge-k-sorted-lists/", hasVisualization: true, tags: ["Linked List", "Heap", "Divide & Conquer"], companies: ["Amazon", "Google"], frequency: "High" },
       { id: "reverse-k-group", title: "Reverse Nodes in K-Group", difficulty: "Hard", difficultyScore: 10, pattern: "linked-list", leetcodeUrl: "https://leetcode.com/problems/reverse-nodes-in-k-group/", hasVisualization: true, tags: ["Linked List", "Recursion"], companies: ["Microsoft", "Amazon"], frequency: "Medium" },
-      { id: "lfu-cache", title: "LFU Cache", difficulty: "Hard", difficultyScore: 10, pattern: "linked-list", leetcodeUrl: "https://leetcode.com/problems/lfu-cache/", hasVisualization: false, tags: ["Hash Map", "Linked List", "Design"], companies: ["Google", "Amazon", "Microsoft"], frequency: "High" },
+      { id: "lfu-cache", title: "LFU Cache", difficulty: "Hard", difficultyScore: 10, pattern: "linked-list", leetcodeUrl: "https://leetcode.com/problems/lfu-cache/", hasVisualization: true, tags: ["Hash Map", "Linked List", "Design"], companies: ["Google", "Amazon", "Microsoft"], frequency: "High" },
     ]
   },
   {
@@ -573,7 +573,7 @@ while (!q.empty()) {
       { id: "binary-tree-paths", title: "Binary Tree Paths", difficulty: "Medium", difficultyScore: 5, pattern: "trees", leetcodeUrl: "https://leetcode.com/problems/binary-tree-paths/", hasVisualization: false, tags: ["Tree", "DFS", "Backtracking"], companies: ["Google"], frequency: "Medium" },
       { id: "max-path-sum", title: "Binary Tree Maximum Path Sum", difficulty: "Hard", difficultyScore: 9, pattern: "trees", leetcodeUrl: "https://leetcode.com/problems/binary-tree-maximum-path-sum/", hasVisualization: true, tags: ["Tree", "DFS", "DP"], companies: ["Amazon", "Google"], frequency: "High" },
       { id: "serialize-deserialize", title: "Serialize and Deserialize Binary Tree", difficulty: "Hard", difficultyScore: 10, pattern: "trees", leetcodeUrl: "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/", hasVisualization: true, tags: ["Tree", "DFS", "BFS", "Design"], companies: ["Amazon", "Google", "Facebook"], frequency: "High" },
-      { id: "maximum-sum-bst", title: "Maximum Sum BST in Binary Tree", difficulty: "Hard", difficultyScore: 9, pattern: "trees", leetcodeUrl: "https://leetcode.com/problems/maximum-sum-bst-in-binary-tree/", hasVisualization: false, tags: ["Tree", "DFS", "BST", "DP"], companies: ["Google", "Amazon"], frequency: "High" },
+      { id: "maximum-sum-bst", title: "Maximum Sum BST in Binary Tree", difficulty: "Hard", difficultyScore: 9, pattern: "trees", leetcodeUrl: "https://leetcode.com/problems/maximum-sum-bst-in-binary-tree/", hasVisualization: true, tags: ["Tree", "DFS", "BST", "DP"], companies: ["Google", "Amazon"], frequency: "High" },
     ]
   },
   {
@@ -645,7 +645,7 @@ void addNum(int n) {
       { id: "task-scheduler", title: "Task Scheduler", difficulty: "Medium", difficultyScore: 7, pattern: "heap", leetcodeUrl: "https://leetcode.com/problems/task-scheduler/", hasVisualization: true, tags: ["Array", "Heap", "Greedy", "Counting"], companies: ["Amazon", "Facebook"], frequency: "High" },
       { id: "design-twitter", title: "Design Twitter", difficulty: "Medium", difficultyScore: 7, pattern: "heap", leetcodeUrl: "https://leetcode.com/problems/design-twitter/", hasVisualization: false, tags: ["Hash Map", "Heap", "Design", "Linked List"], companies: ["Twitter", "Amazon"], frequency: "Medium" },
       { id: "find-median-stream", title: "Find Median from Data Stream", difficulty: "Hard", difficultyScore: 9, pattern: "heap", leetcodeUrl: "https://leetcode.com/problems/find-median-from-data-stream/", hasVisualization: true, tags: ["Two Heaps", "Design", "Sorting"], companies: ["Amazon", "Google", "Microsoft"], frequency: "High" },
-      { id: "smallest-range-k-lists", title: "Smallest Range Covering Elements from K Lists", difficulty: "Hard", difficultyScore: 9, pattern: "heap", leetcodeUrl: "https://leetcode.com/problems/smallest-range-covering-elements-from-k-lists/", hasVisualization: false, tags: ["Array", "Heap", "Sliding Window", "Sorting"], companies: ["Google", "Amazon"], frequency: "High" },
+      { id: "smallest-range-k-lists", title: "Smallest Range Covering Elements from K Lists", difficulty: "Hard", difficultyScore: 9, pattern: "heap", leetcodeUrl: "https://leetcode.com/problems/smallest-range-covering-elements-from-k-lists/", hasVisualization: true, tags: ["Array", "Heap", "Sliding Window", "Sorting"], companies: ["Google", "Amazon"], frequency: "High" },
     ]
   },
   {
@@ -718,7 +718,7 @@ void addNum(int n) {
       { id: "letter-combinations", title: "Letter Combinations of a Phone Number", difficulty: "Medium", difficultyScore: 6, pattern: "backtracking", leetcodeUrl: "https://leetcode.com/problems/letter-combinations-of-a-phone-number/", hasVisualization: true, tags: ["String", "Backtracking", "Hash Map"], companies: ["Amazon", "Facebook"], frequency: "High" },
       { id: "combination-sum-iii", title: "Combination Sum III", difficulty: "Medium", difficultyScore: 6, pattern: "backtracking", leetcodeUrl: "https://leetcode.com/problems/combination-sum-iii/", hasVisualization: false, tags: ["Array", "Backtracking"], companies: ["Amazon", "Google"], frequency: "Medium" },
       { id: "n-queens", title: "N-Queens", difficulty: "Hard", difficultyScore: 9, pattern: "backtracking", leetcodeUrl: "https://leetcode.com/problems/n-queens/", hasVisualization: true, tags: ["Array", "Backtracking"], companies: ["Amazon", "Uber"], frequency: "Medium" },
-      { id: "sudoku-solver", title: "Sudoku Solver", difficulty: "Hard", difficultyScore: 9, pattern: "backtracking", leetcodeUrl: "https://leetcode.com/problems/sudoku-solver/", hasVisualization: false, tags: ["Array", "Backtracking", "Matrix"], companies: ["Amazon", "Google", "Microsoft"], frequency: "High" },
+      { id: "sudoku-solver", title: "Sudoku Solver", difficulty: "Hard", difficultyScore: 9, pattern: "backtracking", leetcodeUrl: "https://leetcode.com/problems/sudoku-solver/", hasVisualization: true, tags: ["Array", "Backtracking", "Matrix"], companies: ["Amazon", "Google", "Microsoft"], frequency: "High" },
     ]
   },
   {
@@ -799,7 +799,7 @@ void unite(int x, int y) { parent[find(x)] = find(y); }`,
       { id: "redundant-connection", title: "Redundant Connection", difficulty: "Medium", difficultyScore: 7, pattern: "graphs", leetcodeUrl: "https://leetcode.com/problems/redundant-connection/", hasVisualization: true, tags: ["Union Find", "DFS", "BFS"], companies: ["Amazon"], frequency: "Medium" },
       { id: "all-paths-source-target", title: "All Paths From Source to Target", difficulty: "Medium", difficultyScore: 5, pattern: "graphs", leetcodeUrl: "https://leetcode.com/problems/all-paths-from-source-to-target/", hasVisualization: true, tags: ["DFS", "BFS", "Backtracking"], companies: ["Amazon"], frequency: "Medium" },
       { id: "word-ladder", title: "Word Ladder", difficulty: "Hard", difficultyScore: 9, pattern: "graphs", leetcodeUrl: "https://leetcode.com/problems/word-ladder/", hasVisualization: true, tags: ["Hash Set", "BFS"], companies: ["Amazon", "LinkedIn"], frequency: "High" },
-      { id: "critical-connections", title: "Critical Connections in a Network", difficulty: "Hard", difficultyScore: 9, pattern: "graphs", leetcodeUrl: "https://leetcode.com/problems/critical-connections-in-a-network/", hasVisualization: false, tags: ["DFS", "Graph", "Bridges", "Tarjan"], companies: ["Amazon", "Google"], frequency: "High" },
+      { id: "critical-connections", title: "Critical Connections in a Network", difficulty: "Hard", difficultyScore: 9, pattern: "graphs", leetcodeUrl: "https://leetcode.com/problems/critical-connections-in-a-network/", hasVisualization: true, tags: ["DFS", "Graph", "Bridges", "Tarjan"], companies: ["Amazon", "Google"], frequency: "High" },
     ]
   },
   {
@@ -896,7 +896,7 @@ for (int i = 1; i <= m; i++)
       { id: "burst-balloons", title: "Burst Balloons", difficulty: "Hard", difficultyScore: 10, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/burst-balloons/", hasVisualization: false, tags: ["Array", "DP", "Divide & Conquer"], companies: ["Google"], frequency: "Medium" },
       { id: "regular-expression-matching", title: "Regular Expression Matching", difficulty: "Hard", difficultyScore: 10, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/regular-expression-matching/", hasVisualization: false, tags: ["String", "DP", "Recursion"], companies: ["Amazon", "Google", "Facebook"], frequency: "Medium" },
       { id: "max-score-multiplication", title: "Maximum Score from Performing Multiplication Operations", difficulty: "Hard", difficultyScore: 8, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/maximum-score-from-performing-multiplication-operations/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon", "Google"], frequency: "Low" },
-      { id: "edit-distance", title: "Edit Distance", difficulty: "Hard", difficultyScore: 9, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/edit-distance/", hasVisualization: false, tags: ["String", "DP"], companies: ["Google", "Amazon", "Meta", "Microsoft"], frequency: "High" },
+      { id: "edit-distance", title: "Edit Distance", difficulty: "Hard", difficultyScore: 9, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/edit-distance/", hasVisualization: true, tags: ["String", "DP"], companies: ["Google", "Amazon", "Meta", "Microsoft"], frequency: "High" },
     ]
   },
   {
@@ -970,7 +970,7 @@ for (auto& [s, e] : intervals) {
       { id: "merge-triplets", title: "Merge Triplets to Form Target Triplet", difficulty: "Medium", difficultyScore: 7, pattern: "greedy", leetcodeUrl: "https://leetcode.com/problems/merge-triplets-to-form-target-triplet/", hasVisualization: true, tags: ["Array", "Greedy"], companies: ["Google"], frequency: "Low" },
       { id: "partition-labels", title: "Partition Labels", difficulty: "Medium", difficultyScore: 6, pattern: "greedy", leetcodeUrl: "https://leetcode.com/problems/partition-labels/", hasVisualization: true, tags: ["String", "Greedy", "Hash Map"], companies: ["Amazon"], frequency: "Medium" },
       { id: "valid-parenthesis-string", title: "Valid Parenthesis String", difficulty: "Medium", difficultyScore: 7, pattern: "greedy", leetcodeUrl: "https://leetcode.com/problems/valid-parenthesis-string/", hasVisualization: true, tags: ["String", "Greedy", "DP"], companies: ["Amazon"], frequency: "Medium" },
-      { id: "candy", title: "Candy", difficulty: "Hard", difficultyScore: 9, pattern: "greedy", leetcodeUrl: "https://leetcode.com/problems/candy/", hasVisualization: false, tags: ["Array", "Greedy"], companies: ["Amazon", "Google"], frequency: "High" },
+      { id: "candy", title: "Candy", difficulty: "Hard", difficultyScore: 9, pattern: "greedy", leetcodeUrl: "https://leetcode.com/problems/candy/", hasVisualization: true, tags: ["Array", "Greedy"], companies: ["Amazon", "Google"], frequency: "High" },
     ]
   },
   {
@@ -1039,7 +1039,7 @@ return ends.size(); // rooms needed`,
       { id: "non-overlapping-intervals", title: "Non-overlapping Intervals", difficulty: "Medium", difficultyScore: 6, pattern: "intervals", leetcodeUrl: "https://leetcode.com/problems/non-overlapping-intervals/", hasVisualization: false, tags: ["Array", "Greedy", "Sorting"], companies: ["Google"], frequency: "Medium" },
       { id: "meeting-rooms-ii", title: "Meeting Rooms II", difficulty: "Medium", difficultyScore: 7, pattern: "intervals", leetcodeUrl: "https://leetcode.com/problems/meeting-rooms-ii/", hasVisualization: false, tags: ["Array", "Sorting", "Heap"], companies: ["Amazon", "Google", "Facebook"], frequency: "High" },
       { id: "min-interval-query", title: "Minimum Interval to Include Each Query", difficulty: "Hard", difficultyScore: 9, pattern: "intervals", leetcodeUrl: "https://leetcode.com/problems/minimum-interval-to-include-each-query/", hasVisualization: true, tags: ["Array", "Sorting", "Heap"], companies: ["Google"], frequency: "Low" },
-      { id: "employee-free-time", title: "Employee Free Time", difficulty: "Hard", difficultyScore: 8, pattern: "intervals", leetcodeUrl: "https://leetcode.com/problems/employee-free-time/", hasVisualization: false, tags: ["Array", "Sorting", "Heap", "Intervals"], companies: ["Google", "Amazon", "Uber"], frequency: "High" },
+      { id: "employee-free-time", title: "Employee Free Time", difficulty: "Hard", difficultyScore: 8, pattern: "intervals", leetcodeUrl: "https://leetcode.com/problems/employee-free-time/", hasVisualization: true, tags: ["Array", "Sorting", "Heap", "Intervals"], companies: ["Google", "Amazon", "Uber"], frequency: "High" },
     ]
   },
   {
@@ -1120,7 +1120,7 @@ for (int i = 2; i*i <= n; i++)
       { id: "multiply-strings", title: "Multiply Strings", difficulty: "Medium", difficultyScore: 7, pattern: "math-geometry", leetcodeUrl: "https://leetcode.com/problems/multiply-strings/", hasVisualization: true, tags: ["Math", "String", "Simulation"], companies: ["Amazon", "Facebook"], frequency: "Medium" },
       { id: "count-primes", title: "Count Primes", difficulty: "Medium", difficultyScore: 6, pattern: "math-geometry", leetcodeUrl: "https://leetcode.com/problems/count-primes/", hasVisualization: true, tags: ["Math", "Enumeration", "Number Theory"], companies: ["Amazon"], frequency: "Medium" },
       { id: "detect-squares", title: "Detect Squares", difficulty: "Medium", difficultyScore: 7, pattern: "math-geometry", leetcodeUrl: "https://leetcode.com/problems/detect-squares/", hasVisualization: true, tags: ["Array", "Hash Table", "Design", "Counting"], companies: ["LinkedIn", "Google"], frequency: "Low" },
-      { id: "basic-calculator", title: "Basic Calculator", difficulty: "Hard", difficultyScore: 9, pattern: "math-geometry", leetcodeUrl: "https://leetcode.com/problems/basic-calculator/", hasVisualization: false, tags: ["Math", "String", "Stack", "Recursion"], companies: ["Google", "Amazon", "Meta"], frequency: "High" },
+      { id: "basic-calculator", title: "Basic Calculator", difficulty: "Hard", difficultyScore: 9, pattern: "math-geometry", leetcodeUrl: "https://leetcode.com/problems/basic-calculator/", hasVisualization: true, tags: ["Math", "String", "Stack", "Recursion"], companies: ["Google", "Amazon", "Meta"], frequency: "High" },
     ]
   },
   {
@@ -1197,7 +1197,7 @@ return a;`,
       { id: "sum-two-integers", title: "Sum of Two Integers", difficulty: "Medium", difficultyScore: 6, pattern: "bit-manipulation", leetcodeUrl: "https://leetcode.com/problems/sum-of-two-integers/", hasVisualization: true, tags: ["Math", "Bit Manipulation"], companies: ["Amazon"], frequency: "Medium" },
       { id: "reverse-integer", title: "Reverse Integer", difficulty: "Medium", difficultyScore: 5, pattern: "bit-manipulation", leetcodeUrl: "https://leetcode.com/problems/reverse-integer/", hasVisualization: false, tags: ["Math", "Bit Manipulation"], companies: ["Amazon", "Apple"], frequency: "Medium" },
       { id: "bitwise-and-numbers-range", title: "Bitwise AND of Numbers Range", difficulty: "Medium", difficultyScore: 6, pattern: "bit-manipulation", leetcodeUrl: "https://leetcode.com/problems/bitwise-and-of-numbers-range/", hasVisualization: true, tags: ["Bit Manipulation"], companies: ["Amazon"], frequency: "Medium" },
-      { id: "maximum-students-exam", title: "Maximum Students Taking Exam", difficulty: "Hard", difficultyScore: 10, pattern: "bit-manipulation", leetcodeUrl: "https://leetcode.com/problems/maximum-students-taking-exam/", hasVisualization: false, tags: ["Bit Manipulation", "DP", "Bitmask", "Matrix"], companies: ["Google", "Meta"], frequency: "High" },
+      { id: "maximum-students-exam", title: "Maximum Students Taking Exam", difficulty: "Hard", difficultyScore: 10, pattern: "bit-manipulation", leetcodeUrl: "https://leetcode.com/problems/maximum-students-taking-exam/", hasVisualization: true, tags: ["Bit Manipulation", "DP", "Bitmask", "Matrix"], companies: ["Google", "Meta"], frequency: "High" },
     ]
   },
   {
@@ -1276,7 +1276,7 @@ public:
       { id: "longest-word-dictionary", title: "Longest Word in Dictionary", difficulty: "Medium", difficultyScore: 5, pattern: "tries", leetcodeUrl: "https://leetcode.com/problems/longest-word-in-dictionary/", hasVisualization: false, tags: ["Trie", "Hash Table", "Sorting"], companies: ["Google"], frequency: "Low" },
       { id: "index-pairs-string", title: "Index Pairs of a String", difficulty: "Easy", difficultyScore: 4, pattern: "tries", leetcodeUrl: "https://leetcode.com/problems/index-pairs-of-a-string/", hasVisualization: false, tags: ["Trie", "String", "Sorting"], companies: ["LinkedIn", "Amazon"], frequency: "Low" },
       { id: "word-search-ii", title: "Word Search II", difficulty: "Hard", difficultyScore: 10, pattern: "tries", leetcodeUrl: "https://leetcode.com/problems/word-search-ii/", hasVisualization: true, tags: ["Trie", "Backtracking", "Matrix", "DFS"], companies: ["Amazon", "Airbnb"], frequency: "High" },
-      { id: "design-search-autocomplete", title: "Design Search Autocomplete System", difficulty: "Hard", difficultyScore: 10, pattern: "tries", leetcodeUrl: "https://leetcode.com/problems/design-search-autocomplete-system/", hasVisualization: false, tags: ["Trie", "Design", "String", "Sorting"], companies: ["Google", "Amazon", "Microsoft"], frequency: "High" },
+      { id: "design-search-autocomplete", title: "Design Search Autocomplete System", difficulty: "Hard", difficultyScore: 10, pattern: "tries", leetcodeUrl: "https://leetcode.com/problems/design-search-autocomplete-system/", hasVisualization: true, tags: ["Trie", "Design", "String", "Sorting"], companies: ["Google", "Amazon", "Microsoft"], frequency: "High" },
     ]
   },
   {
@@ -1354,7 +1354,7 @@ for (int i = 0; i < K+1; i++) {
       { id: "reconstruct-itinerary", title: "Reconstruct Itinerary", difficulty: "Hard", difficultyScore: 8, pattern: "advanced-graphs", leetcodeUrl: "https://leetcode.com/problems/reconstruct-itinerary/", hasVisualization: true, tags: ["DFS", "Graph", "Eulerian Path"], companies: ["Airbnb", "Google"], frequency: "Medium" },
       { id: "swim-rising-water", title: "Swim in Rising Water", difficulty: "Hard", difficultyScore: 9, pattern: "advanced-graphs", leetcodeUrl: "https://leetcode.com/problems/swim-in-rising-water/", hasVisualization: false, tags: ["Array", "Dijkstra", "Union Find", "Binary Search"], companies: ["Google"], frequency: "Low" },
       { id: "alien-dictionary", title: "Alien Dictionary", difficulty: "Hard", difficultyScore: 9, pattern: "advanced-graphs", leetcodeUrl: "https://leetcode.com/problems/alien-dictionary/", hasVisualization: true, tags: ["String", "Graph", "Topological Sort"], companies: ["Facebook", "Airbnb", "Google"], frequency: "High" },
-      { id: "shortest-path-obstacle", title: "Shortest Path in a Grid with Obstacles Elimination", difficulty: "Hard", difficultyScore: 9, pattern: "advanced-graphs", leetcodeUrl: "https://leetcode.com/problems/shortest-path-in-a-grid-with-obstacles-elimination/", hasVisualization: false, tags: ["BFS", "Matrix", "DP"], companies: ["Google", "Amazon"], frequency: "High" },
+      { id: "shortest-path-obstacle", title: "Shortest Path in a Grid with Obstacles Elimination", difficulty: "Hard", difficultyScore: 9, pattern: "advanced-graphs", leetcodeUrl: "https://leetcode.com/problems/shortest-path-in-a-grid-with-obstacles-elimination/", hasVisualization: true, tags: ["BFS", "Matrix", "DP"], companies: ["Google", "Amazon"], frequency: "High" },
     ]
   },
 ];

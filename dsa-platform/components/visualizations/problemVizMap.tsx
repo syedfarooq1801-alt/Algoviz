@@ -164,6 +164,22 @@ const PathMaxProbabilityViz  = d(() => import("@/components/visualizations/probl
 const EvaluateDivisionViz    = d(() => import("@/components/visualizations/problems/EvaluateDivisionViz"));
 const ReconstructItineraryViz = d(() => import("@/components/visualizations/problems/ReconstructItineraryViz"));
 const AlienDictionaryViz     = d(() => import("@/components/visualizations/problems/AlienDictionaryViz"));
+// New Hard problems
+const FirstMissingPositiveViz    = d(() => import("@/components/visualizations/problems/FirstMissingPositiveViz"));
+const CountSmallerAfterSelfViz   = d(() => import("@/components/visualizations/problems/CountSmallerAfterSelfViz"));
+const MinimumWindowSubsequenceViz = d(() => import("@/components/visualizations/problems/MinimumWindowSubsequenceViz"));
+const MaximalRectangleViz        = d(() => import("@/components/visualizations/problems/MaximalRectangleViz"));
+const LFUCacheViz                = d(() => import("@/components/visualizations/problems/LFUCacheViz"));
+const MaximumSumBSTViz           = d(() => import("@/components/visualizations/problems/MaximumSumBSTViz"));
+const SmallestRangeKListsViz     = d(() => import("@/components/visualizations/problems/SmallestRangeKListsViz"));
+const SudokuSolverViz            = d(() => import("@/components/visualizations/problems/SudokuSolverViz"));
+const CriticalConnectionsViz     = d(() => import("@/components/visualizations/problems/CriticalConnectionsViz"));
+const CandyViz                   = d(() => import("@/components/visualizations/problems/CandyViz"));
+const EmployeeFreeTimeViz        = d(() => import("@/components/visualizations/problems/EmployeeFreeTimeViz"));
+const BasicCalculatorViz         = d(() => import("@/components/visualizations/problems/BasicCalculatorViz"));
+const MaximumStudentsExamViz     = d(() => import("@/components/visualizations/problems/MaximumStudentsExamViz"));
+const DesignSearchAutocompleteViz = d(() => import("@/components/visualizations/problems/DesignSearchAutocompleteViz"));
+const ShortestPathObstacleViz    = d(() => import("@/components/visualizations/problems/ShortestPathObstacleViz"));
 // Bit Manipulation
 const SingleNumberViz        = d(() => import("@/components/visualizations/problems/SingleNumberViz"));
 const Number1BitsViz         = d(() => import("@/components/visualizations/problems/Number1BitsViz"));
@@ -238,6 +254,22 @@ export const VIZ_MAP: Record<string, ComponentType> = {
   "roman-to-integer": RomanToIntegerViz, "happy-number": HappyNumberViz, "plus-one": PlusOneViz, "rotate-image": RotateImageViz,
   "spiral-matrix": SpiralMatrixViz, "set-matrix-zeroes": SetMatrixZeroesViz, "multiply-strings": MultiplyStringsViz,
   "count-primes": CountPrimesViz, "pow-x-n": PowXNViz, "detect-squares": DetectSquaresViz,
+  // New Hard problems
+  "first-missing-positive": FirstMissingPositiveViz,
+  "count-of-smaller-after-self": CountSmallerAfterSelfViz,
+  "minimum-window-subsequence": MinimumWindowSubsequenceViz,
+  "maximal-rectangle": MaximalRectangleViz,
+  "lfu-cache": LFUCacheViz,
+  "maximum-sum-bst": MaximumSumBSTViz,
+  "smallest-range-k-lists": SmallestRangeKListsViz,
+  "sudoku-solver": SudokuSolverViz,
+  "critical-connections": CriticalConnectionsViz,
+  "candy": CandyViz,
+  "employee-free-time": EmployeeFreeTimeViz,
+  "basic-calculator": BasicCalculatorViz,
+  "maximum-students-exam": MaximumStudentsExamViz,
+  "design-search-autocomplete": DesignSearchAutocompleteViz,
+  "shortest-path-obstacle": ShortestPathObstacleViz,
 };
 
 export function getProblemViz(id: string): ComponentType | undefined {
