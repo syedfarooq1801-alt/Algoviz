@@ -181,29 +181,88 @@ export default function AskTutor() {
   );
 }
 
-// Minimal markdown: fenced code blocks + inline code, newlines preserved.
+// Markdown renderer: headings, bullets, numbered lists, bold, italic, inline code, fenced code blocks.
 function Rendered({ text }: { text: string }) {
-  const parts = text.split(/```/);
+  const segments = text.split(/(```[\s\S]*?```)/);
   return (
     <>
-      {parts.map((part, i) =>
-        i % 2 === 1 ? (
-          <pre key={i} style={{ background: "var(--bg-primary)", border: "1px solid var(--border-subtle)", borderRadius: 8, padding: "10px 12px", overflowX: "auto", fontSize: 12, margin: "8px 0" }}>
-            <code>{part.replace(/^[a-zA-Z]+\n/, "")}</code>
-          </pre>
-        ) : (
-          <span key={i} style={{ whiteSpace: "pre-wrap" }}>{inlineCode(part)}</span>
-        )
-      )}
+      {segments.map((seg, i) => {
+        if (seg.startsWith("```")) {
+          const content = seg.slice(3, -3).replace(/^[a-zA-Z0-9+\-_.]*\n/, "");
+          return (
+            <pre key={i} style={{ background: "var(--bg-primary)", border: "1px solid var(--border-subtle)", borderRadius: 8, padding: "10px 12px", overflowX: "auto", fontSize: 12, margin: "8px 0", whiteSpace: "pre" }}>
+              <code>{content}</code>
+            </pre>
+          );
+        }
+        return <ProseBlock key={i} text={seg} />;
+      })}
     </>
   );
 }
 
-function inlineCode(s: string) {
-  const segs = s.split(/`/);
-  return segs.map((seg, i) =>
-    i % 2 === 1
-      ? <code key={i} style={{ background: "var(--bg-primary)", borderRadius: 4, padding: "1px 5px", fontSize: 12 }}>{seg}</code>
-      : <span key={i}>{seg}</span>
-  );
+function ProseBlock({ text }: { text: string }) {
+  const lines = text.split("\n");
+  const nodes: React.ReactNode[] = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    // h3
+    const h3 = line.match(/^### (.+)/);
+    if (h3) { nodes.push(<div key={i} style={{ fontWeight: 700, fontSize: 13, color: "var(--text-primary)", marginTop: 10, marginBottom: 2 }}><Inline text={h3[1]} /></div>); i++; continue; }
+    // h2
+    const h2 = line.match(/^## (.+)/);
+    if (h2) { nodes.push(<div key={i} style={{ fontWeight: 700, fontSize: 14, color: "var(--text-primary)", marginTop: 12, marginBottom: 4 }}><Inline text={h2[1]} /></div>); i++; continue; }
+    // h1
+    const h1 = line.match(/^# (.+)/);
+    if (h1) { nodes.push(<div key={i} style={{ fontWeight: 700, fontSize: 15, color: "var(--text-primary)", marginTop: 12, marginBottom: 4 }}><Inline text={h1[1]} /></div>); i++; continue; }
+    // bullet list — collect consecutive items
+    if (/^[-*] /.test(line)) {
+      const items: string[] = [];
+      while (i < lines.length && /^[-*] /.test(lines[i])) { items.push(lines[i].replace(/^[-*] /, "")); i++; }
+      nodes.push(
+        <ul key={`ul-${i}`} style={{ paddingLeft: 16, margin: "4px 0", display: "flex", flexDirection: "column", gap: 2 }}>
+          {items.map((item, j) => <li key={j} style={{ listStyle: "disc", fontSize: 13, color: "var(--text-primary)" }}><Inline text={item} /></li>)}
+        </ul>
+      );
+      continue;
+    }
+    // numbered list — collect consecutive items
+    if (/^\d+\. /.test(line)) {
+      const items: string[] = [];
+      while (i < lines.length && /^\d+\. /.test(lines[i])) { items.push(lines[i].replace(/^\d+\. /, "")); i++; }
+      nodes.push(
+        <ol key={`ol-${i}`} style={{ paddingLeft: 18, margin: "4px 0", display: "flex", flexDirection: "column", gap: 2 }}>
+          {items.map((item, j) => <li key={j} style={{ listStyle: "decimal", fontSize: 13, color: "var(--text-primary)" }}><Inline text={item} /></li>)}
+        </ol>
+      );
+      continue;
+    }
+    // horizontal rule
+    if (/^---+$/.test(line.trim())) { nodes.push(<hr key={i} style={{ border: "none", borderTop: "1px solid var(--border-subtle)", margin: "8px 0" }} />); i++; continue; }
+    // empty line
+    if (line.trim() === "") { nodes.push(<div key={i} style={{ height: 5 }} />); i++; continue; }
+    // paragraph line
+    nodes.push(<div key={i} style={{ fontSize: 13, lineHeight: 1.65, color: "var(--text-primary)" }}><Inline text={line} /></div>);
+    i++;
+  }
+  return <>{nodes}</>;
+}
+
+function Inline({ text }: { text: string }): React.ReactElement {
+  const pattern = /(\*\*\*[^*]+\*\*\*|\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g;
+  const parts: React.ReactNode[] = [];
+  let last = 0;
+  let match: RegExpExecArray | null;
+  while ((match = pattern.exec(text)) !== null) {
+    if (match.index > last) parts.push(text.slice(last, match.index));
+    const m = match[0];
+    if (m.startsWith("***")) parts.push(<strong key={match.index}><em>{m.slice(3, -3)}</em></strong>);
+    else if (m.startsWith("**")) parts.push(<strong key={match.index} style={{ fontWeight: 700, color: "var(--text-primary)" }}>{m.slice(2, -2)}</strong>);
+    else if (m.startsWith("*")) parts.push(<em key={match.index}>{m.slice(1, -1)}</em>);
+    else if (m.startsWith("`")) parts.push(<code key={match.index} style={{ background: "var(--bg-primary)", borderRadius: 4, padding: "1px 5px", fontSize: 12, fontFamily: "var(--font-mono)" }}>{m.slice(1, -1)}</code>);
+    last = match.index + m.length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return <>{parts}</> as React.ReactElement;
 }
