@@ -1,0 +1,560 @@
+{
+  "operating-systems": {
+    "id": "operating-systems",
+    "title": "Operating Systems",
+    "chapters": [
+      {
+        "id": "why-an-operating-system-exists",
+        "num": 1,
+        "title": "Why an Operating System Exists",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "An Operating System is the software layer between programs and hardware. Without it, every program would need to manually control the CPU, manage RAM addresses, and drive device controllers — impossible when multiple programs run at once. The OS solves two fundamental problems: it manages shared hardware resources (CPU, memory, devices) and provides clean abstractions (processes, files, sockets) so programs never touch raw hardware."
+          },
+          {
+            "type": "analogy",
+            "text": "The OS is a hotel manager. Programs are guests. Guests don't rewire the electricity or plumb the pipes — they call the front desk. The manager (OS) allocates rooms (memory), schedules the kitchen (CPU), and operates shared equipment (devices) on everyone's behalf."
+          },
+          {
+            "type": "memory-trick",
+            "text": "OS does four things: P-M-F-D — Processes, Memory, Files, Devices. Mnemonic: 'Please Manage Files Daily.' Name all four if asked what an OS does."
+          },
+          {
+            "type": "placement",
+            "text": "Interviewers open with 'What is an OS?' The strong answer names both roles: (1) resource manager — arbitrates CPU, memory, and I/O among competing programs; (2) abstraction layer — hides hardware behind clean APIs. Avoid a one-liner like 'it runs programs.' Show you understand WHY it exists."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What are the two primary roles of an operating system?",
+                "a": "Resource management — fairly sharing CPU, memory, and I/O devices among programs. Abstraction — hiding hardware details behind clean interfaces like processes, files, and sockets."
+              },
+              {
+                "q": "Is the OS always running?",
+                "a": "The kernel stays loaded in protected RAM from boot. It's event-driven: it activates on system calls, interrupts, and traps, then returns control to user programs. It's not a program that runs to completion."
+              },
+              {
+                "q": "What problems would arise without an OS?",
+                "a": "Programs would fight over the single CPU, overwrite each other's memory, need device-specific code for every peripheral, and have no protection between programs. Running two programs at once would be impossible."
+              },
+              {
+                "q": "Give an example of the OS acting as an abstraction.",
+                "a": "When you call open('file.txt') you never specify a disk track or sector — the file abstraction hides physical layout. Similarly, a 'process' hides the fact that the CPU is time-shared among many programs."
+              }
+            ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "'The OS is the desktop or GUI.' Wrong. The GUI (Windows Explorer, GNOME) is just an application running on top of the OS. The real OS is the kernel. A server with no screen runs a full OS."
+          }
+        ]
+      },
+      {
+        "id": "os-architecture-kernel-modes-system-calls",
+        "num": 2,
+        "title": "OS Architecture, Kernel, Modes & System Calls",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "The kernel is the trusted core of the OS that runs in privileged mode with full hardware access. User programs run in unprivileged user mode and cannot directly touch hardware. To request a privileged operation (read a file, allocate memory, create a process), a user program issues a system call — a controlled trap into kernel mode. The kernel validates the request, performs the operation, and returns to user mode."
+          },
+          {
+            "type": "para",
+            "text": "Monolithic kernels (Linux) run all OS services in one large kernel binary — fast IPC but a single bug can crash the system. Microkernels (Mach) run most services as user-space processes — more stable and modular but slower due to message-passing overhead. Most production OSes (Linux) are monolithic with loadable modules for the performance advantage."
+          },
+          {
+            "type": "analogy",
+            "text": "Think of user mode as the airport terminal and kernel mode as the tarmac. Passengers (user programs) can't walk onto the runway. They pass requests through airport staff (system calls) who enter the restricted area on their behalf."
+          },
+          {
+            "type": "memory-trick",
+            "text": "Ring 0 = kernel (all-powerful). Ring 3 = user (restricted). System call = trap instruction that moves you from ring 3 to ring 0 and back."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is the difference between user mode and kernel mode?",
+                "a": "User mode: restricted execution, programs cannot access hardware or protected memory directly. Kernel mode: full privileges, all CPU instructions available. The CPU enforces this via a privilege bit. A user program can only enter kernel mode via a system call."
+              },
+              {
+                "q": "What happens during a system call?",
+                "a": "The program executes a trap instruction (e.g., 'syscall' on x86-64), which switches the CPU to kernel mode. The kernel identifies the requested service via a syscall number, validates arguments, executes the operation, then returns to user mode via a return-from-trap instruction."
+              },
+              {
+                "q": "What is the difference between a monolithic kernel and a microkernel?",
+                "a": "Monolithic: all OS services (filesystem, drivers, scheduler) run in kernel space as one binary. Fast but a bug anywhere can crash everything. Microkernel: only essential functions (IPC, basic scheduling) in kernel; everything else runs as user-space servers. More fault-tolerant but slower due to message-passing between components."
+              },
+              {
+                "q": "Why can't a user program directly access hardware?",
+                "a": "Protection. If user programs could freely write to any memory address or device register, a buggy program could corrupt the OS, crash other programs, or access another process's data. Hardware-enforced privilege levels prevent this."
+              }
+            ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Confusing a system call with a function call. A function call stays in user mode and jumps within the same address space. A system call triggers a privilege switch into kernel mode — it's far more expensive (~100 CPU cycles vs ~1)."
+          }
+        ]
+      },
+      {
+        "id": "processes-states-the-pcb-context-switching",
+        "num": 3,
+        "title": "Processes, States, the PCB & Context Switching",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "A program is a passive file on disk. A process is that program loaded into memory and actively executing — it has its own virtual address space, CPU state, and open file handles. The same program can become many processes simultaneously (open Chrome three times = three processes). The OS tracks every process through a data structure called the Process Control Block (PCB)."
+          },
+          {
+            "type": "para",
+            "text": "Every process moves through five states: New (being created), Ready (loaded, waiting for CPU), Running (executing on CPU), Waiting/Blocked (waiting for I/O or an event), and Terminated (finished, being cleaned up). Only one process per CPU core is in Running state at any instant. A timer interrupt moves a process from Running back to Ready; an I/O request moves it from Running to Waiting."
+          },
+          {
+            "type": "para",
+            "text": "A context switch is the act of saving the current process's state into its PCB and loading another process's state from its PCB. During a context switch, the CPU does zero useful application work — it is pure overhead. The PCB holds: process ID, program counter, CPU registers, memory maps, open file list, scheduling priority, and accounting info."
+          },
+          {
+            "type": "analogy",
+            "text": "PCB is a hospital patient chart. When a doctor (CPU) is pulled to another patient, the chart records exactly where treatment stopped. Any doctor can later pick up the chart and resume precisely. Without the chart you could never safely switch between patients."
+          },
+          {
+            "type": "memory-trick",
+            "text": "Process states in order: N-R-R-W-T (New, Ready, Running, Waiting, Terminated). Ready ≠ Waiting. Ready has everything it needs except the CPU. Waiting needs an external event — even a free CPU won't help it."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is the difference between a program and a process?",
+                "a": "A program is a static executable file on disk. A process is a program in execution — it has active memory, a program counter, register values, open files, and a process ID. One program can spawn multiple processes."
+              },
+              {
+                "q": "What is stored in a PCB?",
+                "a": "Process ID (PID), process state, program counter, CPU register values, memory management info (page tables), list of open files, scheduling info (priority, CPU time used), and I/O status."
+              },
+              {
+                "q": "What happens during a context switch and why is it overhead?",
+                "a": "The kernel saves the running process's CPU registers and program counter into its PCB, loads the next process's values from its PCB, and updates the memory map. During this time no user code runs. Additionally, the CPU cache and TLB are largely invalidated, so the next process starts with cold caches — adding further overhead beyond just the save/restore."
+              },
+              {
+                "q": "What causes a context switch?",
+                "a": "Timer interrupt (time slice expired), the process voluntarily blocks (waits for I/O), higher-priority process becomes ready, or the process exits. The scheduler then picks the next process from the ready queue."
+              },
+              {
+                "q": "What is an orphan process and a zombie process?",
+                "a": "Zombie: a process that has finished execution but its entry still exists in the process table because its parent hasn't called wait() to read its exit status. Orphan: a process whose parent has died. The init/systemd process (PID 1) adopts orphans and calls wait() for them."
+              },
+              {
+                "q": "What does fork() return?",
+                "a": "fork() returns twice: it returns the child's PID to the parent process, and returns 0 to the child process. It returns -1 if creation failed. This is how parent and child can distinguish which copy they are."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "threads-multithreading-models",
+        "num": 4,
+        "title": "Threads & Multithreading Models",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "A thread is the unit of CPU execution within a process. All threads in a process share the same code, heap, and open files, but each thread has its own stack and CPU registers (program counter, stack pointer). Creating a thread is much cheaper than creating a process because there's no need to duplicate the address space. This makes threads the building block of concurrent programs."
+          },
+          {
+            "type": "para",
+            "text": "User-level threads (green threads) are managed entirely by a user-space library — the kernel sees the whole process as a single unit. They're fast to create and switch but can't run in true parallel on multiple CPUs, and one blocking call blocks all threads. Kernel-level threads are managed by the OS — the kernel can schedule them on different CPUs for real parallelism, but creation and context switches are more expensive."
+          },
+          {
+            "type": "analogy",
+            "text": "Process = a cooking station with one chef (single-threaded). Threads = multiple chefs sharing the same station and ingredients. They can work simultaneously on different dishes (tasks), but they must be careful not to grab the same knife at the same time (shared resource conflict)."
+          },
+          {
+            "type": "memory-trick",
+            "text": "Threads share CHFS: Code, Heap, Files, Signals. Each thread owns its own Stack and Registers. If you need to remember what threads share vs own: Code+Heap = shared, Stack = private."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is the difference between a process and a thread?",
+                "a": "Process: independent execution unit with its own address space, heap, files. Expensive to create. Thread: lightweight unit within a process, shares address space and heap. Cheap to create. Threads in the same process communicate via shared memory; processes use IPC."
+              },
+              {
+                "q": "Why are threads faster to create than processes?",
+                "a": "fork() must duplicate the entire virtual address space (page tables, file descriptors). Creating a thread only requires a new stack and register context within the existing address space — no memory duplication."
+              },
+              {
+                "q": "What is a race condition?",
+                "a": "When two threads access shared data concurrently and the outcome depends on the non-deterministic order of execution. Classic example: two threads both read balance=100, both add $50, both write back 150 instead of the correct 200."
+              },
+              {
+                "q": "What are user-level threads vs kernel-level threads?",
+                "a": "User-level: managed by a library in user space. OS sees only the process. Fast but no true parallelism — one blocking syscall stalls all threads. Kernel-level: OS knows each thread individually and can schedule them on separate CPUs for real parallelism. More expensive to create/switch."
+              },
+              {
+                "q": "If a thread crashes, does the whole process crash?",
+                "a": "Yes, usually. Since threads share the same address space, an unhandled exception or segfault in one thread typically kills the entire process. This is a key trade-off vs processes: process isolation means one process crash doesn't affect others."
+              }
+            ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying 'multi-threading always makes things faster.' Creating too many threads causes thrashing from context switches. I/O-bound apps benefit from threads; CPU-bound apps in languages with a GIL (Python) see no speed-up from threads for CPU work."
+          }
+        ]
+      },
+      {
+        "id": "cpu-scheduling-algorithms",
+        "num": 5,
+        "title": "CPU Scheduling Algorithms",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "The CPU scheduler picks which Ready process gets to run next. Key metrics: CPU utilization (keep CPU busy), throughput (processes completed per unit time), turnaround time (total time from submission to completion), waiting time (time spent in ready queue), and response time (time from submission to first response). Scheduling algorithms make different trade-offs between these."
+          },
+          {
+            "type": "para",
+            "text": "FCFS (First Come First Served): non-preemptive, simple but causes the convoy effect — one long job blocks all short jobs. SJF (Shortest Job First): optimal average waiting time, but requires knowing burst times in advance and can starve long processes. Round Robin: preemptive, each process gets a time quantum; fair and good response time for time-sharing but poor turnaround for CPU-bound jobs. Priority Scheduling: each process has a priority; can cause starvation (aging fixes this)."
+          },
+          {
+            "type": "memory-trick",
+            "text": "For interview: SJF has the theoretically optimal average waiting time but isn't practical (can't predict burst time). Round Robin is the real-world default for interactive/time-sharing systems. Remember: smaller time quantum = better response time but more context switch overhead."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is the convoy effect in FCFS?",
+                "a": "If a CPU-bound process with a long burst time arrives first, all subsequent short processes queue behind it. The short processes experience high waiting time even though they could complete quickly. This degrades CPU and I/O device utilization."
+              },
+              {
+                "q": "What is preemptive vs non-preemptive scheduling?",
+                "a": "Non-preemptive: once a process starts running, it keeps the CPU until it finishes or blocks. FCFS is non-preemptive. Preemptive: the scheduler can interrupt a running process and give the CPU to another (e.g., on timer interrupt or higher-priority arrival). Round Robin and preemptive SJF are preemptive."
+              },
+              {
+                "q": "What is starvation and how do you fix it?",
+                "a": "Starvation occurs when a process waits indefinitely because higher-priority processes always run first (priority scheduling) or shorter jobs always preempt it (SJF). Fix: aging — gradually increase the priority of a waiting process over time until it eventually runs."
+              },
+              {
+                "q": "Why is SJF theoretically optimal but not used in practice?",
+                "a": "SJF minimizes average waiting time. But to schedule by burst time, the scheduler must know how long each process will run — and that's not knowable in advance. The OS can only estimate burst time using exponential averaging of past behavior (SRTF)."
+              },
+              {
+                "q": "What happens if the Round Robin time quantum is too small or too large?",
+                "a": "Too small: context switch overhead dominates — CPU spends most time switching, not computing. Too large: degenerates toward FCFS — short jobs wait behind long ones. Typical quantum: 10–100ms, balancing responsiveness and context-switch cost."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "inter-process-communication",
+        "num": 6,
+        "title": "Inter-Process Communication (IPC)",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "Processes have isolated address spaces by design — they can't read each other's memory directly. IPC mechanisms allow them to communicate. The two main models: shared memory (processes map the same memory region; fast, but requires explicit synchronization) and message passing (processes exchange structured messages through the kernel; safer, no sync needed, but slower due to copying)."
+          },
+          {
+            "type": "para",
+            "text": "Common IPC mechanisms: Pipes (unidirectional byte stream between related processes — parent/child), Named Pipes/FIFOs (same but between unrelated processes, accessed by name in the filesystem), Sockets (bidirectional, works across the network or locally), Signals (asynchronous notifications like SIGKILL or SIGTERM), Message Queues (kernel-maintained queues, messages have types), and Shared Memory (fastest IPC — map same physical memory into two processes' virtual spaces)."
+          },
+          {
+            "type": "memory-trick",
+            "text": "IPC mechanisms from fastest to slowest: Shared Memory > Pipes/FIFOs > Message Queues > Sockets. Sockets are most flexible (work over network). Shared memory is fastest but hardest to use safely."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is the difference between shared memory and message passing IPC?",
+                "a": "Shared memory: processes map the same physical memory region. No kernel involvement on each access — very fast. But processes must synchronize access themselves (mutex, semaphore) or risk race conditions. Message passing: data is copied into kernel buffers. Safer (no shared state), simpler to reason about, but slower (two copies: sender to kernel, kernel to receiver)."
+              },
+              {
+                "q": "What is the difference between a pipe and a named pipe (FIFO)?",
+                "a": "A regular pipe has no name and can only connect related processes (parent-child created via fork). A named pipe (FIFO) exists as a named entry in the filesystem, so any two unrelated processes can open it by name. Both are unidirectional byte streams."
+              },
+              {
+                "q": "When would you use sockets over pipes for IPC?",
+                "a": "When processes need to communicate across machines (network), when bidirectional communication is needed cleanly, or when processes aren't related by fork. Sockets also support multiple simultaneous connections, unlike pipes."
+              },
+              {
+                "q": "What is a signal in Unix/Linux?",
+                "a": "An asynchronous notification sent to a process. Common ones: SIGTERM (15) — request graceful termination; SIGKILL (9) — force kill, cannot be caught or ignored; SIGHUP (1) — hangup, often used to tell daemons to reload config; SIGSEGV — segmentation fault. A process registers a signal handler via signal() or sigaction()."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "process-synchronization",
+        "num": 7,
+        "title": "Process Synchronization",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "When multiple threads or processes access shared data concurrently, race conditions can corrupt data. The critical section is the code region that accesses shared data. Any solution must satisfy three properties: mutual exclusion (at most one process in the critical section at a time), progress (if no one is in the critical section, someone who wants to enter must be allowed), and bounded waiting (a process waiting to enter won't wait forever)."
+          },
+          {
+            "type": "para",
+            "text": "A mutex (mutual exclusion lock) is a binary lock — locked or unlocked. The thread that locks it must unlock it. A semaphore generalizes this: it's a non-negative integer counter. wait(S) decrements S; if S becomes negative, the process blocks. signal(S) increments S and wakes a blocked process. A binary semaphore (0/1) behaves like a mutex but can be signaled by a different thread than locked it. Counting semaphores track resource counts (e.g., 5 available buffers)."
+          },
+          {
+            "type": "analogy",
+            "text": "Mutex = a single bathroom key. Only one person can have it at a time. They must return it themselves. Semaphore = a parking lot with N spaces and a counter outside. Anyone can update the counter — you don't need to be the one who 'took' the space."
+          },
+          {
+            "type": "memory-trick",
+            "text": "Mutex = ownership (locker must unlock). Semaphore = signaling (anyone can signal). Binary semaphore ≠ mutex because ownership differs. Classic problems: Producer-Consumer (counting semaphore), Readers-Writers (shared read, exclusive write), Dining Philosophers (deadlock avoidance)."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is a critical section and what three conditions must a solution satisfy?",
+                "a": "Critical section: code that accesses shared resources. A correct solution needs: (1) Mutual exclusion — only one process at a time inside. (2) Progress — if no one is inside and someone wants to enter, that decision can't be postponed indefinitely. (3) Bounded waiting — after a process requests entry, there's a finite bound on how many others can enter before it does."
+              },
+              {
+                "q": "What is the difference between a mutex and a semaphore?",
+                "a": "Mutex: binary lock, only the thread that locked it can unlock it. Used for mutual exclusion. Semaphore: integer counter, any thread can call wait() or signal(). Binary semaphore (0/1) can act like a mutex but lacks ownership semantics. Counting semaphore controls access to a pool of N resources."
+              },
+              {
+                "q": "What is the Producer-Consumer problem and how is it solved?",
+                "a": "Producers generate items into a bounded buffer; consumers take items. Problem: producer must not write to a full buffer; consumer must not read from an empty one. Solution: three semaphores — mutex (lock for buffer access), full (counts filled slots, initially 0), empty (counts empty slots, initially N). Producer: wait(empty), wait(mutex), add item, signal(mutex), signal(full). Consumer: wait(full), wait(mutex), remove item, signal(mutex), signal(empty)."
+              },
+              {
+                "q": "What is a spinlock and when would you use it?",
+                "a": "A spinlock busy-waits in a loop checking if the lock is free instead of blocking. Useful when the expected wait time is very short — blocking and unblocking has overhead (context switch). Used in OS kernels for short critical sections on multi-core machines. Never use in user space for long waits — wastes CPU."
+              },
+              {
+                "q": "What is a monitor?",
+                "a": "A high-level synchronization construct that wraps data and operations in a single unit. It ensures mutual exclusion automatically — only one thread can execute inside the monitor at a time. Condition variables (wait/notify) allow threads to sleep until a condition is met. Java's synchronized keyword implements a monitor."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "deadlocks",
+        "num": 8,
+        "title": "Deadlocks",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "A deadlock is when a set of processes are each waiting for a resource held by another process in the set, so none can ever proceed. Four conditions must all hold simultaneously for a deadlock to occur: Mutual Exclusion (resource can't be shared), Hold-and-Wait (process holds a resource while waiting for another), No Preemption (resource can't be forcibly taken), and Circular Wait (cycle of processes each waiting on the next)."
+          },
+          {
+            "type": "para",
+            "text": "Strategies for dealing with deadlocks: Prevention — remove at least one of the four conditions by design (e.g., require all resources requested at once to eliminate hold-and-wait). Avoidance — use algorithms like Banker's Algorithm to only grant requests that leave the system in a 'safe state.' Detection and Recovery — allow deadlocks to happen, detect them via resource-allocation graph cycles, then recover by killing processes or preempting resources. Ignorance — assume deadlocks are rare and restart manually (used in most OSes including Windows and Linux)."
+          },
+          {
+            "type": "memory-trick",
+            "text": "Four deadlock conditions: M-H-N-C — Mutual exclusion, Hold-and-wait, No preemption, Circular wait. Remove ANY ONE and deadlock is impossible. Easiest to break in practice: Circular Wait — impose a global ordering on resources; always request in order."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What are the four necessary conditions for a deadlock?",
+                "a": "(1) Mutual Exclusion: at least one resource is non-sharable — only one process can use it at a time. (2) Hold-and-Wait: a process holds one resource and waits to acquire another. (3) No Preemption: resources can't be forcibly taken; a process must release them voluntarily. (4) Circular Wait: a cycle exists — P1 waits for P2's resource, P2 waits for P3's, P3 waits for P1's."
+              },
+              {
+                "q": "How does the Banker's Algorithm work?",
+                "a": "Deadlock avoidance algorithm. Before granting a resource request, the OS simulates allocation and checks if the resulting state is 'safe' — meaning there exists some order to run all processes to completion. If safe, grant the request. If unsafe (could lead to deadlock), make the process wait. Named after a bank that won't lend money if it can't satisfy all clients."
+              },
+              {
+                "q": "How can you prevent deadlock by eliminating circular wait?",
+                "a": "Impose a total ordering on all resources. Require processes to always request resources in increasing order of their resource number. This makes a cycle impossible — if P1 holds resource 2 and wants resource 1, the ordering prevents it."
+              },
+              {
+                "q": "What is the difference between deadlock prevention, avoidance, and detection?",
+                "a": "Prevention: remove one of the four conditions by policy — most restrictive, may under-utilize resources. Avoidance: dynamically decide based on resource state (Banker's Algorithm) — less restrictive but needs advance resource declaration. Detection+Recovery: don't restrict, just detect cycles and recover (kill a process or preempt a resource) — most permissive but recovery is disruptive."
+              },
+              {
+                "q": "What is livelock?",
+                "a": "Like a deadlock but processes are actively executing — they keep changing state in response to each other but make no progress. Classic example: two people in a hallway each stepping aside the same direction repeatedly. Unlike deadlock (frozen), livelock wastes CPU but still blocks forward progress."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "memory-management",
+        "num": 9,
+        "title": "Memory Management",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "Each process runs in its own virtual address space — it sees a large, contiguous memory as if it owns all of RAM. The Memory Management Unit (MMU) translates virtual addresses to physical addresses at runtime using page tables. This provides isolation (one process can't read another's memory) and allows the OS to move physical pages freely without the process knowing."
+          },
+          {
+            "type": "para",
+            "text": "Paging divides virtual memory into fixed-size pages (typically 4KB) and physical memory into same-size frames. Page tables map page numbers to frame numbers. The TLB (Translation Lookaside Buffer) caches recent page-table entries for fast translation — a TLB miss forces a full page-table walk. Segmentation divides memory into variable-size logical segments (code, stack, heap) — simpler to implement but causes external fragmentation. Modern OSes use paging."
+          },
+          {
+            "type": "memory-trick",
+            "text": "Internal fragmentation = wasted space INSIDE an allocated block (paging wastes up to one page per allocation). External fragmentation = wasted space BETWEEN allocated blocks (segmentation problem — free memory exists but in unusable small chunks)."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is virtual memory and why does it exist?",
+                "a": "Virtual memory gives each process the illusion of a large private address space, decoupled from physical RAM. Benefits: isolation (processes can't access each other's memory), can run programs larger than physical RAM (page files/swap), simplifies linking and loading (every program uses the same virtual layout)."
+              },
+              {
+                "q": "What is a TLB and why is it important?",
+                "a": "Translation Lookaside Buffer — a small, fast cache of recent virtual-to-physical address translations. Without it, every memory access requires a page-table walk (2+ memory accesses). With a warm TLB, translation is near instant. TLB hit rate typically >99%, making the overhead negligible. Context switch flushes the TLB, adding to context-switch cost."
+              },
+              {
+                "q": "What is internal vs external fragmentation?",
+                "a": "Internal fragmentation: wasted memory inside an allocated block. Paging wastes up to (page size - 1) bytes per allocation for the last page. External fragmentation: wasted memory between allocated blocks — free blocks exist but are too scattered to satisfy a large request. Compaction can fix it but is expensive. Paging eliminates external fragmentation; segmentation suffers from it."
+              },
+              {
+                "q": "What happens when a process accesses a virtual address that isn't in physical RAM?",
+                "a": "A page fault occurs. The CPU traps to the OS. The OS finds the page on disk (swap/page file), loads it into a free frame, updates the page table, and resumes the process. If no free frames exist, it must evict a page first using a replacement algorithm."
+              },
+              {
+                "q": "What is the difference between paging and segmentation?",
+                "a": "Paging: divides into fixed-size pages. Eliminates external fragmentation. Programmer unaware of pages. Segmentation: divides into variable-size logical segments (code, heap, stack). Programmer/compiler aware. Matches program structure but causes external fragmentation. Modern x86 uses paged segmentation: segments divide address space, then pages divide each segment."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "page-replacement-algorithms",
+        "num": 10,
+        "title": "Page Replacement Algorithms",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "When a page fault occurs and no free frame is available, the OS must evict a page to make room. The goal is to minimize future page faults by evicting the 'least useful' page. Common algorithms: FIFO (evict oldest-loaded page), LRU (evict least recently used), and Optimal/OPT (evict the page that won't be used for the longest time in the future)."
+          },
+          {
+            "type": "para",
+            "text": "Optimal is theoretically best but not implementable in practice because it requires future knowledge. LRU is a practical approximation — recently used pages are likely to be used again (temporal locality). LRU approximations: Clock Algorithm (use bit), Aging (software counter shifted with use bit). FIFO is simplest but suffers from Belady's Anomaly — adding more frames can increase page faults."
+          },
+          {
+            "type": "memory-trick",
+            "text": "Thrashing: a process spends more time handling page faults than doing useful work. Happens when working set (pages actively needed) exceeds available frames. Solution: reduce degree of multiprogramming — give each process enough frames for its working set."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "Why is the Optimal algorithm not used in practice?",
+                "a": "OPT requires knowing which pages will be accessed in the future to evict the one not needed longest. This requires future knowledge the OS doesn't have at runtime. It's used only as a theoretical benchmark to compare other algorithms against."
+              },
+              {
+                "q": "What is Belady's Anomaly?",
+                "a": "The counterintuitive result where FIFO page replacement with MORE physical frames produces MORE page faults for certain reference strings. Happens because FIFO doesn't account for recency. LRU and OPT don't suffer from Belady's Anomaly — they are 'stack algorithms.'"
+              },
+              {
+                "q": "What is thrashing and how do you fix it?",
+                "a": "Thrashing: a process constantly page faults because its working set (all pages it needs) exceeds allocated frames. The CPU is almost always handling page faults instead of executing instructions. Fix: working-set model — allocate each process exactly as many frames as its working set size. If total working sets exceed physical memory, reduce multiprogramming (suspend some processes)."
+              },
+              {
+                "q": "How does the Clock (Second-Chance) algorithm approximate LRU?",
+                "a": "Pages are arranged in a circular list. Each page has a 'use bit' set to 1 when accessed. When eviction needed, the clock hand scans: if use bit is 1, clear it and move on (second chance); if use bit is 0, evict that page. Pages accessed recently get a second chance before eviction."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "file-systems",
+        "num": 11,
+        "title": "File Systems",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "A file system provides the abstraction of named, persistent storage. It manages how files are stored on disk, organized in directories, and accessed by processes. Key responsibilities: allocating disk space, tracking free blocks, maintaining directory structure, and providing metadata (permissions, timestamps, size). The OS mounts a file system at a directory, making it part of the unified directory tree."
+          },
+          {
+            "type": "para",
+            "text": "An inode (index node) is the core metadata structure in Unix filesystems (ext4, APFS). Each file has one inode storing: file type, permissions, owner, size, timestamps, and block pointers (direct + indirect). The inode does NOT store the filename — filenames are stored in directory entries, which map name → inode number. This allows hard links: multiple directory entries pointing to the same inode."
+          },
+          {
+            "type": "para",
+            "text": "Hard link vs symbolic (soft) link: Hard link is a directory entry pointing directly to an inode — deleting one hard link doesn't delete the file (data survives until link count hits 0). Soft link is a file containing a pathname — deleting the target makes the soft link dangling. Hard links can't cross filesystems; soft links can."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is an inode?",
+                "a": "A data structure in Unix filesystems storing all metadata about a file except its name: file type, permissions, owner/group, size, timestamps (access, modify, change), and pointers to data blocks (direct, single indirect, double indirect, triple indirect). Inodes have a fixed size and are allocated at filesystem creation."
+              },
+              {
+                "q": "What is the difference between a hard link and a soft link?",
+                "a": "Hard link: a directory entry that maps a name to an inode number. Multiple hard links to the same inode — the file is deleted only when the link count drops to 0. Can't span filesystems, can't link to directories. Soft link: a special file containing the path to another file. Crosses filesystem boundaries. Breaks if the target is deleted or moved."
+              },
+              {
+                "q": "What happens when you call open() on a file?",
+                "a": "OS looks up the filename in directory entries to find the inode number. Reads the inode to verify permissions. Allocates a file descriptor in the process's file descriptor table pointing to an open file table entry (tracks current offset). Returns the file descriptor (integer) to the process. Subsequent read/write use this descriptor."
+              },
+              {
+                "q": "What is journaling in file systems?",
+                "a": "A technique to maintain consistency after a crash. Before modifying filesystem metadata, the change is written to a journal (log). After the crash, the OS replays committed journal entries or discards uncommitted ones. Prevents filesystem corruption from partial writes. Used by ext4, NTFS, APFS. Trade-off: slight write overhead for much faster recovery."
+              },
+              {
+                "q": "What is the difference between ext4 and FAT32?",
+                "a": "ext4: Linux filesystem, uses inodes, supports journaling, file permissions, hard links, max file size 16TB, max filename 255 chars. FAT32: old Windows/MS-DOS, simple file allocation table, no journaling, no permissions, max file size 4GB. FAT32 has universal compatibility (USB drives). ext4 is production-grade for Linux systems."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "linux-essentials-interview-focused",
+        "num": 12,
+        "title": "Linux Essentials (Interview-Focused)",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "Interviewers test Linux because servers run Linux and engineers must navigate production systems. Core areas: process management (ps, top, kill), file system (ls, find, chmod), text processing (grep, awk, sed, pipes), network inspection (netstat, curl, ping), and system info (df, free, uname). You should be able to debug a running system with just a terminal."
+          },
+          {
+            "type": "para",
+            "text": "Signals let you control processes: kill -15 PID sends SIGTERM (graceful shutdown — the process can clean up), kill -9 PID sends SIGKILL (immediate, cannot be caught or ignored). SIGHUP (1) tells daemons to reload config. SIGINT (2) is Ctrl+C. Zombie processes appear in ps as Z state — they're dead but parent hasn't called wait() yet. Kill the parent to clear them, or wait for it to call wait()."
+          },
+          {
+            "type": "pre",
+            "text": "# Key commands for interviews\nps aux              # all running processes\ntop / htop          # live CPU/memory usage\nkill -9 PID         # force-kill process\nlsof -p PID         # files opened by process\nnetstat -tulnp      # listening ports\nfind / -name file   # find file by name\ngrep -r 'pattern'   # recursive search\nchmod 755 file      # rwxr-xr-x permissions\ndf -h               # disk space\nfree -h             # memory usage"
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What does 'chmod 755' mean?",
+                "a": "Permission bits: 7=rwx (owner: read+write+execute), 5=r-x (group: read+execute), 5=r-x (others: read+execute). Binary: 111 101 101. Used for scripts and executables the owner can edit but others can only run."
+              },
+              {
+                "q": "What is the difference between kill and kill -9?",
+                "a": "kill (or kill -15) sends SIGTERM — politely asks the process to terminate. The process can catch this signal, flush buffers, close files, and exit cleanly. kill -9 sends SIGKILL — the kernel immediately destroys the process. SIGKILL cannot be caught, blocked, or ignored. Use kill first; resort to -9 only if the process is frozen."
+              },
+              {
+                "q": "How would you find what process is using port 8080?",
+                "a": "lsof -i :8080 or netstat -tulnp | grep 8080 or ss -tulnp | grep 8080. Shows the PID and process name. Then use kill to stop it if needed."
+              },
+              {
+                "q": "What is the difference between ps aux and top?",
+                "a": "ps aux: snapshot of all running processes at a single moment — useful for scripting and piping to grep. top: live, auto-refreshing view sorted by CPU usage — useful for interactive monitoring. htop is an improved top with color and mouse support."
+              },
+              {
+                "q": "How do you run a process in the background so it survives after you log out?",
+                "a": "nohup command & — nohup redirects stdout/stderr to nohup.out and ignores the SIGHUP sent on logout. Alternatively: disown after backgrounding with & (removes job from shell's job table). For proper daemon behavior: use systemd or screen/tmux which maintains a session."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

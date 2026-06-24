@@ -1,4 +1,10 @@
-import raw from "./seBasics.json";
+import rawOs from "./seBasics-os.json";
+import rawDbms from "./seBasics-dbms.json";
+import rawCn from "./seBasics-cn.json";
+import rawOop from "./seBasics-oop.json";
+import rawLinux from "./seBasics-linux.json";
+
+const raw = { ...rawOs, ...rawDbms, ...rawCn, ...rawOop, ...rawLinux } as Record<string, Subject>;
 
 export type BlockType =
   | "para" | "heading" | "analogy" | "memory-trick" | "example"

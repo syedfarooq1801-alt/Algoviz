@@ -1,0 +1,436 @@
+{
+  "dbms": {
+    "id": "dbms",
+    "title": "DBMS",
+    "chapters": [
+      {
+        "id": "why-a-dbms-exists",
+        "num": 1,
+        "title": "Why a DBMS Exists",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "Before databases, applications stored data in plain files. This caused: data redundancy (same data duplicated across files), inconsistency (updates in one file not reflected in others), no concurrent access control (two programs writing the same file simultaneously corrupts it), and no standard query language. A DBMS solves all of these by providing a unified, controlled interface to persistent data."
+          },
+          {
+            "type": "para",
+            "text": "The DBMS provides data independence: physical independence (you can change how data is stored on disk without changing application code) and logical independence (you can change the schema without rewriting queries). It also enforces integrity constraints, provides security (access control), and guarantees ACID properties for transactions."
+          },
+          {
+            "type": "memory-trick",
+            "text": "Three-level DBMS architecture: External (user views) → Conceptual (logical schema) → Internal (physical storage). Data independence = changing one level doesn't affect the level above it. This is tested directly."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What problems does a DBMS solve over a flat file system?",
+                "a": "Redundancy and inconsistency (DBMS normalizes data, single source of truth). Concurrent access (locks, transactions prevent corruption). No query capability (SQL). No integrity enforcement (constraints like foreign keys). No security (DBMS has user roles and access control). No crash recovery (ACID guarantees)."
+              },
+              {
+                "q": "What is data independence?",
+                "a": "Physical data independence: change storage structure (e.g., add an index, change file format) without altering the conceptual schema or application queries. Logical data independence: change the logical schema (e.g., add a column) without affecting existing application programs that don't use that column."
+              },
+              {
+                "q": "What is the difference between a DBMS and a database?",
+                "a": "Database: the organized collection of data itself. DBMS: the software system that manages, stores, retrieves, and controls access to the database. MySQL, PostgreSQL, Oracle are DBMSes. Your users table is part of the database."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "er-modeling",
+        "num": 2,
+        "title": "ER Modeling",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "An Entity-Relationship (ER) diagram is a visual blueprint of a database. Entities are real-world objects with data (e.g., Student, Course). Attributes are properties of entities (e.g., student_id, name). Relationships describe how entities are associated. Cardinality specifies how many instances of one entity relate to another: one-to-one (1:1), one-to-many (1:N), or many-to-many (M:N)."
+          },
+          {
+            "type": "para",
+            "text": "A strong entity has a primary key on its own. A weak entity depends on a parent entity to identify it (its key is partial — valid only in the context of the owner). For example, a Dependent entity depends on Employee — 'John' is only meaningful as John's dependent. Weak entities use a dashed rectangle and their relationship uses a double diamond."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is a weak entity?",
+                "a": "An entity that cannot be uniquely identified by its own attributes alone — it depends on a parent (owner) entity. Its partial key plus the owner's primary key forms a composite key. Example: Order-Item depends on Order (item #1 in order #10 is different from item #1 in order #20). Represented with a double rectangle in ER diagrams."
+              },
+              {
+                "q": "How do you represent a many-to-many relationship in a relational database?",
+                "a": "Create a junction (bridge/association) table with foreign keys referencing both entities. Example: Student and Course have M:N relationship — create Enrollment(student_id FK, course_id FK) table. The pair (student_id, course_id) forms the primary key of Enrollment."
+              },
+              {
+                "q": "What is total vs partial participation in ER modeling?",
+                "a": "Total participation: every entity instance must participate in the relationship (double line in ER). Example: every Employee must work in exactly one Department. Partial participation: some instances may not participate (single line). Example: not every Employee manages a Department."
+              },
+              {
+                "q": "What is the difference between a unary, binary, and ternary relationship?",
+                "a": "Unary: entity related to itself (Employee 'supervises' Employee). Binary: between two entity types (Student enrolls in Course) — most common. Ternary: between three entity types (Doctor prescribes Medicine to Patient). Ternary relationships often get decomposed into binary ones."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "keys-and-constraints",
+        "num": 3,
+        "title": "Keys & Constraints",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "Keys uniquely identify rows in a table. A super key is any set of attributes that uniquely identifies a row. A candidate key is a minimal super key (removing any attribute loses uniqueness). A primary key is the chosen candidate key — it must be unique and NOT NULL. A foreign key in one table references the primary key of another, enforcing referential integrity."
+          },
+          {
+            "type": "para",
+            "text": "Constraints enforce data rules at the database level: NOT NULL (column must have a value), UNIQUE (all values distinct), CHECK (must satisfy a condition), DEFAULT (value used if none specified), and FOREIGN KEY (referential integrity). These fire on every INSERT/UPDATE/DELETE, removing the need for application-level validation."
+          },
+          {
+            "type": "memory-trick",
+            "text": "Key hierarchy: Super Key ⊇ Candidate Key ⊇ Primary Key. Every primary key is a candidate key. Every candidate key is a super key. Not vice versa. Candidate key = minimal uniqueness. Primary key = the one you picked from the candidates."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is the difference between a primary key and a candidate key?",
+                "a": "Candidate key: any minimal set of attributes that uniquely identifies a row. A table can have multiple candidate keys. Primary key: the one candidate key selected by the database designer to be the main identifier. It adds the NOT NULL constraint on top of uniqueness. The other candidate keys become alternate keys."
+              },
+              {
+                "q": "What is referential integrity and how does a foreign key enforce it?",
+                "a": "Referential integrity means a foreign key value must either match an existing primary key in the referenced table, or be NULL (if allowed). A foreign key constraint prevents inserting a row that references a non-existent parent, and prevents deleting a parent row that has child rows (unless ON DELETE CASCADE or SET NULL is specified)."
+              },
+              {
+                "q": "What is the difference between a unique constraint and a primary key?",
+                "a": "Both enforce uniqueness. Primary key also disallows NULL — every row must have a value. A table can have only one primary key but multiple UNIQUE constraints. UNIQUE allows multiple NULL values (in most databases, NULL ≠ NULL so two NULLs don't violate uniqueness)."
+              },
+              {
+                "q": "What are surrogate keys vs natural keys?",
+                "a": "Natural key: a key derived from actual data attributes with real-world meaning (e.g., SSN, email). Surrogate key: an artificial key added for convenience, no business meaning (e.g., auto-increment id). Surrogate keys are preferred in practice: they're stable (natural data like email can change), compact, and never expose business data in URLs."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "normalization",
+        "num": 4,
+        "title": "Normalization",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "Normalization is the process of organizing a database schema to eliminate redundancy and update anomalies. Three anomalies that motivate normalization: insertion anomaly (can't add data without adding unrelated data), update anomaly (same fact stored in multiple rows — update one, miss others), deletion anomaly (deleting a row accidentally deletes unrelated useful data)."
+          },
+          {
+            "type": "para",
+            "text": "1NF: each cell contains one atomic value (no repeating groups or arrays). 2NF: 1NF + every non-key attribute is fully functionally dependent on the entire primary key (no partial dependencies — only matters when the key is composite). 3NF: 2NF + no transitive dependencies (non-key attribute depends only on the primary key, not on another non-key attribute). BCNF: stricter 3NF — every determinant must be a candidate key."
+          },
+          {
+            "type": "memory-trick",
+            "text": "1NF=Atomic. 2NF=No Partial dependency. 3NF=No Transitive dependency. BCNF=Every determinant is a candidate key. Mnemonic: '1 Atom, 2 Partial gone, 3 Transitive gone, B Candidate.' If you normalize past 3NF you almost always hit BCNF."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is a partial dependency and why does it violate 2NF?",
+                "a": "A partial dependency exists when a non-key attribute depends on only part of a composite primary key. Example: table (StudentID, CourseID, CourseName) — CourseName depends only on CourseID, not the full key. This violates 2NF because CourseName will be duplicated for every student in the course. Fix: decompose into Student_Course(StudentID, CourseID) and Course(CourseID, CourseName)."
+              },
+              {
+                "q": "What is a transitive dependency and why does it violate 3NF?",
+                "a": "A transitive dependency: non-key attribute A → non-key attribute B → non-key attribute C, so the primary key transitively determines C through B. Example: Student(StudentID, DeptID, DeptHead) — DeptID → DeptHead, so DeptHead depends on StudentID only through DeptID. Update anomaly: changing a dept head requires updating every student row in that dept. Fix: separate into Dept(DeptID, DeptHead)."
+              },
+              {
+                "q": "What is denormalization and when would you use it?",
+                "a": "Deliberately introducing redundancy by merging tables to improve read performance. Trade-off: faster queries (fewer joins) at the cost of storage and update anomalies. Used in read-heavy analytics databases (data warehouses, OLAP), reporting tables, or when a join is a proven bottleneck. Always normalize first; denormalize only when profiling shows a real performance issue."
+              },
+              {
+                "q": "What is the difference between 3NF and BCNF?",
+                "a": "3NF allows a non-key attribute to functionally determine another non-key attribute if the determinant is a candidate key. BCNF is stricter: every functional dependency X → Y must have X as a candidate key. BCNF eliminates all redundancy caused by functional dependencies. In practice most 3NF schemas are also BCNF; they differ only in edge cases with multiple overlapping composite candidate keys."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sql-joins-subqueries-aggregation",
+        "num": 5,
+        "title": "SQL — Joins, Subqueries & Aggregation",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "SQL is the language for relational databases. Joins combine rows from two tables based on a related column. INNER JOIN returns only rows with matches in both tables. LEFT JOIN returns all rows from the left table, NULLs for unmatched right columns. RIGHT JOIN is the mirror. FULL OUTER JOIN returns all rows from both, NULLs where no match. CROSS JOIN returns the Cartesian product (every row × every row)."
+          },
+          {
+            "type": "para",
+            "text": "Aggregation: GROUP BY groups rows sharing a column value; aggregate functions (COUNT, SUM, AVG, MIN, MAX) operate per group. WHERE filters rows before grouping. HAVING filters after grouping — use HAVING for conditions on aggregates. Subqueries can be used in SELECT, FROM (derived table), or WHERE. A correlated subquery references the outer query and re-executes for each outer row — expensive; prefer a join or window function."
+          },
+          {
+            "type": "pre",
+            "text": "-- Nth highest salary (classic interview question)\nSELECT DISTINCT salary\nFROM employees\nORDER BY salary DESC\nLIMIT 1 OFFSET N-1;\n\n-- Or using DENSE_RANK window function:\nSELECT salary FROM (\n  SELECT salary, DENSE_RANK() OVER (ORDER BY salary DESC) AS rk\n  FROM employees\n) ranked WHERE rk = N;"
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is the difference between WHERE and HAVING?",
+                "a": "WHERE filters individual rows before any grouping or aggregation. HAVING filters groups after GROUP BY + aggregation. You can't reference aggregate functions in WHERE. Example: find departments with more than 5 employees — use GROUP BY dept HAVING COUNT(*) > 5. Using WHERE COUNT(*) > 5 is a syntax error."
+              },
+              {
+                "q": "What is the difference between INNER JOIN and LEFT JOIN?",
+                "a": "INNER JOIN: returns only rows where the join condition matches in BOTH tables. Unmatched rows from either table are excluded. LEFT JOIN: returns all rows from the left table. For rows with no match in the right table, the right-side columns are NULL. Use LEFT JOIN to find rows in one table with no corresponding entry in another (WHERE right.id IS NULL)."
+              },
+              {
+                "q": "What is a correlated subquery?",
+                "a": "A subquery that references a column from the outer query. It re-executes once per outer row. Example: find employees earning more than their department average — the inner query computes the avg for each employee's department. Performance is O(n*m). Usually replaceable with a JOIN on a derived table or a window function for better performance."
+              },
+              {
+                "q": "What is the difference between DELETE, TRUNCATE, and DROP?",
+                "a": "DELETE: DML, removes rows matching a WHERE clause (or all rows if no WHERE). Logged row-by-row, can be rolled back, fires triggers. TRUNCATE: DDL, removes all rows instantly by deallocating pages. Fast, cannot be rolled back in most DBs, doesn't fire row-level triggers. DROP: removes the entire table structure and data permanently."
+              },
+              {
+                "q": "What is a window function?",
+                "a": "A function that operates over a 'window' of rows related to the current row without collapsing them like GROUP BY. Syntax: FUNC() OVER (PARTITION BY col ORDER BY col). Common functions: ROW_NUMBER(), RANK(), DENSE_RANK(), LAG(), LEAD(), SUM(). Example: running total, rank within a group, compare with previous row — all without subqueries."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "indexing",
+        "num": 6,
+        "title": "Indexing",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "An index is a separate data structure that allows the database to find rows without scanning the entire table. Without an index, a query with a WHERE clause requires a full table scan — O(n). With a B-Tree index on the column, lookup is O(log n). The trade-off: indexes speed up reads but slow down writes (INSERT/UPDATE/DELETE must update the index) and consume disk space."
+          },
+          {
+            "type": "para",
+            "text": "Clustered index: the table's physical rows are stored in index order. There can only be one clustered index per table (since rows can only be in one physical order). Non-clustered index: a separate structure with pointers back to the actual rows. Many non-clustered indexes can exist per table. SQL Server's primary key creates a clustered index by default; MySQL InnoDB always clusters on the primary key."
+          },
+          {
+            "type": "memory-trick",
+            "text": "B-Tree index: great for range queries (WHERE salary BETWEEN 50000 AND 80000), ORDER BY, and equality. Hash index: perfect for exact equality (WHERE id = 42) — O(1) lookup — but useless for range queries. Composite index: (A, B) helps queries on A alone or (A, B) together, but NOT on B alone (leftmost prefix rule)."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "How does a B-Tree index work?",
+                "a": "A balanced tree where leaf nodes contain index key values and pointers to the actual rows (or include the data for clustered indexes). Non-leaf nodes contain key ranges for navigation. Height is log_m(n) where m is the branching factor (hundreds). A lookup walks from root to leaf in ~3-4 disk reads even for millions of rows. Leaf nodes are linked for efficient range scans."
+              },
+              {
+                "q": "What is the difference between a clustered and non-clustered index?",
+                "a": "Clustered: the table data is physically ordered by the index key. Reading a range is efficient (data is contiguous). Only one per table. In InnoDB, the primary key IS the clustered index. Non-clustered: a separate structure pointing to rows. Multiple allowed. Requires a 'bookmark lookup' to fetch non-index columns from the actual row (double I/O for queries not covered by the index)."
+              },
+              {
+                "q": "When should you NOT add an index?",
+                "a": "On columns with low cardinality (e.g., a boolean gender column — index rarely helps, query optimizer may skip it). On small tables (full scan is faster than index overhead). On frequently updated columns (index maintenance on every write adds cost). When write performance is critical and reads are infrequent."
+              },
+              {
+                "q": "What is a covering index?",
+                "a": "An index that contains all columns a query needs, so the engine never touches the actual table rows (no bookmark lookup). Example: query 'SELECT name FROM users WHERE email = ?' — index on (email, name) covers it fully. Dramatically reduces I/O for read-heavy queries. Adding extra columns to an index for coverage is a common optimization."
+              },
+              {
+                "q": "What is the leftmost prefix rule for composite indexes?",
+                "a": "A composite index on (A, B, C) can be used for queries filtering on A, on (A, B), or on (A, B, C). It cannot efficiently serve a query filtering on B alone, C alone, or (B, C) — the index is only usable starting from the leftmost column. Design composite indexes with the most frequently queried column first."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "transactions-acid-properties",
+        "num": 7,
+        "title": "Transactions & ACID Properties",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "A transaction is a sequence of operations executed as a single logical unit. Either all operations succeed (commit) or all fail (rollback) — there is no partial success. This all-or-nothing guarantee is essential for operations like bank transfers: debit one account AND credit another must happen together or not at all."
+          },
+          {
+            "type": "para",
+            "text": "ACID: Atomicity — all operations succeed or all are rolled back (no partial transaction). Consistency — a transaction takes the database from one valid state to another, respecting all constraints. Isolation — concurrent transactions behave as if they ran serially (intermediate states are invisible to others). Durability — once committed, the transaction's changes survive crashes (written to persistent storage)."
+          },
+          {
+            "type": "memory-trick",
+            "text": "ACID mnemonic: Atomicity=All-or-nothing, Consistency=Constraints preserved, Isolation=Independent transactions, Durability=Data survives crash. Atomicity and Durability are about single transactions. Consistency is about rules. Isolation is about concurrent transactions."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "Explain each ACID property with a bank transfer example.",
+                "a": "Transfer $100 from Account A to B. Atomicity: debit A and credit B are one unit — if credit fails, debit is rolled back. Consistency: before and after, total money in system stays the same (constraints like balance >= 0 not violated). Isolation: another transaction reading A or B's balance mid-transfer sees either the old values or the new, not a mix. Durability: once committed, the transfer survives a server crash."
+              },
+              {
+                "q": "What is the difference between atomicity and durability?",
+                "a": "Atomicity: about completeness — either all operations in a transaction execute, or none do (managed via UNDO logs for rollback). Durability: about permanence — once committed, the data persists even if the system crashes immediately after (managed via REDO logs and write-ahead logging)."
+              },
+              {
+                "q": "How does the database implement atomicity?",
+                "a": "Using an UNDO log. Before modifying a data item, the original value is written to the log. If the transaction is rolled back (either explicitly or due to failure), the system applies the UNDO log entries to restore original values. This is why BEGIN/ROLLBACK works even after multiple changes."
+              },
+              {
+                "q": "What is a savepoint?",
+                "a": "A named point within a transaction to which you can partially roll back without aborting the entire transaction. SAVEPOINT sp1; (later) ROLLBACK TO sp1; undoes work since sp1 but keeps earlier work in the transaction. Useful for handling errors in long transactions without losing all progress."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "concurrency-control",
+        "num": 8,
+        "title": "Concurrency Control",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "Concurrency control ensures that concurrent transaction execution produces a result equivalent to some serial (one-at-a-time) execution. Without it, concurrent transactions can interleave in ways that corrupt data. The key criterion is serializability: a schedule is serializable if its outcome equals some serial schedule of the same transactions."
+          },
+          {
+            "type": "para",
+            "text": "Two-Phase Locking (2PL): all lock acquisitions happen in the growing phase; all releases in the shrinking phase. Once a transaction releases a lock, it can never acquire a new one. This guarantees conflict serializability but can cause deadlocks. MVCC (Multi-Version Concurrency Control): instead of blocking readers with locks, the DB keeps multiple versions of data. Readers see a consistent snapshot from transaction start; writers create new versions. Used by PostgreSQL, MySQL InnoDB, Oracle."
+          },
+          {
+            "type": "memory-trick",
+            "text": "2PL = pessimistic locking (assume conflict will happen). MVCC = optimistic (readers never block writers, writers never block readers). 2PL: deadlocks possible. MVCC: no read-write deadlocks, but write-write conflicts still need locks. Most modern DBs use MVCC."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is Two-Phase Locking (2PL)?",
+                "a": "A concurrency control protocol: Phase 1 (growing) — acquire all needed locks, release none. Phase 2 (shrinking) — release locks, acquire no new ones. Guarantees conflict serializability. Strict 2PL: hold all locks until transaction commits/aborts — prevents cascading rollbacks. Deadlock possible if transactions wait for each other's locks."
+              },
+              {
+                "q": "How does MVCC work?",
+                "a": "Each row has version metadata (created_at transaction ID, deleted_at transaction ID). When a transaction reads, it sees the latest version created before its start — a consistent snapshot. Writers create a new version of the row rather than overwriting. Readers never block writers; writers never block readers. Periodically, old versions are cleaned up (VACUUM in PostgreSQL)."
+              },
+              {
+                "q": "What is the difference between optimistic and pessimistic locking?",
+                "a": "Pessimistic: acquire locks before accessing data, assuming conflicts are likely. Holds locks for the transaction duration. Suitable for write-heavy workloads with high contention. Optimistic: read without locks, validate at commit that no conflict occurred (check version or timestamp). If conflict detected, abort and retry. Suitable for read-heavy workloads with rare conflicts."
+              },
+              {
+                "q": "What is a deadlock in a database and how is it handled?",
+                "a": "T1 holds lock on row A, wants row B. T2 holds lock on row B, wants row A. Both wait forever. Detection: DB maintains a waits-for graph; detects cycles. Resolution: pick a 'victim' transaction (typically the one with least work done or lowest priority) and roll it back. The application should retry aborted transactions."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "isolation-levels-anomalies",
+        "num": 9,
+        "title": "Isolation Levels & Anomalies",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "Full isolation (Serializable) is expensive — transactions must behave as if completely serial. SQL standard defines four isolation levels that trade consistency for performance. Each level prevents progressively more anomalies. Anomalies: dirty read (read uncommitted data), non-repeatable read (same row returns different value in same transaction), phantom read (same query returns different set of rows in same transaction)."
+          },
+          {
+            "type": "para",
+            "text": "Read Uncommitted: sees uncommitted changes of other transactions — dirty reads possible. Lowest isolation, fastest. Read Committed (PostgreSQL default): only sees committed data — no dirty reads, but non-repeatable reads possible (a row re-read may have changed between two reads). Repeatable Read (MySQL InnoDB default): same row always returns same value within a transaction — no dirty or non-repeatable reads, but phantom reads possible. Serializable: highest isolation, prevents all anomalies — effectively serial execution. Slowest."
+          },
+          {
+            "type": "memory-trick",
+            "text": "Isolation levels 0→3 each block one more anomaly: 0=nothing blocked, 1=dirty reads blocked, 2=non-repeatable reads blocked, 3=phantom reads blocked. Defaults: PostgreSQL=Read Committed, MySQL InnoDB=Repeatable Read. Most apps work fine at Read Committed."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is a dirty read?",
+                "a": "Reading data written by a transaction that hasn't committed yet. If that transaction later rolls back, your read saw data that never officially existed. Example: T1 updates salary to 90000 (not committed), T2 reads 90000, T1 rolls back — T2 saw a ghost value. Prevented by Read Committed and above."
+              },
+              {
+                "q": "What is the difference between a non-repeatable read and a phantom read?",
+                "a": "Non-repeatable read: you read the same row twice in a transaction and get different values because another transaction modified and committed that row between your reads. Phantom read: you run the same query twice and get different sets of rows because another transaction inserted or deleted rows matching your WHERE clause. Prevented by Repeatable Read (for non-repeatable) and Serializable (for phantoms)."
+              },
+              {
+                "q": "What isolation level should a bank use for balance checks?",
+                "a": "At least Repeatable Read to prevent non-repeatable reads — a balance read at the start of a transaction shouldn't change mid-transaction due to concurrent updates. For critical operations like fund transfers, Serializable ensures no phantom rows affect results. In practice most banks use Read Committed with explicit SELECT FOR UPDATE locks on critical rows."
+              },
+              {
+                "q": "What is a 'lost update' anomaly?",
+                "a": "Two transactions read the same value, both compute a new value based on it, both write back — the second write overwrites the first, losing T1's update. Example: T1 reads balance=100, T2 reads balance=100, T1 writes 150, T2 writes 130 — T1's $50 deposit is lost. Prevented by Repeatable Read (with locking) or using SELECT FOR UPDATE."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "recovery-and-logging",
+        "num": 10,
+        "title": "Recovery & Logging",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "Databases must survive crashes. The primary mechanism is Write-Ahead Logging (WAL): before any data page is modified on disk, the log record describing the change is written to stable storage first. If the system crashes, the DB replays committed log entries (REDO) to restore committed transactions and applies undo records to roll back uncommitted ones."
+          },
+          {
+            "type": "para",
+            "text": "Log record types: UNDO log records store the old value (for rollback). REDO log records store the new value (for replay after crash). Most DBs use REDO+UNDO logs. Checkpointing: periodically, the DB flushes all dirty pages to disk and writes a checkpoint record to the log — limits how far back the log must be replayed on recovery."
+          },
+          {
+            "type": "memory-trick",
+            "text": "WAL rule: log before disk. If you write to disk before logging, a crash between disk write and log write leaves the DB in an unrecoverable state. The log is the ground truth. REDO = reapply committed changes. UNDO = roll back uncommitted changes."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is Write-Ahead Logging (WAL) and why is it used?",
+                "a": "WAL: write log records to stable storage before modifying database pages. Guarantees both atomicity (UNDO logs allow rollback) and durability (REDO logs allow replay of committed transactions after crash). If crash occurs, replay: REDO all committed transactions whose changes weren't flushed to disk, UNDO all uncommitted transactions."
+              },
+              {
+                "q": "What is the ARIES recovery algorithm?",
+                "a": "The industry-standard recovery algorithm (used by DB2, SQL Server). Three phases: Analysis — scan log forward from last checkpoint to identify dirty pages and transactions active at crash. REDO — replay every logged operation (even for transactions that aborted) to restore DB to crash state. UNDO — roll back all transactions that were active at crash time (apply UNDO records). Ensures atomicity and durability."
+              },
+              {
+                "q": "What is a checkpoint and why does it matter for recovery?",
+                "a": "A checkpoint flushes all dirty buffer pages to disk and writes a checkpoint record to the log. During recovery, analysis starts from the last checkpoint rather than the beginning of the log — dramatically reduces recovery time. Without checkpoints, recovery could require replaying the entire log history. Most DBs checkpoint every few seconds."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "storage-and-file-organization",
+        "num": 11,
+        "title": "Storage & File Organization",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "How data is physically organized on disk affects query performance. Heap file: records stored in no particular order — cheapest to insert (append to end), but full scan for every query. Sorted file: records sorted by a key — binary search for equality queries (O(log n)), efficient range scans, but expensive inserts (maintain sort order). Hash file: records hashed into buckets — O(1) equality lookups, useless for range queries."
+          },
+          {
+            "type": "para",
+            "text": "Row-oriented storage (traditional RDBMS): all columns of a row are stored contiguously. Efficient for OLTP workloads — fetch a complete row in one read. Column-oriented storage (column store): all values of one column are stored contiguously. Efficient for OLAP/analytics — scan one column across millions of rows without reading others. Much better compression (same data type). Used by: Redshift, Snowflake, ClickHouse, BigQuery."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "When would you choose a column store over a row store?",
+                "a": "Column store for analytics/OLAP: queries aggregate one or two columns across many rows (e.g., 'SELECT AVG(salary) FROM employees'). Only the relevant columns are read — no wasted I/O on other columns. Also compresses better (same-type data in sequence). Row store for OLTP: transactions read/write complete records (INSERT a user, UPDATE an order). Column store would require reading N separate locations to assemble one row."
+              },
+              {
+                "q": "What is a buffer pool and why does it matter?",
+                "a": "The buffer pool is the DB's in-memory cache for disk pages. When the DB needs a page, it checks the buffer pool first; if not present (cache miss), it loads it from disk. Hot pages stay in memory. The buffer pool replacement policy (LRU variants) determines which pages to evict when full. A larger buffer pool means fewer disk reads — often the single biggest performance lever."
+              },
+              {
+                "q": "What is the difference between OLTP and OLAP workloads?",
+                "a": "OLTP (Online Transaction Processing): many short transactions, read/write individual rows, high concurrency. Examples: e-commerce, banking. Normalized schema, row-oriented storage. OLAP (Online Analytical Processing): few complex queries, aggregate millions of rows, typically read-only. Examples: BI dashboards, data warehouses. Denormalized star/snowflake schema, column-oriented storage."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

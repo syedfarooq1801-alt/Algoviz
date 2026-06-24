@@ -1,0 +1,336 @@
+{
+  "oop": {
+    "id": "oop",
+    "title": "Object-Oriented Programming",
+    "chapters": [
+      {
+        "id": "classes-objects-why-oop-exists",
+        "num": 1,
+        "title": "Classes, Objects & Why OOP Exists",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "A class is a blueprint that defines attributes (data) and methods (behavior). An object is an instance of a class — created from the blueprint at runtime with its own state. OOP exists to organize large programs: group related data and behavior together, hide internal details, and reuse code through inheritance. Without OOP, large programs become tangled webs of global state and functions."
+          },
+          {
+            "type": "analogy",
+            "text": "Class = car blueprint (defines engine type, seats, doors). Object = a specific car built from that blueprint (your red Honda with plate ABC-123). The blueprint doesn't drive; the object does. You can build thousands of objects from one class, each with their own state."
+          },
+          {
+            "type": "memory-trick",
+            "text": "Stack vs heap for objects: stack stores value types (int, char, struct by value) — automatic lifetime, freed when function returns. Heap stores dynamically allocated objects (new in C++/Java). Objects in Java and Python are always on the heap; variables hold references. In C++, you choose: MyClass obj (stack) vs MyClass* obj = new MyClass() (heap)."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is the difference between a class and an object?",
+                "a": "Class: compile-time construct — a template defining structure (fields) and behavior (methods). Object: runtime instance created from the class via 'new' — occupies memory, has its own field values. One class can produce many objects. Analogy: class is a cookie cutter, object is a cookie."
+              },
+              {
+                "q": "What is the difference between instance variables and class (static) variables?",
+                "a": "Instance variables: each object has its own copy. Changing one object's instance variable doesn't affect others. Class/static variables: shared across all instances of the class — one copy in memory. Example: a User class might have instance variable 'name' (different per user) but static variable 'total_users' (counts all instances)."
+              },
+              {
+                "q": "What is a constructor and when is it called?",
+                "a": "A constructor is a special method called automatically when an object is created (new keyword). It initializes the object's state. Its name matches the class name, has no return type. If you don't write one, the compiler provides a default (no-args, does nothing). Can be overloaded. In C++, matched constructors called on value construction; in Java/Python, always called with new/class call."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "encapsulation",
+        "num": 2,
+        "title": "Encapsulation",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "Encapsulation bundles data and the methods that operate on it into a single unit (class) and restricts external access to the internal state. Fields are made private; access is through public getter/setter methods or other controlled interfaces. This prevents external code from putting the object into an invalid state and lets you change the internal implementation without breaking code that uses the class."
+          },
+          {
+            "type": "analogy",
+            "text": "ATM machine: you can interact only through the screen and buttons (public interface). You can't directly access the cash vault (private data). The ATM's internal mechanism (implementation) can be upgraded without changing how you use it."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is encapsulation and why is it important?",
+                "a": "Encapsulation hides internal state and requires all interaction to happen through defined methods. Importance: (1) Data integrity — setters can validate input before assigning. (2) Flexibility — change internal implementation without breaking external code. (3) Reduced complexity — users of a class only see its public interface, not implementation details."
+              },
+              {
+                "q": "What are access modifiers in C++/Java?",
+                "a": "Private: accessible only within the class. Protected: accessible within the class and subclasses. Public: accessible from anywhere. Package-private (Java default): accessible within the same package. Rule of thumb: make fields private, expose only what's needed. Avoid public fields — they break encapsulation."
+              },
+              {
+                "q": "What is the difference between encapsulation and data hiding?",
+                "a": "They're related but not identical. Data hiding: specifically restricting access to internal state (making fields private). Encapsulation: the broader principle of bundling data + behavior into a unit AND controlling access. Encapsulation enables data hiding. You can have encapsulation with all-public fields (poor practice) but data hiding requires encapsulation."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "abstraction",
+        "num": 3,
+        "title": "Abstraction",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "Abstraction hides complexity by showing only the essential interface, not the implementation details. A user of a class needs to know WHAT it does, not HOW it does it. In OOP: abstract classes provide a partial implementation with some abstract methods that subclasses must implement. Interfaces define a pure contract — just method signatures, no implementation (in most languages)."
+          },
+          {
+            "type": "para",
+            "text": "When to use abstract class vs interface: Use abstract class when you have shared code that multiple related classes should inherit (is-a relationship, same base behavior). Use interface when you want to define a capability that unrelated classes can implement (can-do relationship). Java: a class can implement multiple interfaces but extend only one abstract class."
+          },
+          {
+            "type": "memory-trick",
+            "text": "Abstraction = what, not how. Interface = pure contract (all abstract). Abstract class = partial implementation (mix of abstract + concrete). In Java 8+, interfaces can have default methods. If multiple inheritance of behavior is needed: prefer interfaces + default methods over abstract classes."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is the difference between abstraction and encapsulation?",
+                "a": "Encapsulation hides internal data (how state is stored and protected). Abstraction hides complexity (how something works — user just calls the method). Encapsulation is about access control. Abstraction is about design — exposing only relevant information. Example: a car's steering wheel is an abstraction (you don't know the steering column mechanism). The locked glove compartment is encapsulation (hiding state)."
+              },
+              {
+                "q": "What is the difference between an abstract class and an interface?",
+                "a": "Abstract class: can have concrete methods, constructors, state (fields). One inheritance only. Use when classes share code. Interface: only method signatures (until Java 8/default methods). No state (only constants). Multiple implementation. Use when defining a capability. Example: Shape is an abstract class (shares area() logic infrastructure). Serializable is an interface (just says 'this can be serialized')."
+              },
+              {
+                "q": "Can you instantiate an abstract class?",
+                "a": "No, directly. An abstract class is incomplete — it has abstract methods with no body. You must create a concrete subclass that implements all abstract methods, then instantiate that subclass. You can have a variable of the abstract class type pointing to a concrete subclass object (polymorphism)."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "inheritance",
+        "num": 4,
+        "title": "Inheritance",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "Inheritance allows a class (child/subclass) to acquire properties and methods from another class (parent/superclass). Models an 'is-a' relationship. The child inherits all public and protected members and can override or extend them. Benefits: code reuse, polymorphism enablement. Java and C++ use the 'extends' keyword."
+          },
+          {
+            "type": "para",
+            "text": "Types: Single (one parent), Multilevel (A→B→C chain), Hierarchical (multiple children, one parent), Multiple (C++ allows a class to extend multiple parents — Java doesn't allow multiple class inheritance, only multiple interfaces). The diamond problem occurs in multiple inheritance when two parents have the same method — the child is ambiguous about which to use. C++ resolves with virtual inheritance; Java avoids it by disallowing multiple class inheritance."
+          },
+          {
+            "type": "memory-trick",
+            "text": "Inheritance = is-a. Composition = has-a. Prefer composition over inheritance for flexibility. If you're extending to add a feature, composition is often better — it avoids tight coupling to the parent's implementation. Only use inheritance when the relationship is truly 'is-a' (Dog is an Animal, not Dog has an Animal)."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is the diamond problem in multiple inheritance?",
+                "a": "Class D inherits from B and C, both of which inherit from A. If A has a method foo(), B and C can both override it. When D calls foo(), it's ambiguous — which version? C++ resolves with virtual inheritance (single A subobject shared). Java avoids the problem by disallowing multiple class inheritance; interfaces can cause a similar problem in Java 8+ with default methods, resolved by requiring the implementing class to override."
+              },
+              {
+                "q": "What is the difference between method overriding and method hiding?",
+                "a": "Overriding: subclass provides a new implementation of an inherited virtual/dynamic method. Called polymorphically via a base class reference at runtime. Method hiding: subclass declares a static method with the same signature as a parent's static method. Called based on the reference type at compile time — NOT polymorphic. In Java, static methods can be hidden but not overridden."
+              },
+              {
+                "q": "Why is 'composition over inheritance' often recommended?",
+                "a": "Inheritance creates tight coupling — subclass depends on parent's internal implementation (fragile base class problem). Changing the parent can break subclasses. Composition: class holds a reference to another class and delegates to it. More flexible (behavior can be swapped at runtime), easier to test (mock the composed object), avoids deep inheritance hierarchies. Use inheritance for true is-a relationships; composition for has-a."
+              },
+              {
+                "q": "What does 'super' do in Java/C++?",
+                "a": "Java: super() calls parent constructor (must be first line). super.method() calls the parent class's version of an overridden method. C++: Base::method() calls parent version; Base(args) in initializer list calls parent constructor. Both are needed when the child overrides a method but still wants to run the parent's behavior."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "polymorphism",
+        "num": 5,
+        "title": "Polymorphism",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "Polymorphism ('many forms') lets one interface represent different underlying types. Compile-time polymorphism (static dispatch): function/operator overloading — same name, different parameter types. Resolved at compile time. Runtime polymorphism (dynamic dispatch): method overriding — subclass provides different implementation; the correct version is called based on the actual object type at runtime, not the reference type."
+          },
+          {
+            "type": "para",
+            "text": "Runtime polymorphism in C++ requires the virtual keyword. The compiler builds a vtable (virtual table) for each class with virtual methods — a table of function pointers. Each object has a hidden vptr (vtable pointer). When a virtual method is called, the CPU follows the vptr to the vtable and calls the right function. This indirection is the small cost of runtime polymorphism (~one extra pointer dereference)."
+          },
+          {
+            "type": "memory-trick",
+            "text": "Overloading = same class, same name, different parameters (compile-time). Overriding = different class in hierarchy, same signature (runtime). In C++: virtual keyword enables overriding. Without virtual, calling through a base pointer always calls the base version (static dispatch). Java methods are virtual by default; C++ requires explicit 'virtual'."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is the difference between method overloading and method overriding?",
+                "a": "Overloading: multiple methods in the same class with the same name but different parameter types or counts. Resolved at compile time (static polymorphism). Overriding: subclass replaces a parent's method with the same signature. Resolved at runtime (dynamic polymorphism). Overloading = 'same name, different params, same class.' Overriding = 'same name, same params, different class in hierarchy.'"
+              },
+              {
+                "q": "What is a vtable?",
+                "a": "Virtual function table: a per-class array of function pointers for all virtual methods. Each object has a hidden vptr pointing to its class's vtable. When you call a virtual method through a base pointer, the runtime follows the vptr, looks up the function pointer in the vtable, and calls it. This enables polymorphism with minimal overhead (~one extra memory dereference). Non-virtual calls go directly to the function address — faster but not polymorphic."
+              },
+              {
+                "q": "What is early binding vs late binding?",
+                "a": "Early binding (static dispatch): the function to call is resolved at compile time. Non-virtual methods, overloaded functions. Fast — no runtime overhead. Late binding (dynamic dispatch): the function is resolved at runtime based on the actual object type. Virtual methods in C++, all non-static methods in Java. Enables polymorphism at the cost of vtable lookup."
+              },
+              {
+                "q": "Can you call a virtual method from a constructor?",
+                "a": "Technically yes, but it doesn't behave polymorphically. During construction, the object is of the base class type — its vtable points to the base class version, not the derived class. The derived class hasn't been initialized yet. Calling a virtual method from a constructor always calls the class's own version, not an overridden version in a subclass. This is a subtle bug if you expect polymorphic dispatch in constructors."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "constructors-destructors-rule-of-three-five",
+        "num": 6,
+        "title": "Constructors, Destructors & the Rule of Three/Five",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "In C++, if your class manages a resource (heap memory, file handle, socket), you must control what happens when the object is copied or destroyed. The Rule of Three: if you define any of destructor, copy constructor, or copy assignment operator — define all three. The compiler-generated versions do shallow copies, which is wrong when your class owns heap-allocated memory."
+          },
+          {
+            "type": "para",
+            "text": "Rule of Five (C++11): adds move constructor and move assignment to the Rule of Three. Move semantics transfer ownership of resources instead of copying — O(1) instead of O(n) for moving a vector. std::move() casts to an rvalue reference, telling the compiler to steal resources from the source. After a move, the source object is in a valid but unspecified state (typically empty)."
+          },
+          {
+            "type": "memory-trick",
+            "text": "Shallow copy: copies the pointer value — two objects point to the same heap memory. Disaster when one is destroyed (double free). Deep copy: allocates new memory, copies the data — two independent copies. Rule of Zero: use RAII wrappers (std::unique_ptr, std::vector) and let them handle resource management — your class needs no manual destructor/copy/move."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is the difference between a shallow copy and a deep copy?",
+                "a": "Shallow copy: copies an object field-by-field. If a field is a pointer, the copy has the same pointer value — both objects point to the same heap memory. Dangerous: when one is destroyed, the memory is freed; the other has a dangling pointer. Deep copy: for pointer fields, allocates new memory and copies the pointed-to data. Both objects have independent data. Always implement deep copy in copy constructor and copy assignment if your class owns heap memory."
+              },
+              {
+                "q": "What is the Rule of Three in C++?",
+                "a": "If a class needs a custom destructor (manages a resource), it almost certainly also needs a custom copy constructor and copy assignment operator — otherwise the compiler generates shallow copies. The three members are: destructor (clean up resource), copy constructor (new object from existing), copy assignment operator (assign one object to another). Define all three or use a smart pointer and define none (Rule of Zero)."
+              },
+              {
+                "q": "What is RAII?",
+                "a": "Resource Acquisition Is Initialization: tie resource lifetime to object lifetime. Constructor acquires the resource; destructor releases it. This guarantees cleanup even if an exception is thrown. std::unique_ptr, std::lock_guard, std::ifstream all use RAII. When the object goes out of scope (stack unwinds or delete called), the destructor runs and cleans up automatically — no manual cleanup needed."
+              },
+              {
+                "q": "When is a destructor called in C++?",
+                "a": "Stack object: when the object goes out of scope (function returns, block ends). Heap object: when delete is called on the pointer. Static/global: when the program ends (reverse order of construction). In a class hierarchy: always call the derived class destructor first, then base class. For polymorphic base class pointers, the base destructor must be virtual — otherwise delete base_ptr; only calls the base destructor, leaking the derived part."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "operator-overloading",
+        "num": 7,
+        "title": "Operator Overloading",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "C++ allows redefining operators for user-defined types using the operator keyword. This makes code more natural — you can write vec1 + vec2 instead of vec1.add(vec2). Operators that can be overloaded: +, -, *, /, ==, !=, <, >, <=, >=, <<, >>, [], (), ->, ++, --. Cannot overload: ::, ?, ., .*, sizeof, typeid."
+          },
+          {
+            "type": "para",
+            "text": "Overloaded operators can be member functions or friend functions. For binary operators like ==, a friend function (non-member) is preferred when you want both sides treated symmetrically. Operator<< for output streams must be a non-member because the left operand is ostream (not your class). Operator= (assignment) must be a member. Operators ++/-- have a dummy int parameter to distinguish postfix from prefix."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What operators cannot be overloaded in C++?",
+                "a": ":: (scope resolution), . (member access), .* (pointer-to-member), ?: (ternary), sizeof, typeid, and alignof. You also cannot create new operators. The overloaded operator must retain its arity (unary stays unary, binary stays binary) and you can't change precedence or associativity."
+              },
+              {
+                "q": "Why is operator<< for printing implemented as a friend function?",
+                "a": "operator<< takes ostream as the left operand and your class as the right operand: ostream& operator<<(ostream& os, const MyClass& obj). Since the left operand is ostream (not your class), it can't be a member of your class. As a non-member friend function, it can access private members of your class while having the correct signature for chaining: cout << a << b."
+              },
+              {
+                "q": "How do you implement operator++ for a class (pre and post increment)?",
+                "a": "Prefix ++obj: MyClass& operator++() — increment and return *this by reference (no copy). Postfix obj++: MyClass operator++(int) — the dummy 'int' parameter distinguishes it. Save old value, increment, return old value by value. Postfix is less efficient (makes a copy). Prefer prefix ++ in loops."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "solid-design-principles",
+        "num": 8,
+        "title": "SOLID Design Principles",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "SOLID is five object-oriented design principles for maintainable, extensible code. S — Single Responsibility Principle: a class should have only one reason to change. O — Open/Closed Principle: open for extension, closed for modification (add behavior via subclassing/composition, don't modify existing code). L — Liskov Substitution Principle: subclass objects must be substitutable for base class objects without breaking correctness. I — Interface Segregation: clients shouldn't be forced to depend on methods they don't use (prefer many small interfaces over one large). D — Dependency Inversion: depend on abstractions (interfaces), not concrete implementations."
+          },
+          {
+            "type": "memory-trick",
+            "text": "SOLID: S=One reason to change. O=Extend don't modify. L=Subclass must work where parent works. I=Small focused interfaces. D=Depend on abstraction. Violations to watch: God class (breaks S), switch-on-type (breaks O), Square-is-Rectangle paradox (breaks L), fat interface (breaks I), new Dependency() hardcoded (breaks D)."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "Explain the Open/Closed Principle with an example.",
+                "a": "Software should be open for extension but closed for modification. Example violation: a PaymentProcessor class with a switch statement on payment type — adding a new type requires modifying the existing class (and risking breaking other types). OCP solution: define a PaymentMethod interface, implement CreditCard, PayPal, Bitcoin as separate classes. Adding a new payment method adds a new class, not modifying existing code."
+              },
+              {
+                "q": "What is the Liskov Substitution Principle and give a violation example?",
+                "a": "Any code using a base class must work correctly with any subclass. Classic violation: Square extends Rectangle. Rectangle has setWidth() and setHeight() independently. But Square must keep width=height, so setting width also changes height — this breaks any code expecting independent dimensions. Square is NOT a Liskov-correct subtype of Rectangle, even though mathematically a square is a rectangle."
+              },
+              {
+                "q": "What is the Dependency Inversion Principle?",
+                "a": "High-level modules should not depend on low-level modules — both should depend on abstractions. Low-level details should implement abstractions, not define them. Example: instead of UserService directly creating a MySQLDatabase() object, inject a DatabaseInterface. Now UserService depends on the abstraction; you can swap in PostgreSQL, SQLite, or a mock for testing without changing UserService."
+              },
+              {
+                "q": "How does Dependency Injection implement Dependency Inversion?",
+                "a": "Dependency Injection (DI) is a technique where a class receives its dependencies from outside (constructor injection, setter injection, method injection) rather than creating them internally. This enables: testability (inject mocks), flexibility (swap implementations), and decoupling. IoC containers (Spring, .NET Core) automate wiring of dependencies. DI is the mechanism; DIP is the principle."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "common-design-patterns",
+        "num": 9,
+        "title": "Common Design Patterns",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "Design patterns are proven solutions to recurring design problems. Three categories: Creational (how objects are created — Singleton, Factory, Builder), Structural (how objects are composed — Adapter, Decorator, Proxy), Behavioral (how objects communicate — Observer, Strategy, Command). Patterns are vocabulary — saying 'use Observer' communicates an entire solution structure."
+          },
+          {
+            "type": "para",
+            "text": "Most-asked in interviews: Singleton (one instance globally — database connection pool, logger, config); Factory/Abstract Factory (create objects without specifying exact class — decouple creation from use); Observer (subject notifies all subscribed observers on state change — event systems, MVC); Strategy (swap algorithms at runtime — sorting strategy, payment method); Decorator (add behavior to object at runtime without subclassing — middleware, streams)."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "How do you implement a thread-safe Singleton in C++/Java?",
+                "a": "Java: use double-checked locking with volatile, or the initialization-on-demand holder idiom (inner static class — JVM guarantees class loading is thread-safe). C++11: use a static local variable (Meyers Singleton) — the standard guarantees static local initialization is thread-safe. Thread-safe Java example: private static volatile Singleton instance; with synchronized double-check. Easiest: static inner class (Java) or static local (C++11)."
+              },
+              {
+                "q": "What is the Observer pattern?",
+                "a": "Defines a one-to-many dependency. A Subject maintains a list of Observer interfaces. When the subject's state changes, it calls notify() which calls update() on all observers. Observers register/unregister at runtime. Decouples subject from observers — subject doesn't know concrete observer types. Used in: GUI event listeners, MVC (Model notifies Views), pub-sub systems."
+              },
+              {
+                "q": "What is the difference between Factory Method and Abstract Factory?",
+                "a": "Factory Method: defines an interface for creating an object but lets subclasses decide which class to instantiate. One product type, one factory method, override in subclass. Abstract Factory: creates families of related objects. Multiple factory methods grouped in an interface. Example: AbstractFactory with createButton() and createCheckbox(). WindowsFactory and MacFactory each create matching UI components — ensures consistent families."
+              },
+              {
+                "q": "What is the Decorator pattern and when would you use it?",
+                "a": "Wraps an object to add behavior dynamically at runtime without modifying the original class or creating subclasses. Each decorator implements the same interface as the wrapped component and forwards calls, adding behavior before/after. Example: Java I/O streams (BufferedInputStream wraps FileInputStream, GZIPInputStream wraps BufferedInputStream). Use when: you need to add orthogonal behaviors combinatorially (logging + caching + retry — subclassing would require 8 combinations)."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

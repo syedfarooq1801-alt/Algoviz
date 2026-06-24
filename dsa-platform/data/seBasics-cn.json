@@ -1,0 +1,360 @@
+{
+  "computer-networks": {
+    "id": "computer-networks",
+    "title": "Computer Networks",
+    "chapters": [
+      {
+        "id": "why-networking-is-layered",
+        "num": 1,
+        "title": "Why Networking Is Layered",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "Networking is complex — a message must travel over different physical media, pass through routers, be reliably delivered, and be rendered by an application. Layering solves this by dividing the problem: each layer handles one concern and communicates with the layer above/below it through a defined interface. Change how you implement one layer without affecting the others."
+          },
+          {
+            "type": "para",
+            "text": "OSI model has 7 layers (Physical, Data Link, Network, Transport, Session, Presentation, Application). TCP/IP model has 4 layers (Link, Internet, Transport, Application). In practice, TCP/IP is what matters. Encapsulation: each layer wraps data with its own header before passing it down. Decapsulation: the receiving side strips headers from the bottom up."
+          },
+          {
+            "type": "memory-trick",
+            "text": "OSI 7-layer mnemonic top-to-bottom: 'All People Seem To Need Data Processing' (Application, Presentation, Session, Transport, Network, Data Link, Physical). TCP/IP layers: Application → Transport → Internet → Link. Interview almost always asks TCP/IP, not the full OSI model."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What are the TCP/IP layers and what does each do?",
+                "a": "Application layer: user-facing protocols (HTTP, DNS, FTP, SMTP). Transport layer: end-to-end delivery between processes (TCP, UDP) — ports identify processes. Internet layer: routing across networks (IP, ICMP, ARP) — IP addresses identify hosts. Link layer: transmit frames on a single physical link (Ethernet, Wi-Fi) — MAC addresses identify hardware."
+              },
+              {
+                "q": "What is encapsulation?",
+                "a": "As data moves down the protocol stack, each layer adds its own header (and sometimes trailer). HTTP data → TCP adds segment header → IP adds packet header → Ethernet adds frame header. On the receiver's side, each layer strips its header and passes the payload up. This is why you can switch from Ethernet to Wi-Fi without changing HTTP."
+              },
+              {
+                "q": "Why is a layered architecture beneficial?",
+                "a": "Modularity: each layer can be implemented and improved independently. Standardization: well-defined interfaces allow interoperability between vendors. Abstraction: HTTP doesn't care if data travels over fiber or satellite — the lower layers handle it. Troubleshooting: network issues can be isolated to a specific layer."
+              },
+              {
+                "q": "What is the difference between OSI and TCP/IP models?",
+                "a": "OSI is a 7-layer theoretical reference model used for teaching. TCP/IP is the real 4-layer model the internet uses. OSI's Session and Presentation layers are handled by the TCP/IP Application layer. OSI's Data Link and Physical layers correspond to TCP/IP's Link layer. TCP/IP maps network layer to Internet, transport to Transport, and application to Application."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "addressing-mac-ip-subnetting",
+        "num": 2,
+        "title": "Addressing: MAC, IP & Subnetting",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "Every network interface has a MAC address — a 48-bit hardware address burned in at manufacture (e.g., 00:1A:2B:3C:4D:5E). MAC addresses are used for communication on a local network segment (Layer 2). IP addresses (Layer 3) identify hosts globally across networks. IPv4 is 32-bit (e.g., 192.168.1.1), IPv6 is 128-bit. ARP (Address Resolution Protocol) maps an IP address to its MAC address on the local network."
+          },
+          {
+            "type": "para",
+            "text": "CIDR notation combines IP address and subnet mask: 192.168.1.0/24 means the first 24 bits are the network part, remaining 8 bits are the host part. /24 = 256 addresses (254 usable). /16 = 65536 addresses. Private IP ranges (not routable on internet): 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16. NAT (Network Address Translation) allows multiple private IPs to share one public IP."
+          },
+          {
+            "type": "memory-trick",
+            "text": "ARP = IP → MAC (find the physical address of a known IP on same network). DNS = domain → IP (find the IP of a name). Subnet mask /24 = 255.255.255.0 — 256 addresses, 254 hosts. Default gateway = router IP — your device sends non-local traffic to it."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is the difference between a MAC address and an IP address?",
+                "a": "MAC: hardware-level, 48-bit, assigned by manufacturer, identifies a specific network interface card. Used for communication within one network segment (Layer 2). IP: software-level, assigned by network admin/DHCP, identifies a host globally across networks (Layer 3). MAC doesn't change when you move networks; IP does."
+              },
+              {
+                "q": "What is ARP and when is it used?",
+                "a": "ARP (Address Resolution Protocol) resolves an IP address to a MAC address. When Host A wants to send data to 192.168.1.5 on the same subnet, it broadcasts 'Who has 192.168.1.5?' The host with that IP replies with its MAC. Host A caches this in its ARP table and uses the MAC for Layer 2 framing. Only works within the same subnet."
+              },
+              {
+                "q": "How many hosts can a /26 subnet hold?",
+                "a": "32 - 26 = 6 host bits. 2^6 = 64 total addresses. Subtract 2 (network address and broadcast address): 62 usable host addresses. General formula: 2^(32-prefix) - 2."
+              },
+              {
+                "q": "What is NAT and why is it used?",
+                "a": "Network Address Translation: a router replaces the private source IP of outgoing packets with its public IP, and maintains a mapping table to route responses back. Solves IPv4 address exhaustion — thousands of devices share one public IP. Breaks end-to-end connectivity (external hosts can't initiate connections to private IPs) — partially why IPv6 is needed."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "transport-layer-tcp-vs-udp",
+        "num": 3,
+        "title": "Transport Layer: TCP vs UDP",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "TCP (Transmission Control Protocol) is reliable, connection-oriented, ordered, and flow/congestion-controlled. It guarantees delivery — lost packets are retransmitted. The connection is established with a three-way handshake (SYN → SYN-ACK → ACK) and closed with a four-way handshake (FIN → ACK, FIN → ACK). Used for HTTP, SMTP, FTP, SSH — anything where data integrity matters."
+          },
+          {
+            "type": "para",
+            "text": "UDP (User Datagram Protocol) is unreliable, connectionless, unordered, no congestion control. It's just send-and-forget. No handshake overhead. Lower latency. Used for DNS, video streaming, gaming, VoIP — where occasional packet loss is acceptable but speed matters. QUIC (HTTP/3) builds reliability on top of UDP at the application layer for better performance."
+          },
+          {
+            "type": "memory-trick",
+            "text": "TCP = Telephone call (setup, reliable, ordered, teardown). UDP = Postcard (send and forget, no confirmation). Three-way handshake: SYN (I want to connect), SYN-ACK (OK, I'm ready), ACK (Great, let's go). TIME_WAIT state after FIN ensures all stray packets are gone before the port is reused."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "Explain the TCP three-way handshake.",
+                "a": "Client sends SYN (I want to connect, here's my initial sequence number). Server responds SYN-ACK (I acknowledge your SYN, here's my sequence number). Client sends ACK (I acknowledge yours). After this, both sides are synchronized and can exchange data. Each direction has an independent sequence number stream."
+              },
+              {
+                "q": "What is TCP flow control?",
+                "a": "Prevents the sender from overwhelming the receiver. The receiver advertises a 'receive window' in each ACK — the maximum bytes it can buffer. The sender limits its outstanding unacknowledged data to this window size. If the receiver slows down (window shrinks to 0), the sender pauses and polls until the receiver can accept more data."
+              },
+              {
+                "q": "What is TCP congestion control?",
+                "a": "Prevents the sender from overwhelming the network. Algorithms: Slow Start (exponentially grow window until threshold), Congestion Avoidance (grow linearly after threshold), Fast Retransmit/Recovery (on 3 duplicate ACKs, retransmit without waiting for timeout). When packet loss detected, reduce window. Goal: probe available bandwidth without causing sustained queue buildup."
+              },
+              {
+                "q": "When would you choose UDP over TCP?",
+                "a": "When low latency matters more than reliability: live video/audio (dropped frame is better than delayed frame), online gaming (stale position data is useless), DNS queries (small, fast, retry is cheap), DHCP. Also when you want custom reliability: QUIC implements its own reliability on UDP with better performance than TCP."
+              },
+              {
+                "q": "What is the TIME_WAIT state in TCP?",
+                "a": "After the active closer sends the final ACK, it enters TIME_WAIT for 2*MSL (Maximum Segment Lifetime, typically 60s). This ensures: (1) the final ACK reaches the other side (if it's lost, the peer retransmits its FIN and we can re-send the ACK), (2) stray delayed packets from the old connection are gone before the port is reused. Causes port exhaustion if a server is making thousands of short connections."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "dns-domain-name-system",
+        "num": 4,
+        "title": "DNS — Domain Name System",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "DNS translates human-readable domain names to IP addresses. It's a distributed, hierarchical database. The hierarchy: root servers (13 sets worldwide) → TLD servers (.com, .org) → authoritative nameservers (know the actual IPs for a domain). Responses are cached by recursive resolvers and clients for the duration of the TTL (Time To Live) to reduce load."
+          },
+          {
+            "type": "para",
+            "text": "Recursive resolution: your device asks its configured resolver (ISP or 8.8.8.8). If not cached, the resolver asks a root server which points to the TLD server, which points to the authoritative server, which returns the IP. The resolver caches and returns it to you. Record types: A (IPv4 address), AAAA (IPv6), CNAME (alias to another name), MX (mail server), TXT (verification, SPF), NS (nameserver)."
+          },
+          {
+            "type": "memory-trick",
+            "text": "DNS lookup chain: Client → Recursive Resolver → Root Server → TLD Server → Authoritative Server → IP address. TTL controls cache duration — low TTL = faster propagation for changes, higher DNS traffic. High TTL = fewer queries, slower to propagate IP changes."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is the difference between recursive and iterative DNS resolution?",
+                "a": "Recursive: the resolver does all the work. Client asks resolver, resolver contacts root, TLD, and authoritative servers on client's behalf, returns final answer. Client gets a direct answer. Iterative: the resolver returns referrals. Client asks root, gets 'ask TLD server,' asks TLD, gets 'ask authoritative,' asks authoritative, gets IP. Client does all the legwork. In practice: clients use recursive; resolvers use iterative when querying other nameservers."
+              },
+              {
+                "q": "What happens if a DNS server is down?",
+                "a": "If the configured resolver is down, domain lookups fail and the browser can't load pages (even though the IP routes are fine). Cached DNS entries still work until TTL expires. Mitigation: configure multiple resolvers (primary and backup). If authoritative server is down, cached answers from resolvers continue working until TTL expires, after which lookups fail."
+              },
+              {
+                "q": "What is DNS TTL and what are the trade-offs of short vs long TTL?",
+                "a": "TTL specifies how long resolvers cache the answer. Short TTL (e.g., 60s): IP changes propagate quickly — good before a server migration. But generates more DNS queries. Long TTL (e.g., 86400s/1day): fewer queries, faster response from cache, but changing IPs takes a day to propagate. Best practice: reduce TTL before a planned IP change, then increase again after."
+              },
+              {
+                "q": "What is a CNAME record?",
+                "a": "Canonical Name record: aliases one domain name to another. Example: www.example.com CNAME example.com — www resolves by following the chain to example.com's A record. CNAMEs can't be used at a zone apex (naked domain). Multiple CNAMEs can chain but CNAME and other record types (MX, A) can't coexist for the same name."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "http-and-https",
+        "num": 5,
+        "title": "HTTP & HTTPS",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "HTTP (HyperText Transfer Protocol) is a stateless, request-response protocol for the web. Methods: GET (fetch resource, idempotent, no body), POST (create resource, not idempotent, has body), PUT (replace resource, idempotent), PATCH (partial update), DELETE (remove, idempotent). Status codes: 1xx informational, 2xx success (200 OK, 201 Created, 204 No Content), 3xx redirect (301 permanent, 302 temporary), 4xx client error (400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found), 5xx server error (500 Internal Server Error, 503 Service Unavailable)."
+          },
+          {
+            "type": "para",
+            "text": "HTTPS = HTTP + TLS (Transport Layer Security). TLS provides: authentication (server certificate proves identity), confidentiality (encryption), integrity (MAC prevents tampering). TLS handshake: client sends ClientHello with supported cipher suites → server responds with certificate + ServerHello → client verifies certificate against CA, generates session key using server's public key → both derive symmetric session keys for bulk encryption."
+          },
+          {
+            "type": "memory-trick",
+            "text": "Idempotent methods: GET, PUT, DELETE, HEAD (calling them N times = same as calling once). Non-idempotent: POST, PATCH. Safe methods (no side effects): GET, HEAD. Remember: PUT replaces the whole resource (idempotent). PATCH modifies part of it (not always idempotent)."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is the difference between HTTP and HTTPS?",
+                "a": "HTTP sends data in plaintext — anyone on the network can read it. HTTPS wraps HTTP in TLS encryption. TLS provides: confidentiality (encrypted), integrity (MAC prevents tampering in transit), authentication (server certificate proves you're talking to the real server, not a man-in-the-middle). HTTPS on port 443, HTTP on port 80."
+              },
+              {
+                "q": "What is TLS and how does the handshake work?",
+                "a": "TLS (Transport Layer Security) establishes an encrypted channel. Simplified handshake: (1) Client sends ClientHello (TLS version, cipher suites, random). (2) Server responds with certificate (containing public key) and ServerHello. (3) Client verifies certificate against trusted CAs. (4) Client/server agree on a shared session key (via ECDHE). (5) Both sides send Finished message encrypted with session key. Subsequent data uses fast symmetric encryption (AES)."
+              },
+              {
+                "q": "What is the difference between GET and POST?",
+                "a": "GET: fetches data, params in URL, cached, bookmarkable, idempotent. No body (typically). POST: sends data to server (form submission, API call), body carries data, not cached, not bookmarkable. POST is not idempotent — calling it twice submits twice (two orders placed). GET should never change server state."
+              },
+              {
+                "q": "What is HTTP/2 and how is it different from HTTP/1.1?",
+                "a": "HTTP/2: single TCP connection multiplexes multiple requests simultaneously (no head-of-line blocking at application layer). Binary protocol (HTTP/1.1 is text). Header compression (HPACK). Server push. HTTP/1.1 needed multiple TCP connections or connection: keep-alive to reuse. HTTP/3 (QUIC) moves to UDP entirely, eliminating TCP head-of-line blocking at transport layer."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "what-happens-when-you-type-a-url",
+        "num": 6,
+        "title": "What Happens When You Type a URL and Hit Enter",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "This question tests your end-to-end networking knowledge. The full chain involves DNS, TCP, TLS, HTTP, and browser rendering — each a separate topic. Walk through it systematically in an interview, naming each step and protocol."
+          },
+          {
+            "type": "para",
+            "text": "Step by step: (1) Browser parses URL (scheme, host, path). (2) DNS resolution: check local cache → OS cache → recursive resolver → root/TLD/authoritative → IP returned. (3) TCP connection: SYN → SYN-ACK → ACK to server port 443. (4) TLS handshake: exchange certificates, agree on session keys. (5) HTTP request sent (GET /path HTTP/2). (6) Server processes request, queries DB if needed, renders response. (7) HTTP response with HTML. (8) Browser parses HTML, builds DOM, fetches CSS/JS/images (sub-requests). (9) Browser renders the page."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "Walk me through what happens when you type 'https://google.com' in a browser.",
+                "a": "1. Browser checks cache for google.com DNS. 2. If miss, OS asks DNS resolver (8.8.8.8). Resolver queries root → .com TLD → google.com authoritative → returns 142.250.x.x. 3. Browser opens TCP connection to 142.250.x.x:443 — three-way handshake. 4. TLS handshake — verifies Google's certificate, establishes encrypted session. 5. Browser sends HTTP GET / request. 6. Google's server processes request, returns HTML. 7. Browser parses HTML, fires additional requests for CSS, JS, images. 8. Page renders."
+              },
+              {
+                "q": "What is the role of a CDN in this flow?",
+                "a": "A CDN (Content Delivery Network) serves static assets (images, CSS, JS) from edge servers geographically close to the user. DNS returns the nearest CDN server IP. This reduces latency (shorter physical distance = faster RTT), reduces load on origin servers, and provides DDoS protection. Dynamic content still goes to origin; static content is served from CDN cache."
+              },
+              {
+                "q": "What happens if the DNS cache is poisoned?",
+                "a": "DNS cache poisoning: an attacker injects a false IP into a resolver's cache. When users query that resolver, they get redirected to a malicious server that may look identical to the real site. DNSSEC (DNS Security Extensions) prevents this by digitally signing DNS responses. HTTPS also mitigates the risk — a poisoned DNS can redirect you but the fake server won't have a valid certificate for the domain."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "routing-basics",
+        "num": 7,
+        "title": "Routing Basics",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "Routing is the process of forwarding IP packets from source to destination across multiple networks. Routers maintain routing tables (destination prefix → next hop). Static routing: routes manually configured, doesn't adapt to failures. Dynamic routing: routers exchange topology information and auto-compute paths. Routing protocols: RIP (distance vector, hop count metric), OSPF (link-state, full topology map, fast convergence), BGP (path vector, used between autonomous systems on the internet — the internet's backbone protocol)."
+          },
+          {
+            "type": "para",
+            "text": "Layer 2 vs Layer 3 devices: Switch (Layer 2) forwards Ethernet frames within a LAN based on MAC addresses — fast, no IP awareness. Router (Layer 3) forwards IP packets between networks — uses routing tables, decrements TTL, checks IP destination. Layer 3 switches combine both: fast hardware switching within VLANs with routing between VLANs."
+          },
+          {
+            "type": "memory-trick",
+            "text": "Switch = MAC table (who's on which port). Router = routing table (which network is reachable via which interface). Hub = no table (brainlessly broadcasts to everyone). BGP = internet's routing protocol (between ISPs and large organizations). OSPF = within a large company or ISP (faster convergence than RIP)."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is the difference between a switch and a router?",
+                "a": "Switch (Layer 2): connects devices within the same network segment. Learns MAC addresses (which device is on which port) and forwards frames only to the correct port. No IP knowledge. Router (Layer 3): connects different networks. Uses IP routing table to forward packets to the correct next-hop network interface. Decrements TTL, rewrites MAC headers at each hop."
+              },
+              {
+                "q": "What is BGP and why is it important?",
+                "a": "Border Gateway Protocol: the routing protocol of the internet. It routes traffic between Autonomous Systems (AS) — large networks like ISPs, cloud providers, enterprises. BGP chooses paths based on policy (not just shortest path). When a company announces its IP prefixes via BGP, all routers on the internet learn how to reach them. A BGP misconfiguration can accidentally reroute global internet traffic (BGP hijack)."
+              },
+              {
+                "q": "What is TTL (Time To Live) in IP packets?",
+                "a": "An integer field in the IP header, decremented by 1 at each router. When TTL reaches 0, the router drops the packet and sends an ICMP 'Time Exceeded' message back to the source. Prevents routing loops from causing packets to loop forever. traceroute uses this: sends packets with TTL=1, 2, 3... to discover each hop."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "security-essentials",
+        "num": 8,
+        "title": "Security Essentials",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "Symmetric encryption uses the same key for encrypting and decrypting (AES-256). Fast — used for bulk data. Problem: how do you securely exchange the key? Asymmetric (public-key) encryption uses a public/private key pair (RSA, ECC). Anything encrypted with the public key can only be decrypted with the private key. Solves key exchange: share your public key openly, keep private key secret. TLS uses asymmetric encryption to exchange a symmetric session key, then uses the faster symmetric key for data."
+          },
+          {
+            "type": "para",
+            "text": "Hashing is one-way transformation — SHA-256(data) = fixed-length digest. You can't reverse it to get the original data. Used for: password storage (store hash, not plaintext — add a salt to prevent rainbow table attacks), data integrity verification (check file hash), digital signatures. Encryption is reversible (with the key). Hashing is not. Never confuse the two."
+          },
+          {
+            "type": "memory-trick",
+            "text": "Hash = one-way (can't decrypt). Encrypt = two-way (decrypt with key). Digital signature = sign with private key, verify with public key (opposite of encryption). Certificate = public key + identity, signed by a CA (Certificate Authority) to prove the public key really belongs to the claimed entity."
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is the difference between symmetric and asymmetric encryption?",
+                "a": "Symmetric: same key encrypts and decrypts. Fast (AES-256). Problem: key distribution (how to share the key securely?). Asymmetric: public key encrypts, private key decrypts. Slow but solves key distribution — share public key openly. TLS combines both: asymmetric to securely exchange a symmetric session key (ECDHE), then symmetric for the rest of the session."
+              },
+              {
+                "q": "How should passwords be stored in a database?",
+                "a": "Never store plaintext. Never store encrypted passwords (symmetric key could be leaked). Store a salted hash: hash = bcrypt/Argon2/scrypt(password + random_salt). Salt prevents rainbow table attacks (pre-computed hash tables). bcrypt/Argon2 are slow by design — makes brute force expensive. On login: hash the input with the stored salt and compare hashes."
+              },
+              {
+                "q": "What is a man-in-the-middle attack and how does HTTPS prevent it?",
+                "a": "MitM: attacker positions themselves between client and server, intercepting and potentially modifying traffic. HTTPS prevents it via certificate authentication: the server's certificate is signed by a trusted CA. The client verifies the signature chain. An attacker can intercept the connection but can't present a valid certificate for google.com without Google's private key — the browser will show a certificate error."
+              },
+              {
+                "q": "What is a digital signature?",
+                "a": "Sign: sender computes hash of message, encrypts hash with their private key — this is the signature. Verify: receiver decrypts signature with sender's public key to get hash, computes hash of received message, compares. If they match: message is from the claimed sender (authentication) and hasn't been tampered with (integrity). Asymmetric but used in reverse: private key signs, public key verifies."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sockets",
+        "num": 9,
+        "title": "Sockets",
+        "blocks": [
+          {
+            "type": "para",
+            "text": "A socket is the software endpoint for network communication. It's identified by a 5-tuple: (protocol, local IP, local port, remote IP, remote port). Ports 0-1023 are well-known (80=HTTP, 443=HTTPS, 22=SSH, 21=FTP). Ports 1024-49151 are registered. 49152-65535 are ephemeral — OS assigns these to clients for outgoing connections."
+          },
+          {
+            "type": "para",
+            "text": "TCP server lifecycle: socket() → bind() (assign address/port) → listen() (mark as passive, set backlog queue) → accept() (blocks until a client connects, returns new socket for that connection) → read/write → close(). TCP client: socket() → connect() (triggers three-way handshake) → read/write → close(). UDP: socket() → bind() (server) → recvfrom()/sendto() — no connection, just datagrams."
+          },
+          {
+            "type": "pre",
+            "text": "// TCP server (simplified)\nint server_fd = socket(AF_INET, SOCK_STREAM, 0);\nbind(server_fd, &addr, sizeof(addr));  // bind to port 8080\nlisten(server_fd, backlog);             // start listening\nint client_fd = accept(server_fd, ...); // new socket per client\nread(client_fd, buf, sizeof(buf));\nwrite(client_fd, response, len);\nclose(client_fd);"
+          },
+          {
+            "type": "interview",
+            "qas": [
+              {
+                "q": "What is a socket?",
+                "a": "A socket is an abstraction for a network endpoint. It's identified by (IP address, port number, protocol). Applications use file-like read/write operations on socket file descriptors. The OS handles the underlying TCP/UDP packet handling. A listening server socket accepts incoming connections; each accepted connection creates a new connected socket."
+              },
+              {
+                "q": "What is the listen backlog?",
+                "a": "The second argument to listen() specifies the maximum number of pending connections the OS will queue before the server calls accept(). If the queue is full, new connection attempts are refused (TCP RST) or silently dropped. If your server calls accept() too slowly (processing-bound), increase the backlog. Common values: 128-1024 for production servers."
+              },
+              {
+                "q": "What is a port number and what are ephemeral ports?",
+                "a": "Port: 16-bit number identifying a process on a host. IP routes packets to a machine; ports route them to the correct process. Well-known ports (0-1023): assigned by IANA to standard services. Ephemeral ports (49152-65535): OS assigns these temporarily to client sockets for outgoing connections. The server sees the client's ephemeral port as the source port; the client uses it to receive the response."
+              },
+              {
+                "q": "What is the difference between SOCK_STREAM and SOCK_DGRAM?",
+                "a": "SOCK_STREAM: TCP — reliable, ordered, connection-oriented byte stream. Connection established before data exchange. SOCK_DGRAM: UDP — unreliable, connectionless, message-based. No connection setup. Each sendto() sends one datagram, each recvfrom() receives one. Use SOCK_DGRAM for DNS, DHCP, video streaming, games."
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
