@@ -6275,6 +6275,697 @@ public:
     ],
     memoryTrick: "\"Binary search the CUT, not the value. Cut A at i, B at j=half-i. Valid cut: left side of A ≤ right side of B, and left side of B ≤ right side of A. Use ±∞ sentinels at boundaries.\"",
   },
+
+  "first-missing-positive": {
+    intuition:
+      "Find the smallest missing positive integer in O(n) time and O(1) space. Key insight: the answer must be in [1, n+1]. Use the array itself as a hash map — place each number x at index x-1 if 1 ≤ x ≤ n. Then scan for the first index where nums[i] ≠ i+1.",
+    approach: [
+      "Ignore non-positives and numbers > n — they can't be the answer.",
+      "For each valid number, swap nums[i] to its correct index (nums[i]-1) until the slot is already correct or out of range.",
+      "Second pass: find first i where nums[i] ≠ i+1. Return i+1.",
+      "If all match, return n+1.",
+    ],
+    cppSolution: `class Solution {
+public:
+    int firstMissingPositive(vector<int>& nums) {
+        int n = nums.size();
+        for (int i = 0; i < n; i++) {
+            while (nums[i] > 0 && nums[i] <= n && nums[nums[i]-1] != nums[i])
+                swap(nums[i], nums[nums[i]-1]);
+        }
+        for (int i = 0; i < n; i++)
+            if (nums[i] != i + 1) return i + 1;
+        return n + 1;
+    }
+};`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Each element is swapped at most once to its correct position. Total swaps ≤ n.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "No extra space — uses the input array as the hash map.",
+    edgeCases: [
+      "[1] → return 2.",
+      "[1,2,3] → all correct, return 4 (n+1).",
+      "All negatives [−3,−1] → return 1.",
+      "Duplicates [1,1] → second pass finds index 1 missing → return 2.",
+    ],
+    memoryTrick: "\"Park each car in its own spot: number x goes to index x-1. After parking, the first empty spot is the answer.\" The while loop swaps until the element is in place or out of range.",
+  },
+
+  "count-of-smaller-after-self": {
+    intuition:
+      "For each element, count how many elements to its right are strictly smaller. Brute force is O(n²). Use modified merge sort: during the merge step, when we pick from the right half, all remaining left-half elements are larger — add right-half index contribution to left-half counts.",
+    approach: [
+      "Pair each number with its original index: [(num, originalIdx)].",
+      "Merge sort the pairs. During merge: when right[j] < left[i], all elements left[i..] are greater than right[j]. Add count of remaining left elements to counts[right[j].originalIdx].",
+      "Actually: when we place a left element, count of right elements already placed before it = right-pointer position. Add to counts[left element original index].",
+      "Return counts array.",
+    ],
+    cppSolution: `class Solution {
+    vector<int> counts;
+    void mergeSort(vector<pair<int,int>>& arr, int l, int r) {
+        if (r - l <= 1) return;
+        int mid = (l + r) / 2;
+        mergeSort(arr, l, mid);
+        mergeSort(arr, mid, r);
+        vector<pair<int,int>> tmp;
+        int i = l, j = mid, rightCount = 0;
+        while (i < mid && j < r) {
+            if (arr[j].first < arr[i].first) {
+                tmp.push_back(arr[j++]);
+                rightCount++;
+            } else {
+                counts[arr[i].first] += rightCount;  // wait — store by original index
+                tmp.push_back(arr[i++]);
+            }
+        }
+        while (i < mid) { counts[arr[i].second] += rightCount; tmp.push_back(arr[i++]); }
+        while (j < r) tmp.push_back(arr[j++]);
+        copy(tmp.begin(), tmp.end(), arr.begin() + l);
+    }
+public:
+    vector<int> countSmaller(vector<int>& nums) {
+        int n = nums.size();
+        counts.assign(n, 0);
+        vector<pair<int,int>> arr(n);
+        for (int i = 0; i < n; i++) arr[i] = {nums[i], i};
+        mergeSort(arr, 0, n);
+        return counts;
+    }
+};`,
+    timeComplexity: "O(n log n)",
+    timeExplanation: "Merge sort with O(log n) levels, O(n) work per level.",
+    spaceComplexity: "O(n)",
+    spaceExplanation: "Temporary arrays during merge and the counts array.",
+    edgeCases: [
+      "[5,2,6,1] → [2,1,1,0].",
+      "Single element → [0].",
+      "All same [3,3,3] → [0,0,0] (strictly smaller).",
+      "Descending [5,4,3,2,1] → [4,3,2,1,0].",
+    ],
+    memoryTrick: "\"Merge sort counts across the divide. When right element merges before a left element, that left element is bigger than everything merged from right so far. Track rightCount.\"",
+  },
+
+  "minimum-window-subsequence": {
+    intuition:
+      "Find the shortest contiguous substring of S that contains T as a subsequence (not substring). Two-pointer approach: forward scan to find where T ends in S, then backward scan from that point to tighten the window start.",
+    approach: [
+      "i = 0 (pointer in S), j = 0 (pointer in T).",
+      "Forward: advance i through S matching T[j]. When j == len(T), we've found a valid window ending at i.",
+      "Backward: from current i, reverse-match T back to tighten window start. When j == -1, we have the shortest window ending here.",
+      "Record window if shortest. Reset j = 0, advance i from window start + 1.",
+    ],
+    cppSolution: `class Solution {
+public:
+    string minWindow(string s, string t) {
+        int si = 0, best = INT_MAX, bStart = 0;
+        while (si < (int)s.size()) {
+            // forward: match t
+            int ti = 0;
+            while (si < (int)s.size() && ti < (int)t.size()) {
+                if (s[si] == t[ti]) ti++;
+                si++;
+            }
+            if (ti < (int)t.size()) break; // t not found
+            // backward: tighten window
+            int end = si;
+            ti = (int)t.size() - 1;
+            while (ti >= 0) {
+                if (s[--si] == t[ti]) ti--;
+            }
+            if (end - si < best) { best = end - si; bStart = si; }
+            si++; // advance past start to search for next window
+        }
+        return best == INT_MAX ? "" : s.substr(bStart, best);
+    }
+};`,
+    timeComplexity: "O(|S| × |T|)",
+    timeExplanation: "Each position in S can trigger a backward scan of up to |T| steps.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "Only pointer variables.",
+    edgeCases: [
+      "T longer than S → return \"\".",
+      "T is a single character → find its first occurrence in S.",
+      "T appears multiple times in S → return shortest window.",
+      "S == T → return S.",
+    ],
+    memoryTrick: "\"Forward to find, backward to shrink. Two-phase two-pointer: find end of valid window, then reverse to tighten start.\"",
+  },
+
+  "maximal-rectangle": {
+    intuition:
+      "The classic histogram trick applied to a 2D matrix. For each row, compute the 'height' array — consecutive 1s above that cell including the cell itself. Then apply largest-rectangle-in-histogram on each row's heights.",
+    approach: [
+      "Initialize heights[n] = 0.",
+      "For each row: update heights[j] = (matrix[i][j]=='1') ? heights[j]+1 : 0.",
+      "Run largestRectangleArea(heights) on current heights — same monotonic stack algorithm.",
+      "Track global max across all rows.",
+    ],
+    cppSolution: `class Solution {
+    int largestRect(vector<int>& h) {
+        stack<int> st;
+        int res = 0;
+        h.push_back(0);
+        for (int i = 0; i < (int)h.size(); i++) {
+            while (!st.empty() && h[st.top()] > h[i]) {
+                int height = h[st.top()]; st.pop();
+                int width = st.empty() ? i : i - st.top() - 1;
+                res = max(res, height * width);
+            }
+            st.push(i);
+        }
+        h.pop_back();
+        return res;
+    }
+public:
+    int maximalRectangle(vector<vector<char>>& matrix) {
+        int m = matrix.size(), n = matrix[0].size(), res = 0;
+        vector<int> heights(n, 0);
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++)
+                heights[j] = matrix[i][j] == '1' ? heights[j] + 1 : 0;
+            res = max(res, largestRect(heights));
+        }
+        return res;
+    }
+};`,
+    timeComplexity: "O(m × n)",
+    timeExplanation: "m rows × (n to build heights + n for histogram) = O(m × n).",
+    spaceComplexity: "O(n)",
+    spaceExplanation: "Heights array and monotonic stack both O(n).",
+    edgeCases: [
+      "All zeros → 0.",
+      "All ones → m×n.",
+      "Single row → largest histogram in that row.",
+      "Single column → height of longest run of 1s.",
+    ],
+    memoryTrick: "\"Row by row, build histogram heights. Each row = new histogram problem. Reuse largest-rectangle-in-histogram on updated heights.\"",
+  },
+
+  "lfu-cache": {
+    intuition:
+      "LFU evicts the Least Frequently Used key (ties broken by LRU). Needs O(1) get and put. Use two hash maps: key→{value, freq} and freq→ordered set (doubly linked list) of keys. Track minFreq to know which bucket to evict from.",
+    approach: [
+      "freqMap: freq → doubly linked list of keys (order = LRU within same freq).",
+      "keyMap: key → {value, freq, iterator in freqMap[freq]}.",
+      "On get: increment key's freq, move from freqMap[freq] to freqMap[freq+1]. Update minFreq if needed.",
+      "On put: if at capacity, evict from freqMap[minFreq].back(). Insert new key with freq=1, set minFreq=1.",
+    ],
+    cppSolution: `class LFUCache {
+    int cap, minFreq;
+    unordered_map<int, pair<int,int>> key2vf; // key → {val, freq}
+    unordered_map<int, list<int>> freq2keys;  // freq → LRU list of keys
+    unordered_map<int, list<int>::iterator> key2it; // key → iterator in freq list
+    void touch(int key) {
+        int f = key2vf[key].second;
+        freq2keys[f].erase(key2it[key]);
+        if (freq2keys[f].empty()) { freq2keys.erase(f); if (minFreq == f) minFreq++; }
+        key2vf[key].second++;
+        freq2keys[f+1].push_front(key);
+        key2it[key] = freq2keys[f+1].begin();
+    }
+public:
+    LFUCache(int capacity) : cap(capacity), minFreq(0) {}
+    int get(int key) {
+        if (!key2vf.count(key)) return -1;
+        touch(key);
+        return key2vf[key].first;
+    }
+    void put(int key, int value) {
+        if (!cap) return;
+        if (key2vf.count(key)) { key2vf[key].first = value; touch(key); return; }
+        if ((int)key2vf.size() == cap) {
+            int evict = freq2keys[minFreq].back();
+            freq2keys[minFreq].pop_back();
+            key2vf.erase(evict); key2it.erase(evict);
+        }
+        key2vf[key] = {value, 1};
+        freq2keys[1].push_front(key);
+        key2it[key] = freq2keys[1].begin();
+        minFreq = 1;
+    }
+};`,
+    timeComplexity: "O(1)",
+    timeExplanation: "All hash map and linked list operations are O(1). No linear scans.",
+    spaceComplexity: "O(capacity)",
+    spaceExplanation: "Three hash maps all bounded by capacity.",
+    edgeCases: [
+      "capacity = 0 → all puts are no-ops.",
+      "Same key put twice → update value, increment freq.",
+      "Tie in frequency → LRU among tied keys is evicted.",
+      "get on non-existent key → return -1 without modifying minFreq.",
+    ],
+    memoryTrick: "\"LRU inside each frequency bucket. minFreq tells you which bucket to evict from. New keys always start at freq=1, so minFreq resets to 1 on every put of a new key.\"",
+  },
+
+  "maximum-sum-bst": {
+    intuition:
+      "Find the maximum sum of all keys in any BST subtree of the binary tree. Post-order DFS: at each node, determine if its subtree is a valid BST and compute its sum. Return up min, max, sum, and isValid to the parent.",
+    approach: [
+      "Post-order DFS returning (isBST, minVal, maxVal, sum).",
+      "A subtree is BST if: left is BST, right is BST, left.maxVal < node.val < right.minVal.",
+      "If current subtree is valid BST, update global max with current sum.",
+      "Propagate min and max through the tree.",
+    ],
+    cppSolution: `class Solution {
+    int ans = 0;
+    // returns {isBST, minVal, maxVal, sum}
+    array<int,4> dfs(TreeNode* node) {
+        if (!node) return {1, INT_MAX, INT_MIN, 0};
+        auto [lv, lmin, lmax, lsum] = dfs(node->left);
+        auto [rv, rmin, rmax, rsum] = dfs(node->right);
+        if (lv && rv && lmax < node->val && node->val < rmin) {
+            int sum = lsum + rsum + node->val;
+            ans = max(ans, sum);
+            return {1, min(lmin, node->val), max(rmax, node->val), sum};
+        }
+        return {0, 0, 0, 0}; // invalid BST subtree
+    }
+public:
+    int maxSumBST(TreeNode* root) {
+        dfs(root);
+        return ans;
+    }
+};`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Each node visited exactly once in post-order traversal.",
+    spaceComplexity: "O(h)",
+    spaceExplanation: "Recursion stack depth = tree height h (O(log n) balanced, O(n) skewed).",
+    edgeCases: [
+      "All nodes form one valid BST → sum of all nodes.",
+      "No valid BST subtree with positive sum → return 0 (single negative node subtrees).",
+      "Single node → that node's value if positive.",
+      "Left subtree invalid BST → propagate invalid upward.",
+    ],
+    memoryTrick: "\"Post-order: children report up whether they're valid BSTs and their min/max. Only combine if both children are valid and BST property holds at current node.\"",
+  },
+
+  "smallest-range-k-lists": {
+    intuition:
+      "Given k sorted lists, find the smallest range [a, b] such that there is at least one element from each list. Use a min-heap of size k — always expand the maximum element's range by advancing the pointer in that list.",
+    approach: [
+      "Push first element of each list into a min-heap: (value, listIdx, elementIdx).",
+      "Track current max across all elements in heap.",
+      "While heap has k elements: current range = [heap.top().val, currentMax]. Update best range.",
+      "Pop min. If its list has more elements, push next. Update currentMax. If any list exhausted, stop.",
+    ],
+    cppSolution: `class Solution {
+public:
+    vector<int> smallestRange(vector<vector<int>>& nums) {
+        using T = tuple<int,int,int>; // val, listIdx, elemIdx
+        priority_queue<T, vector<T>, greater<T>> pq;
+        int curMax = INT_MIN;
+        for (int i = 0; i < (int)nums.size(); i++) {
+            pq.push({nums[i][0], i, 0});
+            curMax = max(curMax, nums[i][0]);
+        }
+        int rL = 0, rR = INT_MAX;
+        while ((int)pq.size() == (int)nums.size()) {
+            auto [val, li, ei] = pq.top(); pq.pop();
+            if (curMax - val < rR - rL) { rL = val; rR = curMax; }
+            if (ei + 1 < (int)nums[li].size()) {
+                pq.push({nums[li][ei+1], li, ei+1});
+                curMax = max(curMax, nums[li][ei+1]);
+            }
+            // else: list exhausted, heap shrinks below k, loop ends
+        }
+        return {rL, rR};
+    }
+};`,
+    timeComplexity: "O(n log k)",
+    timeExplanation: "n = total elements across all lists. Each element pushed/popped once. Each heap op is O(log k).",
+    spaceComplexity: "O(k)",
+    spaceExplanation: "Heap holds exactly k elements at any time.",
+    edgeCases: [
+      "k=1 → range is [min, max] of that list's first element = [list[0], list[0]].",
+      "All lists have one element → range must include all of them.",
+      "Duplicate values across lists → still valid, range can be [x, x].",
+    ],
+    memoryTrick: "\"Sliding window on sorted lists: always advance the minimum because advancing the maximum can only widen the range. Stop when any list runs out.\"",
+  },
+
+  "sudoku-solver": {
+    intuition:
+      "Backtracking with constraint propagation. Try digits 1-9 at each empty cell. Prune immediately if digit violates row, column, or 3×3 box constraint. Backtrack when no digit works.",
+    approach: [
+      "Scan for first empty cell ('.'). If none → solved, return true.",
+      "Try digits '1' to '9'. Check validity: not in same row, column, or 3×3 box.",
+      "Place digit, recurse. If recursion returns true, done.",
+      "If no digit works, reset cell to '.' and return false (backtrack).",
+    ],
+    cppSolution: `class Solution {
+    bool isValid(vector<vector<char>>& b, int r, int c, char d) {
+        for (int i = 0; i < 9; i++) {
+            if (b[r][i] == d) return false;
+            if (b[i][c] == d) return false;
+            if (b[3*(r/3)+i/3][3*(c/3)+i%3] == d) return false;
+        }
+        return true;
+    }
+    bool solve(vector<vector<char>>& b) {
+        for (int r = 0; r < 9; r++)
+            for (int c = 0; c < 9; c++)
+                if (b[r][c] == '.') {
+                    for (char d = '1'; d <= '9'; d++) {
+                        if (isValid(b, r, c, d)) {
+                            b[r][c] = d;
+                            if (solve(b)) return true;
+                            b[r][c] = '.';
+                        }
+                    }
+                    return false;
+                }
+        return true;
+    }
+public:
+    void solveSudoku(vector<vector<char>>& board) { solve(board); }
+};`,
+    timeComplexity: "O(9^m)",
+    timeExplanation: "m = number of empty cells. Each cell tries up to 9 digits. With constraint pruning, practical runtime is much faster.",
+    spaceComplexity: "O(m)",
+    spaceExplanation: "Recursion stack depth = number of empty cells.",
+    edgeCases: [
+      "Board already solved → return immediately on first scan finding no '.'.",
+      "Highly constrained board (few options) → fast due to early pruning.",
+      "Multiple solutions technically don't exist in valid sudoku input.",
+    ],
+    memoryTrick: "\"Try, check, place, recurse, backtrack. The box index formula: row=3*(r/3)+i/3, col=3*(c/3)+i%3 — memorize or re-derive.\"",
+  },
+
+  "critical-connections": {
+    intuition:
+      "Find all bridges (edges whose removal disconnects the graph). Use Tarjan's bridge-finding algorithm: DFS with discovery time and low-link values. An edge (u,v) is a bridge if low[v] > disc[u] — meaning v can't reach back to u or earlier without using the edge (u,v).",
+    approach: [
+      "DFS from any node. Track disc[node] = discovery time, low[node] = min disc reachable via DFS subtree.",
+      "For each neighbor v of u: if unvisited, recurse. After return: low[u] = min(low[u], low[v]). If low[v] > disc[u], edge (u,v) is a bridge.",
+      "If already visited and v ≠ parent: low[u] = min(low[u], disc[v]) — back edge, not a bridge.",
+    ],
+    cppSolution: `class Solution {
+    int timer = 0;
+    void dfs(int u, int parent, vector<vector<int>>& adj,
+             vector<int>& disc, vector<int>& low, vector<vector<int>>& res) {
+        disc[u] = low[u] = timer++;
+        for (int v : adj[u]) {
+            if (disc[v] == -1) {
+                dfs(v, u, adj, disc, low, res);
+                low[u] = min(low[u], low[v]);
+                if (low[v] > disc[u]) res.push_back({u, v});
+            } else if (v != parent) {
+                low[u] = min(low[u], disc[v]);
+            }
+        }
+    }
+public:
+    vector<vector<int>> criticalConnections(int n, vector<vector<int>>& connections) {
+        vector<vector<int>> adj(n), res;
+        for (auto& e : connections) { adj[e[0]].push_back(e[1]); adj[e[1]].push_back(e[0]); }
+        vector<int> disc(n, -1), low(n, 0);
+        dfs(0, -1, adj, disc, low, res);
+        return res;
+    }
+};`,
+    timeComplexity: "O(V + E)",
+    timeExplanation: "Standard DFS visits each vertex and edge once.",
+    spaceComplexity: "O(V + E)",
+    spaceExplanation: "Adjacency list + disc/low arrays + recursion stack.",
+    edgeCases: [
+      "Graph with no bridges (all nodes in a cycle) → return empty.",
+      "Tree (no cycles) → every edge is a bridge.",
+      "Parallel edges between two nodes → not a bridge (can remove either).",
+    ],
+    memoryTrick: "\"Bridge condition: low[v] > disc[u]. If v can't reach back to u or earlier without the direct edge, that edge is critical. DFS order = discovery time; low = earliest ancestor reachable.\"",
+  },
+
+  "candy": {
+    intuition:
+      "Each child must get at least 1 candy. Children with higher ratings than their neighbors get more. Two-pass greedy: left-to-right ensures left neighbor constraint, right-to-left ensures right neighbor constraint. Take the max of both passes.",
+    approach: [
+      "Initialize candy[i] = 1 for all.",
+      "Left to right: if ratings[i] > ratings[i-1], candy[i] = candy[i-1] + 1.",
+      "Right to left: if ratings[i] > ratings[i+1], candy[i] = max(candy[i], candy[i+1] + 1).",
+      "Return sum of candy array.",
+    ],
+    cppSolution: `class Solution {
+public:
+    int candy(vector<int>& ratings) {
+        int n = ratings.size();
+        vector<int> candy(n, 1);
+        for (int i = 1; i < n; i++)
+            if (ratings[i] > ratings[i-1]) candy[i] = candy[i-1] + 1;
+        for (int i = n-2; i >= 0; i--)
+            if (ratings[i] > ratings[i+1]) candy[i] = max(candy[i], candy[i+1] + 1);
+        return accumulate(candy.begin(), candy.end(), 0);
+    }
+};`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Two linear passes through the array.",
+    spaceComplexity: "O(n)",
+    spaceExplanation: "Candy array of size n.",
+    edgeCases: [
+      "Single child → 1 candy.",
+      "All same ratings → all get 1 candy.",
+      "Strictly increasing → 1,2,3,...,n.",
+      "Peak in middle [1,3,2,1] → handle both sides of peak correctly.",
+    ],
+    memoryTrick: "\"Left pass: uphill slopes get more. Right pass: downhill slopes get more. Max of both passes at each position satisfies both neighbors.\"",
+  },
+
+  "employee-free-time": {
+    intuition:
+      "Given schedules of all employees (list of lists of intervals), find all time intervals when no employee is working. Flatten all intervals, sort by start, merge overlapping intervals, then gaps between merged intervals are free time.",
+    approach: [
+      "Collect all intervals from all employees into a single list.",
+      "Sort by start time.",
+      "Merge overlapping intervals (same as merge-intervals problem).",
+      "Gaps between consecutive merged intervals are the free time.",
+    ],
+    cppSolution: `class Solution {
+public:
+    vector<Interval> employeeFreeTime(vector<vector<Interval>> schedule) {
+        vector<Interval> all, res;
+        for (auto& emp : schedule) for (auto& iv : emp) all.push_back(iv);
+        sort(all.begin(), all.end(), [](const Interval& a, const Interval& b){ return a.start < b.start; });
+        Interval cur = all[0];
+        for (int i = 1; i < (int)all.size(); i++) {
+            if (all[i].start <= cur.end) cur.end = max(cur.end, all[i].end); // merge
+            else { res.push_back({cur.end, all[i].start}); cur = all[i]; }   // gap = free time
+        }
+        return res;
+    }
+};`,
+    timeComplexity: "O(n log n)",
+    timeExplanation: "Sorting n total intervals dominates.",
+    spaceComplexity: "O(n)",
+    spaceExplanation: "Flattened intervals list.",
+    edgeCases: [
+      "One employee → free times are gaps in their schedule.",
+      "All employees work same hours → no free time.",
+      "No overlapping intervals at all → every gap between consecutive intervals is free time.",
+    ],
+    memoryTrick: "\"Flatten all employees into one timeline. Merge overlapping. Gaps = free time. Same as merge-intervals but report gaps, not merged intervals.\"",
+  },
+
+  "basic-calculator": {
+    intuition:
+      "Evaluate a string expression with +, -, and parentheses. Use a stack to save context (running result and sign) when entering parentheses. Process character by character.",
+    approach: [
+      "result = 0, sign = +1, num = 0.",
+      "Digit: accumulate num.",
+      "+ or -: apply previous sign×num to result. Reset num. Update sign.",
+      "( : push {result, sign} onto stack. Reset result=0, sign=+1.",
+      ") : finalize current num into result. Pop stack: result = popped_result + popped_sign × result.",
+    ],
+    cppSolution: `class Solution {
+public:
+    int calculate(string s) {
+        stack<int> stk;
+        int result = 0, sign = 1, num = 0;
+        for (char c : s) {
+            if (isdigit(c)) {
+                num = num * 10 + (c - '0');
+            } else if (c == '+' || c == '-') {
+                result += sign * num;
+                num = 0;
+                sign = (c == '+') ? 1 : -1;
+            } else if (c == '(') {
+                stk.push(result);
+                stk.push(sign);
+                result = 0; sign = 1;
+            } else if (c == ')') {
+                result += sign * num; num = 0;
+                result *= stk.top(); stk.pop();   // outer sign
+                result += stk.top(); stk.pop();   // outer result
+            }
+        }
+        return result + sign * num;
+    }
+};`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Single pass through the string, each character processed once.",
+    spaceComplexity: "O(n)",
+    spaceExplanation: "Stack depth proportional to nesting depth (at most n/2).",
+    edgeCases: [
+      "No parentheses → just +/- chain.",
+      "Nested parentheses (1+(2+(3))) → stack handles multiple levels.",
+      "Leading/trailing spaces → ignored by the digit/operator check.",
+      "Unary minus -(2+3) → stack stores sign=-1 before inner expression.",
+    ],
+    memoryTrick: "\"Stack saves {result, sign} when you enter '('. When you hit ')', close current expression, multiply by saved sign, add to saved result.\"",
+  },
+
+  "maximum-students-exam": {
+    intuition:
+      "Place maximum students in seats without cheating (no two adjacent in same row or diagonally adjacent between rows). Use bitmask DP: each row's valid placement is a bitmask. Enumerate valid row configurations satisfying intra-row and inter-row constraints.",
+    approach: [
+      "Row mask: 1 = broken seat (no student). Valid placement: no two adjacent 1-bits (no side-by-side) and no 1 on a broken seat.",
+      "DP[row][mask] = max students placeable in rows 0..row with row having this placement mask.",
+      "Transition: check diagonal constraints between row mask and previous row mask.",
+      "Answer: max over all masks for the last row.",
+    ],
+    cppSolution: `class Solution {
+public:
+    int maxStudents(vector<vector<char>>& seats) {
+        int m = seats.size(), n = seats[0].size();
+        vector<int> rowMask(m);
+        for (int i = 0; i < m; i++)
+            for (int j = 0; j < n; j++)
+                if (seats[i][j] == '.') rowMask[i] |= (1 << j);
+        vector<vector<int>> dp(m, vector<int>(1 << n, -1));
+        for (int mask = 0; mask < (1 << n); mask++) {
+            if ((mask & rowMask[0]) != mask) continue; // uses broken seats
+            if (mask & (mask >> 1)) continue;           // adjacent students
+            dp[0][mask] = __builtin_popcount(mask);
+        }
+        for (int i = 1; i < m; i++) {
+            for (int mask = 0; mask < (1 << n); mask++) {
+                if ((mask & rowMask[i]) != mask || (mask & (mask >> 1))) continue;
+                for (int prev = 0; prev < (1 << n); prev++) {
+                    if (dp[i-1][prev] < 0) continue;
+                    // no diagonal cheating: check mask & (prev << 1) and mask & (prev >> 1)
+                    if (mask & (prev << 1)) continue;
+                    if (mask & (prev >> 1)) continue;
+                    dp[i][mask] = max(dp[i][mask], dp[i-1][prev] + __builtin_popcount(mask));
+                }
+            }
+        }
+        return *max_element(dp[m-1].begin(), dp[m-1].end());
+    }
+};`,
+    timeComplexity: "O(m × 4^n)",
+    timeExplanation: "m rows, 2^n masks per row, 2^n prev masks to check = O(m × 4^n). n ≤ 8 so 4^8 = 65536 is manageable.",
+    spaceComplexity: "O(m × 2^n)",
+    spaceExplanation: "DP table.",
+    edgeCases: [
+      "All broken seats → 0 students.",
+      "Single row → pick max non-adjacent valid seats.",
+      "n=1 → each row has 0 or 1 valid seat.",
+    ],
+    memoryTrick: "\"Bitmask each row's students. Valid: no adjacent bits set, no bit on broken seat. Inter-row: no diagonal = no bit i of curr matches bit i±1 of prev. DP propagates row by row.\"",
+  },
+
+  "design-search-autocomplete": {
+    intuition:
+      "Design a search autocomplete system. On each character input, return top 3 historical queries by (frequency desc, lexicographic asc). Use a trie where each node stores a list of (sentence, count). On '#', save completed query.",
+    approach: [
+      "Trie node stores map<char, TrieNode*> and vector<pair<string,int>> topResults (or just traverse at query time).",
+      "On input(c): if c=='#', insert current sentence with incremented count into trie. Else, advance current path pointer, return top 3 from current node's prefix.",
+      "To find top 3: DFS from current trie node, collect all sentences, sort by count desc / lex asc, return top 3.",
+    ],
+    cppSolution: `class AutocompleteSystem {
+    struct TrieNode {
+        unordered_map<char, TrieNode*> children;
+        unordered_map<string, int> counts;
+    };
+    TrieNode* root;
+    TrieNode* cur;
+    string prefix;
+    void insert(TrieNode* node, const string& s, int c) {
+        for (char ch : s) {
+            if (!node->children.count(ch)) node->children[ch] = new TrieNode();
+            node = node->children[ch];
+            node->counts[s] += c;
+        }
+    }
+public:
+    AutocompleteSystem(vector<string>& sentences, vector<int>& times) {
+        root = cur = new TrieNode();
+        for (int i = 0; i < (int)sentences.size(); i++) insert(root, sentences[i], times[i]);
+    }
+    vector<string> input(char c) {
+        if (c == '#') {
+            insert(root, prefix, 1);
+            prefix = ""; cur = root;
+            return {};
+        }
+        prefix += c;
+        if (cur && cur->children.count(c)) cur = cur->children[c];
+        else { cur = nullptr; return {}; }
+        vector<pair<int,string>> cands;
+        for (auto& [s, cnt] : cur->counts) cands.push_back({cnt, s});
+        sort(cands.begin(), cands.end(), [](auto& a, auto& b){
+            return a.first != b.first ? a.first > b.first : a.second < b.second;
+        });
+        vector<string> res;
+        for (int i = 0; i < min(3,(int)cands.size()); i++) res.push_back(cands[i].second);
+        return res;
+    }
+};`,
+    timeComplexity: "O(p × n) per query",
+    timeExplanation: "p = prefix length, n = sentences at that node. Sorting n candidates is O(n log n).",
+    spaceComplexity: "O(total characters × avg sentences per node)",
+    spaceExplanation: "Trie stores all sentences at every prefix node — significant memory but O(1) traversal.",
+    edgeCases: [
+      "Empty history → return [] until '#' is pressed.",
+      "Same query entered multiple times → count increments, appears first.",
+      "Tie in count → lexicographic order.",
+    ],
+    memoryTrick: "\"Trie path = prefix. Each node caches all sentences passing through it with counts. '#' saves and resets. Input navigates trie, returns sorted top-3 from current node.\"",
+  },
+
+  "shortest-path-obstacle": {
+    intuition:
+      "Find shortest path from top-left to bottom-right in grid, allowed to eliminate at most k obstacles. BFS with state (row, col, remaining_k). A 3D visited array prevents revisiting same (position, k_remaining) state.",
+    approach: [
+      "BFS queue holds (row, col, k_remaining, steps).",
+      "Mark visited[row][col][k] to avoid cycles.",
+      "For each neighbor: if obstacle and k>0, push with k-1. If free, push with same k.",
+      "First time we reach (m-1, n-1), return steps.",
+    ],
+    cppSolution: `class Solution {
+public:
+    int shortestPath(vector<vector<int>>& grid, int k) {
+        int m = grid.size(), n = grid[0].size();
+        if (m == 1 && n == 1) return 0;
+        vector<vector<vector<bool>>> vis(m, vector<vector<bool>>(n, vector<bool>(k+1, false)));
+        queue<tuple<int,int,int,int>> q; // row, col, k_rem, steps
+        q.push({0, 0, k, 0});
+        vis[0][0][k] = true;
+        int dirs[][2] = {{0,1},{0,-1},{1,0},{-1,0}};
+        while (!q.empty()) {
+            auto [r, c, rem, steps] = q.front(); q.pop();
+            for (auto& d : dirs) {
+                int nr = r + d[0], nc = c + d[1];
+                if (nr < 0 || nr >= m || nc < 0 || nc >= n) continue;
+                int nk = rem - grid[nr][nc];
+                if (nk < 0) continue;
+                if (nr == m-1 && nc == n-1) return steps + 1;
+                if (!vis[nr][nc][nk]) { vis[nr][nc][nk] = true; q.push({nr, nc, nk, steps+1}); }
+            }
+        }
+        return -1;
+    }
+};`,
+    timeComplexity: "O(m × n × k)",
+    timeExplanation: "State space is m × n × (k+1). Each state visited at most once.",
+    spaceComplexity: "O(m × n × k)",
+    spaceExplanation: "3D visited array + BFS queue.",
+    edgeCases: [
+      "k >= m+n-2 (Manhattan distance): optimal path always exists, return m+n-2.",
+      "No obstacles → standard BFS, return m+n-2.",
+      "Start or end is an obstacle → k must be ≥ 1 for those.",
+      "Grid 1×1 → return 0.",
+    ],
+    memoryTrick: "\"BFS with state = (position, obstacles_left). 3D visited. Key insight: same position with MORE obstacles remaining is strictly better — never revisit with fewer remaining.\"",
+  },
 };
 
 // Merged: generated base + rich overrides + python solutions
