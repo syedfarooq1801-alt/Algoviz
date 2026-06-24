@@ -1,3 +1,7 @@
+import rawPart1 from "./sdContent-part1";
+import rawPart2 from "./sdContent-part2";
+import rawPart3 from "./sdContent-part3";
+
 export interface SDConceptContent {
   id: string;
   intuition: string;
@@ -12,7 +16,12 @@ export interface SDConceptContent {
   cheatSheetLine: string;
 }
 
-export const SD_CONCEPT_CONTENT: Record<string, SDConceptContent> = {
+const _merged = { ...rawPart1, ...rawPart2, ...rawPart3 };
+
+export const SD_CONCEPT_CONTENT: Record<string, SDConceptContent> = _merged as Record<string, SDConceptContent>;
+
+// Legacy inline content kept below for reference — all entries now sourced from sdContent-part1/2/3
+const _LEGACY: Record<string, SDConceptContent> = {
   // ── Chapter 1: Foundations ──────────────────────────────────────────────
 
   scalability: {
@@ -1382,3 +1391,5 @@ export const SD_CONCEPT_CONTENT: Record<string, SDConceptContent> = {
     cheatSheetLine: "9 steps: Users→Entities→API→Storage→HLD→Scale reads→Scale writes→Failures→Deep dive. Times: 2+1+3+3+8+5+5+3+10 = 40min. Leave 5min for Qs.",
   },
 };
+
+void _LEGACY;
