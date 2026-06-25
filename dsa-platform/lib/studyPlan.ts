@@ -249,10 +249,13 @@ export function generateStudyPlan(durationDays: 30 | 60 | 90, startDate: string,
   const days: DayPlan[] = [];
   const behavioralDays = durationDays === 30 ? 3 : durationDays === 60 ? 5 : 7;
   const coreEndDay = durationDays - behavioralDays;
-  // Real weekday of a plan day (0 = Sunday). Sundays are review days.
+  // Real weekday of a plan day (0 = Sunday, 6 = Saturday).
+  // Saturday = review, Sunday = mock. Both are weekend days (no new learning).
   const weekdayOf = (dn: number) => new Date(addDays(startDate, dn - 1) + "T00:00:00").getDay();
-  const isReview = (dn: number) => weekdayOf(dn) === 0;
-  const coreWorkDays = Array.from({ length: coreEndDay }, (_, i) => i + 1).filter((day) => !isReview(day)).length;
+  const isSatReview = (dn: number) => weekdayOf(dn) === 6;
+  const isSunMock   = (dn: number) => weekdayOf(dn) === 0;
+  const isWeekend   = (dn: number) => isSatReview(dn) || isSunMock(dn);
+  const coreWorkDays = Array.from({ length: coreEndDay }, (_, i) => i + 1).filter((day) => !isWeekend(day)).length;
 
   function remainingCoreEffort() {
     return totalEffort(dsaQueue) + totalEffort(sdQueue) + totalEffort(seQueue);
@@ -260,7 +263,7 @@ export function generateStudyPlan(durationDays: 30 | 60 | 90, startDate: string,
 
   function remainingCoreWorkDays(dayNum: number) {
     return Array.from({ length: Math.max(0, coreEndDay - dayNum + 1) }, (_, i) => dayNum + i)
-      .filter((day) => !isReview(day)).length;
+      .filter((day) => !isWeekend(day)).length;
   }
 
   for (let dayNum = 1; dayNum <= durationDays; dayNum++) {
@@ -284,21 +287,39 @@ export function generateStudyPlan(durationDays: 30 | 60 | 90, startDate: string,
       continue;
     }
 
-    if (isReview(dayNum)) {
-      const isMock = week % 2 === 0;
-      const tasks = topByPriority(weeklyWindow.length ? weeklyWindow : assigned, isMock ? 6 : 8);
+    if (isSatReview(dayNum)) {
+      // Saturday: review this week's learning — separate completion tracking via "rv-" prefix
+      const tasks = topByPriority(weeklyWindow.length ? weeklyWindow : assigned, 8)
+        .map((t) => ({ ...t, id: `rv-${t.id}` }));
       days.push({
         day: dayNum,
         date,
-        phase: isMock ? "mock" : "review",
-        type: isMock ? "mock" : "review",
-        label: isMock ? `Week ${week} mock interview` : `Week ${week} review`,
-        color: isMock ? PHASE_COLOR.mock : PHASE_COLOR.review,
+        phase: "review",
+        type: "review",
+        label: `Week ${week} review`,
+        color: PHASE_COLOR.review,
         tasks,
         reviewCovered: [...weeklyWindow],
-        reviewNote: getReviewNote(isMock ? "mock" : "review"),
+        reviewNote: getReviewNote("review"),
       });
-      weeklyWindow.length = 0;
+      weeklyWindow.length = 0; // clear after Saturday review
+      continue;
+    }
+
+    if (isSunMock(dayNum)) {
+      // Sunday: timed mock from best problems seen so far
+      const tasks = topByPriority(assigned, 6)
+        .map((t) => ({ ...t, id: `rv-mock-${t.id}` }));
+      days.push({
+        day: dayNum,
+        date,
+        phase: "mock",
+        type: "mock",
+        label: `Week ${week} mock interview`,
+        color: PHASE_COLOR.mock,
+        tasks,
+        reviewNote: getReviewNote("mock"),
+      });
       continue;
     }
 
