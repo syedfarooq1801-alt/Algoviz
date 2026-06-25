@@ -6967,6 +6967,390 @@ public:
     memoryTrick: "\"BFS with state = (position, obstacles_left). 3D visited. Key insight: same position with MORE obstacles remaining is strictly better — never revisit with fewer remaining.\"",
   },
 
+  // ── Prefix Sum Pattern ─────────────────────────────────────────────────────
+
+  "running-sum-1d": {
+    intuition: "Build a prefix sum array where each element is the sum of all previous elements plus itself. This is the foundation — every prefix sum technique extends this O(n) precompute + O(1) query idea.",
+    approach: [
+      "Initialize result[0] = nums[0].",
+      "For each i from 1 to n-1: result[i] = result[i-1] + nums[i].",
+      "Return result.",
+      "Or do it in-place: nums[i] += nums[i-1].",
+    ],
+    cppSolution: `vector<int> runningSum(vector<int>& nums) {
+    for (int i = 1; i < nums.size(); i++)
+        nums[i] += nums[i-1];
+    return nums;
+}`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Single pass.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "In-place modification.",
+    edgeCases: ["Single element — already the running sum.", "All zeros — all running sums are zero."],
+    memoryTrick: "\"prefix[i] = prefix[i-1] + nums[i]. Each position stores the SUM UP TO HERE. Difference of two prefix sums = range sum. This single idea powers dozens of LC problems.\"",
+  },
+
+  "find-pivot-index": {
+    intuition: "Pivot index: left sum equals right sum. Total sum = leftSum + nums[i] + rightSum. So leftSum == total - leftSum - nums[i]. Scan left to right maintaining running leftSum — O(1) space, O(n) time.",
+    approach: [
+      "Compute total = sum of all elements.",
+      "Initialize leftSum = 0. Iterate i from 0 to n-1.",
+      "At each i: rightSum = total - leftSum - nums[i].",
+      "If leftSum == rightSum: return i.",
+      "Update leftSum += nums[i].",
+      "Return -1 if no pivot found.",
+    ],
+    cppSolution: `int pivotIndex(vector<int>& nums) {
+    int total = accumulate(nums.begin(), nums.end(), 0);
+    int leftSum = 0;
+    for (int i = 0; i < nums.size(); i++) {
+        if (leftSum == total - leftSum - nums[i]) return i;
+        leftSum += nums[i];
+    }
+    return -1;
+}`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Two passes: one for total, one for scan.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "Only leftSum and total variables.",
+    edgeCases: ["Pivot at index 0 — leftSum is 0, rightSum must equal 0.", "Pivot at last index — rightSum is 0.", "Multiple pivots — return leftmost (first found)."],
+    memoryTrick: "\"rightSum = total - leftSum - nums[i]. No need to store a rightSum array. Check equality, then add to leftSum. Prefix sum from left, suffix from the right — both computed on-the-fly.\"",
+  },
+
+  "range-sum-query": {
+    intuition: "Build prefix sum once in O(n). Answer any range query [left, right] in O(1) as prefix[right+1] - prefix[left]. The 1-indexed prefix array with prefix[0]=0 eliminates boundary conditions.",
+    approach: [
+      "Constructor: build prefix[n+1] where prefix[0]=0, prefix[i] = prefix[i-1] + nums[i-1].",
+      "sumRange(l, r): return prefix[r+1] - prefix[l].",
+      "That's it — O(n) build, O(1) per query.",
+    ],
+    cppSolution: `class NumArray {
+    vector<int> prefix;
+public:
+    NumArray(vector<int>& nums) {
+        prefix.resize(nums.size() + 1, 0);
+        for (int i = 0; i < nums.size(); i++)
+            prefix[i+1] = prefix[i] + nums[i];
+    }
+    int sumRange(int left, int right) {
+        return prefix[right+1] - prefix[left];
+    }
+};`,
+    timeComplexity: "O(n) build, O(1) query",
+    timeExplanation: "Precompute once, queries are subtraction.",
+    spaceComplexity: "O(n)",
+    spaceExplanation: "Prefix array of size n+1.",
+    edgeCases: ["left == right — single element sum = prefix[l+1] - prefix[l] = nums[l].", "left == 0 — prefix[0] = 0, so result = prefix[right+1]."],
+    memoryTrick: "\"Always use 1-indexed prefix with prefix[0]=0. Then sum(l,r) = prefix[r+1] - prefix[l] with NO special cases. 1-indexing kills all boundary bugs.\"",
+  },
+
+  "subarray-sum-equals-k": {
+    intuition: "For every index j, we want to count indices i < j where prefix[j] - prefix[i] = k, i.e., prefix[i] = prefix[j] - k. Maintain a hash map of seen prefix sums and their counts. Check if (currentSum - k) exists in the map before adding currentSum.",
+    approach: [
+      "Initialize seen = {0: 1} (empty prefix has sum 0 — critical for subarrays starting at index 0).",
+      "running = 0, count = 0.",
+      "For each num: running += num.",
+      "count += seen[running - k] (how many previous prefixes give us the target subarray).",
+      "seen[running]++ (record this prefix).",
+      "Return count.",
+    ],
+    cppSolution: `int subarraySum(vector<int>& nums, int k) {
+    unordered_map<int,int> seen{{0,1}};
+    int running = 0, count = 0;
+    for (int num : nums) {
+        running += num;
+        count += seen.count(running - k) ? seen[running - k] : 0;
+        seen[running]++;
+    }
+    return count;
+}`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Single pass with O(1) hash map operations.",
+    spaceComplexity: "O(n)",
+    spaceExplanation: "Hash map stores at most n distinct prefix sums.",
+    edgeCases: [
+      "k = 0: subarrays summing to 0. seen{0:1} handles prefix[j] itself being 0.",
+      "Negative numbers: hash map approach handles them naturally (unlike sliding window which can't).",
+      "Multiple subarrays with same sum — counting (not just existence) via seen[prefix] increments.",
+    ],
+    memoryTrick: "\"seen{0:1} is the magic init. Without it, subarrays from index 0 are missed. Pattern: for each j, ask 'how many prior prefixes equal running-k?' Then add running to seen. Order matters — check before adding so i < j is guaranteed.\"",
+  },
+
+  "subarray-sums-divisible-k": {
+    intuition: "Two prefix sums i and j have (prefix[j] - prefix[i]) % k == 0 iff prefix[j] % k == prefix[i] % k. Group prefixes by their remainder mod k. For each remainder r, if there are c prefixes with that remainder, there are c*(c-1)/2 valid pairs — or just count as you go.",
+    approach: [
+      "Initialize remainderCount = {0: 1}.",
+      "running = 0, count = 0.",
+      "For each num: running = (running + num) % k. Handle negative: running = ((running % k) + k) % k.",
+      "count += remainderCount[running].",
+      "remainderCount[running]++.",
+      "Return count.",
+    ],
+    cppSolution: `int subarraysDivByK(vector<int>& nums, int k) {
+    unordered_map<int,int> rem{{0,1}};
+    int running = 0, count = 0;
+    for (int num : nums) {
+        running = ((running + num) % k + k) % k;  // handle negatives
+        count += rem[running];
+        rem[running]++;
+    }
+    return count;
+}`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Single pass.",
+    spaceComplexity: "O(k)",
+    spaceExplanation: "At most k distinct remainders.",
+    edgeCases: [
+      "Negative numbers: C++ modulo of negative is negative — use ((x % k) + k) % k to normalize.",
+      "k = 1: every subarray divisible by 1, answer = n*(n+1)/2.",
+      "running = 0 after mod: subarray from index 0 to here is divisible — rem{0:1} counts it.",
+    ],
+    memoryTrick: "\"Same prefix-sum + hashmap skeleton as Subarray Sum = K. Key swap: map by (prefix % k) instead of prefix value. ((x%k)+k)%k for negative-safe modulo. If same remainder seen before — those two indices bound a divisible subarray.\"",
+  },
+
+  "continuous-subarray-sum": {
+    intuition: "Find a subarray of length ≥ 2 whose sum is a multiple of k. Equivalent: find two prefix sums with the same remainder mod k, at least 2 apart. Store the FIRST index where each remainder appeared — if same remainder seen again with gap ≥ 2, answer is true.",
+    approach: [
+      "Initialize seen = {0: -1} (remainder 0 seen before index 0).",
+      "running = 0.",
+      "For each i: running = (running + nums[i]) % k.",
+      "If running in seen AND i - seen[running] >= 2: return true.",
+      "If running NOT in seen: seen[running] = i (store first occurrence only).",
+      "Return false.",
+    ],
+    cppSolution: `bool checkSubarraySum(vector<int>& nums, int k) {
+    unordered_map<int,int> seen{{0,-1}};  // remainder -> first index seen
+    int running = 0;
+    for (int i = 0; i < nums.size(); i++) {
+        running = (running + nums[i]) % k;
+        if (seen.count(running)) {
+            if (i - seen[running] >= 2) return true;
+        } else {
+            seen[running] = i;  // only store first occurrence!
+        }
+    }
+    return false;
+}`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Single pass.",
+    spaceComplexity: "O(k)",
+    spaceExplanation: "At most k distinct remainders stored.",
+    edgeCases: [
+      "seen{0:-1}: if running becomes 0 at index i, subarray nums[0..i] has length i+1 ≥ 2 if i ≥ 1.",
+      "Don't update seen if remainder already present — you need the EARLIEST occurrence for maximum gap.",
+      "k = 0: the problem usually guarantees k > 0, but handle by checking sum == 0 directly.",
+    ],
+    memoryTrick: "\"Sibling of Subarray Sums Divisible by K. Same mod-prefix idea but: (1) store FIRST index not count, (2) check gap ≥ 2, (3) init {0:-1} not {0:1}. The -1 init gives correct gap when whole prefix from index 0 is divisible.\"",
+  },
+
+  "range-addition": {
+    intuition: "Difference array: store deltas, not values. For range update [l, r] += val: diff[l] += val, diff[r+1] -= val. Then recover original array by taking prefix sum of diff. Each update is O(1). Final recovery is O(n). Complement to prefix sum — prefix sum answers queries, difference array answers updates.",
+    approach: [
+      "Initialize diff[n+1] = all zeros.",
+      "For each update [start, end, inc]: diff[start] += inc, diff[end+1] -= inc.",
+      "Build result: result[0] = diff[0]. For i from 1 to n-1: result[i] = result[i-1] + diff[i].",
+      "Return result.",
+    ],
+    cppSolution: `vector<int> getModifiedArray(int length, vector<vector<int>>& updates) {
+    vector<int> diff(length + 1, 0);
+    for (auto& u : updates) {
+        diff[u[0]] += u[2];
+        diff[u[1] + 1] -= u[2];
+    }
+    vector<int> result(length);
+    result[0] = diff[0];
+    for (int i = 1; i < length; i++)
+        result[i] = result[i-1] + diff[i];
+    return result;
+}`,
+    timeComplexity: "O(n + q)",
+    timeExplanation: "q updates each O(1), one O(n) recovery pass.",
+    spaceComplexity: "O(n)",
+    spaceExplanation: "Difference array of size n+1.",
+    edgeCases: [
+      "Update ending at last index — diff[n] -= val, never accessed in recovery (size n+1 prevents OOB).",
+      "Overlapping ranges — multiple deltas accumulate correctly.",
+      "No updates — result is all zeros.",
+    ],
+    memoryTrick: "\"diff[l] += val starts the effect. diff[r+1] -= val cancels it. Take prefix sum to recover. Think of it as: 'add at start, undo at end+1.' O(1) per update, O(n) to materialize. Used in: Car Pooling, Corporate Flight Bookings, Paint House ranges.\"",
+  },
+
+  "car-pooling": {
+    intuition: "Difference array on capacity. Each trip adds passengers at from and removes at to. Build capacity timeline, scan for any point exceeding capacity. Classic difference array application on an event-based timeline.",
+    approach: [
+      "Initialize diff[1001] = all zeros (max location is 1000).",
+      "For each trip [num, from, to]: diff[from] += num, diff[to] -= num (passengers EXIT at 'to', not 'to+1').",
+      "Scan diff from 0 to 1000. Maintain running sum. If running > capacity at any point: return false.",
+      "Return true.",
+    ],
+    cppSolution: `bool carPooling(vector<vector<int>>& trips, int capacity) {
+    int diff[1001] = {};
+    for (auto& t : trips) {
+        diff[t[1]] += t[0];   // board at from
+        diff[t[2]] -= t[0];   // exit at to
+    }
+    int passengers = 0;
+    for (int loc = 0; loc <= 1000; loc++) {
+        passengers += diff[loc];
+        if (passengers > capacity) return false;
+    }
+    return true;
+}`,
+    timeComplexity: "O(n + L)",
+    timeExplanation: "n trips processed, L=1000 locations scanned.",
+    spaceComplexity: "O(L)",
+    spaceExplanation: "Fixed 1001-size array.",
+    edgeCases: [
+      "Passenger exits AT destination (to) — they're not on the car for that stop: diff[to] -= num (not to+1).",
+      "Multiple trips at same location — differences accumulate correctly.",
+      "capacity = 0 — any trip fails unless num = 0.",
+    ],
+    memoryTrick: "\"Passengers LEAVE at 'to' not 'to+1' — this problem's tricky detail. Use diff[to] -= num. Then prefix-sum scan: if passengers ever exceed capacity, false. Identical pattern: Corporate Flight Bookings (seat count), Meeting Room capacity timeline.\"",
+  },
+
+  // ── Stack — Next Greater Element ────────────────────────────────────────────
+
+  "next-greater-element-i": {
+    intuition: "For each element in nums1, find the next greater element in nums2. Build a hash map from element → next greater element using a monotonic decreasing stack on nums2, then look up each nums1 element. O(n+m) total.",
+    approach: [
+      "Build nextGreater map for nums2 using monotonic stack.",
+      "Iterate nums2 left to right. Maintain a decreasing stack.",
+      "When nums2[i] > stack.top(): the top's next greater is nums2[i]. Pop and record in map. Repeat.",
+      "Push nums2[i] onto stack.",
+      "Any elements left in stack have no next greater (-1).",
+      "For each num in nums1: result.push_back(nextGreater[num] or -1).",
+    ],
+    cppSolution: `vector<int> nextGreaterElement(vector<int>& nums1, vector<int>& nums2) {
+    unordered_map<int,int> nextGreater;
+    stack<int> st;  // monotonic decreasing
+    for (int num : nums2) {
+        while (!st.empty() && st.top() < num) {
+            nextGreater[st.top()] = num;
+            st.pop();
+        }
+        st.push(num);
+    }
+    // remaining elements have no next greater
+    while (!st.empty()) { nextGreater[st.top()] = -1; st.pop(); }
+    vector<int> result;
+    for (int num : nums1) result.push_back(nextGreater[num]);
+    return result;
+}`,
+    timeComplexity: "O(n + m)",
+    timeExplanation: "Each element pushed and popped at most once.",
+    spaceComplexity: "O(m)",
+    spaceExplanation: "Stack and hash map proportional to nums2 size.",
+    edgeCases: [
+      "Element with no next greater — stack residual, map returns -1.",
+      "nums1 element not in nums2 — guaranteed unique by problem.",
+      "Decreasing sequence in nums2 — all end up in stack, all get -1.",
+    ],
+    memoryTrick: "\"Monotonic decreasing stack: push each element. When current > top, top found its answer. Pop, record, repeat. This 'deferred assignment' pattern solves all Next Greater variants. NGE I: precompute map. NGE II (circular): double the array. Daily Temps: same pattern, store indices.\"",
+  },
+
+  "next-greater-element-ii": {
+    intuition: "Circular array: elements wrap around. Simulate by iterating 2n times (indices mod n). Use monotonic decreasing stack storing indices. After 2n iterations, any element still in stack has no next greater (-1). Key insight: second pass fills the gaps the first pass couldn't.",
+    approach: [
+      "Initialize result[n] = all -1. Stack stores indices.",
+      "Iterate i from 0 to 2n-1. Use actual index = i % n.",
+      "While stack not empty AND nums[stack.top()] < nums[i % n]: result[stack.top()] = nums[i % n]. Pop.",
+      "Only push i % n onto stack during first n iterations (second pass only resolves, doesn't add new entries).",
+      "Return result.",
+    ],
+    cppSolution: `vector<int> nextGreaterElements(vector<int>& nums) {
+    int n = nums.size();
+    vector<int> result(n, -1);
+    stack<int> st;  // stores indices
+    for (int i = 0; i < 2 * n; i++) {
+        while (!st.empty() && nums[st.top()] < nums[i % n]) {
+            result[st.top()] = nums[i % n];
+            st.pop();
+        }
+        if (i < n) st.push(i);  // only push in first pass
+    }
+    return result;
+}`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Each index pushed and popped at most once across 2n iterations.",
+    spaceComplexity: "O(n)",
+    spaceExplanation: "Stack and result array.",
+    edgeCases: [
+      "All same elements — stack never pops, all result stays -1.",
+      "Strictly increasing — last element is max, its NGE is nums[0]. Second pass handles it.",
+      "Single element — NGE is -1 (same element circular, not strictly greater).",
+    ],
+    memoryTrick: "\"Circular = iterate 2n, index mod n. Push only in first n iterations. Second pass resolves remaining elements without adding new ones. Same monotonic stack as NGE I — just double the loop. Any element not resolved after 2n iterations = no NGE = -1.\"",
+  },
+
+  // ── DP — Game Theory ────────────────────────────────────────────────────────
+
+  "nim-game": {
+    intuition: "If n % 4 == 0, second player wins (copies your strategy, always leaves you with 0 mod 4). Otherwise first player wins by taking enough to leave opponent at 4k. Pure math insight — no actual DP needed. Gateway to game theory.",
+    approach: [
+      "If n % 4 == 0: return false (second player always wins).",
+      "Else: return true (first player wins).",
+      "Why: with n=4, any move leaves 1,2,3 for opponent who can finish. With n=5,6,7, you can leave opponent with 4. With n=8, opponent mirrors strategy back to 4 after your move.",
+    ],
+    cppSolution: `bool canWinNim(int n) {
+    return n % 4 != 0;
+}
+// General game theory DP (for arbitrary move sets):
+// dp[i] = true if current player wins with i stones
+// dp[0] = false (no moves left, you lose)
+// dp[i] = any move in moves that leads to dp[i - move] == false
+// This generalizes to all combinatorial game problems`,
+    timeComplexity: "O(1)",
+    timeExplanation: "Single modulo operation.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "No space needed.",
+    edgeCases: [
+      "n = 1, 2, 3: first player wins (take all).",
+      "n = 4: second player wins.",
+      "n = 1e9+4: check n % 4, works for all sizes.",
+    ],
+    memoryTrick: "\"Losing positions: 0, 4, 8, 12, ... (multiples of 4). Any other position can move to a losing position. Pattern: losing iff n % 4 == 0. This generalizes: if moves = {1,2,...,k}, losing iff n % (k+1) == 0. Memorize for all Nim-like problems.\"",
+  },
+
+  "stone-game": {
+    intuition: "Alex (first player) always wins when n is even — mathematical proof. But the DP approach generalizes to Stone Game II, III, etc. DP: dp[i][j] = max score advantage (your score - opponent's) for stones[i..j]. On your turn you take either end; opponent plays optimally.",
+    approach: [
+      "dp[i][j] = best score difference (current player − opponent) over stones[i..j].",
+      "Base case: dp[i][i] = stones[i] (only one stone, take it).",
+      "Transition: dp[i][j] = max(stones[i] - dp[i+1][j], stones[j] - dp[i][j-1]).",
+      "Answer: dp[0][n-1] > 0 means Alex wins.",
+      "Math shortcut: n is even → Alex always wins (return true). But learn the DP for Stone Game II+.",
+    ],
+    cppSolution: `bool stoneGame(vector<int>& piles) {
+    // Math: Alex always wins when n is even
+    return true;  // n is always even per problem constraints
+}
+
+// General DP (needed for Stone Game II, III, IV, V...)
+bool stoneGameDP(vector<int>& piles) {
+    int n = piles.size();
+    vector<vector<int>> dp(n, vector<int>(n, 0));
+    for (int i = 0; i < n; i++) dp[i][i] = piles[i];
+    for (int len = 2; len <= n; len++) {
+        for (int i = 0; i <= n - len; i++) {
+            int j = i + len - 1;
+            dp[i][j] = max(piles[i] - dp[i+1][j],
+                           piles[j] - dp[i][j-1]);
+        }
+    }
+    return dp[0][n-1] > 0;
+}`,
+    timeComplexity: "O(n²) for DP, O(1) for math",
+    timeExplanation: "DP fills n×n table.",
+    spaceComplexity: "O(n²) for DP, O(1) for math",
+    spaceExplanation: "2D DP table.",
+    edgeCases: [
+      "n = 2: first player takes max of two piles.",
+      "All equal piles: first player's advantage depends on count parity.",
+      "DP handles arbitrary pile values the math shortcut doesn't.",
+    ],
+    memoryTrick: "\"dp[i][j] = advantage of current player over piles[i..j]. Negative = opponent is winning. Take left: stones[i] − dp[i+1][j] (opponent now has advantage over i+1..j). Take right: stones[j] − dp[i][j-1]. Max of both. Same template for Predict Winner, Optimal Strategy for a Game.\"",
+  },
+
   // ── 4 New Gap-Filling Problems ─────────────────────────────────────────────
 
   "remove-duplicates": {

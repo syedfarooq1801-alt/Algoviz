@@ -184,6 +184,57 @@ while (fast && fast->next) {
     ]
   },
   {
+    id: "prefix-sum",
+    title: "Prefix Sum",
+    description: "Precompute cumulative sums so any subarray sum is an O(1) lookup. Combine with a hash map to find subarrays with a target sum in O(n). Difference arrays make range-update problems O(1).",
+    coreIntuition: "prefix[i] = sum of first i elements. sum(l..r) = prefix[r+1] - prefix[l]. If prefix[j] - prefix[i] = k, then subarray [i..j-1] sums to k. Store seen prefixes in a hash map: for each j, check if prefix[j] - k already exists.",
+    recognitionSignals: [
+      "Subarray sum equals target (or divisible by k)",
+      "Range sum queries on static array",
+      "Update a range of elements efficiently (difference array)",
+      "'Count subarrays where…' with a sum condition",
+      "2D grid sum queries",
+    ],
+    template: `// 1D prefix sum — build once, query O(1)
+vector<int> prefix(n + 1, 0);
+for (int i = 0; i < n; i++) prefix[i+1] = prefix[i] + nums[i];
+int rangeSum = prefix[r+1] - prefix[l];  // sum nums[l..r]
+
+// Prefix sum + hashmap — count subarrays with sum == k
+unordered_map<int,int> seen{{0,1}};  // prefix->count
+int sum = 0, count = 0;
+for (int x : nums) {
+    sum += x;
+    count += seen[sum - k];  // how many prefixes make target subarray
+    seen[sum]++;
+}
+
+// Difference array — range update [l,r] += val in O(1)
+vector<int> diff(n+1, 0);
+diff[l] += val; diff[r+1] -= val;
+// recover: for(i) arr[i] = arr[i-1] + diff[i]`,
+    timeComplexity: "O(n) build, O(1) query",
+    spaceComplexity: "O(n) for prefix array",
+    realWorldAnalogy: "Running balance on a bank statement. Instead of re-adding every transaction to find your balance between dates A and B, you subtract the balance at A from balance at B. Prefix sum is exactly that running total.",
+    icon: "Sigma",
+    color: "cyan",
+    keyInsights: [
+      "Always initialize seen map with {0: 1} — a prefix sum of exactly k means the subarray from index 0 qualifies.",
+      "Difference array is the 'lazy' complement of prefix sum — efficient updates, O(n) recovery.",
+      "For modulo problems: (prefix[j] - prefix[i]) % k == 0 means prefix[j] % k == prefix[i] % k — group by remainder.",
+    ],
+    problems: [
+      { id: "running-sum-1d", title: "Running Sum of 1D Array", difficulty: "Easy", difficultyScore: 2, pattern: "prefix-sum", leetcodeUrl: "https://leetcode.com/problems/running-sum-of-1d-array/", hasVisualization: false, tags: ["Array", "Prefix Sum"], companies: ["Amazon"], frequency: "Medium" },
+      { id: "find-pivot-index", title: "Find Pivot Index", difficulty: "Easy", difficultyScore: 4, pattern: "prefix-sum", leetcodeUrl: "https://leetcode.com/problems/find-pivot-index/", hasVisualization: false, tags: ["Array", "Prefix Sum"], companies: ["Amazon", "Google"], frequency: "High" },
+      { id: "range-sum-query", title: "Range Sum Query - Immutable", difficulty: "Easy", difficultyScore: 3, pattern: "prefix-sum", leetcodeUrl: "https://leetcode.com/problems/range-sum-query-immutable/", hasVisualization: false, tags: ["Array", "Design", "Prefix Sum"], companies: ["Amazon", "Microsoft"], frequency: "High" },
+      { id: "subarray-sum-equals-k", title: "Subarray Sum Equals K", difficulty: "Medium", difficultyScore: 7, pattern: "prefix-sum", leetcodeUrl: "https://leetcode.com/problems/subarray-sum-equals-k/", hasVisualization: false, tags: ["Array", "Hash Map", "Prefix Sum"], companies: ["Amazon", "Google", "Meta", "Microsoft"], frequency: "High" },
+      { id: "subarray-sums-divisible-k", title: "Subarray Sums Divisible by K", difficulty: "Medium", difficultyScore: 7, pattern: "prefix-sum", leetcodeUrl: "https://leetcode.com/problems/subarray-sums-divisible-by-k/", hasVisualization: false, tags: ["Array", "Hash Map", "Prefix Sum"], companies: ["Google", "Amazon"], frequency: "Medium" },
+      { id: "continuous-subarray-sum", title: "Continuous Subarray Sum", difficulty: "Medium", difficultyScore: 7, pattern: "prefix-sum", leetcodeUrl: "https://leetcode.com/problems/continuous-subarray-sum/", hasVisualization: false, tags: ["Array", "Hash Map", "Prefix Sum", "Math"], companies: ["Amazon", "Google", "Meta"], frequency: "High" },
+      { id: "range-addition", title: "Range Addition", difficulty: "Medium", difficultyScore: 6, pattern: "prefix-sum", leetcodeUrl: "https://leetcode.com/problems/range-addition/", hasVisualization: false, tags: ["Array", "Prefix Sum", "Difference Array"], companies: ["Google", "Amazon"], frequency: "Medium" },
+      { id: "car-pooling", title: "Car Pooling", difficulty: "Medium", difficultyScore: 6, pattern: "prefix-sum", leetcodeUrl: "https://leetcode.com/problems/car-pooling/", hasVisualization: false, tags: ["Array", "Prefix Sum", "Difference Array", "Sorting"], companies: ["Google", "Amazon", "Lyft"], frequency: "High" },
+    ],
+  },
+  {
     id: "sliding-window",
     title: "Sliding Window",
     description: "Sliding window turns O(n²) subarray/substring problems into O(n) by reusing work from the previous window instead of recomputing from scratch. The window has a left and right boundary; right expands by one each step, left advances when the window violates the constraint. The critical insight: you never need to move left backwards — each element enters and exits the window exactly once.",
@@ -326,7 +377,9 @@ for (int i = 0; i < n; i++) {
       { id: "min-stack", title: "Min Stack", difficulty: "Medium", difficultyScore: 5, pattern: "stack", leetcodeUrl: "https://leetcode.com/problems/min-stack/", hasVisualization: true, tags: ["Stack", "Design"], companies: ["Amazon", "Bloomberg"], frequency: "High" },
       { id: "reverse-polish", title: "Evaluate Reverse Polish Notation", difficulty: "Medium", difficultyScore: 5, pattern: "stack", leetcodeUrl: "https://leetcode.com/problems/evaluate-reverse-polish-notation/", hasVisualization: true, tags: ["Array", "Stack", "Math"], companies: ["Amazon", "LinkedIn"], frequency: "Medium" },
       { id: "generate-parentheses", title: "Generate Parentheses", difficulty: "Medium", difficultyScore: 7, pattern: "stack", leetcodeUrl: "https://leetcode.com/problems/generate-parentheses/", hasVisualization: true, tags: ["String", "Backtracking", "Stack"], companies: ["Google", "Amazon"], frequency: "High" },
+      { id: "next-greater-element-i", title: "Next Greater Element I", difficulty: "Easy", difficultyScore: 4, pattern: "stack", leetcodeUrl: "https://leetcode.com/problems/next-greater-element-i/", hasVisualization: false, tags: ["Array", "Stack", "Monotonic Stack", "Hash Map"], companies: ["Amazon", "Google"], frequency: "High" },
       { id: "daily-temperatures", title: "Daily Temperatures", difficulty: "Medium", difficultyScore: 6, pattern: "stack", leetcodeUrl: "https://leetcode.com/problems/daily-temperatures/", hasVisualization: true, tags: ["Array", "Stack", "Monotonic Stack"], companies: ["Amazon"], frequency: "High" },
+      { id: "next-greater-element-ii", title: "Next Greater Element II", difficulty: "Medium", difficultyScore: 6, pattern: "stack", leetcodeUrl: "https://leetcode.com/problems/next-greater-element-ii/", hasVisualization: false, tags: ["Array", "Stack", "Monotonic Stack"], companies: ["Amazon", "Google"], frequency: "High" },
       { id: "car-fleet", title: "Car Fleet", difficulty: "Medium", difficultyScore: 7, pattern: "stack", leetcodeUrl: "https://leetcode.com/problems/car-fleet/", hasVisualization: true, tags: ["Array", "Stack", "Sorting"], companies: ["Google"], frequency: "Medium" },
       { id: "decode-string", title: "Decode String", difficulty: "Medium", difficultyScore: 7, pattern: "stack", leetcodeUrl: "https://leetcode.com/problems/decode-string/", hasVisualization: true, tags: ["String", "Stack", "Recursion"], companies: ["Amazon", "Google"], frequency: "High" },
       { id: "asteroid-collision", title: "Asteroid Collision", difficulty: "Medium", difficultyScore: 6, pattern: "stack", leetcodeUrl: "https://leetcode.com/problems/asteroid-collision/", hasVisualization: true, tags: ["Array", "Stack"], companies: ["Amazon", "Salesforce"], frequency: "Medium" },
@@ -872,6 +925,7 @@ for (int i = 1; i <= m; i++)
       { id: "climbing-stairs", title: "Climbing Stairs", difficulty: "Easy", difficultyScore: 3, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/climbing-stairs/", hasVisualization: true, tags: ["Math", "DP", "Memoization"], companies: ["Amazon", "Apple"], frequency: "High" },
       { id: "min-cost-climbing", title: "Min Cost Climbing Stairs", difficulty: "Easy", difficultyScore: 4, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/min-cost-climbing-stairs/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon"], frequency: "Medium" },
       { id: "nth-tribonacci", title: "N-th Tribonacci Number", difficulty: "Easy", difficultyScore: 3, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/n-th-tribonacci-number/", hasVisualization: true, tags: ["Math", "DP", "Memoization"], companies: ["Amazon", "LinkedIn"], frequency: "Medium" },
+      { id: "nim-game", title: "Nim Game", difficulty: "Easy", difficultyScore: 3, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/nim-game/", hasVisualization: false, tags: ["Math", "Game Theory", "DP"], companies: ["Google", "Amazon"], frequency: "Medium" },
       // 1D DP — Medium
       { id: "house-robber", title: "House Robber", difficulty: "Medium", difficultyScore: 5, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/house-robber/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon", "Airbnb"], frequency: "High" },
       { id: "house-robber-ii", title: "House Robber II", difficulty: "Medium", difficultyScore: 6, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/house-robber-ii/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon"], frequency: "High" },
@@ -890,6 +944,7 @@ for (int i = 1; i <= m; i++)
       { id: "triangle", title: "Triangle", difficulty: "Medium", difficultyScore: 6, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/triangle/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon"], frequency: "Medium" },
       { id: "longest-common-subsequence", title: "Longest Common Subsequence", difficulty: "Medium", difficultyScore: 8, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/longest-common-subsequence/", hasVisualization: true, tags: ["String", "DP"], companies: ["Amazon", "Google"], frequency: "High" },
       { id: "edit-distance", title: "Edit Distance", difficulty: "Medium", difficultyScore: 9, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/edit-distance/", hasVisualization: true, tags: ["String", "DP"], companies: ["Amazon", "Google", "Microsoft"], frequency: "High" },
+      { id: "stone-game", title: "Stone Game", difficulty: "Medium", difficultyScore: 6, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/stone-game/", hasVisualization: false, tags: ["Array", "Math", "DP", "Game Theory"], companies: ["Google", "Amazon", "Meta"], frequency: "Medium" },
       { id: "buy-sell-cooldown", title: "Best Time to Buy and Sell Stock with Cooldown", difficulty: "Medium", difficultyScore: 7, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon"], frequency: "Medium" },
       { id: "coin-change-ii", title: "Coin Change II", difficulty: "Medium", difficultyScore: 7, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/coin-change-ii/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon"], frequency: "High" },
       { id: "target-sum", title: "Target Sum", difficulty: "Medium", difficultyScore: 7, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/target-sum/", hasVisualization: true, tags: ["Array", "DP", "Backtracking"], companies: ["Amazon"], frequency: "High" },

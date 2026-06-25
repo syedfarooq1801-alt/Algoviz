@@ -4,6 +4,24 @@
 // Goal: by solving problems in a pattern, every distinct technique in that pattern is covered.
 
 export const PROBLEM_TECHNIQUES: Record<string, string> = {
+  // ─── Prefix Sum ────────────────────────────────────────────────────────────
+  "running-sum-1d":            "1D Prefix Build",
+  "find-pivot-index":          "Prefix vs Suffix",
+  "range-sum-query":           "Prefix Query O(1)",
+  "subarray-sum-equals-k":     "Prefix + Hash Map",
+  "subarray-sums-divisible-k": "Prefix Mod Groups",
+  "continuous-subarray-sum":   "Prefix Mod + Min Gap",
+  "range-addition":            "Difference Array",
+  "car-pooling":               "Diff Array Timeline",
+
+  // ─── Stack additions ────────────────────────────────────────────────────────
+  "next-greater-element-i":    "Mono Stack + Map",
+  "next-greater-element-ii":   "Mono Stack Circular",
+
+  // ─── DP Game Theory ────────────────────────────────────────────────────────
+  "nim-game":                  "Game Theory Math",
+  "stone-game":                "Interval DP (Minimax)",
+
   // ─── Arrays & Hashing ──────────────────────────────────────────────────────
   "contains-duplicate":        "Freq Count",
   "valid-anagram":             "Freq Count",
@@ -325,6 +343,21 @@ export const TECHNIQUE_COLOR: Record<string, string> = {
   "State Machine DP":          "#7c3aed",
   "Bitmask DP per Row":        "#7c3aed",
   "DFS + Memoization":         "#7c3aed",
+  // prefix sum
+  "1D Prefix Build":           "#22d3ee",
+  "Prefix vs Suffix":          "#22d3ee",
+  "Prefix Query O(1)":         "#22d3ee",
+  "Prefix + Hash Map":         "#06b6d4",
+  "Prefix Mod Groups":         "#06b6d4",
+  "Prefix Mod + Min Gap":      "#06b6d4",
+  "Difference Array":          "#0891b2",
+  "Diff Array Timeline":       "#0891b2",
+  // stack additions
+  "Mono Stack + Map":          "#f97316",
+  "Mono Stack Circular":       "#f97316",
+  // game theory
+  "Game Theory Math":          "#a855f7",
+  "Interval DP (Minimax)":     "#7c3aed",
   // default
   "_default":                  "#64748b",
 };
