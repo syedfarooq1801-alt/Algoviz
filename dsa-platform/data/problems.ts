@@ -988,7 +988,6 @@ for (int i = 1; i <= m; i++)
       { id: "burst-balloons", title: "Burst Balloons", difficulty: "Hard", difficultyScore: 10, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/burst-balloons/", hasVisualization: false, tags: ["Array", "DP", "Divide & Conquer"], companies: ["Google"], frequency: "Medium" },
       { id: "regular-expression-matching", title: "Regular Expression Matching", difficulty: "Hard", difficultyScore: 10, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/regular-expression-matching/", hasVisualization: false, tags: ["String", "DP", "Recursion"], companies: ["Amazon", "Google", "Facebook"], frequency: "Medium" },
       { id: "max-score-multiplication", title: "Maximum Score from Performing Multiplication Operations", difficulty: "Hard", difficultyScore: 8, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/maximum-score-from-performing-multiplication-operations/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon", "Google"], frequency: "Low" },
-      { id: "edit-distance", title: "Edit Distance", difficulty: "Hard", difficultyScore: 9, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/edit-distance/", hasVisualization: true, tags: ["String", "DP"], companies: ["Google", "Amazon", "Meta", "Microsoft"], frequency: "High" },
     ]
   },
   {
