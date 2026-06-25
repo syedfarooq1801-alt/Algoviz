@@ -1,0 +1,121 @@
+{
+  "concurrency": {
+    "id": "concurrency",
+    "title": "Concurrency & Multithreading",
+    "chapters": [
+      {
+        "id": "threads-processes",
+        "num": 1,
+        "title": "Threads vs Processes",
+        "blocks": [
+          { "type": "para", "text": "A process is an independent program in execution with its own memory space, file handles, and system resources. A thread is a lightweight unit of execution within a process — threads share the process's memory space (heap, globals, code) but each has its own stack and program counter. Creating a thread is 10–100× faster than creating a process because no new memory space is allocated." },
+          { "type": "analogy", "text": "Process = a separate office building with its own staff, electricity, and address. Thread = different employees in the SAME building sharing the same floor, same printer, same coffee machine. Threads communicate easily (shared memory) but must coordinate to avoid collisions." },
+          { "type": "pre", "text": "# Python threading example\nimport threading\n\nshared_counter = 0  # shared between threads\n\ndef increment():\n    global shared_counter\n    for _ in range(100000):\n        shared_counter += 1  # NOT thread-safe!\n\nt1 = threading.Thread(target=increment)\nt2 = threading.Thread(target=increment)\nt1.start(); t2.start()\nt1.join(); t2.join()\nprint(shared_counter)  # NOT 200000 — race condition!" },
+          { "type": "memory-trick", "text": "Process: separate memory + heavyweight + no sharing needed + OS fault isolation. Thread: shared memory + lightweight + fast communication + requires synchronization. Servers use threads (shared DB connections). Microservices use processes (isolation)." },
+          { "type": "interview", "qas": [
+            { "q": "What's shared between threads of the same process?", "a": "Heap memory, global variables, code segment, open file descriptors, signal handlers, and environment. NOT shared: stack, stack pointer, program counter, register values, thread-local storage. This is why threads can accidentally corrupt each other's data through shared heap writes." },
+            { "q": "When would you use multiple processes vs multiple threads?", "a": "Processes: when tasks need strong isolation (fault in one shouldn't kill others), when using Python (GIL prevents true thread parallelism for CPU-bound work), microservices. Threads: when tasks share a lot of data (avoids copying), for I/O-bound work, for lightweight parallelism. Go uses goroutines — lightweight green threads, thousands per process, scheduled by Go runtime." }
+          ]}
+        ]
+      },
+      {
+        "id": "mutex-semaphore",
+        "num": 2,
+        "title": "Mutex, Semaphore, and Monitors",
+        "blocks": [
+          { "type": "para", "text": "A mutex (mutual exclusion lock) allows only ONE thread to enter a critical section at a time. A thread acquires the mutex before the critical section and releases it after. A semaphore is a counter-based synchronization primitive — allows N threads simultaneously. Binary semaphore (0/1) behaves like a mutex but lacks ownership. A monitor is a high-level synchronization construct (condition variables + mutex combined)." },
+          { "type": "pre", "text": "import threading\n\n# MUTEX — only 1 thread at a time\nlock = threading.Lock()\ncounter = 0\n\ndef safe_increment():\n    global counter\n    with lock:  # acquire on entry, release on exit\n        counter += 1  # critical section\n\n# SEMAPHORE — limit concurrent access to N\nsemaphore = threading.Semaphore(3)  # max 3 concurrent\n\ndef access_resource():\n    with semaphore:  # blocks if 3 already inside\n        # use limited resource (DB connections, file handles)\n        pass\n\n# CONDITION VARIABLE (Monitor pattern)\ncondition = threading.Condition(lock)\nbuffer = []\n\ndef producer():\n    with condition:\n        buffer.append('item')\n        condition.notify()  # wake up waiting consumer\n\ndef consumer():\n    with condition:\n        while not buffer:  # always check in a loop!\n            condition.wait()  # releases lock, sleeps\n        item = buffer.pop()" },
+          { "type": "memory-trick", "text": "Mutex = toilet lock (1 person at a time, the person who locked it must unlock it). Semaphore = parking lot tickets (N spaces, anyone can take/return). Binary semaphore ≠ mutex: no ownership. Use mutex for mutual exclusion, semaphore for signaling or resource pools." },
+          { "type": "common-mistake", "text": "Spurious wakeups: condition.wait() can return even without notify(). Always check the condition in a LOOP (while not buffer: wait()) not an if statement. This is the 'check → wait → recheck' pattern required by all condition variable usage." },
+          { "type": "interview", "qas": [
+            { "q": "What's the difference between mutex and binary semaphore?", "a": "Mutex has ownership — only the thread that locked it can unlock it. Provides deadlock detection in many implementations. Binary semaphore has no ownership — any thread can signal it. Used for signaling between threads (producer notifies consumer). Use mutex for mutual exclusion, binary semaphore for thread coordination/signaling." },
+            { "q": "What is a condition variable?", "a": "Allows threads to sleep until a condition becomes true, releasing the lock while sleeping so other threads can make progress. Always used with a mutex. Always check condition in a loop (while not ready: cv.wait()). notify() wakes one waiter, notify_all() wakes all. Used in producer-consumer, thread pools, blocking queues." }
+          ]}
+        ]
+      },
+      {
+        "id": "producer-consumer",
+        "num": 3,
+        "title": "Producer-Consumer Problem",
+        "blocks": [
+          { "type": "para", "text": "Classic synchronization problem: producers generate items and put them in a shared buffer. Consumers take items from the buffer. Constraints: producers must wait if buffer is full, consumers must wait if buffer is empty, only one thread modifies the buffer at a time. Solution uses a mutex (mutual exclusion) + two condition variables (not_full, not_empty)." },
+          { "type": "pre", "text": "import threading\nfrom collections import deque\n\nclass BoundedBlockingQueue:\n    def __init__(self, capacity: int):\n        self.buffer = deque()\n        self.capacity = capacity\n        self.lock = threading.Lock()\n        self.not_full = threading.Condition(self.lock)\n        self.not_empty = threading.Condition(self.lock)\n\n    def put(self, item):\n        with self.not_full:\n            while len(self.buffer) >= self.capacity:\n                self.not_full.wait()  # release lock, sleep until space\n            self.buffer.append(item)\n            self.not_empty.notify()  # wake a consumer\n\n    def get(self):\n        with self.not_empty:\n            while not self.buffer:\n                self.not_empty.wait()  # release lock, sleep until item\n            item = self.buffer.popleft()\n            self.not_full.notify()  # wake a producer\n            return item\n\n# Usage\nqueue = BoundedBlockingQueue(5)\n\ndef producer_func():\n    for i in range(10): queue.put(f'item_{i}')\n\ndef consumer_func():\n    for _ in range(10): print(queue.get())\n\np = threading.Thread(target=producer_func)\nc = threading.Thread(target=consumer_func)\np.start(); c.start()\np.join(); c.join()" },
+          { "type": "memory-trick", "text": "Producer-Consumer: 2 locks worth knowing — (1) buffer lock for mutual exclusion, (2) 2 condition variables: not_full (producer waits here) and not_empty (consumer waits here). The waiting thread releases the lock — critical for the other side to make progress." },
+          { "type": "interview", "qas": [
+            { "q": "How does Java's BlockingQueue solve producer-consumer?", "a": "java.util.concurrent.LinkedBlockingQueue implements bounded blocking queue. put() blocks when full, take() blocks when empty — internally uses ReentrantLock + two Conditions (notFull, notEmpty). Thread-safe, high performance. Always prefer BlockingQueue over manual synchronization in production Java code. Python equivalent: queue.Queue." },
+            { "q": "What is the ABA problem in lock-free programming?", "a": "Thread reads A, gets preempted, another thread changes A→B→A. First thread resumes, CAS check sees A — thinks nothing changed, but state has changed. Solution: tag each value with a version counter (AtomicStampedReference in Java). CAS checks both value AND version. ABA problem only matters in lock-free algorithms (CAS loops), not in mutex-protected code." }
+          ]}
+        ]
+      },
+      {
+        "id": "dining-philosophers",
+        "num": 4,
+        "title": "Dining Philosophers",
+        "blocks": [
+          { "type": "para", "text": "Five philosophers sit at a table, each needing two forks (left + right) to eat. Forks are shared between adjacent philosophers. Naive solution: each philosopher picks up left fork, waits for right → DEADLOCK (all holding one fork, all waiting for another). Classic illustration of deadlock from circular wait." },
+          { "type": "pre", "text": "import threading\n\nN = 5\nforks = [threading.Lock() for _ in range(N)]\n\n# DEADLOCK solution (wrong):\ndef philosopher_deadlock(i):\n    forks[i].acquire()          # pick left\n    forks[(i+1) % N].acquire()  # pick right — DEADLOCKS\n\n# FIX 1: Break circular wait — one philosopher picks right first\ndef philosopher_safe(i):\n    left, right = i, (i + 1) % N\n    if i == N - 1:  # last philosopher picks right first\n        left, right = right, left\n    forks[left].acquire()\n    forks[right].acquire()\n    # eat\n    forks[right].release()\n    forks[left].release()\n\n# FIX 2: Arbitrator / resource hierarchy\n# All philosophers pick lower-numbered fork first\ndef philosopher_hierarchy(i):\n    left, right = min(i, (i+1) % N), max(i, (i+1) % N)\n    forks[left].acquire()   # always lower-numbered first\n    forks[right].acquire()  # then higher\n    # eat\n    forks[right].release()\n    forks[left].release()" },
+          { "type": "memory-trick", "text": "Dining Philosophers = 4 conditions for deadlock: Mutual Exclusion + Hold-and-Wait + No Preemption + Circular Wait. Break ANY one to prevent deadlock. Resource ordering (hierarchy solution) breaks circular wait. Arbitrator solution breaks hold-and-wait." },
+          { "type": "interview", "qas": [
+            { "q": "What are the four necessary conditions for deadlock?", "a": "1. Mutual Exclusion — resource can't be shared simultaneously. 2. Hold and Wait — process holds some resources while waiting for others. 3. No Preemption — resources can't be forcibly taken. 4. Circular Wait — circular chain of waiting processes. ALL four must hold for deadlock. Remove any one to prevent it. Resource ordering removes Circular Wait. Lock timeout removes Hold-and-Wait." },
+            { "q": "What is livelock vs deadlock?", "a": "Deadlock: threads blocked forever, no progress. Livelock: threads actively changing state in response to each other but making no progress (both keep stepping aside for each other at a narrow corridor, neither gets through). Starvation: a thread never gets CPU time because others always have priority. Prevention: fair scheduling, timeout with backoff, resource ordering." }
+          ]}
+        ]
+      },
+      {
+        "id": "thread-pool",
+        "num": 5,
+        "title": "Thread Pools & Executors",
+        "blocks": [
+          { "type": "para", "text": "Creating a new thread for every task is expensive (stack allocation, OS scheduling). Thread pools maintain a fixed set of worker threads. Tasks are submitted to a queue; idle workers pick up tasks. Benefits: bounded thread count, task queuing, thread reuse. Java: ExecutorService. Python: concurrent.futures.ThreadPoolExecutor." },
+          { "type": "pre", "text": "from concurrent.futures import ThreadPoolExecutor, as_completed\n\n# Python Thread Pool\ndef process_task(task_id: int) -> str:\n    # simulate work\n    import time; time.sleep(0.1)\n    return f'Task {task_id} done'\n\n# Pool with 4 workers, submit 20 tasks\nwith ThreadPoolExecutor(max_workers=4) as executor:\n    futures = [executor.submit(process_task, i) for i in range(20)]\n    for future in as_completed(futures):\n        print(future.result())  # waits for each as they complete\n\n# With timeout\ntry:\n    result = executor.submit(process_task, 99).result(timeout=5.0)\nexcept TimeoutError:\n    print('Task timed out')\n\n# Java equivalent:\n# ExecutorService pool = Executors.newFixedThreadPool(4);\n# Future<String> f = pool.submit(() -> processTask(id));\n# pool.shutdown();\n# pool.awaitTermination(10, TimeUnit.SECONDS);" },
+          { "type": "memory-trick", "text": "Thread pool size rule of thumb: CPU-bound tasks = N_CPU + 1 threads. I/O-bound tasks = N_CPU × (1 + wait_time/compute_time). I/O-bound can have many more threads since they spend most time waiting. Over-provisioning threads wastes memory and causes context switching overhead." },
+          { "type": "interview", "qas": [
+            { "q": "What happens when thread pool queue is full?", "a": "Depends on rejection policy. Java ThreadPoolExecutor options: AbortPolicy (throw exception — default), CallerRunsPolicy (caller thread executes the task), DiscardPolicy (silently drop), DiscardOldestPolicy (drop oldest queued task). Production: use CallerRunsPolicy for backpressure — slows the submitter, preventing queue overflow. Monitor queue depth as a health metric." },
+            { "q": "What is the difference between submit() and execute() in Java ExecutorService?", "a": "execute() is fire-and-forget — returns void, no way to know when done or catch exceptions. submit() returns a Future — can call .get() to wait for result, .get(timeout) with deadline, catches checked exceptions thrown by the task. Always use submit() unless you genuinely don't care about the result or exceptions." }
+          ]}
+        ]
+      },
+      {
+        "id": "deadlock-detection",
+        "num": 6,
+        "title": "Deadlock — Detection, Prevention, Avoidance",
+        "blocks": [
+          { "type": "para", "text": "Deadlock management strategies: Prevention (break one of the 4 conditions at design time), Avoidance (runtime check that each resource grant keeps system in safe state — Banker's Algorithm), Detection (allow deadlock, detect via wait-for graph, recover by killing/rolling back a process), Ignore (Ostrich algorithm — most desktop OS, assume deadlock is rare enough to restart)." },
+          { "type": "pre", "text": "# Deadlock detection via wait-for graph\n# Node per process, edge P_i → P_j means P_i waits for resource held by P_j\n# Cycle in graph = deadlock\n\nfrom collections import defaultdict, deque\n\ndef has_cycle(graph: dict) -> bool:\n    \"\"\"DFS cycle detection in directed graph\"\"\"\n    visited, in_stack = set(), set()\n\n    def dfs(node) -> bool:\n        visited.add(node); in_stack.add(node)\n        for neighbor in graph.get(node, []):\n            if neighbor not in visited:\n                if dfs(neighbor): return True\n            elif neighbor in in_stack: return True\n        in_stack.discard(node)\n        return False\n\n    return any(dfs(n) for n in graph if n not in visited)\n\n# Example: P0 waits for P1, P1 waits for P2, P2 waits for P0 → cycle!\nwait_for = {0: [1], 1: [2], 2: [0]}\nprint(has_cycle(wait_for))  # True → deadlock!" },
+          { "type": "interview", "qas": [
+            { "q": "Explain Banker's Algorithm for deadlock avoidance.", "a": "Resource allocation algorithm that checks if a process's resource request would leave the system in a safe state. Safe state: there exists some order in which all processes can eventually complete. Algorithm: simulate granting the request, check if remaining resources can satisfy all processes in some order (safe sequence). If yes, grant; if no, make process wait. Expensive — O(n²×r) per request. Used in systems where deadlock is unacceptable (embedded, real-time)." },
+            { "q": "How does the Linux kernel handle deadlock?", "a": "Linux uses lock ordering (resource hierarchy) to prevent deadlocks in the kernel — all kernel code must acquire locks in a consistent global order. The lockdep validator detects potential lock order violations at runtime (debug builds). For user-space: no OS-level prevention — developers must write deadlock-free code. Tools: Valgrind Helgrind, ThreadSanitizer detect races and potential deadlocks at runtime." }
+          ]}
+        ]
+      },
+      {
+        "id": "async-programming",
+        "num": 7,
+        "title": "Async / Event Loop / Coroutines",
+        "blocks": [
+          { "type": "para", "text": "Asynchronous programming allows a single thread to handle multiple I/O operations concurrently without blocking. Instead of waiting for a network response (10ms idle), the thread does other work and resumes when the response arrives. Python's asyncio, JavaScript's event loop, and Kotlin coroutines all implement this. Key: cooperative scheduling — code explicitly yields control (await/yield)." },
+          { "type": "pre", "text": "import asyncio\nimport aiohttp\n\n# SYNCHRONOUS: blocks entire thread waiting for each HTTP response\n# for url in urls:\n#     response = requests.get(url)  # BLOCKS 100ms each\n# Total: N × 100ms\n\n# ASYNCHRONOUS: fire all requests, handle responses as they arrive\nasync def fetch(session, url):\n    async with session.get(url) as response:\n        return await response.text()  # yields control while waiting\n\nasync def fetch_all(urls):\n    async with aiohttp.ClientSession() as session:\n        tasks = [fetch(session, url) for url in urls]\n        results = await asyncio.gather(*tasks)  # concurrent, not parallel\n        return results\n# Total: ≈ 1 × 100ms (all requests in flight simultaneously)\n\n# asyncio.gather() = run tasks concurrently in same event loop\n# asyncio.to_thread() = run blocking code in thread pool\nasync def blocking_wrapper():\n    result = await asyncio.to_thread(some_blocking_function)\n    return result" },
+          { "type": "memory-trick", "text": "Async vs Threads: Threads = preemptive, OS switches anytime, data races possible. Async = cooperative, yields at 'await', single thread, no races (in Python). Async is better for I/O-bound work (many concurrent connections). Threads are better for CPU-bound work (actual parallel computation on multi-core, but Python GIL prevents this)." },
+          { "type": "interview", "qas": [
+            { "q": "What is the event loop and how does it work?", "a": "Single-threaded loop that polls for I/O events and dispatches callbacks. Phases: (1) timers (setTimeout/asyncio.sleep callbacks), (2) I/O callbacks (network/disk responses), (3) idle/prepare, (4) poll for new events. Node.js and Python asyncio both use this model. Key: never block the event loop (no sync I/O, no CPU-heavy computation) — it starves all other tasks. Offload blocking work to thread pools." },
+            { "q": "What's the Python GIL and when does it matter?", "a": "Global Interpreter Lock: CPython's mutex that allows only one thread to execute Python bytecode at a time. Means CPU-bound multithreaded Python code runs slower than single-threaded (thread switching overhead without parallelism). Doesn't affect I/O-bound code (GIL released during I/O). Workarounds: multiprocessing module (separate processes, no GIL), PyPy, Cython, or calling C extensions that release the GIL. Python 3.13 adds optional GIL disable." }
+          ]}
+        ]
+      },
+      {
+        "id": "memory-models",
+        "num": 8,
+        "title": "Memory Models & Volatile / Atomic",
+        "blocks": [
+          { "type": "para", "text": "CPU caches and compiler reordering mean that shared variables written by one thread may not be immediately visible to another. Memory models define when writes become visible. Java Memory Model (JMM) guarantees: volatile writes are visible to all threads immediately, synchronized blocks establish happens-before relationships. C++ std::memory_order controls ordering." },
+          { "type": "pre", "text": "// Java: volatile ensures visibility (but not atomicity)\nprivate volatile boolean running = true;\n\n// One thread sets: running = false\n// Other thread reads: while (running) { ... }\n// Without volatile: compiler may cache 'running' in register → infinite loop\n// With volatile: every read goes to main memory\n\n// Java: AtomicInteger for atomic read-modify-write\nimport java.util.concurrent.atomic.AtomicInteger;\nAtomicInteger counter = new AtomicInteger(0);\ncounter.incrementAndGet();    // atomic, no lock needed\ncounter.compareAndSet(5, 10); // CAS: if value==5, set to 10\n\n// Python: threading.Event for simple flag\nimport threading\nstop_event = threading.Event()\n# Signal: stop_event.set()\n// Wait: stop_event.wait()  # blocks until set\n// Check: stop_event.is_set()" },
+          { "type": "memory-trick", "text": "Volatile: visibility only (other threads see latest value). NOT atomic (i++ is still 3 operations: read, increment, write). Use AtomicInteger for thread-safe increment. Use volatile for simple flags (boolean stop = false). Use synchronized/lock for compound operations." },
+          { "type": "interview", "qas": [
+            { "q": "What is a happens-before relationship?", "a": "Formal guarantee that if action A happens-before action B, then all effects of A are visible to B. Established by: synchronized (monitor release happens-before monitor acquire), volatile writes happen-before volatile reads of same variable, Thread.start() happens-before all actions in the started thread, Thread.join() happens-before all actions after the join. Without happens-before, the JMM allows compilers/CPUs to reorder or cache values." },
+            { "q": "What is Compare-And-Swap (CAS)?", "a": "Atomic hardware instruction: compare memory location with expected value, if equal set to new value, return success/failure. Foundation of all lock-free data structures. Java AtomicInteger.compareAndSet(), C++ atomic<T>.compare_exchange_strong(). Advantage: no lock, no context switch. Disadvantage: ABA problem, spinning wastes CPU under high contention. Java's ConcurrentHashMap, ConcurrentLinkedQueue use CAS internally." }
+          ]}
+        ]
+      }
+    ]
+  }
+}

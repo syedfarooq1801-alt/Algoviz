@@ -116,6 +116,24 @@ export default function Sidebar() {
       icon: BrainCircuit,
       active: pathname.startsWith("/ai-ml"),
     },
+    {
+      href: "/lld",
+      label: "LLD / OOD",
+      icon: Swords,
+      active: pathname.startsWith("/lld"),
+    },
+    {
+      href: "/sql",
+      label: "SQL Problems",
+      icon: BarChart3,
+      active: pathname.startsWith("/sql"),
+    },
+    {
+      href: "/company-prep",
+      label: "Company Prep",
+      icon: Trophy,
+      active: pathname.startsWith("/company-prep"),
+    },
   ];
 
   const tools: NavItem[] = [

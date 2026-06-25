@@ -3,8 +3,10 @@ import rawDbms from "./seBasics-dbms.json";
 import rawCn from "./seBasics-cn.json";
 import rawOop from "./seBasics-oop.json";
 import rawLinux from "./seBasics-linux.json";
+import rawConcurrency from "./seBasics-concurrency.json";
+import rawSysprog from "./seBasics-sysprog.json";
 
-const raw = { ...rawOs, ...rawDbms, ...rawCn, ...rawOop, ...rawLinux } as Record<string, Subject>;
+const raw = { ...rawOs, ...rawDbms, ...rawCn, ...rawOop, ...rawLinux, ...rawConcurrency, ...rawSysprog } as Record<string, Subject>;
 
 export type BlockType =
   | "para" | "heading" | "analogy" | "memory-trick" | "example"
@@ -38,10 +40,12 @@ export const SUBJECT_META: Record<string, { blurb: string; accent: string; topic
   "computer-networks": { blurb: "Layered networking, addressing, TCP/UDP, DNS, HTTP/HTTPS and security essentials.", accent: "var(--accent-green)", topics: "OSI · TCP/UDP · DNS · HTTP" },
   "oop": { blurb: "Classes, the four pillars, SOLID principles, design patterns and the Rule of Three/Five.", accent: "var(--accent-purple)", topics: "Inheritance · Polymorphism · SOLID · Patterns" },
   "linux-se": { blurb: "Linux internals, permissions, Git, SDLC, Agile, testing, Big-O and system design basics.", accent: "var(--accent-red)", topics: "Permissions · Git · Agile · Big-O" },
+  "concurrency": { blurb: "Threads vs processes, mutex, semaphore, producer-consumer, dining philosophers, thread pools, async/await — senior-level multithreading.", accent: "#06b6d4", topics: "Threads · Mutex · Deadlock · Async · Thread Pool" },
+  "systems-depth": { blurb: "Virtual memory, paging, page replacement, CPU scheduling, file systems, socket programming, and IPC for systems roles.", accent: "#8b5cf6", topics: "Virtual Memory · Scheduling · Sockets · IPC" },
 };
 
 export const SE_SUBJECTS: Subject[] = (raw as { [k: string]: Subject }) &&
-  ["operating-systems", "dbms", "computer-networks", "oop", "linux-se"]
+  ["operating-systems", "dbms", "computer-networks", "oop", "linux-se", "concurrency", "systems-depth"]
     .map((id) => (raw as Record<string, Subject>)[id])
     .filter(Boolean);
 

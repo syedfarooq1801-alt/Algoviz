@@ -1,0 +1,91 @@
+{
+  "systems-depth": {
+    "id": "systems-depth",
+    "title": "OS & Networking Depth",
+    "chapters": [
+      {
+        "id": "virtual-memory",
+        "num": 1,
+        "title": "Virtual Memory & Paging",
+        "blocks": [
+          { "type": "para", "text": "Virtual memory gives each process the illusion of a large private address space independent of physical RAM. The OS + hardware (MMU) translate virtual addresses to physical addresses via page tables. Pages are fixed-size chunks (typically 4KB). If a page isn't in RAM, a page fault triggers the OS to load it from disk (swap). This enables more processes than physical RAM, process isolation, and memory-mapped files." },
+          { "type": "analogy", "text": "Virtual memory is like a library with a limited room (RAM) and huge archives (disk). Your desk (process) can have unlimited book references (virtual addresses). When you actually open a book that's in the archives, a librarian (OS) fetches it to the room. If the room is full, the least-needed book goes back to archives (page eviction)." },
+          { "type": "pre", "text": "Virtual Address Space (per process):\n┌─────────────────┐ 0xFFFFFFFF\n│  Kernel space   │ (mapped same in all processes, protected)\n├─────────────────┤\n│    Stack        │ (grows down)\n│        ↓        │\n│  [ unmapped ]   │\n│        ↑        │\n│    Heap         │ (grows up)\n├─────────────────┤\n│    BSS          │ (uninitialized globals)\n│    Data         │ (initialized globals)\n│    Text/Code    │ (read-only, executable)\n└─────────────────┘ 0x00000000\n\nAddress Translation:\nVirtual Addr → [MMU + Page Table] → Physical Addr\n         ↓\n   Page Table Entry:\n   - Present bit (in RAM?)\n   - Dirty bit (written?)\n   - Access bit (recently used?)\n   - Physical frame number" },
+          { "type": "memory-trick", "text": "Page fault types: Minor (page in memory but not mapped — lazy allocation), Major (page on disk — must load from swap, expensive ~10ms vs 100ns RAM). TLB (Translation Lookaside Buffer) = hardware cache of page table entries. TLB hit: 1 cycle. TLB miss: 100+ cycles to walk page table. This is why locality matters — poor locality = TLB thrashing." },
+          { "type": "interview", "qas": [
+            { "q": "What is demand paging?", "a": "Pages are loaded into RAM only when first accessed (not at process start). Process starts with all pages marked not-present. First access causes a page fault, OS loads the page. Benefits: fast process start, lower memory usage. Cost: page fault overhead on first access to each page. Linux uses demand paging with copy-on-write (fork() shares pages read-only until one process writes)." },
+            { "q": "What is copy-on-write (COW) and how does Linux fork() use it?", "a": "fork() would normally copy all parent memory to child — expensive for large processes. COW: parent and child share the same physical pages marked read-only. On first write by either process, a page fault triggers the OS to make a private copy for the writing process. Only modified pages are copied. If child immediately calls exec(), COW makes fork()+exec() nearly free — no pages ever need copying." }
+          ]}
+        ]
+      },
+      {
+        "id": "page-replacement",
+        "num": 2,
+        "title": "Page Replacement Algorithms",
+        "blocks": [
+          { "type": "para", "text": "When RAM is full and a new page must be loaded, the OS must evict an existing page. Page replacement policy determines which page to evict. Goal: minimize page faults. Optimal (OPT) is impossible in practice (requires future knowledge). LRU is common but expensive. Clock (approximation of LRU) and LFU are practical alternatives." },
+          { "type": "pre", "text": "# LRU Page Replacement Simulation\nfrom collections import OrderedDict\n\ndef lru_page_faults(pages: list, capacity: int) -> int:\n    cache = OrderedDict()  # OrderedDict: insertion/access order\n    faults = 0\n\n    for page in pages:\n        if page in cache:\n            cache.move_to_end(page)  # mark as recently used\n        else:\n            faults += 1\n            if len(cache) >= capacity:\n                cache.popitem(last=False)  # evict LRU (oldest)\n            cache[page] = True\n    return faults\n\nprint(lru_page_faults([1,2,3,4,1,2,5,1,2,3,4,5], 3))  # 8 faults\n\n# CLOCK ALGORITHM (OS practical LRU approximation)\n# Each page has a reference bit\n# Clock hand sweeps: bit=1 → clear and advance; bit=0 → evict\n# Avoids maintaining exact access order" },
+          { "type": "memory-trick", "text": "OPT (Belady's): evict page used furthest in future — impossible. FIFO: evict oldest loaded page — Belady's Anomaly (more frames can cause MORE faults). LRU: evict least recently used — good, expensive (need timestamps). Clock: approximates LRU with reference bits — used in Linux. LFU: evict least frequently used — good for repeated patterns." },
+          { "type": "interview", "qas": [
+            { "q": "What is Belady's Anomaly?", "a": "Counterintuitive behavior of FIFO page replacement: adding more page frames can INCREASE page faults. Example: with 3 frames, FIFO gives 9 faults; with 4 frames, FIFO gives 10 faults on the same reference string. LRU and OPT don't exhibit Belady's Anomaly (they're 'stack algorithms' — adding frames never hurts). This is why OS designers prefer LRU-like algorithms over FIFO." },
+            { "q": "How does Linux choose pages to evict?", "a": "Linux uses a multi-list approach: active list (recently accessed pages), inactive list (candidates for eviction). Pages move between lists based on access patterns. Uses clock-like reference bit. kswapd daemon periodically moves pages from active to inactive, evicts from inactive when memory pressure. Also considers dirty pages (must write to disk before evicting) vs clean pages (can evict directly). Anonymous pages go to swap, file-backed pages go back to disk." }
+          ]}
+        ]
+      },
+      {
+        "id": "cpu-scheduling",
+        "num": 3,
+        "title": "CPU Scheduling",
+        "blocks": [
+          { "type": "para", "text": "CPU scheduler decides which ready process gets CPU time. Criteria: CPU utilization (keep CPU busy), throughput (jobs/second), turnaround time (submit to complete), waiting time (time in ready queue), response time (submit to first response). No algorithm is optimal for all criteria — tradeoffs exist." },
+          { "type": "pre", "text": "Scheduling algorithms:\n\nFCFS (First Come First Served)\n- Non-preemptive, simple\n- Convoy effect: short jobs wait behind long jobs\n- Average wait = (0 + P1_burst + P1+P2_burst)/3\n\nSJF (Shortest Job First)\n- Optimal average wait time\n- Non-preemptive (or SRTF: Shortest Remaining Time First preemptive)\n- Problem: starvation of long jobs\n\nRound Robin\n- Preemptive, quantum Q ms\n- Each process gets Q ms, then preempted\n- Small Q = high responsiveness, high context switch overhead\n- Large Q → FCFS\n\nPriority Scheduling\n- CPU to highest priority process\n- Starvation → aging (increase priority over time)\n\nMultilevel Feedback Queue (Linux CFS)\n- Multiple queues with different priorities/quantum\n- Processes move between queues based on behavior\n- I/O-bound processes get higher priority (responsive)\n- CPU-bound get lower priority (long quantum)" },
+          { "type": "interview", "qas": [
+            { "q": "What is the difference between preemptive and non-preemptive scheduling?", "a": "Non-preemptive: once a process gets CPU, it runs until it yields voluntarily (blocks on I/O or finishes). Simple, no context switch overhead. Problem: one long job starves all others. Preemptive: OS can forcibly take CPU from running process (timer interrupt). Enables interactive systems. Context switch overhead. Most modern OSes (Linux, Windows) are preemptive. Real-time kernels need strict preemptive guarantees." },
+            { "q": "How does Linux's Completely Fair Scheduler (CFS) work?", "a": "CFS tracks vruntime (virtual runtime) per process — how much CPU time each has received, normalized by priority. Always runs the process with smallest vruntime (most CPU-deprived). Uses red-black tree ordered by vruntime for O(log n) selection. Higher priority = slower-advancing vruntime (gets more CPU). Result: every process gets fair share over time. New processes start with current minimum vruntime so they get CPU immediately." }
+          ]}
+        ]
+      },
+      {
+        "id": "file-systems",
+        "num": 4,
+        "title": "File Systems & Inodes",
+        "blocks": [
+          { "type": "para", "text": "A file system organizes persistent data on disk. Key abstractions: files (named byte sequences), directories (name→inode mappings), inodes (metadata: size, permissions, timestamps, data block pointers). The inode structure — direct, indirect, double-indirect block pointers — allows files from tiny to multi-GB with constant-size inode." },
+          { "type": "pre", "text": "Inode structure (Unix ext4):\n┌─────────────────────────────┐\n│ Metadata                    │\n│  - size, uid, gid           │\n│  - permissions (rwxrwxrwx)  │\n│  - timestamps (a/m/c time)  │\n│  - link count               │\n├─────────────────────────────┤\n│ Data Block Pointers         │\n│  12 direct pointers (48KB)  │\n│   1 indirect (4MB)          │\n│   1 double-indirect (4GB)   │\n│   1 triple-indirect (4TB)   │\n└─────────────────────────────┘\n\nDirectory = array of (name, inode_number) pairs\nHard link = new name pointing to same inode (link count++)\nSoft link = file containing path string (independent inode)\n\n$ ls -li file.txt  # shows inode number\n$ stat file.txt   # full inode metadata" },
+          { "type": "memory-trick", "text": "Hard link vs Soft link: Hard link = same inode, delete original → file still exists (link count > 0). Soft link = points to path name, delete original → dangling link. Hard links can't cross filesystems (inode numbers are filesystem-local). Soft links can. rm removes a directory entry, not the file — file deleted when link count hits 0." },
+          { "type": "interview", "qas": [
+            { "q": "What happens when you delete a file in Linux?", "a": "unlink() removes the directory entry (name → inode mapping) and decrements the inode's link count. If link count reaches 0 AND no process has the file open, the OS frees the inode and data blocks. If a process has the file open, data persists until all file descriptors are closed. This is why a running server can log to a 'deleted' log file — the file still exists until the process closes its fd." },
+            { "q": "What is journaling and why does ext4 use it?", "a": "Problem: OS crash during write can leave filesystem in inconsistent state (partial metadata update). Solution: journaling — write intended changes to a log (journal) first, then apply to disk. If crash: replay journal on recovery. Types: data journaling (logs data + metadata, safe but slow), ordered (metadata journaled, data written before metadata — Linux default), writeback (only metadata journaled, fastest, less safe). ext4 defaults to ordered mode." }
+          ]}
+        ]
+      },
+      {
+        "id": "socket-programming",
+        "num": 5,
+        "title": "Socket Programming",
+        "blocks": [
+          { "type": "para", "text": "Sockets are the OS abstraction for network communication. A socket is an endpoint identified by (IP, port). TCP sockets provide reliable ordered byte streams. UDP sockets provide unreliable datagrams. System call sequence for TCP server: socket() → bind() → listen() → accept() → read/write → close()." },
+          { "type": "pre", "text": "import socket\nimport threading\n\n# TCP Server\ndef tcp_server():\n    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n    server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)\n    server.bind(('0.0.0.0', 8080))  # bind to all interfaces\n    server.listen(10)               # backlog queue size\n    print('Server listening on :8080')\n\n    while True:\n        conn, addr = server.accept()  # blocks until connection\n        # Handle in separate thread (naive approach)\n        t = threading.Thread(target=handle_client, args=(conn, addr))\n        t.daemon = True\n        t.start()\n\ndef handle_client(conn, addr):\n    with conn:\n        data = conn.recv(1024)    # up to 1024 bytes\n        conn.sendall(b'ACK: ' + data)\n\n# TCP Client\ndef tcp_client():\n    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:\n        s.connect(('127.0.0.1', 8080))\n        s.sendall(b'Hello, server!')\n        data = s.recv(1024)\n        print('Received:', data.decode())\n\n# Non-blocking / async with selectors\nimport selectors\nsel = selectors.DefaultSelector()\n# sel.register(conn, selectors.EVENT_READ, callback)\n# ready = sel.select(timeout=1.0)" },
+          { "type": "memory-trick", "text": "TCP server syscalls: SBLAB — Socket, Bind, Listen, Accept, (read/write) Loop. Client syscalls: SC — Socket, Connect, (read/write). SO_REUSEADDR allows rebinding to port immediately after server restart (without TIME_WAIT delay). TIME_WAIT: closed TCP connection waits 2×MSL (~60s) before port reusable — prevents stale packets." },
+          { "type": "interview", "qas": [
+            { "q": "What is the TCP 3-way handshake?", "a": "SYN: client sends SYN (sequence X). SYN-ACK: server sends SYN (sequence Y) + ACK (X+1). ACK: client sends ACK (Y+1). Connection established. Purpose: agree on sequence numbers (for ordering/reliability), verify both sides can send and receive. 4-way FIN for teardown: FIN → ACK → FIN → ACK. TIME_WAIT state on active closer ensures final ACK delivered." },
+            { "q": "What is the difference between blocking and non-blocking I/O?", "a": "Blocking I/O: recv() blocks until data arrives or connection closes. Thread blocks, can't do other work. Simple code but wastes thread per connection. Non-blocking I/O: recv() returns immediately with EAGAIN if no data. Must poll (select/poll/epoll). Epoll (Linux): kernel maintains interest list, only notifies when I/O is ready — O(1) vs O(n) for poll. Nginx/Node.js use epoll to handle 10k+ connections with few threads." }
+          ]}
+        ]
+      },
+      {
+        "id": "ipc-mechanisms",
+        "num": 6,
+        "title": "IPC — Pipes, Shared Memory, Message Queues",
+        "blocks": [
+          { "type": "para", "text": "Inter-Process Communication (IPC) mechanisms let separate processes exchange data. Since processes have isolated memory spaces, the OS provides special mechanisms: pipes (unidirectional byte streams), shared memory (fastest — map same physical memory to multiple processes), message queues (structured messages with ordering), sockets (network or Unix domain), signals (async notifications)." },
+          { "type": "pre", "text": "import os\nimport multiprocessing\nfrom multiprocessing import shared_memory\nimport numpy as np\n\n# PIPE: parent-child communication\ndef pipe_example():\n    r_fd, w_fd = os.pipe()  # r=read end, w=write end\n    pid = os.fork()\n    if pid == 0:  # child\n        os.close(r_fd)\n        os.write(w_fd, b'Hello from child')\n        os.close(w_fd)\n    else:         # parent\n        os.close(w_fd)\n        data = os.read(r_fd, 1024)\n        print(data.decode())\n        os.close(r_fd)\n\n# SHARED MEMORY (fastest IPC): Python 3.8+\ndef shared_memory_example():\n    shm = shared_memory.SharedMemory(create=True, size=1024)\n    # Writer process:\n    array = np.ndarray((10,), dtype=np.int64, buffer=shm.buf)\n    array[:] = range(10)  # write to shared memory\n    # Reader process (knows shm.name):\n    # existing = shared_memory.SharedMemory(name=shm.name)\n    # read_array = np.ndarray((10,), dtype=np.int64, buffer=existing.buf)\n    shm.close(); shm.unlink()\n\n# MESSAGE QUEUE\nfrom multiprocessing import Queue\nq = Queue()\nq.put({'type': 'task', 'data': [1,2,3]})  # producer\nmsg = q.get()                              # consumer — blocks if empty" },
+          { "type": "interview", "qas": [
+            { "q": "Which IPC mechanism is fastest and why?", "a": "Shared memory — data never leaves user space. Writer writes, reader reads, zero kernel involvement for the data transfer itself. But requires explicit synchronization (mutex/semaphore). Pipe and socket involve 2 system calls (write + read) and kernel buffer copies. For large data between related processes on same machine: shared memory wins by 10–100×. Tradeoff: harder to program correctly, only works on same machine." },
+            { "q": "What is a Unix domain socket and when would you use it?", "a": "Socket that uses a filesystem path instead of IP:port. Communication stays within the kernel (no network stack). Faster than TCP localhost for local IPC. Supports both stream (SOCK_STREAM) and datagram (SOCK_DGRAM) modes. Use case: Nginx ↔ PHP-FPM, Docker daemon (/var/run/docker.sock), PostgreSQL local connections. Advantage over named pipes: bidirectional, multiple clients, same API as TCP sockets." }
+          ]}
+        ]
+      }
+    ]
+  }
+}
