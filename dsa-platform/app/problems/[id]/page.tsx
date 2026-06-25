@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Bookmark, Check, ExternalLink } from "lucide-react";
 import { getProblemById, getPatternById, getAllProblems } from "@/data/problems";
 import { PROBLEM_CONTENT } from "@/data/problemContent";
+import { PROBLEM_TECHNIQUES, getTechniqueColor } from "@/data/problemTechniques";
 import NextNav from "@/components/NextNav";
 import { useProgressStore } from "@/lib/store";
 import { useNotesStore } from "@/lib/notesStore";
@@ -47,6 +48,8 @@ export default function ProblemPage({ params }: Props) {
   };
 
   const diffColor = problem.difficulty === "Easy" ? "var(--accent-green)" : problem.difficulty === "Medium" ? "var(--accent-orange)" : "var(--accent-red)";
+  const technique = PROBLEM_TECHNIQUES[id];
+  const techniqueColor = technique ? getTechniqueColor(technique) : null;
 
   // Default Next: the next problem in the DSA sheet order.
   const allProblems = getAllProblems();
@@ -76,6 +79,15 @@ export default function ProblemPage({ params }: Props) {
                   {pattern && <Link href={`/patterns/${pattern.id}`} className="hover:underline">{pattern.title}</Link>}
                   <span>·</span>
                   <span>{problem.frequency} frequency</span>
+                  {technique && techniqueColor && (
+                    <>
+                      <span>·</span>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold"
+                        style={{ background: `${techniqueColor}22`, color: techniqueColor, border: `1px solid ${techniqueColor}44` }}>
+                        {technique}
+                      </span>
+                    </>
+                  )}
                 </div>
                 {problem.companies.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1.5 mt-2">

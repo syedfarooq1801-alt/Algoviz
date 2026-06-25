@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import PatternVizDispatcher from "@/components/visualizations/PatternVizDispatcher";
 import NextNav from "@/components/NextNav";
 import { PROBLEM_CONTENT } from "@/data/problemContent";
+import { PROBLEM_TECHNIQUES, getTechniqueColor } from "@/data/problemTechniques";
 import dynamic from "next/dynamic";
 
 const ApproachSteps = dynamic(
@@ -129,6 +130,8 @@ export default function PatternPage({ params }: Props) {
                   <div className="space-y-1">
                     {probs.map((p) => {
                       const isSolved = solved.has(p.id);
+                      const technique = PROBLEM_TECHNIQUES[p.id];
+                      const tcColor = technique ? getTechniqueColor(technique) : null;
                       return (
                         <Link key={p.id} href={`/problems/${p.id}`}
                           className="group flex items-center gap-3 px-3 py-2 rounded-lg transition-colors"
@@ -137,8 +140,14 @@ export default function PatternPage({ params }: Props) {
                           onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
                           <span className="shrink-0 text-sm" style={{ color: isSolved ? "var(--accent-green)" : "var(--text-muted)" }}>{isSolved ? "✓" : "○"}</span>
                           <span className="flex-1 text-sm" style={{ color: isSolved ? "var(--text-muted)" : "var(--text-primary)" }}>{p.title}</span>
+                          {technique && tcColor && (
+                            <span className="hidden sm:inline-flex text-xs px-1.5 py-0.5 rounded font-medium"
+                              style={{ background: `${tcColor}18`, color: tcColor, border: `1px solid ${tcColor}33` }}>
+                              {technique}
+                            </span>
+                          )}
                           {p.hasVisualization && <span className="text-xs" style={{ color: "var(--accent-purple)" }}>▶ visual</span>}
-                          {p.frequency === "High" && <span className="text-xs" style={{ color: "var(--accent-green)" }}>★ frequent</span>}
+                          {p.frequency === "High" && <span className="text-xs" style={{ color: "var(--accent-green)" }}>★</span>}
                         </Link>
                       );
                     })}

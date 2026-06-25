@@ -6966,6 +6966,180 @@ public:
     ],
     memoryTrick: "\"BFS with state = (position, obstacles_left). 3D visited. Key insight: same position with MORE obstacles remaining is strictly better — never revisit with fewer remaining.\"",
   },
+
+  // ── 4 New Gap-Filling Problems ─────────────────────────────────────────────
+
+  "remove-duplicates": {
+    intuition: "Write pointer technique: maintain a slow pointer (write index) that only advances when a unique element is found. Fast pointer scans everything. In-place, O(1) space. Foundation of all in-place array modification problems.",
+    approach: [
+      "If array empty, return 0.",
+      "Initialize write = 1 (first element always kept).",
+      "Loop read from 1 to n-1: if nums[read] != nums[read-1], it's unique — copy to nums[write], advance write.",
+      "Return write (count of unique elements).",
+      "Pattern generalizes: 'allow k duplicates' → compare nums[write-k] instead of nums[write-1].",
+    ],
+    cppSolution: `int removeDuplicates(vector<int>& nums) {
+    if (nums.empty()) return 0;
+    int write = 1;
+    for (int read = 1; read < nums.size(); read++) {
+        if (nums[read] != nums[read - 1]) {
+            nums[write++] = nums[read];
+        }
+    }
+    return write;
+}
+// Generalized — allow at most k duplicates:
+int removeDuplicatesII(vector<int>& nums, int k = 2) {
+    int write = 0;
+    for (int x : nums) {
+        if (write < k || nums[write - k] != x)
+            nums[write++] = x;
+    }
+    return write;
+}`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Single pass through array.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "In-place modification, only two index variables.",
+    edgeCases: [
+      "Empty array → return 0.",
+      "All duplicates → write stays at 1, return 1.",
+      "No duplicates → write equals n, all elements kept.",
+      "Generalize to 'allow k duplicates': change condition to compare with nums[write-k].",
+    ],
+    memoryTrick: "\"Write pointer only advances on unique values. Read always advances. Same trick used in: move zeroes, partition arrays, filter in-place. The write index IS the answer count.\"",
+  },
+
+  "sort-colors": {
+    intuition: "Dutch National Flag algorithm (Dijkstra). Three-way partition with three pointers: low, mid, high. All 0s go to [0, low), all 1s in [low, mid), all 2s in (high, n-1]. Process mid until it crosses high. Critical technique used in quicksort's partition and any 3-category sort.",
+    approach: [
+      "Init low = 0, mid = 0, high = n-1.",
+      "While mid <= high: examine nums[mid].",
+      "If 0: swap nums[mid] with nums[low], advance both low and mid.",
+      "If 1: mid only — already in correct region.",
+      "If 2: swap nums[mid] with nums[high], decrease high only (don't advance mid — swapped value needs examination).",
+      "Loop ends when mid > high — all regions correctly partitioned.",
+    ],
+    cppSolution: `void sortColors(vector<int>& nums) {
+    int low = 0, mid = 0, high = nums.size() - 1;
+    while (mid <= high) {
+        if (nums[mid] == 0) {
+            swap(nums[low++], nums[mid++]);
+        } else if (nums[mid] == 1) {
+            mid++;
+        } else {  // nums[mid] == 2
+            swap(nums[mid], nums[high--]);
+            // don't advance mid — nums[mid] is now the swapped value
+        }
+    }
+}`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Each element is touched at most twice (once by mid, possibly swapped by low or high).",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "In-place. Three index variables only.",
+    edgeCases: [
+      "All same color → loop runs, no swaps, exits correctly.",
+      "Already sorted → no swaps, O(n) scan.",
+      "Two elements → works correctly.",
+      "mid must NOT advance after a swap with high — the newly swapped value is unexamined.",
+    ],
+    memoryTrick: "\"low = boundary of 0s, high = boundary of 2s, mid = current. 0 pushes both low and mid forward. 2 pulls high backward. 1 just advances mid. The insight: after swapping with low, the swapped value must be 1 (low only points to 1s after first 0 is passed), so advancing mid is safe. After swapping with high, the swapped value is UNKNOWN — mid must stay.\"",
+  },
+
+  "find-first-last-position": {
+    intuition: "Two binary searches: one finds the leftmost (first) occurrence, one finds the rightmost (last) occurrence. The left-boundary template and right-boundary template are the two fundamental binary search variants. Mastering this unlocks 20+ problems that require finding a boundary rather than an exact target.",
+    approach: [
+      "Write findLeft(target): standard binary search but when nums[mid] == target, don't stop — move right = mid - 1 to keep searching left.",
+      "Write findRight(target): when nums[mid] == target, move left = mid + 1 to keep searching right.",
+      "findLeft returns the first index where nums[idx] == target (or -1).",
+      "findRight returns the last index where nums[idx] == target (or -1).",
+      "Return [findLeft(target), findRight(target)].",
+    ],
+    cppSolution: `vector<int> searchRange(vector<int>& nums, int target) {
+    return {findBound(nums, target, true), findBound(nums, target, false)};
+}
+
+int findBound(vector<int>& nums, int target, bool isLeft) {
+    int lo = 0, hi = nums.size() - 1, bound = -1;
+    while (lo <= hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (nums[mid] == target) {
+            bound = mid;
+            if (isLeft) hi = mid - 1;  // keep searching left
+            else        lo = mid + 1;  // keep searching right
+        } else if (nums[mid] < target) {
+            lo = mid + 1;
+        } else {
+            hi = mid - 1;
+        }
+    }
+    return bound;
+}
+// Alternative: use lower_bound / upper_bound (C++ STL)
+// lower_bound gives first position >= target
+// upper_bound gives first position > target
+// range = [lower_bound(target), upper_bound(target) - 1]`,
+    timeComplexity: "O(log n)",
+    timeExplanation: "Two separate binary searches, each O(log n).",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "Constant extra space.",
+    edgeCases: [
+      "Target not in array → both return -1.",
+      "Single occurrence → both findLeft and findRight return same index.",
+      "All elements are target → [0, n-1].",
+      "Empty array → return [-1, -1].",
+    ],
+    memoryTrick: "\"Left boundary: on match, go MORE LEFT (hi = mid-1). Right boundary: on match, go MORE RIGHT (lo = mid+1). Both store mid as current best. This template works for ANY monotonic predicate — first true, last false, etc. It's the most versatile binary search pattern.\"",
+  },
+
+  "is-graph-bipartite": {
+    intuition: "A graph is bipartite if it can be 2-colored: every edge connects vertices of different colors. Equivalent to: graph has no odd-length cycles. Use BFS/DFS: try to color each vertex, if a neighbor has the same color as current — not bipartite. Handle disconnected graphs by checking each unvisited vertex.",
+    approach: [
+      "For each unvisited vertex, start BFS.",
+      "Color the start vertex 0. Add to queue.",
+      "For each vertex dequeued: color all unvisited neighbors with opposite color (1 - current_color).",
+      "If a neighbor is already colored with SAME color as current — return false (not bipartite).",
+      "If all vertices colored without conflict — return true.",
+      "Must check each component (graph may be disconnected).",
+    ],
+    cppSolution: `bool isBipartite(vector<vector<int>>& graph) {
+    int n = graph.size();
+    vector<int> color(n, -1);  // -1 = unvisited
+
+    for (int start = 0; start < n; start++) {
+        if (color[start] != -1) continue;  // already colored
+
+        queue<int> q;
+        q.push(start);
+        color[start] = 0;
+
+        while (!q.empty()) {
+            int node = q.front(); q.pop();
+            for (int neighbor : graph[node]) {
+                if (color[neighbor] == -1) {
+                    color[neighbor] = 1 - color[node];  // opposite color
+                    q.push(neighbor);
+                } else if (color[neighbor] == color[node]) {
+                    return false;  // same color = odd cycle
+                }
+            }
+        }
+    }
+    return true;
+}`,
+    timeComplexity: "O(V + E)",
+    timeExplanation: "Standard BFS — each vertex and edge visited once.",
+    spaceComplexity: "O(V)",
+    spaceExplanation: "Color array + BFS queue, both proportional to number of vertices.",
+    edgeCases: [
+      "Disconnected graph → must BFS from each unvisited component.",
+      "Graph with no edges → always bipartite.",
+      "Graph with self-loops → not bipartite (self-loop = odd cycle of length 1).",
+      "Tree (connected acyclic) → always bipartite.",
+      "Odd cycle → not bipartite. Even cycle → bipartite.",
+    ],
+    memoryTrick: "\"2-coloring = bipartite check. If you can checkerboard the graph — it's bipartite. Odd cycle breaks checkerboard. BFS: color alternating. Same-color neighbor = conflict = odd cycle detected. This technique appears in: check if graph can be divided into two teams, scheduling problems, matching problems.\"",
+  },
 };
 
 // Merged: generated base + rich overrides + python solutions
