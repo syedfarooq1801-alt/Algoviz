@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 const PATTERN_VIZ: Record<string, React.ComponentType> = {
   "arrays-hashing":     dynamic(() => import("./PatternVizHashMap"),       { ssr: false }),
   "two-pointers":       dynamic(() => import("./PatternVizTwoPointers"),   { ssr: false }),
+  "prefix-sum":         dynamic(() => import("./PatternVizPrefixSum"),     { ssr: false }),
   "sliding-window":     dynamic(() => import("./PatternVizSlidingWindow"), { ssr: false }),
   "stack":              dynamic(() => import("./PatternVizStack"),          { ssr: false }),
   "binary-search":      dynamic(() => import("./PatternVizBinarySearch"),  { ssr: false }),

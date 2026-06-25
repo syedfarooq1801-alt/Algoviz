@@ -186,14 +186,16 @@ while (fast && fast->next) {
   {
     id: "prefix-sum",
     title: "Prefix Sum",
-    description: "Precompute cumulative sums so any subarray sum is an O(1) lookup. Combine with a hash map to find subarrays with a target sum in O(n). Difference arrays make range-update problems O(1).",
-    coreIntuition: "prefix[i] = sum of first i elements. sum(l..r) = prefix[r+1] - prefix[l]. If prefix[j] - prefix[i] = k, then subarray [i..j-1] sums to k. Store seen prefixes in a hash map: for each j, check if prefix[j] - k already exists.",
+    description: "Prefix sum precomputes cumulative totals so any subarray sum becomes an O(1) subtraction instead of an O(n) re-scan. Build once in O(n), query infinitely in O(1). The pattern has three modes: (1) plain prefix array for range queries on static data, (2) prefix + hash map to count subarrays with a specific sum, and (3) difference array for efficient range updates. Together they cover a huge class of 'count/find subarrays with property' problems that would otherwise be O(n²).",
+    coreIntuition: "prefix[i] stores the sum of the first i elements (prefix[0] = 0 as sentinel). sum(l..r) = prefix[r+1] − prefix[l] — one subtraction. The hash map variant flips this: instead of asking 'what is sum(l..r)?', ask 'how many pairs (i,j) have prefix[j] − prefix[i] = k?' Store every prefix seen so far; for each new prefix[j], check if prefix[j] − k already exists. The {0:1} seed handles subarrays starting at index 0. For modulo (divisible by k): group prefixes by remainder — if prefix[j] % k == prefix[i] % k, then sum(i..j-1) is divisible by k.",
     recognitionSignals: [
-      "Subarray sum equals target (or divisible by k)",
-      "Range sum queries on static array",
-      "Update a range of elements efficiently (difference array)",
-      "'Count subarrays where…' with a sum condition",
-      "2D grid sum queries",
+      "Count subarrays whose sum equals k (or divisible by k)",
+      "Range sum queries on static array — many queries, no updates",
+      "Range updates on array, then one final read (difference array)",
+      "'How many subarrays where sum condition holds?' → prefix + hash map",
+      "2D grid sum queries (2D prefix sum)",
+      "Capacity-style problems: passengers on/off at stops (difference array)",
+      "Running total or cumulative statistic",
     ],
     template: `// 1D prefix sum — build once, query O(1)
 vector<int> prefix(n + 1, 0);
@@ -201,28 +203,59 @@ for (int i = 0; i < n; i++) prefix[i+1] = prefix[i] + nums[i];
 int rangeSum = prefix[r+1] - prefix[l];  // sum nums[l..r]
 
 // Prefix sum + hashmap — count subarrays with sum == k
-unordered_map<int,int> seen{{0,1}};  // prefix->count
-int sum = 0, count = 0;
+unordered_map<int,int> seen{{0,1}};  // CRITICAL: seed with {0:1}
+int running = 0, count = 0;
 for (int x : nums) {
-    sum += x;
-    count += seen[sum - k];  // how many prefixes make target subarray
-    seen[sum]++;
+    running += x;
+    count += seen[running - k];  // subarrays ending here with sum k
+    seen[running]++;
+}
+
+// Prefix sum + hashmap — divisible by k (modulo variant)
+unordered_map<int,int> rem{{0,1}};
+int running = 0, count = 0;
+for (int x : nums) {
+    running = ((running + x) % k + k) % k;  // keep remainder positive
+    count += rem[running];
+    rem[running]++;
 }
 
 // Difference array — range update [l,r] += val in O(1)
 vector<int> diff(n+1, 0);
 diff[l] += val; diff[r+1] -= val;
-// recover: for(i) arr[i] = arr[i-1] + diff[i]`,
+// recover final array: prefix sum of diff
+for (int i = 1; i <= n; i++) diff[i] += diff[i-1];`,
     timeComplexity: "O(n) build, O(1) query",
-    spaceComplexity: "O(n) for prefix array",
-    realWorldAnalogy: "Running balance on a bank statement. Instead of re-adding every transaction to find your balance between dates A and B, you subtract the balance at A from balance at B. Prefix sum is exactly that running total.",
+    spaceComplexity: "O(n) for prefix array or hash map",
+    realWorldAnalogy: "Running bank balance. To find total spending between Jan 15 and Mar 20, subtract balance on Jan 15 from balance on Mar 20 — you don't re-add every transaction. The prefix array is that running balance ledger. The hash map variant is like noting every balance ever seen and instantly answering 'did I ever have exactly $k less than now?'",
     icon: "Sigma",
     color: "cyan",
     keyInsights: [
-      "Always initialize seen map with {0: 1} — a prefix sum of exactly k means the subarray from index 0 qualifies.",
-      "Difference array is the 'lazy' complement of prefix sum — efficient updates, O(n) recovery.",
-      "For modulo problems: (prefix[j] - prefix[i]) % k == 0 means prefix[j] % k == prefix[i] % k — group by remainder.",
+      "Always seed the hash map with {0: 1} — without it, subarrays starting at index 0 are missed entirely.",
+      "prefix[0] = 0 is a sentinel, not a real element — prefix array is always length n+1, not n.",
+      "For modulo: two prefixes with same remainder have a divisible-by-k subarray between them. Group by remainder, not by value.",
+      "Difference array = inverse of prefix sum. Apply increments lazily, recover with one prefix-sum pass at the end.",
+      "Negative numbers? Prefix + hash map still works. Sliding window does NOT (shrink logic breaks with negatives).",
+      "2D prefix sum: prefix[i][j] = sum of rectangle from (0,0) to (i-1,j-1). Query any rectangle in O(1) with inclusion-exclusion.",
     ],
+    commonMistakes: [
+      "Forgetting {0: 1} seed — misses subarrays that start at index 0 and sum exactly to k.",
+      "Off-by-one on prefix array: prefix[i] = sum of first i elements, so prefix[r+1] - prefix[l] covers nums[l..r], not nums[l..r-1].",
+      "Using sliding window instead of prefix+hashmap when nums has negative numbers — window can't shrink reliably.",
+      "Modulo with negative numbers: (running % k + k) % k keeps remainder positive in C++/Java where % can be negative.",
+      "Checking seen[running - k] AFTER incrementing seen[running] — this lets a subarray use itself. Always check BEFORE inserting.",
+      "Difference array: forgetting diff[r+1] -= val, or accessing out of bounds when r == n-1 (use diff of size n+1).",
+    ],
+    whenNotToUse: "When array is updated frequently between queries — use a Fenwick Tree (BIT) or Segment Tree instead. When you need a sliding window of variable size with only positive numbers — sliding window is simpler. When subarray must be non-contiguous (subsequence problems use DP, not prefix sum).",
+    thinkingProcess: [
+      "1. Is the problem about a contiguous subarray and a sum condition? → prefix sum territory.",
+      "2. Static array, multiple range queries? → build prefix array once, answer each in O(1).",
+      "3. Count subarrays with sum == k? → prefix + hash map with {0:1} seed.",
+      "4. Count subarrays divisible by k? → same but store remainders, use ((x % k) + k) % k.",
+      "5. Range updates, single final read? → difference array (apply increments O(1), recover with prefix pass).",
+      "6. 2D rectangle queries? → 2D prefix sum with inclusion-exclusion formula.",
+    ],
+    decisionFramework: "Range sum query, static array → prefix array. Count subarrays sum == k → prefix + hash map. Count subarrays sum divisible by k → prefix + modulo hash map. Range update many times, read once → difference array. Grid rectangle sum queries → 2D prefix sum. Negative numbers + subarray sum → prefix + hash map (NOT sliding window).",
     problems: [
       { id: "running-sum-1d", title: "Running Sum of 1D Array", difficulty: "Easy", difficultyScore: 2, pattern: "prefix-sum", leetcodeUrl: "https://leetcode.com/problems/running-sum-of-1d-array/", hasVisualization: false, tags: ["Array", "Prefix Sum"], companies: ["Amazon"], frequency: "Medium" },
       { id: "find-pivot-index", title: "Find Pivot Index", difficulty: "Easy", difficultyScore: 4, pattern: "prefix-sum", leetcodeUrl: "https://leetcode.com/problems/find-pivot-index/", hasVisualization: false, tags: ["Array", "Prefix Sum"], companies: ["Amazon", "Google"], frequency: "High" },
