@@ -32,6 +32,10 @@
                 "a": "/etc contains static configuration files that rarely change — system init files, network config, cron jobs, user/group definitions. /var contains variable data that changes during runtime — log files, mail spools, database files, PID files, package caches. Conceptually: /etc is what you configure, /var is what the system writes at runtime."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Confusing /bin with /usr/bin: historically /bin held essential commands needed before /usr was mounted (busybox systems still rely on this), while /usr/bin holds non-essential user programs — on modern systemd distros they are often symlinked and identical, but on minimal/embedded Linux they differ. Saying '/proc files are on disk': /proc is a virtual filesystem — every read triggers a kernel function, nothing is stored on disk, and you cannot meaningfully write most of its files. Mixing up /var/log and /etc/log: log files live under /var/log, not /etc — /etc never holds runtime-generated content. Treating /tmp as persistent: /tmp is world-writable and is typically cleared on reboot (tmpfs in RAM on systemd systems); use /var/tmp for files that must survive a reboot."
           }
         ]
       },
@@ -64,6 +68,10 @@
                 "a": "tail -f watches the file descriptor and outputs new bytes as they're appended. Useful for monitoring live log files. If the log is rotated (replaced with new file), use tail -F instead — it follows the filename, reopening when the file is replaced. In modern systems, journalctl -f follows the systemd journal."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Using rm -rf without double-checking the path: a stray space in 'rm -rf /tmp /mydir' deletes /tmp and then /mydir as separate args — the correct form is 'rm -rf /tmp/mydir'. There is no undo. Confusing tail -f and tail -F: -f follows the open file descriptor (misses log rotation), -F follows the filename and reopens it after rotation — always use -F for production log monitoring. Thinking mv is always O(1): mv is O(1) only within the same filesystem (just renames the inode); moving across filesystems (e.g., /tmp to /home on a different partition) performs a full copy-then-delete and is O(n) in file size. Using cat to view large files: cat dumps the entire file to stdout — use less or head/tail for large files to avoid flooding the terminal."
           }
         ]
       },
@@ -100,6 +108,10 @@
                 "a": "umask is a mask subtracted from the default permissions when files/directories are created. Default permissions: 666 for files, 777 for dirs. With umask 022: files get 666-022=644, dirs get 777-022=755. With umask 027: files get 640, dirs get 750 (group can read, others nothing). Check with 'umask'; set in ~/.bashrc or /etc/profile."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying execute permission on a file means you can read it: execute (x) on a file means you can run it as a program; you still need read (r) to read its contents. A script marked 111 (--x--x--x) is executable but not readable — the kernel can exec it, but you cannot cat it. Confusing execute on a file vs execute on a directory: x on a directory means 'traverse' (cd into it or access files by known name); r on a directory means 'list' (ls). You can have x without r on a dir — you can cd in if you know the filename, but ls will fail. Misapplying umask: umask is a mask not a setter — umask 022 does not set permissions to 022; it subtracts 022 from the default (666 for files → 644). Thinking chmod -R 777 is a safe fix: it removes all access controls from an entire tree, makes every file world-writable, and is a serious security hole — always investigate the actual permission needed instead."
           }
         ]
       },
@@ -136,6 +148,10 @@
                 "a": "Redirects stderr (file descriptor 2) to wherever stdout (file descriptor 1) is currently pointing. command > output.log 2>&1 sends both stdout and stderr to output.log. Order matters: command 2>&1 > file redirects stderr to the original stdout (terminal), then redirects stdout to file — wrong if you want both in file. Use command > file 2>&1."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Using uniq without sort first: uniq only removes consecutive duplicate lines — 'echo -e \"a\\nb\\na\"' | uniq' still outputs 'a' twice. Always pipe through sort first unless the input is already sorted. Getting 2>&1 order backwards: 'command 2>&1 > file' sends stderr to the terminal (original stdout) and stdout to the file — the correct form is 'command > file 2>&1'. The redirect target for fd 2 is evaluated at the point of the 2>&1 token. Confusing pipe and redirection: a pipe (|) connects stdout of one process to stdin of another process running simultaneously; redirection (>) connects stdout to a file. You cannot use > between two commands — 'grep foo | > out.txt' is a syntax error. Forgetting that > truncates immediately: 'command > file' truncates the file before the command even runs, so if the command fails the file is now empty — use a temp file and mv, or append with >>."
           }
         ]
       },
@@ -172,6 +188,10 @@
                 "a": "Controls CPU scheduling priority. Range: -20 (highest priority) to 19 (lowest). Default is 0. Higher nice value = more 'nice' to other processes = lower CPU priority. Regular users can only increase nice (lower priority). Only root can decrease nice (increase priority). Use nice for CPU-intensive background tasks that shouldn't impact foreground work."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Reaching for kill -9 immediately: SIGKILL gives the process no chance to clean up — flush buffers, close DB connections, release file locks all get skipped. Always send SIGTERM (kill PID or kill -15 PID) first and wait a few seconds. Thinking kill -9 can kill a D-state process: a process in uninterruptible sleep (D) is waiting inside a kernel syscall — it cannot receive any signal, including SIGKILL, until the kernel operation completes. Confusing zombie and orphan: a zombie has exited but its parent hasn't called wait() (PID slot still occupied, no resources consumed); an orphan is still running after its parent died (adopted by init/PID 1, not a problem). Saying nice range is 0-19: the full range is -20 (highest priority) to +19 (lowest); only root can set negative nice values, unprivileged users can only set 0 to 19."
           }
         ]
       },
@@ -208,6 +228,10 @@
                 "a": "git stash saves your uncommitted changes (staged and unstaged) to a stack and reverts your working directory to HEAD. Useful when you need to quickly switch branches without committing half-done work. git stash pop restores the most recent stash. git stash list shows all stashes. git stash apply stash@{2} applies a specific stash without removing it."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Rebasing a shared/public branch: rebase rewrites commit hashes — if other developers have already based work on those commits, their histories diverge and they face confusing conflicts on next pull. Never rebase commits already pushed to a shared branch. Confusing git reset and git revert: git reset moves the branch pointer backward (rewrites history — dangerous on shared branches); git revert creates a new commit that undoes a previous one (safe on shared branches). Thinking detached HEAD means data loss: detached HEAD is just HEAD pointing to a commit directly instead of a branch name — your commits are safe as long as you create a branch before switching away. Misunderstanding --hard reset: 'git reset --hard HEAD' discards all uncommitted working-tree changes permanently (no undo, no trash); use 'git stash' if you might want them back."
           }
         ]
       },
@@ -244,6 +268,10 @@
                 "a": "A user story describes a feature from the user's perspective: 'As a [user type], I want [goal] so that [reason].' Example: 'As a registered user, I want to reset my password so I can regain access if I forget it.' Stories have acceptance criteria (conditions that must be true to consider it done). Story points estimate relative effort, not hours. Product Owner writes and prioritizes stories."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Equating Agile with Scrum: Agile is a philosophy (values and principles from the Manifesto); Scrum is one specific framework that implements Agile. Other frameworks include Kanban, SAFe, XP. Saying story points equal hours: story points measure relative complexity and effort, not time — a 5-point story doesn't mean 5 hours. Teams calibrate points internally; comparing velocity across teams is meaningless. Confusing Continuous Delivery and Continuous Deployment: Delivery means every passing build is deployable but a human approves the production push; Deployment means every passing build is automatically deployed to production with no human gate. Thinking the Scrum Master is the team lead or project manager: the Scrum Master is a servant-leader who removes impediments and facilitates the process — they do not assign tasks, own the backlog, or make technical decisions."
           }
         ]
       },
@@ -280,6 +308,10 @@
                 "a": "Testable design by default — if code is hard to unit test, it's usually poorly designed (too many dependencies). Clear requirements — tests document expected behavior. Refactoring confidence — tests catch regressions. No dead code — you only write code to pass a test. But TDD has overhead: tests take time to write, and changing requirements mean changing tests. Most effective for complex business logic."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Treating 100% code coverage as proof of correctness: coverage only measures which lines were executed, not whether the assertions are meaningful — a test that calls every line but asserts nothing gives 100% coverage and catches no bugs. Confusing stub and mock: a stub just returns hardcoded data (no verification); a mock also records calls and lets you assert that specific methods were called with specific arguments. Using a mock where you should use the real thing: over-mocking internal collaborators produces tests that pass even when the real integration is broken; mock external boundaries (network, filesystem, external services), not your own internal modules. Inverting the testing pyramid: writing mostly end-to-end tests makes the suite slow (minutes per run), brittle (UI changes break unrelated tests), and hard to debug — unit tests should vastly outnumber E2E tests."
           }
         ]
       },
@@ -320,6 +352,10 @@
                 "a": "Each recursive call adds a stack frame — space complexity = O(recursion depth). Fibonacci recursive: depth n → O(n) space. Binary search recursive: depth log n → O(log n) space. Can be O(1) if tail-recursive and language supports tail-call optimization. DFS on a tree: O(h) space where h is tree height. This is why iterative solutions using explicit stacks can be better for deep recursions."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Keeping constants in the final answer: O(3n) should be simplified to O(n); O(n/2) is O(n). Interviewers expect simplified form — leaving constants suggests you don't understand the definition. Saying hash map lookup is always O(1): O(1) is the average case assuming a good hash function and low load factor; worst case is O(n) when all keys collide into the same bucket. Always qualify 'O(1) average.' Ignoring space complexity: a recursive DFS solution that is O(n) time may also be O(n) space due to the call stack — interviewers often ask for both, and stack overflow is a real production issue for deep trees. Misapplying the rule for nested loops: two independent nested loops over n each give O(n²), but two sequential loops (not nested) give O(n) + O(n) = O(n) — only nested multiplication increases the exponent."
           }
         ]
       },
@@ -360,6 +396,10 @@
                 "a": "Core: store mapping of shortCode → longURL in a DB (Redis for speed + DB for persistence). Short code: base62 encoding of auto-increment ID (or MD5/SHA hash truncated). API: POST /shorten (create), GET /:code (redirect with 301/302). Scale: read-heavy, so add read replicas and cache hot short codes in Redis. Avoid hash collisions by checking existence before storing. Rate limit creation API."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying 'just add more servers' without mentioning the stateful bottleneck: horizontal scaling works easily for stateless app servers, but the database or session store is still a single point of contention — a complete answer must address DB read replicas, sharding, or a distributed cache. Misreading CAP as 'pick any two freely': partition tolerance is not optional in a distributed system (networks do partition) — the real trade-off is always CP vs AP. Claiming a 301 redirect is fine for a URL shortener: 301 (permanent redirect) is cached by browsers indefinitely, so if the short URL later points to a different destination the browser will never see the update. Use 302 (temporary) if the mapping might change. Confusing write-through and write-back caching: write-through updates the cache and DB synchronously on every write (consistent, slower writes); write-back updates the cache immediately and flushes to DB asynchronously (faster writes, risk of data loss on crash)."
           }
         ]
       }

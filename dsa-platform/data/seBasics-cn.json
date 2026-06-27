@@ -40,6 +40,10 @@
                 "a": "OSI is a 7-layer theoretical reference model used for teaching. TCP/IP is the real 4-layer model the internet uses. OSI's Session and Presentation layers are handled by the TCP/IP Application layer. OSI's Data Link and Physical layers correspond to TCP/IP's Link layer. TCP/IP maps network layer to Internet, transport to Transport, and application to Application."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Reciting all 7 OSI layers when asked about TCP/IP: interviewers want the 4-layer TCP/IP model (Link, Internet, Transport, Application) — listing 7 OSI layers signals you memorized the wrong thing. Placing HTTP at the Transport layer: HTTP is an Application-layer protocol; TCP is the Transport-layer protocol that carries it. Saying encapsulation only adds headers: the Data Link layer also adds a trailer (frame check sequence for error detection), not just a header. Confusing the direction of encapsulation — encapsulation happens going down the stack (sender), decapsulation going up (receiver), not the reverse."
           }
         ]
       },
@@ -80,6 +84,10 @@
                 "a": "Network Address Translation: a router replaces the private source IP of outgoing packets with its public IP, and maintains a mapping table to route responses back. Solves IPv4 address exhaustion — thousands of devices share one public IP. Breaks end-to-end connectivity (external hosts can't initiate connections to private IPs) — partially why IPv6 is needed."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying MAC addresses never change: MAC addresses can be software-spoofed — many OS and privacy tools randomize MAC addresses. Saying a /24 gives 256 usable hosts: /24 gives 256 total addresses but only 254 usable hosts — the network address (x.x.x.0) and broadcast address (x.x.x.255) are reserved and can't be assigned to hosts. Believing ARP works across routers: ARP only resolves MACs within the same subnet; when the destination is on a different subnet, your device ARPs for the default gateway's MAC, not the destination host's MAC. Confusing private IP ranges — the three private ranges are 10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16; saying 172.0.0.0/8 is private is wrong."
           }
         ]
       },
@@ -124,6 +132,10 @@
                 "a": "After the active closer sends the final ACK, it enters TIME_WAIT for 2*MSL (Maximum Segment Lifetime, typically 60s). This ensures: (1) the final ACK reaches the other side (if it's lost, the peer retransmits its FIN and we can re-send the ACK), (2) stray delayed packets from the old connection are gone before the port is reused. Causes port exhaustion if a server is making thousands of short connections."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Confusing flow control and congestion control: flow control protects the receiver (receiver advertises its buffer window), congestion control protects the network (sender probes available bandwidth using algorithms like Slow Start) — they are separate mechanisms. Saying TCP three-way handshake uses four messages: it uses exactly three (SYN, SYN-ACK, ACK) — the four-way handshake is for connection teardown (FIN, ACK, FIN, ACK). Saying UDP is always faster than TCP: UDP has lower overhead but on a congested network, UDP flows get no congestion control and can suffer heavy loss — TCP's congestion control often achieves better throughput in practice. Saying DNS always uses UDP: DNS primarily uses UDP on port 53 for small queries, but falls back to TCP for responses larger than 512 bytes (e.g., DNSSEC records)."
           }
         ]
       },
@@ -164,6 +176,10 @@
                 "a": "Canonical Name record: aliases one domain name to another. Example: www.example.com CNAME example.com — www resolves by following the chain to example.com's A record. CNAMEs can't be used at a zone apex (naked domain). Multiple CNAMEs can chain but CNAME and other record types (MX, A) can't coexist for the same name."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying there are 13 root DNS servers: there are 13 root server IP addresses (labeled A through M) but each is an anycast cluster of hundreds of physical machines worldwide — not 13 individual machines. Claiming lowering TTL instantly propagates a DNS change: lowering TTL only helps future caches; existing caches that already hold the record will keep it until the old TTL expires — always lower TTL well before a planned migration. Confusing CNAME and A records: an A record maps a name to an IPv4 address, a CNAME maps a name to another name — you cannot put a CNAME at the zone apex (e.g., example.com itself) because RFC prohibits coexisting records there. Saying the recursive resolver is the authoritative server: the recursive resolver (e.g., 8.8.8.8) is a middleman that queries on your behalf; the authoritative nameserver is the one that actually holds the zone records."
           }
         ]
       },
@@ -204,6 +220,10 @@
                 "a": "HTTP/2: single TCP connection multiplexes multiple requests simultaneously (no head-of-line blocking at application layer). Binary protocol (HTTP/1.1 is text). Header compression (HPACK). Server push. HTTP/1.1 needed multiple TCP connections or connection: keep-alive to reuse. HTTP/3 (QUIC) moves to UDP entirely, eliminating TCP head-of-line blocking at transport layer."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying 401 and 403 mean the same thing: 401 Unauthorized means the client is not authenticated (no valid credentials provided — needs to log in), while 403 Forbidden means authenticated but not authorized (logged in but lacks permission). Saying PUT and PATCH are both idempotent: PUT is always idempotent (replacing a resource with the same data yields the same result), but PATCH is not guaranteed idempotent — a PATCH that increments a counter is not idempotent. Saying HTTPS encrypts the URL: HTTPS encrypts the path and query string but the hostname is visible in the TLS SNI (Server Name Indication) field and in DNS — so your ISP can see which domains you visit, just not the full URL. Saying HTTP/2 eliminates all head-of-line blocking: HTTP/2 eliminates application-layer HOL blocking across streams, but a single lost TCP packet still blocks all streams at the transport layer — HTTP/3/QUIC solves that by using UDP."
           }
         ]
       },
@@ -236,6 +256,10 @@
                 "a": "DNS cache poisoning: an attacker injects a false IP into a resolver's cache. When users query that resolver, they get redirected to a malicious server that may look identical to the real site. DNSSEC (DNS Security Extensions) prevents this by digitally signing DNS responses. HTTPS also mitigates the risk — a poisoned DNS can redirect you but the fake server won't have a valid certificate for the domain."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Skipping the TLS handshake step: candidates often jump from TCP handshake directly to HTTP request for an HTTPS URL — the TLS handshake between TCP connect and the first HTTP byte is a critical step and represents a full RTT of latency. Saying DNS is only checked once: the browser, OS, and resolver each maintain separate caches with different TTLs — DNS may be cached at any level, and the lookup stops at the first cache hit. Forgetting that sub-resources trigger new DNS and TCP connections: the initial HTML response triggers tens of additional requests for CSS, JS, and images — each may need its own DNS resolution and TCP/TLS handshake unless connection is reused. Saying the browser sends the request directly to the web server: in practice the request likely goes through a CDN edge node, load balancer, and reverse proxy before reaching application servers."
           }
         ]
       },
@@ -272,6 +296,10 @@
                 "a": "An integer field in the IP header, decremented by 1 at each router. When TTL reaches 0, the router drops the packet and sends an ICMP 'Time Exceeded' message back to the source. Prevents routing loops from causing packets to loop forever. traceroute uses this: sends packets with TTL=1, 2, 3... to discover each hop."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying routers use MAC addresses for forwarding: routers forward based on IP addresses (Layer 3) and rewrite the MAC addresses at each hop — the destination MAC in a frame is always the next-hop router's MAC, not the final destination's MAC. Confusing BGP with OSPF: OSPF is an interior gateway protocol used within a single organization's network (fast convergence, link-state), while BGP is an exterior gateway protocol used between organizations/ISPs (policy-based, path vector) — they solve different problems and run at different scales. Saying TTL prevents all routing loops instantly: TTL is a last-resort safeguard that limits loop damage — routing protocols like OSPF prevent loops through topology awareness; TTL just ensures looping packets eventually die. Claiming a hub and a switch do the same job: a hub broadcasts every frame to all ports (collision domain), a switch learns MAC addresses and forwards only to the correct port — switches massively reduce unnecessary traffic."
           }
         ]
       },
@@ -312,6 +340,10 @@
                 "a": "Sign: sender computes hash of message, encrypts hash with their private key — this is the signature. Verify: receiver decrypts signature with sender's public key to get hash, computes hash of received message, compares. If they match: message is from the claimed sender (authentication) and hasn't been tampered with (integrity). Asymmetric but used in reverse: private key signs, public key verifies."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying hashing and encryption are interchangeable: hashing is one-way (SHA-256 cannot be reversed), encryption is two-way (AES can be decrypted with the key) — using MD5 or SHA-1 to 'encrypt' passwords is wrong; use bcrypt/Argon2. Confusing digital signatures with encryption direction: in normal asymmetric encryption you encrypt with the public key (only owner can read it); in digital signatures you sign with the private key and verify with the public key — the direction is reversed. Saying adding a salt to a hash defeats brute force: a salt prevents rainbow table lookups (pre-computed hashes), but does not slow down brute force — you still need a slow algorithm like bcrypt (with work factor) to make brute force expensive. Saying TLS uses only asymmetric encryption for the entire session: asymmetric cryptography (RSA/ECDHE) is only used during the handshake to establish a shared secret; all actual data is encrypted with a fast symmetric cipher (AES-GCM) to keep throughput high."
           }
         ]
       },
@@ -352,6 +384,10 @@
                 "a": "SOCK_STREAM: TCP — reliable, ordered, connection-oriented byte stream. Connection established before data exchange. SOCK_DGRAM: UDP — unreliable, connectionless, message-based. No connection setup. Each sendto() sends one datagram, each recvfrom() receives one. Use SOCK_DGRAM for DNS, DHCP, video streaming, games."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Thinking the listening socket and the connected socket are the same: accept() returns a brand-new socket for each client connection while the original listening socket stays open to accept more clients — closing the listening socket does not close existing connections. Saying a server can only handle one connection at a time: a single-threaded server calling accept() in a loop can handle sequential connections, but concurrent connections require either multiple threads/processes or non-blocking I/O with an event loop (select/epoll/kqueue). Confusing port exhaustion with backlog overflow: backlog limits queued-but-not-yet-accepted connections; port exhaustion happens when the client-side runs out of ephemeral ports (all 16-bit ports in use), which occurs under extremely high connection rates. Forgetting to set SO_REUSEADDR: without this socket option, restarting a server immediately after stopping it fails with 'Address already in use' because the port is in TIME_WAIT — SO_REUSEADDR allows binding to a port still in TIME_WAIT."
           }
         ]
       }

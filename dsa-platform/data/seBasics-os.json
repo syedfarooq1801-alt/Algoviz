@@ -152,6 +152,10 @@
                 "a": "fork() returns twice: it returns the child's PID to the parent process, and returns 0 to the child process. It returns -1 if creation failed. This is how parent and child can distinguish which copy they are."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Confusing Ready and Waiting states: a process in Waiting state cannot run even if the CPU is free — it is blocked on an external event like disk I/O completing. Only Ready processes compete for the CPU. Saying context switching has no cost — it flushes the TLB and CPU caches, so the resumed process starts cold. Forgetting that fork() returns twice: zero to the child, the child's PID to the parent — both branches run the same code after fork(). Saying zombie processes waste memory: they hold only a PCB entry, not their full address space — the danger is exhausting the process table, not RAM."
           }
         ]
       },
@@ -248,6 +252,10 @@
                 "a": "Too small: context switch overhead dominates — CPU spends most time switching, not computing. Too large: degenerates toward FCFS — short jobs wait behind long ones. Typical quantum: 10–100ms, balancing responsiveness and context-switch cost."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Claiming SJF is used in production — it requires knowing future CPU burst times, which is impossible; real schedulers approximate it with exponential averaging (SRTF). Confusing waiting time and turnaround time: turnaround = completion time minus arrival time (includes I/O and execution); waiting time = time spent only in the ready queue. Saying Round Robin is always the best algorithm — for batch/throughput-focused workloads, FCFS or priority scheduling may outperform it. Forgetting that starvation only affects priority and SJF scheduling, not Round Robin — Round Robin is inherently starvation-free."
           }
         ]
       },
@@ -288,6 +296,10 @@
                 "a": "An asynchronous notification sent to a process. Common ones: SIGTERM (15) — request graceful termination; SIGKILL (9) — force kill, cannot be caught or ignored; SIGHUP (1) — hangup, often used to tell daemons to reload config; SIGSEGV — segmentation fault. A process registers a signal handler via signal() or sigaction()."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying shared memory requires no synchronization — it is the fastest IPC precisely because the kernel is not involved in each access, but that means processes must use mutexes or semaphores themselves to avoid race conditions. Treating pipes as bidirectional — a single pipe is unidirectional; you need two pipes for full-duplex communication. Confusing SIGKILL (9) with SIGTERM (15): SIGKILL cannot be caught or handled by the process (the kernel enforces it), while SIGTERM can be caught to allow graceful cleanup. Saying sockets only work over networks — Unix domain sockets (AF_UNIX) provide socket-based IPC between processes on the same machine, often faster than TCP loopback."
           }
         ]
       },
@@ -336,6 +348,10 @@
                 "a": "A high-level synchronization construct that wraps data and operations in a single unit. It ensures mutual exclusion automatically — only one thread can execute inside the monitor at a time. Condition variables (wait/notify) allow threads to sleep until a condition is met. Java's synchronized keyword implements a monitor."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Confusing mutex and semaphore: mutex has ownership — only the locking thread can unlock it — while a semaphore has no ownership and any thread can call signal(). Using sleep() for synchronization instead of condition variables — sleep is a guess at timing, a condition variable is a guarantee that waits until a predicate is true. Calling a binary semaphore the same as a mutex: they differ on ownership, so a thread that didn't acquire the semaphore can signal it, which breaks the intended mutual exclusion pattern. Forgetting to release a lock on every code path (especially in error/exception paths), which causes other threads to block indefinitely."
           }
         ]
       },
@@ -380,6 +396,10 @@
                 "a": "Like a deadlock but processes are actively executing — they keep changing state in response to each other but make no progress. Classic example: two people in a hallway each stepping aside the same direction repeatedly. Unlike deadlock (frozen), livelock wastes CPU but still blocks forward progress."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying you need all four conditions to prevent deadlock — you only need to eliminate ONE of the four conditions to make deadlock impossible. Confusing livelock with deadlock: in a deadlock processes are frozen waiting; in livelock they are actively running but making no useful progress. Thinking Banker's Algorithm is used in real OSes — it requires each process to declare its maximum resource needs upfront, which is impractical; most production systems use the ostrich algorithm (ignore deadlocks and reboot). Confusing deadlock prevention (static policy removes a condition by design) with deadlock avoidance (Banker's Algorithm dynamically checks safety before each allocation)."
           }
         ]
       },
@@ -424,6 +444,10 @@
                 "a": "Paging: divides into fixed-size pages. Eliminates external fragmentation. Programmer unaware of pages. Segmentation: divides into variable-size logical segments (code, heap, stack). Programmer/compiler aware. Matches program structure but causes external fragmentation. Modern x86 uses paged segmentation: segments divide address space, then pages divide each segment."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying virtual memory and swap/page file are the same thing — virtual memory is the abstraction of a large private address space for each process; swap is the disk space used to store pages that don't fit in physical RAM. Claiming paging eliminates all fragmentation — paging eliminates external fragmentation but introduces internal fragmentation (up to 4095 wasted bytes in a 4KB page). Forgetting that a context switch flushes the TLB — this is a significant hidden cost of context switching beyond just saving and restoring registers. Confusing page size (4KB typical) with page table size — a 64-bit process with 4KB pages would need a 512GB page table if stored flat, which is why multi-level page tables or inverted page tables are used."
           }
         ]
       },
@@ -464,6 +488,10 @@
                 "a": "Pages are arranged in a circular list. Each page has a 'use bit' set to 1 when accessed. When eviction needed, the clock hand scans: if use bit is 1, clear it and move on (second chance); if use bit is 0, evict that page. Pages accessed recently get a second chance before eviction."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying LRU is implemented exactly in practice — true LRU requires a timestamp or ordered list updated on every memory access, which is too expensive; real OSes use approximations like the Clock algorithm with use bits. Confusing Belady's Anomaly as affecting all algorithms — it only affects non-stack algorithms like FIFO; LRU and OPT are stack algorithms and never exhibit Belady's Anomaly. Equating more frames with always fewer page faults — this is true for LRU and OPT but not FIFO, which is the point of Belady's Anomaly. Describing thrashing as 'the system is slow' — specifically, thrashing means the CPU utilization drops sharply because nearly all time is spent on page fault handling, not because the system is merely under load."
           }
         ]
       },
@@ -508,6 +536,10 @@
                 "a": "ext4: Linux filesystem, uses inodes, supports journaling, file permissions, hard links, max file size 16TB, max filename 255 chars. FAT32: old Windows/MS-DOS, simple file allocation table, no journaling, no permissions, max file size 4GB. FAT32 has universal compatibility (USB drives). ext4 is production-grade for Linux systems."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying the inode stores the filename — the inode stores all metadata except the name; filenames live in directory entries that map name to inode number. This is why you can hard-link: two names, one inode. Saying deleting a file always removes the data — data is only freed when the inode's link count reaches 0 AND no process has the file open; a running process can hold a file descriptor to a 'deleted' file and keep reading it. Confusing hard links and soft links on filesystem boundaries — hard links cannot span different filesystems (they reference an inode number which is filesystem-local), but soft links can point to any path. Assuming journaling prevents all data loss — journaling protects filesystem metadata consistency, not necessarily file data content; fully protecting data requires data journaling mode (slower) or application-level durability (fsync)."
           }
         ]
       },
@@ -552,6 +584,10 @@
                 "a": "nohup command & — nohup redirects stdout/stderr to nohup.out and ignores the SIGHUP sent on logout. Alternatively: disown after backgrounding with & (removes job from shell's job table). For proper daemon behavior: use systemd or screen/tmux which maintains a session."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Reaching for kill -9 immediately — always try kill (SIGTERM) first to allow the process to flush buffers and close files cleanly; SIGKILL can leave temp files, locks, and corrupt state. Confusing chmod 755 and chmod 777: 755 means only the owner can write (safe for scripts served to others); 777 gives write permission to everyone, which is a security risk on shared systems. Thinking zombie processes waste memory or CPU — a zombie holds only a PCB entry, not its address space; the real risk is exhausting the process table (max PIDs). Confusing df and du: df shows filesystem-level free space on mounted volumes; du shows how much disk space a specific directory or file actually consumes — a deleted-but-open file shows as free in df but still occupies disk until all file descriptors are closed."
           }
         ]
       }

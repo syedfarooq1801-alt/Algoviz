@@ -36,6 +36,10 @@
                 "a": "A constructor is a special method called automatically when an object is created (new keyword). It initializes the object's state. Its name matches the class name, has no return type. If you don't write one, the compiler provides a default (no-args, does nothing). Can be overloaded. In C++, matched constructors called on value construction; in Java/Python, always called with new/class call."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Treating the class itself as something that 'runs' — a class defines structure but consumes no memory for instance fields until an object is instantiated; only static members live in class-level storage. Confusing reference equality with value equality: in Java, == on two object variables checks if they point to the same object in memory, not if their fields are equal — use .equals() for value comparison. Assuming the default constructor always exists: if you write any constructor with parameters, Java and C++ no longer generate the no-args default — calling new MyClass() then fails to compile."
           }
         ]
       },
@@ -68,6 +72,10 @@
                 "a": "They're related but not identical. Data hiding: specifically restricting access to internal state (making fields private). Encapsulation: the broader principle of bundling data + behavior into a unit AND controlling access. Encapsulation enables data hiding. You can have encapsulation with all-public fields (poor practice) but data hiding requires encapsulation."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Thinking getters/setters alone guarantee encapsulation — a setter that does no validation (setAge(int a) { this.age = a; }) is a public field in disguise; true encapsulation means enforcing invariants (rejecting age < 0). Exposing mutable internal objects through getters: returning a reference to a private List<> field lets callers mutate it directly, bypassing all validation — return an unmodifiable view or a defensive copy instead. Confusing 'protected' with 'private': protected fields are accessible in all subclasses and (in Java) the entire package, so they are not hidden — prefer private fields with protected accessor methods when subclasses need access."
           }
         ]
       },
@@ -104,6 +112,10 @@
                 "a": "No, directly. An abstract class is incomplete — it has abstract methods with no body. You must create a concrete subclass that implements all abstract methods, then instantiate that subclass. You can have a variable of the abstract class type pointing to a concrete subclass object (polymorphism)."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying 'abstraction and encapsulation are the same thing' — abstraction is about hiding complexity behind a clean interface (design-level), encapsulation is about restricting access to internal state (implementation-level); they cooperate but address different concerns. Choosing abstract class by default when interface is the right tool: if the candidate classes don't share code and are unrelated types (e.g., Bird and Airplane both fly), an interface is correct — inheriting from a common abstract class forces an artificial is-a hierarchy. Forgetting that a class with even one abstract method must be declared abstract in Java — failing to declare it abstract causes a compile error, not a runtime error."
           }
         ]
       },
@@ -144,6 +156,10 @@
                 "a": "Java: super() calls parent constructor (must be first line). super.method() calls the parent class's version of an overridden method. C++: Base::method() calls parent version; Base(args) in initializer list calls parent constructor. Both are needed when the child overrides a method but still wants to run the parent's behavior."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Using inheritance purely for code reuse rather than modeling a true is-a relationship — if Stack extends ArrayList just to reuse add/remove, it inherits 100+ methods that make no sense for a stack (get(index), remove(index)), violating LSP; compose instead. Forgetting that constructors are NOT inherited in Java/C++ — a subclass constructor must explicitly call super() (Java) or the base initializer list (C++) to initialize the parent part; if omitted, Java silently inserts super() which fails if the parent has no no-arg constructor. Assuming overriding works without the @Override annotation in Java — the annotation is optional but catches a common bug where you misspell the method name and accidentally create a new method instead of overriding the parent's."
           }
         ]
       },
@@ -184,6 +200,10 @@
                 "a": "Technically yes, but it doesn't behave polymorphically. During construction, the object is of the base class type — its vtable points to the base class version, not the derived class. The derived class hasn't been initialized yet. Calling a virtual method from a constructor always calls the class's own version, not an overridden version in a subclass. This is a subtle bug if you expect polymorphic dispatch in constructors."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Forgetting 'virtual' in C++ and expecting polymorphic behavior — without virtual, calling a method through a base pointer always dispatches to the base class version at compile time, even if the object is a derived type; this silently produces wrong results with no compiler warning. Confusing overloading with overriding: changing only the return type of a method in a subclass is NOT overriding — Java gives a compile error if return types are incompatible, and C++ creates an unrelated method; the parameter list must match exactly. Claiming method overloading is runtime polymorphism — overloading is resolved entirely at compile time based on the declared parameter types, not the runtime types of the arguments; passing a Derived* to a function overloaded for Base* calls the Base* version."
           }
         ]
       },
@@ -224,6 +244,10 @@
                 "a": "Stack object: when the object goes out of scope (function returns, block ends). Heap object: when delete is called on the pointer. Static/global: when the program ends (reverse order of construction). In a class hierarchy: always call the derived class destructor first, then base class. For polymorphic base class pointers, the base destructor must be virtual — otherwise delete base_ptr; only calls the base destructor, leaking the derived part."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Not making the base class destructor virtual in a polymorphic hierarchy — deleting a derived object through a base pointer calls only the base destructor, leaking all resources the derived class allocated; the fix is a single 'virtual ~Base() {}' in the base class. Defining a copy constructor but forgetting the copy assignment operator (or vice versa) — when you write 'a = b' after construction, the compiler-generated assignment does a shallow copy that will double-free; the Rule of Three exists precisely because all three must be consistent. Calling std::move() and then using the moved-from object — after a move, the source is in a valid but unspecified state (likely empty/null); reading its fields or calling methods that assume non-empty state causes undefined behavior."
           }
         ]
       },
@@ -256,6 +280,10 @@
                 "a": "Prefix ++obj: MyClass& operator++() — increment and return *this by reference (no copy). Postfix obj++: MyClass operator++(int) — the dummy 'int' parameter distinguishes it. Save old value, increment, return old value by value. Postfix is less efficient (makes a copy). Prefer prefix ++ in loops."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Implementing operator== as a member function with an asymmetric signature — if 'a == b' compiles but 'b == a' does not (when b is a different compatible type), the operator is wrong; non-member friend functions make both orderings symmetric. Forgetting to return *this by reference from operator= and operator+= — returning by value creates an unnecessary copy and breaks chaining idioms like (a += b) += c. Overloading operator+ as a member that modifies *this instead of returning a new object — operator+ should be const and return a new value (a + b does not change a); the mutating version is operator+=, and the conventional pattern is to implement operator+ in terms of operator+=."
           }
         ]
       },
@@ -292,6 +320,10 @@
                 "a": "Dependency Injection (DI) is a technique where a class receives its dependencies from outside (constructor injection, setter injection, method injection) rather than creating them internally. This enables: testability (inject mocks), flexibility (swap implementations), and decoupling. IoC containers (Spring, .NET Core) automate wiring of dependencies. DI is the mechanism; DIP is the principle."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Misapplying SRP as 'one method per class' — SRP means one reason to change (one business responsibility), not one method; a UserValidator class can have validateEmail(), validateAge(), and validateUsername() and still follow SRP because they all change for the same reason (validation rules). Saying LSP is just about not throwing exceptions in subclasses — LSP requires that every behavioral contract of the base class holds in the subclass: preconditions cannot be strengthened, postconditions cannot be weakened, and invariants must be preserved; throwing NotImplementedException in a subclass method is a textbook LSP violation. Treating DIP as 'just use an interface' without inverting the dependency direction — the key word is inversion: the abstraction (interface) should be defined by the high-level module and implemented by the low-level module, not the reverse; if the interface is defined in the database layer, the dependency direction has not actually inverted."
           }
         ]
       },
@@ -328,6 +360,10 @@
                 "a": "Wraps an object to add behavior dynamically at runtime without modifying the original class or creating subclasses. Each decorator implements the same interface as the wrapped component and forwards calls, adding behavior before/after. Example: Java I/O streams (BufferedInputStream wraps FileInputStream, GZIPInputStream wraps BufferedInputStream). Use when: you need to add orthogonal behaviors combinatorially (logging + caching + retry — subclassing would require 8 combinations)."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Implementing Singleton without volatile in Java's double-checked locking — without 'volatile', the JVM can reorder instructions so a second thread sees a partially-constructed instance (instance != null but fields not yet written); volatile prevents this reordering. Confusing Strategy pattern with State pattern — Strategy swaps an algorithm from outside the object (client chooses the strategy); State changes the object's behavior from inside as its internal state transitions; both use a reference to an interface, but the trigger and ownership differ. Using Observer without a way to unsubscribe, causing memory leaks — if observers hold references to the subject and the subject holds references to observers, neither can be garbage-collected after use; always provide an unsubscribe/removeObserver method and call it when the observer's lifetime ends."
           }
         ]
       }

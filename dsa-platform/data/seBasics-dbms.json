@@ -36,6 +36,10 @@
                 "a": "Database: the organized collection of data itself. DBMS: the software system that manages, stores, retrieves, and controls access to the database. MySQL, PostgreSQL, Oracle are DBMSes. Your users table is part of the database."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Confusing physical and logical data independence: physical independence is about changing storage (files, indexes, disk layout) without affecting the logical schema; logical independence is about changing the schema (adding columns, renaming tables) without breaking application queries — not the other way around. Saying 'a DBMS provides ACID' without qualification: ACID is guaranteed for transactions, but a DBMS also provides features (security, concurrency, queries) that are separate from ACID. Conflating the DBMS software with the database itself: MySQL is the DBMS, your 'orders' table with its rows is the database — interviewers distinguish them and so should you. Listing only 'redundancy' as the problem with flat files: interviewers want all four — redundancy, inconsistency, no concurrent access control, and no standard query interface."
           }
         ]
       },
@@ -72,6 +76,10 @@
                 "a": "Unary: entity related to itself (Employee 'supervises' Employee). Binary: between two entity types (Student enrolls in Course) — most common. Ternary: between three entity types (Doctor prescribes Medicine to Patient). Ternary relationships often get decomposed into binary ones."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying a weak entity 'has no key at all': it has a partial key (discriminator), which combined with the owner's primary key forms a composite identifier — it is not keyless, just incomplete on its own. Modeling every M:N relationship without a junction table: in a relational DB you cannot store a list of foreign keys in a single column; the junction table with two FK columns is mandatory. Confusing total participation with cardinality: total participation (double line) means every instance must participate — it says nothing about how many. A 1:N relationship with total participation on the 'N' side means every child must have a parent, but each parent can still have many children."
           }
         ]
       },
@@ -112,6 +120,10 @@
                 "a": "Natural key: a key derived from actual data attributes with real-world meaning (e.g., SSN, email). Surrogate key: an artificial key added for convenience, no business meaning (e.g., auto-increment id). Surrogate keys are preferred in practice: they're stable (natural data like email can change), compact, and never expose business data in URLs."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying a table can have only one candidate key: a table can have multiple candidate keys (e.g., both email and phone_number might each uniquely identify a user). Only one is promoted to primary key; the rest are alternate keys. Treating a super key as equivalent to a candidate key: {StudentID, Name} is a super key but not a candidate key — it is not minimal because StudentID alone suffices. Assuming a foreign key must reference a primary key specifically: most databases allow a foreign key to reference any UNIQUE NOT NULL column or set of columns in the parent table, not exclusively the primary key. Claiming UNIQUE and NOT NULL together equals a primary key: functionally equivalent for uniqueness purposes, but a table can only have one designated PRIMARY KEY — semantically and behaviorally they differ (primary key is the canonical row identifier)."
           }
         ]
       },
@@ -152,6 +164,10 @@
                 "a": "3NF allows a non-key attribute to functionally determine another non-key attribute if the determinant is a candidate key. BCNF is stricter: every functional dependency X → Y must have X as a candidate key. BCNF eliminates all redundancy caused by functional dependencies. In practice most 3NF schemas are also BCNF; they differ only in edge cases with multiple overlapping composite candidate keys."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Applying 2NF to single-column primary keys: partial dependency requires a composite key — if the primary key is a single column, the table is automatically in 2NF. Candidates often waste time looking for partial dependencies in single-key tables. Confusing transitive dependency direction: the dependency chain must go non-key → non-key. If DeptID is part of the key, DeptID → DeptHead is a partial dependency (2NF violation), not transitive. Saying 'BCNF is always achievable without loss': decomposing to BCNF can lose functional dependency preservation (you can't always enforce all original FDs with separate tables). 3NF guarantees both lossless decomposition and dependency preservation; BCNF guarantees only lossless. Treating normalization as always beneficial: over-normalizing an analytics/OLAP schema causes excessive joins — denormalization is the correct choice for read-heavy workloads."
           }
         ]
       },
@@ -196,6 +212,10 @@
                 "a": "A function that operates over a 'window' of rows related to the current row without collapsing them like GROUP BY. Syntax: FUNC() OVER (PARTITION BY col ORDER BY col). Common functions: ROW_NUMBER(), RANK(), DENSE_RANK(), LAG(), LEAD(), SUM(). Example: running total, rank within a group, compare with previous row — all without subqueries."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Putting aggregate conditions in WHERE instead of HAVING: WHERE COUNT(*) > 5 is a syntax error — aggregates are not yet computed at the WHERE stage. Always use HAVING for post-aggregation filters. Confusing RANK() and DENSE_RANK(): RANK() leaves gaps after ties (1,1,3), DENSE_RANK() does not (1,1,2). The Nth-highest salary problem requires DENSE_RANK to avoid skipping salary values. Thinking LEFT JOIN always returns more rows than INNER JOIN: it returns at least as many, but if every left-table row has a match, both return identical results. The difference only appears for unmatched rows. Writing a correlated subquery when a join works: SELECT e.name, (SELECT AVG(salary) FROM employees WHERE dept=e.dept) runs the subquery once per employee row; a JOIN on a pre-aggregated derived table runs it once total — orders of magnitude faster on large tables."
           }
         ]
       },
@@ -240,6 +260,10 @@
                 "a": "A composite index on (A, B, C) can be used for queries filtering on A, on (A, B), or on (A, B, C). It cannot efficiently serve a query filtering on B alone, C alone, or (B, C) — the index is only usable starting from the leftmost column. Design composite indexes with the most frequently queried column first."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying B-Tree and B+Tree are the same: most databases use B+Trees where only leaf nodes store data pointers and all leaf nodes are linked — enabling fast range scans. B-Tree stores data in all nodes. Saying 'just add more indexes to speed up queries': every index adds overhead to every INSERT, UPDATE, and DELETE. Write-heavy tables with too many indexes perform worse overall. Assuming an index on a low-cardinality column (e.g., a boolean 'is_active') always helps: the query optimizer will often choose a full table scan over an index that selects 50% of rows — the bookmark lookup cost exceeds the full scan cost. Breaking the leftmost prefix rule without realizing it: an index on (last_name, first_name) cannot speed up a query WHERE first_name = 'Ali' — only queries filtering on last_name (optionally also first_name) benefit."
           }
         ]
       },
@@ -280,6 +304,10 @@
                 "a": "A named point within a transaction to which you can partially roll back without aborting the entire transaction. SAVEPOINT sp1; (later) ROLLBACK TO sp1; undoes work since sp1 but keeps earlier work in the transaction. Useful for handling errors in long transactions without losing all progress."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying consistency is the database's responsibility alone: consistency is a shared contract — the DB enforces constraints (NOT NULL, CHECK, FK), but the application must write correct business logic. A transaction that debits twice and credits once passes all DB constraints yet violates consistency. Confusing atomicity with isolation: atomicity is about one transaction being all-or-nothing; isolation is about multiple concurrent transactions not seeing each other's partial states — they are separate guarantees. Thinking durability means 'stored in RAM': durability requires writing to stable persistent storage (disk/SSD with fsync, or WAL). Data in an in-memory buffer that hasn't been flushed is not durable. Saying 'autocommit means no transactions': autocommit wraps every statement in its own transaction — each statement is still ACID-compliant, just committed immediately after execution."
           }
         ]
       },
@@ -320,6 +348,10 @@
                 "a": "T1 holds lock on row A, wants row B. T2 holds lock on row B, wants row A. Both wait forever. Detection: DB maintains a waits-for graph; detects cycles. Resolution: pick a 'victim' transaction (typically the one with least work done or lowest priority) and roll it back. The application should retry aborted transactions."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying MVCC eliminates all deadlocks: MVCC eliminates read-write deadlocks because readers never lock rows, but write-write conflicts (two transactions updating the same row) still require locking and can deadlock. Confusing 2PL phases with BEGIN/COMMIT: the growing and shrinking phases are about lock acquisition and release within a transaction, not about starting and ending it — a transaction in 2PL may hold many locks before releasing any. Saying serializability means transactions run one at a time: serializability means the outcome is equivalent to some serial order — transactions still run concurrently, their interleaved operations just must not produce an anomalous result. Forgetting that VACUUM (or equivalent) is required with MVCC: old row versions accumulate on disk. Without periodic cleanup (VACUUM in PostgreSQL), storage grows unboundedly and query performance degrades."
           }
         ]
       },
@@ -360,6 +392,10 @@
                 "a": "Two transactions read the same value, both compute a new value based on it, both write back — the second write overwrites the first, losing T1's update. Example: T1 reads balance=100, T2 reads balance=100, T1 writes 150, T2 writes 130 — T1's $50 deposit is lost. Prevented by Repeatable Read (with locking) or using SELECT FOR UPDATE."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Confusing non-repeatable reads and phantom reads: non-repeatable read is about the same existing row returning a different value (a committed UPDATE by another transaction); phantom read is about the set of rows changing (a committed INSERT or DELETE by another transaction). They are distinct anomalies prevented at different isolation levels. Thinking MySQL InnoDB's Repeatable Read prevents phantom reads: standard SQL says Repeatable Read still allows phantoms, but InnoDB uses gap locks to prevent them in most cases — this is an InnoDB-specific optimization, not a guarantee of the SQL standard's Repeatable Read level. Assuming higher isolation is always better: Serializable prevents all anomalies but uses range locks or predicate locks that can drastically reduce throughput and increase deadlock frequency. Most production applications intentionally use Read Committed. Saying Read Uncommitted is 'never used': it is used in specific scenarios like fast bulk data loading checks or approximate COUNT queries where a slight inaccuracy is acceptable and throughput is critical."
           }
         ]
       },
@@ -396,6 +432,10 @@
                 "a": "A checkpoint flushes all dirty buffer pages to disk and writes a checkpoint record to the log. During recovery, analysis starts from the last checkpoint rather than the beginning of the log — dramatically reduces recovery time. Without checkpoints, recovery could require replaying the entire log history. Most DBs checkpoint every few seconds."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Reversing the WAL rule: saying 'write data to disk, then write the log' — the correct order is always log first, then data pages. Writing data before the log means a crash between the two leaves the DB modified with no log record to undo it. Confusing REDO and UNDO direction: UNDO uses old values to reverse uncommitted changes; REDO uses new values to re-apply committed changes that hadn't reached disk yet. Mixing them up produces an unrecoverable state. Saying checkpoints make recovery instant: checkpoints reduce the log replay window, but recovery still requires Analysis + REDO + UNDO from the last checkpoint — it is faster, not instantaneous. Thinking durability means the commit response comes after disk write: WAL allows returning the commit acknowledgment after the log record is flushed (not the full data page), which is why WAL provides durability with far less I/O overhead than writing full pages synchronously."
           }
         ]
       },
@@ -428,6 +468,10 @@
                 "a": "OLTP (Online Transaction Processing): many short transactions, read/write individual rows, high concurrency. Examples: e-commerce, banking. Normalized schema, row-oriented storage. OLAP (Online Analytical Processing): few complex queries, aggregate millions of rows, typically read-only. Examples: BI dashboards, data warehouses. Denormalized star/snowflake schema, column-oriented storage."
               }
             ]
+          },
+          {
+            "type": "common-mistake",
+            "text": "Saying column stores compress better 'because they store less data': column stores compress better because all values in a column share the same data type and often have low cardinality (e.g., a status column with only 3 distinct values), enabling run-length encoding or dictionary encoding — not because data is omitted. Thinking a heap file is always inefficient: for small tables or full-scan workloads (e.g., bulk export), heap files can outperform sorted files because there is no sort-maintenance overhead on inserts. Confusing the buffer pool with application-level caching (Redis, Memcached): the buffer pool caches raw disk pages inside the DB process; application-level caches store query results outside the DB. They operate at different layers and both can be active simultaneously. Claiming column stores are always slower for point lookups: assembling a single row from a column store requires reading one value per column from N separate locations, which is slower than a row store's single read — column stores are the wrong choice when queries need full rows by primary key."
           }
         ]
       }
