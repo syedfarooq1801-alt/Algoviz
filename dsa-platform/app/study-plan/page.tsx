@@ -126,7 +126,10 @@ export default function StudyPlanPage() {
   function changeStartDate(d: string) {
     if (!d) return;
     setPlanStartDate(d);
-    didAutoInit.current = false; // re-jump to the new current day
+    // Re-jump focus to where "today" lands in the re-anchored plan.
+    const idx = Math.max(0, Math.min(daysBetween(d, today), duration - 1));
+    setActiveWeek(Math.floor(idx / 7));
+    setActiveDayIdx(idx % 7);
   }
 
   function isTaskDone(task: PlanTask): boolean {
@@ -317,6 +320,9 @@ export default function StudyPlanPage() {
               const weekday = day.date
                 ? new Date(day.date + "T00:00:00").toLocaleDateString("en", { weekday: "short" })
                 : label;
+              const dateLabel = day.date
+                ? new Date(day.date + "T00:00:00").toLocaleDateString("en", { month: "short", day: "numeric" })
+                : "";
               return (
                 <div key={wi} onClick={() => setActiveDayIdx(wi)} style={{
                   position: "relative",
@@ -326,9 +332,14 @@ export default function StudyPlanPage() {
                   borderRadius: 7, padding: "8px 4px", textAlign: "center",
                   cursor: "pointer", transition: "all 0.12s",
                 }}>
-                  <div style={{ fontSize: 9, color: isToday ? "var(--accent)" : "var(--text-muted)", fontFamily: "var(--font-mono)", letterSpacing: "0.06em", marginBottom: 4 }}>
+                  <div style={{ fontSize: 9, color: isToday ? "var(--accent)" : "var(--text-muted)", fontFamily: "var(--font-mono)", letterSpacing: "0.06em", marginBottom: 1 }}>
                     {isToday ? "TODAY" : weekday}
                   </div>
+                  {dateLabel && (
+                    <div style={{ fontSize: 8.5, color: "var(--text-muted)", fontFamily: "var(--font-mono)", marginBottom: 3 }}>
+                      {dateLabel}
+                    </div>
+                  )}
                   <div style={{ fontSize: 10, fontWeight: 600, color: isRest ? "var(--text-muted)" : color }}>
                     {isRest ? "Rest" : PHASE_LABEL[day.phase] ?? day.phase}
                   </div>
