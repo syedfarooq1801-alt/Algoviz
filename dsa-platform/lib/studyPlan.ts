@@ -227,9 +227,23 @@ function labelFromTasks(fallback: string, tasks: PlanTask[]): string {
 }
 
 function getReviewNote(phase: DayPhase): string {
-  if (phase === "mock") return "Timed session. No hints. Review correctness, complexity, edge cases, and explanation.";
-  if (phase === "behavioral") return "Draft answers out loud. Keep each answer under 2.5 minutes.";
-  return "Review unfinished tasks first, then redo the hardest solved task from memory.";
+  if (phase === "mock") {
+    return [
+      "Timed mock — simulate the real interview. No hints, no peeking.",
+      "1. Pick 2 problems, 35 min each. Talk through brute force → optimal out loud.",
+      "2. State time/space complexity before coding. Code clean, then dry-run on an edge case.",
+      "3. For each SE/SD item: answer as if the interviewer just asked it cold.",
+      "4. Score yourself: correct? optimal? explained clearly? Note every gap.",
+    ].join("\n");
+  }
+  if (phase === "behavioral") return "Draft answers out loud. Keep each answer under 2.5 minutes. Use STAR — Situation, Task, Action, Result.";
+  return [
+    "Active recall — do NOT re-read solutions. Retrieval is what builds memory.",
+    "1. Each DSA problem: hide the solution, re-derive the approach + code from memory, then check.",
+    "2. Each SE/SD concept: explain it out loud in 60s as if teaching an interviewer.",
+    "3. Redo the single hardest problem fully on paper, no IDE.",
+    "4. Anything you blanked on → write it down. That list is tomorrow's warm-up.",
+  ].join("\n");
 }
 
 // 15-day intensive sprint: 10-12 hr/day, breadth-first over depth, revision
@@ -263,12 +277,24 @@ function generateIntensivePlan(startDate: string): StudyPlan {
     }
 
     if (reviewDays.has(dayNum)) {
-      // Revision day — redo the hardest of the last 2 days. "rv-" prefix keeps
-      // completion separate from the original learning-day toggle.
-      const tasks = topByPriority(window, 10).map((t) => ({ ...t, id: `rv-${t.id}` }));
+      // Revision day — spaced repetition: fresh material from the last 2 days
+      // PLUS the highest-value older items so earlier patterns don't decay.
+      // "rv-" prefix keeps completion separate from the learning-day toggle.
+      const recent = topByPriority(window, 7);
+      const recentIds = new Set(window.map((t) => t.id));
+      const olderPool = assigned.filter((t) => !recentIds.has(t.id));
+      // Balance domains so SE/SD get revised too, not just DSA.
+      const olderDsa = topByPriority(olderPool.filter((t) => t.domain === "dsa"), 3);
+      const olderSupport = topByPriority(olderPool.filter((t) => t.domain !== "dsa"), 2);
+      const merged = [...recent, ...olderDsa, ...olderSupport];
+      const tasks = merged.map((t) => ({
+        ...t,
+        id: `rv-${t.id}`,
+        tag: `${recentIds.has(t.id) ? "Fresh" : "Spaced recall"}${t.tag ? ` · ${t.tag}` : ""}`,
+      }));
       days.push({
         day: dayNum, date, phase: "review", type: "review",
-        label: "Revision — consolidate last 2 days",
+        label: "Revision — fresh + spaced recall",
         color: PHASE_COLOR.review, tasks,
         reviewCovered: [...window], reviewNote: getReviewNote("review"),
       });
