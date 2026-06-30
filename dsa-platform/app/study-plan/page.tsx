@@ -2,7 +2,7 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useMobile } from "@/lib/useMobile";
 import Link from "next/link";
-import { generateStudyPlan, PHASE_COLOR, type DayPlan, type PlanTask } from "@/lib/studyPlan";
+import { generateStudyPlan, PHASE_COLOR, estHours, type DayPlan, type PlanTask } from "@/lib/studyPlan";
 import { useProgressStore } from "@/lib/store";
 import { useSDStore } from "@/lib/sdStore";
 import { useSEStore } from "@/lib/seStore";
@@ -43,7 +43,7 @@ function withPlanSrc(href: string): string {
 
 export default function StudyPlanPage() {
   const isMobile = useMobile();
-  const { solved, toggleSolved, studyPlanDuration, setStudyPlanDuration, planStartDate, setPlanStartDate } = useProgressStore();
+  const { solved, toggleSolved, studyPlanDuration, setStudyPlanDuration, planStartDate, setPlanStartDate, weakAreas, toggleWeak, isWeak } = useProgressStore();
   const { mastered, toggleMastered } = useSDStore();
   const { completed, toggleChapter } = useSEStore();
   const duration: Duration = studyPlanDuration;
@@ -64,7 +64,11 @@ export default function StudyPlanPage() {
     setActiveDayIdx(idx % 7);
   }
 
-  const plan = useMemo(() => generateStudyPlan(duration, startDate), [duration, startDate]);
+  const weakKey = useMemo(() => Array.from(weakAreas).sort().join(","), [weakAreas]);
+  const plan = useMemo(
+    () => generateStudyPlan(duration, startDate, undefined, weakKey ? weakKey.split(",") : []),
+    [duration, startDate, weakKey]
+  );
 
   // Which day index is "today" within the plan (clamped to the plan range).
   const todayIdx = useMemo(() => {
@@ -142,6 +146,97 @@ export default function StudyPlanPage() {
     return tasks.filter(isTaskDone).length;
   }
 
+  // Strip revision prefixes so a weak flag maps to the underlying problem/concept.
+  function baseId(id: string): string {
+    return id.replace(/^rv-mock-/, "").replace(/^rv-/, "");
+  }
+
+  function renderTask(task: PlanTask) {
+    const done = isTaskDone(task);
+    const canToggle = task.domain !== "behavioral";
+    const bId = baseId(task.id);
+    const weak = isWeak(bId);
+    const canFlag = !!task.href && task.kind !== "behavioral" && !task.id.startsWith("recall-");
+    return (
+      <div
+        key={task.id}
+        style={{
+          display: "flex", alignItems: "center", gap: 10,
+          padding: "8px 10px", borderRadius: 6,
+          background: done ? "rgba(47,191,113,0.05)" : weak ? "rgba(245,165,36,0.06)" : "var(--bg-secondary)",
+          border: `1px solid ${done ? "rgba(47,191,113,0.2)" : weak ? "rgba(245,165,36,0.3)" : "var(--border-subtle)"}`,
+          transition: "border-color 0.1s",
+        }}
+      >
+        {/* Checkbox — separate toggle */}
+        <button
+          onClick={() => canToggle && toggleTask(task)}
+          disabled={!canToggle}
+          style={{
+            width: 18, height: 18, borderRadius: 4, flexShrink: 0,
+            background: done ? "#2FBF71" : "transparent",
+            border: `1.5px solid ${done ? "#2FBF71" : "var(--border)"}`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: canToggle ? "pointer" : "default", padding: 0,
+          }}
+        >
+          {done && <span style={{ fontSize: 9, color: "#fff", lineHeight: 1 }}>✓</span>}
+        </button>
+
+        {/* Title — navigates to topic/problem */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {task.href ? (
+            <Link href={withPlanSrc(task.href)} target="_blank" rel="noopener noreferrer" style={{
+              display: "block", fontSize: 12, fontWeight: 500,
+              color: done ? "var(--text-muted)" : "var(--accent)",
+              textDecoration: done ? "line-through" : "none",
+              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            }}>{task.title}</Link>
+          ) : (
+            <div style={{
+              fontSize: 12, fontWeight: 500,
+              color: done ? "var(--text-muted)" : "var(--text-primary)",
+              textDecoration: done ? "line-through" : "none",
+              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            }}>{task.title}</div>
+          )}
+          {task.tag && (
+            <div style={{ fontSize: 10, color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>{task.tag}</div>
+          )}
+        </div>
+
+        {/* Weak-area flag — resurfaces this item in future revision days */}
+        {canFlag && (
+          <button
+            onClick={() => toggleWeak(bId)}
+            title={weak ? "Unflag — you've got this" : "Flag as weak — resurface in revision"}
+            style={{
+              flexShrink: 0, width: 22, height: 22, borderRadius: 4, padding: 0,
+              background: weak ? "rgba(245,165,36,0.15)" : "transparent",
+              border: `1px solid ${weak ? "#F5A524" : "var(--border-subtle)"}`,
+              color: weak ? "#F5A524" : "var(--text-muted)",
+              cursor: "pointer", fontSize: 11, lineHeight: 1,
+            }}
+          >⚠</button>
+        )}
+
+        {task.difficulty && task.difficulty !== "Theory" && (
+          <span style={{
+            fontSize: 10, fontFamily: "var(--font-mono)", padding: "2px 6px", borderRadius: 3,
+            color: task.difficulty === "Easy" ? "#2FBF71" : task.difficulty === "Medium" ? "#F5A524" : "#EF4444",
+            background: task.difficulty === "Easy" ? "rgba(47,191,113,0.1)" : task.difficulty === "Medium" ? "rgba(245,165,36,0.1)" : "rgba(239,68,68,0.1)",
+          }}>{task.difficulty}</span>
+        )}
+      </div>
+    );
+  }
+
+  const TIME_BLOCKS: { key: "AM" | "PM" | "Eve"; label: string }[] = [
+    { key: "AM", label: "Morning · fresh brain — hardest new material" },
+    { key: "PM", label: "Afternoon · theory + more practice" },
+    { key: "Eve", label: "Evening · timed recall + behavioral" },
+  ];
+
   const totalTasks = plan.days.reduce((n, d) => n + d.tasks.filter(t => t.domain !== "behavioral").length, 0);
   const completedTasks = plan.days.reduce((n, d) => n + d.tasks.filter(isTaskDone).length, 0);
 
@@ -165,6 +260,11 @@ export default function StudyPlanPage() {
             </p>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <Link href="/cheat-sheet" style={{
+              fontSize: 11, fontWeight: 600, color: "var(--accent)", textDecoration: "none",
+              padding: "5px 10px", borderRadius: 6, border: "1px solid var(--border-subtle)",
+              background: "var(--bg-secondary)",
+            }}>📄 Cheat-sheet</Link>
             {/* Start date — aligns the plan to the real calendar */}
             <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "var(--text-muted)" }}>
               Started
@@ -266,12 +366,23 @@ export default function StudyPlanPage() {
                     );
                   })()}
                 </span>
-                <span style={{
-                  marginLeft: "auto", fontSize: 10, fontFamily: "var(--font-mono)",
-                  color: "var(--text-muted)", background: "var(--bg-secondary)",
-                  border: "1px solid var(--border-subtle)", borderRadius: 4, padding: "2px 7px",
-                }}>
-                  {tasksDoneCount(focusDay.tasks)}/{focusDay.tasks.length} done
+                <span style={{ marginLeft: "auto", display: "flex", gap: 6, alignItems: "center" }}>
+                  {estHours(focusDay.tasks) > 0 && (
+                    <span style={{
+                      fontSize: 10, fontFamily: "var(--font-mono)", color: PHASE_COLOR[focusDay.phase] ?? "var(--text-muted)",
+                      background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)",
+                      borderRadius: 4, padding: "2px 7px",
+                    }}>
+                      ≈ {estHours(focusDay.tasks)}h
+                    </span>
+                  )}
+                  <span style={{
+                    fontSize: 10, fontFamily: "var(--font-mono)",
+                    color: "var(--text-muted)", background: "var(--bg-secondary)",
+                    border: "1px solid var(--border-subtle)", borderRadius: 4, padding: "2px 7px",
+                  }}>
+                    {tasksDoneCount(focusDay.tasks)}/{focusDay.tasks.length} done
+                  </span>
                 </span>
               </div>
 
@@ -298,67 +409,31 @@ export default function StudyPlanPage() {
               )}
 
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {focusDay.tasks.map((task) => {
-                  const done = isTaskDone(task);
-                  const canToggle = task.domain !== "behavioral";
-                  return (
-                    <div
-                      key={task.id}
-                      style={{
-                        display: "flex", alignItems: "center", gap: 10,
-                        padding: "8px 10px", borderRadius: 6,
-                        background: done ? "rgba(47,191,113,0.05)" : "var(--bg-secondary)",
-                        border: `1px solid ${done ? "rgba(47,191,113,0.2)" : "var(--border-subtle)"}`,
-                        transition: "border-color 0.1s",
-                      }}
-                    >
-                      {/* Checkbox — separate toggle */}
-                      <button
-                        onClick={() => canToggle && toggleTask(task)}
-                        disabled={!canToggle}
-                        style={{
-                          width: 18, height: 18, borderRadius: 4, flexShrink: 0,
-                          background: done ? "#2FBF71" : "transparent",
-                          border: `1.5px solid ${done ? "#2FBF71" : "var(--border)"}`,
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          cursor: canToggle ? "pointer" : "default", padding: 0,
-                        }}
-                      >
-                        {done && <span style={{ fontSize: 9, color: "#fff", lineHeight: 1 }}>✓</span>}
-                      </button>
-
-                      {/* Title — navigates to topic/problem */}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        {task.href ? (
-                          <Link href={withPlanSrc(task.href)} target="_blank" rel="noopener noreferrer" style={{
-                            display: "block", fontSize: 12, fontWeight: 500,
-                            color: done ? "var(--text-muted)" : "var(--accent)",
-                            textDecoration: done ? "line-through" : "none",
-                            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                          }}>{task.title}</Link>
-                        ) : (
-                          <div style={{
-                            fontSize: 12, fontWeight: 500,
-                            color: done ? "var(--text-muted)" : "var(--text-primary)",
-                            textDecoration: done ? "line-through" : "none",
-                            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                          }}>{task.title}</div>
-                        )}
-                        {task.tag && (
-                          <div style={{ fontSize: 10, color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>{task.tag}</div>
-                        )}
+                {focusDay.tasks.some((t) => t.timeBlock) ? (
+                  TIME_BLOCKS.map(({ key, label }) => {
+                    const blockTasks = focusDay.tasks.filter((t) => t.timeBlock === key);
+                    if (!blockTasks.length) return null;
+                    return (
+                      <div key={key} style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 4 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                          <span style={{
+                            fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
+                            color: PHASE_COLOR[focusDay.phase] ?? "var(--accent)",
+                            background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)",
+                            borderRadius: 4, padding: "2px 7px",
+                          }}>{key}</span>
+                          <span style={{ fontSize: 10, color: "var(--text-muted)" }}>{label}</span>
+                          <span style={{ marginLeft: "auto", fontSize: 9, fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
+                            ≈ {estHours(blockTasks) || 1}h
+                          </span>
+                        </div>
+                        {blockTasks.map(renderTask)}
                       </div>
-
-                      {task.difficulty && task.difficulty !== "Theory" && (
-                        <span style={{
-                          fontSize: 10, fontFamily: "var(--font-mono)", padding: "2px 6px", borderRadius: 3,
-                          color: task.difficulty === "Easy" ? "#2FBF71" : task.difficulty === "Medium" ? "#F5A524" : "#EF4444",
-                          background: task.difficulty === "Easy" ? "rgba(47,191,113,0.1)" : task.difficulty === "Medium" ? "rgba(245,165,36,0.1)" : "rgba(239,68,68,0.1)",
-                        }}>{task.difficulty}</span>
-                      )}
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                ) : (
+                  focusDay.tasks.map(renderTask)
+                )}
                 {focusDay.tasks.length === 0 && (
                   <div style={{ textAlign: "center", padding: 24, fontSize: 13, color: "var(--text-muted)" }}>Rest day</div>
                 )}

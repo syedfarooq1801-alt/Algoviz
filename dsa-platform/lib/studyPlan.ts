@@ -18,6 +18,7 @@ export interface PlanTask {
   priority: number;
   meta?: string;
   kind?: "theory" | "problem" | "concept" | "behavioral";
+  timeBlock?: "AM" | "PM" | "Eve"; // intensive plan: morning / afternoon / evening
 }
 
 export interface DayPlan {
@@ -246,15 +247,30 @@ function getReviewNote(phase: DayPhase): string {
   ].join("\n");
 }
 
-// 15-day intensive sprint: 10-12 hr/day, breadth-first over depth, revision
-// every 2 study days. Goal: cover the highest-value DSA patterns, SE chapters,
-// and SD fundamentals fast enough to walk into interviews in 2 weeks.
-function generateIntensivePlan(startDate: string): StudyPlan {
+// Estimated hours for a set of tasks (1 effort unit ≈ 1 hour of focused work).
+export function estHours(tasks: PlanTask[]): number {
+  return Math.round(totalEffort(tasks));
+}
+
+// A self-study recall task — no link, just an instruction to redo from memory.
+function recallTask(dayNum: number, label: string): PlanTask {
+  return {
+    domain: "dsa", id: `recall-d${dayNum}`, title: label, href: "",
+    priority: 5, meta: "Active recall", kind: "problem", timeBlock: "Eve",
+  };
+}
+
+// 15-day intensive sprint: 10-12 hr/day in AM/PM/Eve blocks, breadth-first over
+// depth, revision every 2 study days, behavioral woven into evenings. Goal:
+// cover the highest-value DSA, SE, SD + behavioral fast enough to interview in 2 weeks.
+function generateIntensivePlan(startDate: string, weakIds: string[] = []): StudyPlan {
   const durationDays = 15 as const;
+  const weakSet = new Set(weakIds);
   // Priority-ordered queues — most interview-critical items first.
   const dsaQueue = buildDSATasks(); // curriculum order: front-loads core patterns
   const sdQueue = topByPriority(buildSDTasks(), 999);   // fundamentals first
   const seQueue = topByPriority(buildSETasks(), 999);   // interview-focus chapters first
+  const behavioralQueue = topByPriority(buildBehavioralTasks(), 999);
   const assigned: PlanTask[] = [];
   const window: PlanTask[] = []; // tasks from the last 2 study days, for revision
   const days: DayPlan[] = [];
@@ -266,35 +282,54 @@ function generateIntensivePlan(startDate: string): StudyPlan {
     const date = addDays(startDate, dayNum - 1);
 
     if (dayNum === durationDays) {
-      // Day 15 — full interview simulation from the best of everything seen.
-      const tasks = topByPriority(assigned, 8).map((t) => ({ ...t, id: `rv-mock-${t.id}` }));
+      // Day 15 — full interview simulation. Weak areas first, then best of everything.
+      const weakFirst = topByPriority(assigned.filter((t) => weakSet.has(t.id)), 4);
+      const rest = topByPriority(assigned.filter((t) => !weakSet.has(t.id)), 6);
+      const core = [...weakFirst, ...rest].map((t) => ({
+        ...t, id: `rv-mock-${t.id}`,
+        tag: `${weakSet.has(t.id) ? "⚠ Weak area · " : ""}${t.tag ?? ""}`,
+        timeBlock: "AM" as const,
+      }));
+      const cheatSheet: PlanTask = {
+        domain: "dsa", id: "rv-cheat-sheet", title: "Interview cheat-sheet — final glance",
+        href: "/cheat-sheet", priority: 9, meta: "Last-minute reference",
+        kind: "theory", timeBlock: "Eve",
+      };
+      const behavioral = behavioralQueue.slice(0, 3).map((t) => ({ ...t, timeBlock: "PM" as const }));
       days.push({
         day: dayNum, date, phase: "mock", type: "mock",
         label: "Final mock — full interview simulation",
-        color: PHASE_COLOR.mock, tasks, reviewNote: getReviewNote("mock"),
+        color: PHASE_COLOR.mock, tasks: [...core, ...behavioral, cheatSheet],
+        reviewNote: getReviewNote("mock"),
       });
       continue;
     }
 
     if (reviewDays.has(dayNum)) {
-      // Revision day — spaced repetition: fresh material from the last 2 days
-      // PLUS the highest-value older items so earlier patterns don't decay.
+      // Revision day — spaced repetition: weak areas + fresh (last 2 days) +
+      // highest-value older items so earlier patterns don't decay.
       // "rv-" prefix keeps completion separate from the learning-day toggle.
-      const recent = topByPriority(window, 7);
+      const recent = topByPriority(window, 6);
       const recentIds = new Set(window.map((t) => t.id));
       const olderPool = assigned.filter((t) => !recentIds.has(t.id));
+      const weakFirst = topByPriority(olderPool.filter((t) => weakSet.has(t.id)), 3);
+      const weakFirstIds = new Set(weakFirst.map((t) => t.id));
+      const remainingOlder = olderPool.filter((t) => !weakFirstIds.has(t.id));
       // Balance domains so SE/SD get revised too, not just DSA.
-      const olderDsa = topByPriority(olderPool.filter((t) => t.domain === "dsa"), 3);
-      const olderSupport = topByPriority(olderPool.filter((t) => t.domain !== "dsa"), 2);
-      const merged = [...recent, ...olderDsa, ...olderSupport];
-      const tasks = merged.map((t) => ({
-        ...t,
-        id: `rv-${t.id}`,
-        tag: `${recentIds.has(t.id) ? "Fresh" : "Spaced recall"}${t.tag ? ` · ${t.tag}` : ""}`,
-      }));
+      const olderDsa = topByPriority(remainingOlder.filter((t) => t.domain === "dsa"), 2);
+      const olderSupport = topByPriority(remainingOlder.filter((t) => t.domain !== "dsa"), 2);
+      const merged = [...weakFirst, ...recent, ...olderDsa, ...olderSupport];
+      const tasks = merged.map((t) => {
+        const label = weakSet.has(t.id) ? "⚠ Weak area" : recentIds.has(t.id) ? "Fresh" : "Spaced recall";
+        return {
+          ...t, id: `rv-${t.id}`,
+          tag: `${label}${t.tag ? ` · ${t.tag}` : ""}`,
+          timeBlock: (weakSet.has(t.id) ? "AM" : t.domain === "dsa" ? "PM" : "Eve") as "AM" | "PM" | "Eve",
+        };
+      });
       days.push({
         day: dayNum, date, phase: "review", type: "review",
-        label: "Revision — fresh + spaced recall",
+        label: "Revision — weak areas + fresh + spaced recall",
         color: PHASE_COLOR.review, tasks,
         reviewCovered: [...window], reviewNote: getReviewNote("review"),
       });
@@ -302,22 +337,26 @@ function generateIntensivePlan(startDate: string): StudyPlan {
       continue;
     }
 
-    // Study day — ~11 effort units ≈ 10-12 hours.
-    // Two DSA pattern slices (breadth) + one SE chapter + one SD concept.
-    const dsaTasks = [
-      ...takeDsaPatternByEffort(dsaQueue, 4, 1),
-      ...takeDsaPatternByEffort(dsaQueue, 4, 1),
-    ];
-    const seTasks = takeByEffort(seQueue, 2, 1);
-    const sdTasks = takeByEffort(sdQueue, 1.5, 1);
-    const tasks = [...dsaTasks, ...seTasks, ...sdTasks];
+    // Study day — ~11 effort units ≈ 10-12 hours, split into AM / PM / Eve.
+    // AM (fresh brain): hardest new DSA pattern.
+    const amDsa = takeDsaPatternByEffort(dsaQueue, 4, 1).map((t) => ({ ...t, timeBlock: "AM" as const }));
+    // PM: SE + SD theory + a second DSA pattern slice.
+    const pmDsa = takeDsaPatternByEffort(dsaQueue, 3, 1).map((t) => ({ ...t, timeBlock: "PM" as const }));
+    const seTasks = takeByEffort(seQueue, 2, 1).map((t) => ({ ...t, timeBlock: "PM" as const }));
+    const sdTasks = takeByEffort(sdQueue, 1.5, 1).map((t) => ({ ...t, timeBlock: "PM" as const }));
+    // Eve: timed recall of the day's hardest + behavioral STAR prep.
+    const behavioral = behavioralQueue.splice(0, 1).map((t) => ({ ...t, timeBlock: "Eve" as const }));
+    const recall = recallTask(dayNum, "Redo today's AM problems from memory — timed, no IDE");
 
-    window.push(...tasks);
-    assigned.push(...tasks);
+    const tasks = [...amDsa, ...pmDsa, ...seTasks, ...sdTasks, ...behavioral, recall];
+
+    // Only real (non-recall) tasks feed the revision window.
+    window.push(...amDsa, ...pmDsa, ...seTasks, ...sdTasks);
+    assigned.push(...amDsa, ...pmDsa, ...seTasks, ...sdTasks, ...behavioral);
     days.push({
       day: dayNum, date, phase: "dsa",
       type: dayNum <= 4 ? "learn" : "practice",
-      label: labelFromTasks("Core sprint", tasks),
+      label: labelFromTasks("Core sprint", [...amDsa, ...pmDsa]),
       color: PHASE_COLOR.dsa, tasks,
     });
   }
@@ -325,8 +364,8 @@ function generateIntensivePlan(startDate: string): StudyPlan {
   return { durationDays, startDate, days };
 }
 
-export function generateStudyPlan(durationDays: 15 | 30 | 60 | 90, startDate: string, trackWeights?: Record<string, number>): StudyPlan {
-  if (durationDays === 15) return generateIntensivePlan(startDate);
+export function generateStudyPlan(durationDays: 15 | 30 | 60 | 90, startDate: string, trackWeights?: Record<string, number>, weakIds?: string[]): StudyPlan {
+  if (durationDays === 15) return generateIntensivePlan(startDate, weakIds);
   const tw = trackWeights ?? {};
   const wDsa = tw.dsa ?? 0;
   const wSd = tw.sd ?? 0;

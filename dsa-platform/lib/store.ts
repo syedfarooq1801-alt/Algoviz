@@ -5,6 +5,7 @@ import { persist } from "zustand/middleware";
 interface ProgressState {
   solved: Set<string>;
   bookmarked: Set<string>;
+  weakAreas: Set<string>; // problem/concept ids flagged "needs work" → resurface in revision
   streak: number;
   lastActivity: string;
   xp: number;
@@ -17,8 +18,10 @@ interface ProgressState {
   setUsername: (name: string) => void;
   toggleSolved: (id: string, syncFn?: () => void, timeSecs?: number) => void;
   toggleBookmark: (id: string, syncFn?: () => void) => void;
+  toggleWeak: (id: string, syncFn?: () => void) => void;
   isSolved: (id: string) => boolean;
   isBookmarked: (id: string) => boolean;
+  isWeak: (id: string) => boolean;
   getSolvedCount: (patternId: string, problemIds: string[]) => number;
   setStudyPlanDuration: (d: 15 | 30 | 60 | 90) => void;
   hydrateFromFirestore: (data: {
@@ -32,6 +35,7 @@ interface ProgressState {
     solveTimes?: Record<string, number>;
     username?: string;
     planStartDate?: string;
+    weakAreas?: Set<string>;
   }) => void;
   resetForUser: () => void;
 }
@@ -41,6 +45,7 @@ export const useProgressStore = create<ProgressState>()(
     (set, get) => ({
       solved: new Set<string>(),
       bookmarked: new Set<string>(),
+      weakAreas: new Set<string>(),
       streak: 0,
       lastActivity: "",
       xp: 0,
@@ -92,8 +97,17 @@ export const useProgressStore = create<ProgressState>()(
           return { bookmarked: next };
         }),
 
+      toggleWeak: (id, syncFn) =>
+        set((state) => {
+          const next = new Set(state.weakAreas);
+          next.has(id) ? next.delete(id) : next.add(id);
+          if (syncFn) setTimeout(syncFn, 0);
+          return { weakAreas: next };
+        }),
+
       isSolved: (id) => get().solved.has(id),
       isBookmarked: (id) => get().bookmarked.has(id),
+      isWeak: (id) => get().weakAreas.has(id),
 
       getSolvedCount: (_, problemIds) => {
         const { solved } = get();
@@ -105,6 +119,7 @@ export const useProgressStore = create<ProgressState>()(
       hydrateFromFirestore: (data) => set({
         solved: data.solved,
         bookmarked: data.bookmarked,
+        weakAreas: data.weakAreas ?? get().weakAreas ?? new Set<string>(),
         xp: data.xp,
         streak: data.streak,
         lastActivity: data.lastActivity,
@@ -118,6 +133,7 @@ export const useProgressStore = create<ProgressState>()(
       resetForUser: () => set({
         solved: new Set<string>(),
         bookmarked: new Set<string>(),
+        weakAreas: new Set<string>(),
         xp: 0,
         streak: 0,
         lastActivity: "",
@@ -140,6 +156,7 @@ export const useProgressStore = create<ProgressState>()(
               ...state,
               solved: new Set(state.solved),
               bookmarked: new Set(state.bookmarked),
+              weakAreas: new Set(state.weakAreas ?? []),
               solvedDates: state.solvedDates ?? {},
               solveTimes: state.solveTimes ?? {},
             },
@@ -155,6 +172,7 @@ export const useProgressStore = create<ProgressState>()(
                 ...state,
                 solved: Array.from(state.solved),
                 bookmarked: Array.from(state.bookmarked),
+                weakAreas: Array.from(state.weakAreas ?? []),
                 solvedDates: state.solvedDates ?? {},
                 solveTimes: state.solveTimes ?? {},
               },
