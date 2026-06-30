@@ -260,9 +260,11 @@ function recallTask(dayNum: number, label: string): PlanTask {
   };
 }
 
-// 15-day intensive sprint: 10-12 hr/day in AM/PM/Eve blocks, breadth-first over
-// depth, revision every 2 study days, behavioral woven into evenings. Goal:
-// cover the highest-value DSA, SE, SD + behavioral fast enough to interview in 2 weeks.
+// 15-day intensive sprint: FULL syllabus coverage. Every DSA problem, SE chapter,
+// SD concept, and behavioral question is scheduled across the 10 study days
+// (AM/PM/Eve blocks), with revision every 2 study days and a final mock.
+// Queues are drained evenly so nothing is dropped — the hours badge shows the
+// (heavy) real daily load honestly.
 function generateIntensivePlan(startDate: string, weakIds: string[] = []): StudyPlan {
   const durationDays = 15 as const;
   const weakSet = new Set(weakIds);
@@ -277,6 +279,9 @@ function generateIntensivePlan(startDate: string, weakIds: string[] = []): Study
 
   // Revision every 2 study days; final day is a full mock.
   const reviewDays = new Set([3, 6, 9, 12]);
+  // 15 days − 4 review − 1 mock = 10 study days. Drain every queue evenly
+  // across them so the ENTIRE syllabus is scheduled, nothing dropped.
+  let studyDaysLeft = durationDays - reviewDays.size - 1;
 
   for (let dayNum = 1; dayNum <= durationDays; dayNum++) {
     const date = addDays(startDate, dayNum - 1);
@@ -337,15 +342,24 @@ function generateIntensivePlan(startDate: string, weakIds: string[] = []): Study
       continue;
     }
 
-    // Study day — ~11 effort units ≈ 10-12 hours, split into AM / PM / Eve.
-    // AM (fresh brain): hardest new DSA pattern.
-    const amDsa = takeDsaPatternByEffort(dsaQueue, 4, 1).map((t) => ({ ...t, timeBlock: "AM" as const }));
-    // PM: SE + SD theory + a second DSA pattern slice.
-    const pmDsa = takeDsaPatternByEffort(dsaQueue, 3, 1).map((t) => ({ ...t, timeBlock: "PM" as const }));
-    const seTasks = takeByEffort(seQueue, 2, 1).map((t) => ({ ...t, timeBlock: "PM" as const }));
-    const sdTasks = takeByEffort(sdQueue, 1.5, 1).map((t) => ({ ...t, timeBlock: "PM" as const }));
-    // Eve: timed recall of the day's hardest + behavioral STAR prep.
-    const behavioral = behavioralQueue.splice(0, 1).map((t) => ({ ...t, timeBlock: "Eve" as const }));
+    // Study day — drain an even share of EVERY queue so the full syllabus
+    // is covered by the last study day. Per-queue share = ceil(remaining / daysLeft).
+    const share = (n: number) => Math.ceil(n / Math.max(1, studyDaysLeft));
+    const dsaSlice = dsaQueue.splice(0, share(dsaQueue.length));
+    const seSlice = seQueue.splice(0, share(seQueue.length));
+    const sdSlice = sdQueue.splice(0, share(sdQueue.length));
+    const behSlice = behavioralQueue.splice(0, share(behavioralQueue.length));
+    studyDaysLeft--;
+
+    // AM (fresh brain): first half of the day's DSA — hardest new material.
+    const half = Math.ceil(dsaSlice.length / 2);
+    const amDsa = dsaSlice.slice(0, half).map((t) => ({ ...t, timeBlock: "AM" as const }));
+    // PM: rest of DSA + SE + SD theory.
+    const pmDsa = dsaSlice.slice(half).map((t) => ({ ...t, timeBlock: "PM" as const }));
+    const seTasks = seSlice.map((t) => ({ ...t, timeBlock: "PM" as const }));
+    const sdTasks = sdSlice.map((t) => ({ ...t, timeBlock: "PM" as const }));
+    // Eve: behavioral STAR prep + timed recall of the day's hardest.
+    const behavioral = behSlice.map((t) => ({ ...t, timeBlock: "Eve" as const }));
     const recall = recallTask(dayNum, "Redo today's AM problems from memory — timed, no IDE");
 
     const tasks = [...amDsa, ...pmDsa, ...seTasks, ...sdTasks, ...behavioral, recall];
