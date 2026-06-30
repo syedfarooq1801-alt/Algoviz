@@ -61,11 +61,12 @@ function hydrateAllStores(d: Record<string, unknown>) {
   useProgressStore.getState().hydrateFromFirestore({
     solved: new Set<string>((d.solved as string[]) ?? []),
     bookmarked: new Set<string>((d.bookmarked as string[]) ?? []),
+    weakAreas: new Set<string>((d.weakAreas as string[]) ?? []),
     xp: (d.xp as number) ?? 0,
     streak: (d.streak as number) ?? 0,
     lastActivity: (d.lastActivity as string) ?? "",
-    studyPlanDuration: ([30, 60, 90].includes(d.studyPlanDuration as number)
-      ? d.studyPlanDuration : 30) as 30 | 60 | 90,
+    studyPlanDuration: ([15, 30, 60, 90].includes(d.studyPlanDuration as number)
+      ? d.studyPlanDuration : 30) as 15 | 30 | 60 | 90,
     solvedDates: (d.solvedDates as Record<string, string>) ?? {},
     solveTimes: (d.solveTimes as Record<string, number>) ?? {},
     username: (d.username as string) ?? "",
@@ -109,7 +110,7 @@ async function loadAndSubscribe(uid: string) {
 }
 
 async function syncAllToFirestore(uid: string) {
-  const { solved, bookmarked, xp, streak, lastActivity, studyPlanDuration, solvedDates, solveTimes, username, planStartDate } = useProgressStore.getState();
+  const { solved, bookmarked, weakAreas, xp, streak, lastActivity, studyPlanDuration, solvedDates, solveTimes, username, planStartDate } = useProgressStore.getState();
   const { mastered: sdMastered, bookmarked: sdBookmarked } = useSDStore.getState();
   const { completed: seCompleted } = useSEStore.getState();
   const { known: flashcardKnown, weak: flashcardWeak, nextReview: flashcardNextReview, level: flashcardLevel } = useFlashcardStore.getState();
@@ -132,6 +133,7 @@ async function syncAllToFirestore(uid: string) {
   await updateDoc(ref, {
     solved: Array.from(solved),
     bookmarked: Array.from(bookmarked),
+    weakAreas: Array.from(weakAreas),
     xp, streak, lastActivity, studyPlanDuration,
     planStartDate,
     solvedDates,
