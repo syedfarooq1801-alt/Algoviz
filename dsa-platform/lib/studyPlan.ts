@@ -390,7 +390,8 @@ export function generateStudyPlan(durationDays: 15 | 30 | 60 | 90, startDate: st
   const dsaQueue = buildDSATasks();
   const sdQueue = buildSDTasks();
   const seQueue = buildSETasks();
-  const behavioralQueue = buildBehavioralTasks();
+  const behavioralQueue = buildBehavioralTasks();        // dedicated tail days (deep prep)
+  const behavioralSpread = topByPriority(buildBehavioralTasks(), 999); // 1/day woven through core
   const assigned: PlanTask[] = [];
   const weeklyWindow: PlanTask[] = [];
   const days: DayPlan[] = [];
@@ -483,13 +484,19 @@ export function generateStudyPlan(durationDays: 15 | 30 | 60 | 90, startDate: st
       supportTasks = [...supportTasks, ...takeByEffort(alternateQueue, supportTarget, supportTasks.length ? 0 : 1)];
     }
 
-    const tasks = [...dsaTasks, ...supportTasks];
+    // Weave 1 behavioral item into the evening of each core study day so it's
+    // visible from week 1, not crammed into the tail. The dedicated tail days
+    // (behavioralQueue) still cover everything deeply.
+    const behSpread = behavioralSpread.splice(0, 1).map((t) => ({ ...t, meta: "Behavioral · STAR" }));
+
+    const tasks = [...dsaTasks, ...supportTasks, ...behSpread];
     const phase: DayPhase =
       supportTasks.some((task) => task.domain === "se") ? "se" :
       supportTasks.some((task) => task.domain === "sd") ? "sd" : "dsa";
 
-    weeklyWindow.push(...tasks);
-    assigned.push(...tasks);
+    // Behavioral stays out of the review window — keep weekly reviews DSA/SE/SD-focused.
+    weeklyWindow.push(...dsaTasks, ...supportTasks);
+    assigned.push(...dsaTasks, ...supportTasks);
     days.push({
       day: dayNum,
       date,
