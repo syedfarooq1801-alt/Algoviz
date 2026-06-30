@@ -33,7 +33,7 @@ export interface DayPlan {
 }
 
 export interface StudyPlan {
-  durationDays: 30 | 60 | 90;
+  durationDays: 15 | 30 | 60 | 90;
   startDate: string;
   days: DayPlan[];
 }
@@ -232,7 +232,75 @@ function getReviewNote(phase: DayPhase): string {
   return "Review unfinished tasks first, then redo the hardest solved task from memory.";
 }
 
-export function generateStudyPlan(durationDays: 30 | 60 | 90, startDate: string, trackWeights?: Record<string, number>): StudyPlan {
+// 15-day intensive sprint: 10-12 hr/day, breadth-first over depth, revision
+// every 2 study days. Goal: cover the highest-value DSA patterns, SE chapters,
+// and SD fundamentals fast enough to walk into interviews in 2 weeks.
+function generateIntensivePlan(startDate: string): StudyPlan {
+  const durationDays = 15 as const;
+  // Priority-ordered queues — most interview-critical items first.
+  const dsaQueue = buildDSATasks(); // curriculum order: front-loads core patterns
+  const sdQueue = topByPriority(buildSDTasks(), 999);   // fundamentals first
+  const seQueue = topByPriority(buildSETasks(), 999);   // interview-focus chapters first
+  const assigned: PlanTask[] = [];
+  const window: PlanTask[] = []; // tasks from the last 2 study days, for revision
+  const days: DayPlan[] = [];
+
+  // Revision every 2 study days; final day is a full mock.
+  const reviewDays = new Set([3, 6, 9, 12]);
+
+  for (let dayNum = 1; dayNum <= durationDays; dayNum++) {
+    const date = addDays(startDate, dayNum - 1);
+
+    if (dayNum === durationDays) {
+      // Day 15 — full interview simulation from the best of everything seen.
+      const tasks = topByPriority(assigned, 8).map((t) => ({ ...t, id: `rv-mock-${t.id}` }));
+      days.push({
+        day: dayNum, date, phase: "mock", type: "mock",
+        label: "Final mock — full interview simulation",
+        color: PHASE_COLOR.mock, tasks, reviewNote: getReviewNote("mock"),
+      });
+      continue;
+    }
+
+    if (reviewDays.has(dayNum)) {
+      // Revision day — redo the hardest of the last 2 days. "rv-" prefix keeps
+      // completion separate from the original learning-day toggle.
+      const tasks = topByPriority(window, 10).map((t) => ({ ...t, id: `rv-${t.id}` }));
+      days.push({
+        day: dayNum, date, phase: "review", type: "review",
+        label: "Revision — consolidate last 2 days",
+        color: PHASE_COLOR.review, tasks,
+        reviewCovered: [...window], reviewNote: getReviewNote("review"),
+      });
+      window.length = 0;
+      continue;
+    }
+
+    // Study day — ~11 effort units ≈ 10-12 hours.
+    // Two DSA pattern slices (breadth) + one SE chapter + one SD concept.
+    const dsaTasks = [
+      ...takeDsaPatternByEffort(dsaQueue, 4, 1),
+      ...takeDsaPatternByEffort(dsaQueue, 4, 1),
+    ];
+    const seTasks = takeByEffort(seQueue, 2, 1);
+    const sdTasks = takeByEffort(sdQueue, 1.5, 1);
+    const tasks = [...dsaTasks, ...seTasks, ...sdTasks];
+
+    window.push(...tasks);
+    assigned.push(...tasks);
+    days.push({
+      day: dayNum, date, phase: "dsa",
+      type: dayNum <= 4 ? "learn" : "practice",
+      label: labelFromTasks("Core sprint", tasks),
+      color: PHASE_COLOR.dsa, tasks,
+    });
+  }
+
+  return { durationDays, startDate, days };
+}
+
+export function generateStudyPlan(durationDays: 15 | 30 | 60 | 90, startDate: string, trackWeights?: Record<string, number>): StudyPlan {
+  if (durationDays === 15) return generateIntensivePlan(startDate);
   const tw = trackWeights ?? {};
   const wDsa = tw.dsa ?? 0;
   const wSd = tw.sd ?? 0;
