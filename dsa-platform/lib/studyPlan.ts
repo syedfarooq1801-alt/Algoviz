@@ -261,6 +261,42 @@ function recallTask(dayNum: number, label: string): PlanTask {
   };
 }
 
+// Group a curriculum-ordered DSA queue into whole-pattern chunks (by `tag`,
+// which is the pattern title). Adjacent same-tag tasks merge into one group —
+// a pattern is never split, since the queue is already in pattern order.
+function groupByPattern(queue: PlanTask[]): PlanTask[][] {
+  const groups: PlanTask[][] = [];
+  for (const t of queue) {
+    const last = groups[groups.length - 1];
+    if (last && last[0].tag === t.tag) last.push(t);
+    else groups.push([t]);
+  }
+  return groups;
+}
+
+// Bin-pack whole pattern-groups into `dayCount` buckets, in curriculum order,
+// without ever splitting a group across two buckets. The per-day target is
+// recomputed from what's left (remaining tasks / remaining days) each time,
+// so patterns spread evenly across ALL days instead of front-loading and
+// leaving trailing days empty — the last day always absorbs whatever remains.
+function packPatternGroups(groups: PlanTask[][], dayCount: number): PlanTask[][] {
+  const queue = [...groups];
+  const buckets: PlanTask[][] = [];
+  let remainingDays = dayCount;
+  while (buckets.length < dayCount) {
+    if (queue.length === 0) { buckets.push([]); remainingDays--; continue; }
+    const remainingTotal = queue.reduce((n, g) => n + g.length, 0);
+    const target = remainingTotal / Math.max(1, remainingDays);
+    const bucket: PlanTask[] = [];
+    while (queue.length > 0 && (bucket.length === 0 || bucket.length + queue[0].length <= target * 1.3)) {
+      bucket.push(...queue.shift()!);
+    }
+    buckets.push(bucket);
+    remainingDays--;
+  }
+  return buckets;
+}
+
 // 15-day intensive sprint: FULL syllabus coverage. Every DSA problem, SE chapter,
 // SD concept, and behavioral question is scheduled across the 10 study days
 // (AM/PM/Eve blocks), with revision every 2 study days and a final mock.
@@ -269,7 +305,7 @@ function recallTask(dayNum: number, label: string): PlanTask {
 function generateIntensivePlan(startDate: string, weakIds: string[] = []): StudyPlan {
   const durationDays = 15 as const;
   const weakSet = new Set(weakIds);
-  // Curated to the "15-Day Essentials" set (100 DSA + deep SE + deep SD) so a
+  // Curated to the "15-Day Essentials" set (101 DSA + deep SE + deep SD) so a
   // 12 hr/day sprint is realistic. Keep DSA pattern theory + only essential
   // problems, in curriculum order.
   const dsaQueue = buildDSATasks().filter((t) => t.kind === "theory" || ESSENTIAL_DSA_SET.has(t.id));
@@ -282,9 +318,14 @@ function generateIntensivePlan(startDate: string, weakIds: string[] = []): Study
 
   // Revision every 2 study days; final day is a full mock.
   const reviewDays = new Set([3, 6, 9, 12]);
-  // 15 days − 4 review − 1 mock = 10 study days. Drain every queue evenly
-  // across them so the ENTIRE syllabus is scheduled, nothing dropped.
-  let studyDaysLeft = durationDays - reviewDays.size - 1;
+  // 15 days − 4 review − 1 mock = 10 study days.
+  const studyDayCount = durationDays - reviewDays.size - 1;
+  let studyDaysLeft = studyDayCount;
+
+  // DSA is pre-packed into whole-pattern day buckets — a pattern always
+  // starts and finishes on the same day, never spilling into the next.
+  const dsaBuckets = packPatternGroups(groupByPattern(dsaQueue), studyDayCount);
+  let studyDayIdx = 0;
 
   for (let dayNum = 1; dayNum <= durationDays; dayNum++) {
     const date = addDays(startDate, dayNum - 1);
@@ -345,14 +386,16 @@ function generateIntensivePlan(startDate: string, weakIds: string[] = []): Study
       continue;
     }
 
-    // Study day — drain an even share of EVERY queue so the full syllabus
-    // is covered by the last study day. Per-queue share = ceil(remaining / daysLeft).
+    // Study day — DSA comes from the pre-packed whole-pattern bucket for this
+    // study-day slot (never split across days). SE/SD/behavioral still drain
+    // an even share so the full syllabus lands by the last study day.
     const share = (n: number) => Math.ceil(n / Math.max(1, studyDaysLeft));
-    const dsaSlice = dsaQueue.splice(0, share(dsaQueue.length));
+    const dsaSlice = dsaBuckets[studyDayIdx] ?? [];
     const seSlice = seQueue.splice(0, share(seQueue.length));
     const sdSlice = sdQueue.splice(0, share(sdQueue.length));
     const behSlice = behavioralQueue.splice(0, share(behavioralQueue.length));
     studyDaysLeft--;
+    studyDayIdx++;
 
     // AM (fresh brain): first half of the day's DSA — hardest new material.
     const half = Math.ceil(dsaSlice.length / 2);

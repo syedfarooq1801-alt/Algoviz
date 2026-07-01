@@ -1,9 +1,9 @@
 // Curated "15-Day Essentials" — the non-negotiable set for a 30 LPA fresher
 // interview (MSRIT-style drives: Amazon, Microsoft, Google, Flipkart, De Shaw…).
-// 100 DSA problems + deep SE + deep SD. The 15-day intensive plan schedules
+// 101 DSA problems + deep SE + deep SD. The 15-day intensive plan schedules
 // ONLY these so 12 hr/day is realistic instead of an impossible full-syllabus cram.
 
-// 100 must-do DSA problems, pattern-wise (ids match data/problems.ts).
+// 101 must-do DSA problems, pattern-wise (ids match data/problems.ts).
 export const ESSENTIAL_DSA: string[] = [
   // Arrays & Hashing (7)
   "two-sum", "valid-anagram", "group-anagrams", "top-k-frequent",
@@ -46,8 +46,8 @@ export const ESSENTIAL_DSA: string[] = [
   "implement-trie", "word-search-ii",
   // Math & Geometry (3)
   "rotate-image", "spiral-matrix", "set-matrix-zeroes",
-  // Advanced Graphs (3)
-  "network-delay-time", "min-cost-connect-points", "cheapest-flights",
+  // Advanced Graphs (4)
+  "network-delay-time", "min-cost-connect-points", "cheapest-flights", "alien-dictionary",
 ];
 
 // Deep SE coverage — ids are `${subjectId}/${chapterId}` (match buildSETasks).
