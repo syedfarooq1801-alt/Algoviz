@@ -7524,6 +7524,814 @@ int findBound(vector<int>& nums, int target, bool isLeft) {
     ],
     memoryTrick: "\"2-coloring = bipartite check. If you can checkerboard the graph — it's bipartite. Odd cycle breaks checkerboard. BFS: color alternating. Same-color neighbor = conflict = odd cycle detected. This technique appears in: check if graph can be divided into two teams, scheduling problems, matching problems.\"",
   },
+
+  "remove-duplicates-ii": {
+    intuition:
+      "Same write-pointer trick as removing all duplicates, but now each value is allowed to appear up to twice. Compare the candidate to the element TWO positions back in the write region — if it's different (or write index < 2), the value hasn't appeared twice yet, so it's safe to keep.",
+    approach: [
+      "If array length ≤ 2, return length as-is (nothing can violate 'at most 2').",
+      "Initialize write = 2 (first two elements are always kept).",
+      "For read from index 2 to end: if nums[read] != nums[write-2], copy nums[read] to nums[write], write++.",
+      "Return write as the new length.",
+    ],
+    cppSolution: `class Solution {
+public:
+    int removeDuplicates(vector<int>& nums) {
+        if ((int)nums.size() <= 2) return nums.size();
+        int write = 2;
+        for (int read = 2; read < (int)nums.size(); read++) {
+            if (nums[read] != nums[write - 2]) {
+                nums[write] = nums[read];
+                write++;
+            }
+        }
+        return write;
+    }
+};`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Single pass; each element is read once and written at most once.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "In-place overwrite, no extra data structure.",
+    edgeCases: [
+      "Array length 0, 1, or 2 — always valid, return length unchanged.",
+      "All elements identical — result keeps only the first 2.",
+      "No duplicates at all — write pointer copies every element, length unchanged.",
+    ],
+    memoryTrick: "\"Compare to write-2, not write-1 — that's what lets a value repeat exactly twice before blocking the third.\"",
+  },
+
+  "merge-sorted-array": {
+    intuition:
+      "Merging from the front requires shifting elements in nums1 to make room — O(n) per insert. Instead, merge from the BACK: the largest elements from both arrays land in the last empty slots first, so no shifting is ever needed.",
+    approach: [
+      "Set three pointers: i = m-1 (last real element of nums1), j = n-1 (last of nums2), k = m+n-1 (last slot overall).",
+      "While j >= 0: if i >= 0 and nums1[i] > nums2[j], place nums1[i] at k, decrement i; else place nums2[j] at k, decrement j. Decrement k each time.",
+      "Loop ends when j < 0 — any remaining nums1 elements are already in place.",
+    ],
+    cppSolution: `class Solution {
+public:
+    void merge(vector<int>& nums1, int m, vector<int>& nums2, int n) {
+        int i = m - 1, j = n - 1, k = m + n - 1;
+        while (j >= 0) {
+            if (i >= 0 && nums1[i] > nums2[j]) nums1[k--] = nums1[i--];
+            else nums1[k--] = nums2[j--];
+        }
+    }
+};`,
+    timeComplexity: "O(m + n)",
+    timeExplanation: "Each element from both arrays is placed exactly once.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "Merges in-place using nums1's extra trailing capacity.",
+    edgeCases: [
+      "nums2 is empty (n=0) — loop never runs, nums1 already correct.",
+      "nums1's real elements are all smaller than nums2's — nums2 gets copied wholesale once i < 0.",
+      "m = 0 — nums1 is entirely empty space, becomes a copy of nums2.",
+    ],
+    memoryTrick: "\"Merge from the back when merging INTO an array with trailing space — front-merge shifts, back-merge doesn't.\"",
+  },
+
+  "next-permutation": {
+    intuition:
+      "The next lexicographic permutation is found by: (1) finding the rightmost position where the sequence stops increasing (scanning from the end), (2) swapping it with the smallest element to its right that's still bigger than it, (3) reversing everything after that position to get the smallest possible suffix.",
+    approach: [
+      "Scan from the right to find the first index i where nums[i] < nums[i+1] (the 'pivot'). If none exists, the array is the last permutation — reverse the whole array.",
+      "Scan from the right again to find the first index j > i where nums[j] > nums[i].",
+      "Swap nums[i] and nums[j].",
+      "Reverse the subarray from i+1 to the end (it was non-increasing, reversing makes it the smallest arrangement).",
+    ],
+    cppSolution: `class Solution {
+public:
+    void nextPermutation(vector<int>& nums) {
+        int n = nums.size(), i = n - 2;
+        while (i >= 0 && nums[i] >= nums[i + 1]) i--;
+        if (i >= 0) {
+            int j = n - 1;
+            while (nums[j] <= nums[i]) j--;
+            swap(nums[i], nums[j]);
+        }
+        reverse(nums.begin() + i + 1, nums.end());
+    }
+};`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Two linear scans plus a linear reversal, all bounded by array length.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "All operations happen in-place.",
+    edgeCases: [
+      "Strictly decreasing array (e.g. [3,2,1]) — no pivot found, i ends at -1, whole array gets reversed to [1,2,3].",
+      "Array with duplicates (e.g. [1,1,5]) — pivot search and swap still work correctly since comparisons use >= and <=.",
+      "Single element array — nothing to do, loop conditions naturally skip.",
+    ],
+    memoryTrick: "\"Find rightmost ascent, swap with smallest bigger element to its right, reverse the tail. That's literally the algorithm for 'next' in dictionary order.\"",
+  },
+
+  "fruit-into-baskets": {
+    intuition:
+      "This is 'longest substring with at most 2 distinct characters' wearing a fruit costume. Maintain a sliding window with a frequency map; when the map exceeds 2 distinct fruit types, shrink from the left until it's back to 2.",
+    approach: [
+      "Use a hash map counting fruit type frequency inside the window [left, right].",
+      "Expand right, incrementing the count for fruits[right].",
+      "While the map has more than 2 distinct keys: decrement count for fruits[left], remove key if count hits 0, then left++.",
+      "Track the max window length (right - left + 1) after every expansion.",
+    ],
+    cppSolution: `class Solution {
+public:
+    int totalFruit(vector<int>& fruits) {
+        unordered_map<int,int> count;
+        int left = 0, best = 0;
+        for (int right = 0; right < (int)fruits.size(); right++) {
+            count[fruits[right]]++;
+            while (count.size() > 2) {
+                count[fruits[left]]--;
+                if (count[fruits[left]] == 0) count.erase(fruits[left]);
+                left++;
+            }
+            best = max(best, right - left + 1);
+        }
+        return best;
+    }
+};`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Each element enters and leaves the window at most once.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "The frequency map holds at most 3 keys at any point (bounded, not input-dependent).",
+    edgeCases: [
+      "All same fruit type — entire array is the answer.",
+      "Only 2 distinct types total — entire array is the answer.",
+      "Every fruit distinct — answer is 2 (can only hold 2 types).",
+    ],
+    memoryTrick: "\"'At most K distinct' is always: expand right, shrink left while map.size() > K. Fruit baskets = K=2 special case.\"",
+  },
+
+  "max-consecutive-ones-iii": {
+    intuition:
+      "We're allowed to flip at most K zeros to ones. That's equivalent to: find the longest window containing at most K zeros. Sliding window: expand right always; shrink left only when the zero count inside the window exceeds K.",
+    approach: [
+      "Track zeroCount inside window [left, right].",
+      "Expand right; if nums[right] == 0, increment zeroCount.",
+      "While zeroCount > k: if nums[left] == 0, decrement zeroCount; left++.",
+      "Update best with (right - left + 1) after every step — window is always valid at this point.",
+    ],
+    cppSolution: `class Solution {
+public:
+    int longestOnes(vector<int>& nums, int k) {
+        int left = 0, zeros = 0, best = 0;
+        for (int right = 0; right < (int)nums.size(); right++) {
+            if (nums[right] == 0) zeros++;
+            while (zeros > k) {
+                if (nums[left] == 0) zeros--;
+                left++;
+            }
+            best = max(best, right - left + 1);
+        }
+        return best;
+    }
+};`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Single pass; left pointer only moves forward, never backtracks.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "Only a few counters needed.",
+    edgeCases: [
+      "k = 0 — reduces to 'longest run of consecutive 1s' with no flips allowed.",
+      "k >= number of zeros in array — entire array becomes the answer.",
+      "All zeros with k = array length — entire array flippable.",
+    ],
+    memoryTrick: "\"Same skeleton as Fruit Into Baskets — track a budget (zero count) instead of a distinct-count, shrink when budget is exceeded.\"",
+  },
+
+  "subarray-product-less-k": {
+    intuition:
+      "For a sliding window with product < k: every time the window is valid (product < k), ALL subarrays ending at 'right' and starting anywhere from left to right are valid too — that's (right - left + 1) new subarrays to count. Shrink from the left whenever product >= k.",
+    approach: [
+      "If k <= 1, return 0 immediately (no positive-integer array can have a product < 1).",
+      "Maintain running product of window [left, right]; expand right by multiplying in nums[right].",
+      "While product >= k: divide out nums[left], left++.",
+      "Add (right - left + 1) to the count — this is the number of valid subarrays ending exactly at right.",
+    ],
+    cppSolution: `class Solution {
+public:
+    int numSubarrayProductLessThanK(vector<int>& nums, int k) {
+        if (k <= 1) return 0;
+        long long product = 1;
+        int left = 0, count = 0;
+        for (int right = 0; right < (int)nums.size(); right++) {
+            product *= nums[right];
+            while (product >= k) {
+                product /= nums[left];
+                left++;
+            }
+            count += right - left + 1;
+        }
+        return count;
+    }
+};`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Left pointer moves forward only; amortized O(1) per right step.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "Just a running product and two pointers.",
+    edgeCases: [
+      "k <= 1 — answer is always 0 since all nums[i] >= 1 given constraints.",
+      "All elements equal to 1 — every subarray qualifies if k > 1.",
+      "Single element >= k — that element contributes 0 subarrays, window resets around it.",
+    ],
+    memoryTrick: "\"Counting subarrays with a window constraint: add (right - left + 1) each step — that's the count of NEW valid subarrays ending at right, not a running total to recompute.\"",
+  },
+
+  "find-peak-element": {
+    intuition:
+      "A peak is any element strictly greater than its neighbors — the array isn't necessarily sorted, but binary search still works because you can always move toward a peak: if mid's right neighbor is bigger, a peak must exist somewhere to the right (values only increase or you hit a peak); symmetric logic for the left.",
+    approach: [
+      "Binary search with low = 0, high = n-1.",
+      "At mid, compare nums[mid] to nums[mid+1].",
+      "If nums[mid] < nums[mid+1], a peak exists to the right — set low = mid + 1.",
+      "Otherwise a peak exists at mid or to the left — set high = mid.",
+      "Loop ends when low == high — that index is a peak.",
+    ],
+    cppSolution: `class Solution {
+public:
+    int findPeakElement(vector<int>& nums) {
+        int lo = 0, hi = nums.size() - 1;
+        while (lo < hi) {
+            int mid = lo + (hi - lo) / 2;
+            if (nums[mid] < nums[mid + 1]) lo = mid + 1;
+            else hi = mid;
+        }
+        return lo;
+    }
+};`,
+    timeComplexity: "O(log n)",
+    timeExplanation: "Binary search halves the search space each iteration.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "Only pointer variables used.",
+    edgeCases: [
+      "Single element array — trivially a peak (both 'neighbors' treated as -∞).",
+      "Strictly increasing array — peak is the last element.",
+      "Strictly decreasing array — peak is the first element.",
+    ],
+    memoryTrick: "\"Uphill slope (nums[mid] < nums[mid+1]) → peak is ahead, go right. Downhill or flat → peak is at mid or behind, go left (inclusive of mid).\"",
+  },
+
+  "capacity-ship-packages": {
+    intuition:
+      "'Minimize the maximum' problems are binary search on the ANSWER, not the input. Guess a capacity; check if it's feasible to ship everything within D days using a greedy simulation. If feasible, try a smaller capacity; if not, try bigger.",
+    approach: [
+      "Set search bounds: low = max(weights) (must fit the heaviest single package), high = sum(weights) (ship everything in one day).",
+      "Binary search: for mid capacity, greedily simulate loading — add packages to the current day's load until adding one more would exceed mid, then start a new day.",
+      "Count days needed for this capacity. If days <= D, this capacity works — try smaller (high = mid). Otherwise try bigger (low = mid + 1).",
+      "Return low when the loop converges.",
+    ],
+    cppSolution: `class Solution {
+public:
+    int shipWithinDays(vector<int>& weights, int days) {
+        int lo = *max_element(weights.begin(), weights.end());
+        int hi = accumulate(weights.begin(), weights.end(), 0);
+        while (lo < hi) {
+            int mid = lo + (hi - lo) / 2;
+            int daysNeeded = 1, load = 0;
+            for (int w : weights) {
+                if (load + w > mid) { daysNeeded++; load = 0; }
+                load += w;
+            }
+            if (daysNeeded <= days) hi = mid;
+            else lo = mid + 1;
+        }
+        return lo;
+    }
+};`,
+    timeComplexity: "O(n log(sum - max))",
+    timeExplanation: "Binary search over the capacity range, each check is an O(n) greedy simulation.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "No extra storage beyond counters.",
+    edgeCases: [
+      "Single package — capacity must be at least that package's weight, days = 1.",
+      "days == number of packages — capacity can be exactly the heaviest package (ship one per day).",
+      "days = 1 — capacity must be the full sum.",
+    ],
+    memoryTrick: "\"Binary search the ANSWER when the question is 'minimize the max X such that Y constraint holds' — check feasibility with a greedy simulation, not the raw array.\"",
+  },
+
+  "split-array-largest-sum": {
+    intuition:
+      "Identical shape to Capacity to Ship Packages — 'split into m subarrays minimizing the largest subarray sum' is 'binary search on the answer + greedy feasibility check', just renamed. Guess a max-sum limit; count how many subarrays are needed to respect it.",
+    approach: [
+      "Binary search bounds: low = max(nums) (largest single element), high = sum(nums).",
+      "For mid (candidate max sum), greedily partition: accumulate a running sum, start a new subarray whenever adding the next element would exceed mid.",
+      "Count subarrays needed. If count <= m, mid is feasible — try smaller (high = mid). Else try bigger (low = mid + 1).",
+    ],
+    cppSolution: `class Solution {
+public:
+    int splitArray(vector<int>& nums, int m) {
+        int lo = *max_element(nums.begin(), nums.end());
+        int hi = accumulate(nums.begin(), nums.end(), 0);
+        while (lo < hi) {
+            int mid = lo + (hi - lo) / 2;
+            int parts = 1, sum = 0;
+            for (int x : nums) {
+                if (sum + x > mid) { parts++; sum = 0; }
+                sum += x;
+            }
+            if (parts <= m) hi = mid;
+            else lo = mid + 1;
+        }
+        return lo;
+    }
+};`,
+    timeComplexity: "O(n log(sum - max))",
+    timeExplanation: "Binary search over possible sums, O(n) greedy check per guess.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "Only counters used during the greedy partition check.",
+    edgeCases: [
+      "m = 1 — answer is the full array sum (only one partition allowed).",
+      "m >= array length — each element can be its own subarray, answer is max(nums).",
+      "All elements equal — partitions split as evenly as possible.",
+    ],
+    memoryTrick: "\"Same greedy-feasibility binary search as Ship Packages — the pattern is 'minimize max partition sum', recognize it regardless of story dressing.\"",
+  },
+
+  "reverse-linked-list-ii": {
+    intuition:
+      "Reverse only the sublist between positions left and right. Walk to the node just before 'left' (call it 'prev'), then repeatedly move the node right after prev's reversed section to the front of that section — a technique called 'head insertion' — for exactly (right - left) iterations.",
+    approach: [
+      "Use a dummy node pointing to head to handle left = 1 cleanly.",
+      "Advance a pointer 'prev' to the node just before position left.",
+      "Let 'curr' = prev->next (the first node of the sublist to reverse).",
+      "Repeat (right - left) times: take curr->next out, splice it in right after prev, i.e. move it to the front of the reversed section.",
+      "curr itself ends up as the tail of the reversed section automatically.",
+    ],
+    cppSolution: `class Solution {
+public:
+    ListNode* reverseBetween(ListNode* head, int left, int right) {
+        ListNode dummy(0); dummy.next = head;
+        ListNode* prev = &dummy;
+        for (int i = 1; i < left; i++) prev = prev->next;
+        ListNode* curr = prev->next;
+        for (int i = 0; i < right - left; i++) {
+            ListNode* toMove = curr->next;
+            curr->next = toMove->next;
+            toMove->next = prev->next;
+            prev->next = toMove;
+        }
+        return dummy.next;
+    }
+};`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Single pass to reach 'left', then O(right - left) splice operations.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "Only pointer rewiring, no new nodes or recursion stack.",
+    edgeCases: [
+      "left == right — no reversal needed, list returned unchanged.",
+      "left = 1 — dummy node handles reversing from the head cleanly, no special-casing.",
+      "right = list length — reversal extends all the way to the tail.",
+    ],
+    memoryTrick: "\"Head-insertion reversal: repeatedly yank the node after curr and splice it right after prev. curr stays put as the new tail; prev->next keeps getting the newest reversed node.\"",
+  },
+
+  "zigzag-level-order": {
+    intuition:
+      "Standard BFS level-order traversal, but alternate the direction each level is read/stored: left-to-right, then right-to-left, then left-to-right again.",
+    approach: [
+      "BFS with a queue, processing one level at a time (track level size before dequeuing).",
+      "For each level, collect values into a vector as usual.",
+      "If the current level index is odd, reverse that level's vector before adding it to the result.",
+      "Enqueue children as normal regardless of direction.",
+    ],
+    cppSolution: `class Solution {
+public:
+    vector<vector<int>> zigzagLevelOrder(TreeNode* root) {
+        vector<vector<int>> result;
+        if (!root) return result;
+        queue<TreeNode*> q;
+        q.push(root);
+        bool leftToRight = true;
+        while (!q.empty()) {
+            int size = q.size();
+            vector<int> level(size);
+            for (int i = 0; i < size; i++) {
+                TreeNode* node = q.front(); q.pop();
+                int idx = leftToRight ? i : size - 1 - i;
+                level[idx] = node->val;
+                if (node->left) q.push(node->left);
+                if (node->right) q.push(node->right);
+            }
+            result.push_back(level);
+            leftToRight = !leftToRight;
+        }
+        return result;
+    }
+};`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Every node visited exactly once during BFS.",
+    spaceComplexity: "O(n)",
+    spaceExplanation: "Queue holds up to one level's worth of nodes; result stores all n values.",
+    edgeCases: [
+      "Empty tree — return empty result immediately.",
+      "Single node — one level, direction doesn't matter, returns [[val]].",
+      "Skewed tree (all left or all right children) — each level has exactly 1 node, zigzag has no visible effect but logic still works.",
+    ],
+    memoryTrick: "\"Zigzag = normal level-order BFS + placing each level's values at index (i or size-1-i) based on direction — no need to actually reverse, just index backwards on odd levels.\"",
+  },
+
+  "path-sum-ii": {
+    intuition:
+      "DFS from root to leaf, tracking the running path and remaining sum needed. At a leaf, if the remaining sum equals the leaf's value, the current path is a valid answer — record a COPY of it (backtracking will mutate the path afterward).",
+    approach: [
+      "DFS(node, remaining, path): add node->val to path.",
+      "If node is a leaf and node->val == remaining, push a copy of path to results.",
+      "Otherwise recurse into left and right children with remaining - node->val.",
+      "After exploring both children, pop node->val from path (backtrack) before returning.",
+    ],
+    cppSolution: `class Solution {
+public:
+    vector<vector<int>> pathSum(TreeNode* root, int targetSum) {
+        vector<vector<int>> result;
+        vector<int> path;
+        dfs(root, targetSum, path, result);
+        return result;
+    }
+private:
+    void dfs(TreeNode* node, long remaining, vector<int>& path, vector<vector<int>>& result) {
+        if (!node) return;
+        path.push_back(node->val);
+        remaining -= node->val;
+        if (!node->left && !node->right && remaining == 0) {
+            result.push_back(path);
+        } else {
+            dfs(node->left, remaining, path, result);
+            dfs(node->right, remaining, path, result);
+        }
+        path.pop_back(); // backtrack
+    }
+};`,
+    timeComplexity: "O(n²) worst case",
+    timeExplanation: "O(n) nodes visited; copying a path of length up to n at each leaf can cost O(n), giving O(n²) in a skewed tree.",
+    spaceComplexity: "O(n)",
+    spaceExplanation: "Recursion depth + path vector, both bounded by tree height/size.",
+    edgeCases: [
+      "Empty tree — return empty result.",
+      "Negative values in the tree — remaining can go negative and later return to 0, so don't prune early on remaining < 0 unless certain all values are positive.",
+      "Root itself is a leaf equal to target — single-node path recorded.",
+    ],
+    memoryTrick: "\"Push before recursing, check leaf condition, pop after — the pop is what makes this true backtracking instead of accumulating garbage across branches.\"",
+  },
+
+  "vertical-order-traversal": {
+    intuition:
+      "Assign each node a (column, row) coordinate: root is (0,0), left child is (col-1, row+1), right child is (col+1, row+1). Group nodes by column; within a column, order by row, and for same row+column, order by value.",
+    approach: [
+      "BFS or DFS while tracking (col, row, value) for every node.",
+      "Group all nodes into a map keyed by column.",
+      "Within each column's list, sort by (row, then value) — this correctly handles same-position ties.",
+      "Output columns left to right (sorted by column key).",
+    ],
+    cppSolution: `class Solution {
+public:
+    vector<vector<int>> verticalTraversal(TreeNode* root) {
+        map<int, vector<pair<int,int>>> cols; // col -> (row, val)
+        function<void(TreeNode*,int,int)> dfs = [&](TreeNode* node, int col, int row) {
+            if (!node) return;
+            cols[col].push_back({row, node->val});
+            dfs(node->left, col - 1, row + 1);
+            dfs(node->right, col + 1, row + 1);
+        };
+        dfs(root, 0, 0);
+        vector<vector<int>> result;
+        for (auto& [col, nodes] : cols) {
+            sort(nodes.begin(), nodes.end());
+            vector<int> colVals;
+            for (auto& [row, val] : nodes) colVals.push_back(val);
+            result.push_back(colVals);
+        }
+        return result;
+    }
+};`,
+    timeComplexity: "O(n log n)",
+    timeExplanation: "O(n) to visit all nodes; O(n log n) to sort within columns (map itself keeps columns ordered in O(log n) per insert).",
+    spaceComplexity: "O(n)",
+    spaceExplanation: "Map stores all n nodes grouped by column.",
+    edgeCases: [
+      "Multiple nodes at the same (row, col) — sorting the pair (row, val) breaks ties by value, matching the problem's tie-break rule.",
+      "Empty tree — return empty result.",
+      "Skewed tree — columns can range widely; ordered map handles arbitrary negative/positive column keys correctly.",
+    ],
+    memoryTrick: "\"Coordinate the tree: left = col-1, right = col+1, down = row+1. Group by column, sort by (row, value) — that's the entire trick.\"",
+  },
+
+  "boundary-traversal-tree": {
+    intuition:
+      "The boundary = left edge (top to bottom, excluding leaves) + all leaves (left to right) + right edge (bottom to top, excluding leaves). Handle each piece with a separate simple traversal, then concatenate, being careful not to double-count nodes that are both edge and leaf.",
+    approach: [
+      "Add the root (if it's not itself a leaf).",
+      "Traverse the left boundary top-down: keep going left if a left child exists, else go right, stopping before leaves.",
+      "Traverse all leaves left to right via a simple DFS/inorder-ish scan (any node with no children).",
+      "Traverse the right boundary bottom-up: keep going right if a right child exists, else left, then reverse the collected list before appending.",
+    ],
+    cppSolution: `class Solution {
+public:
+    bool isLeaf(TreeNode* n) { return !n->left && !n->right; }
+
+    void addLeftBoundary(TreeNode* node, vector<int>& res) {
+        TreeNode* curr = node->left ? node->left : node->right;
+        while (curr) {
+            if (!isLeaf(curr)) res.push_back(curr->val);
+            curr = curr->left ? curr->left : curr->right;
+        }
+    }
+    void addLeaves(TreeNode* node, vector<int>& res) {
+        if (!node) return;
+        if (isLeaf(node)) { res.push_back(node->val); return; }
+        addLeaves(node->left, res);
+        addLeaves(node->right, res);
+    }
+    void addRightBoundary(TreeNode* node, vector<int>& res) {
+        TreeNode* curr = node->right ? node->right : node->left;
+        vector<int> temp;
+        while (curr) {
+            if (!isLeaf(curr)) temp.push_back(curr->val);
+            curr = curr->right ? curr->right : curr->left;
+        }
+        for (int i = temp.size() - 1; i >= 0; i--) res.push_back(temp[i]);
+    }
+
+    vector<int> boundaryTraversal(TreeNode* root) {
+        vector<int> res;
+        if (!root) return res;
+        if (!isLeaf(root)) res.push_back(root->val);
+        addLeftBoundary(root, res);
+        addLeaves(root, res);
+        addRightBoundary(root, res);
+        return res;
+    }
+};`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Each of the three passes visits at most all n nodes; leaves pass visits every node once.",
+    spaceComplexity: "O(h)",
+    spaceExplanation: "Recursion depth for the leaves pass; boundary walks use O(1) extra beyond the output.",
+    edgeCases: [
+      "Root is a leaf (single node) — only the root itself is the answer, avoid double-adding it.",
+      "Tree with no left subtree — left boundary contributes nothing beyond root.",
+      "Perfectly balanced tree — left/right boundary and leaves don't overlap, straightforward concatenation.",
+    ],
+    memoryTrick: "\"Boundary = root + left-spine (no leaves) + all-leaves + right-spine reversed (no leaves). Three simple walks, never a leaf counted twice.\"",
+  },
+
+  "single-number-ii": {
+    intuition:
+      "Every number appears exactly 3 times except one, which appears once. XOR cancels pairs, not triples — instead, track bit counts modulo 3. For each bit position, if the sum of that bit across all numbers isn't divisible by 3, the unique number has that bit set.",
+    approach: [
+      "Use two bitmasks: ones (bits seen exactly once so far, mod 3) and twos (bits seen exactly twice so far, mod 3).",
+      "For each number n: update ones = (ones XOR n) AND (NOT twos); update twos = (twos XOR n) AND (NOT ones).",
+      "This maintains a mod-3 counter per bit using only 2 bitmasks instead of an array of counts.",
+      "After processing all numbers, 'ones' holds the unique number.",
+    ],
+    cppSolution: `class Solution {
+public:
+    int singleNumber(vector<int>& nums) {
+        int ones = 0, twos = 0;
+        for (int n : nums) {
+            ones = (ones ^ n) & ~twos;
+            twos = (twos ^ n) & ~ones;
+        }
+        return ones;
+    }
+};`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Single pass through the array with O(1) bit operations per element.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "Only two integer bitmasks used regardless of input size.",
+    edgeCases: [
+      "Array with exactly one element — that element is trivially the unique one.",
+      "Negative numbers — two's-complement bit representation still works correctly with this mod-3 counting.",
+      "Unique number is 0 — the bitmask logic still correctly isolates it as 0.",
+    ],
+    memoryTrick: "\"ones/twos state machine cycles bit-count 0→1→2→0 (mod 3) per bit, using AND-NOT to reset when hitting the 'twos' state — memorize the two update lines as a pair.\"",
+  },
+
+  "single-number-iii": {
+    intuition:
+      "Two numbers appear once, everyone else twice. XOR-ing everything cancels the pairs, leaving XOR of the two unique numbers. Since they're different, that XOR has at least one set bit — use ANY such bit to split all numbers into two groups (bit set / bit not set). Each unique number falls into a different group, and XOR-ing within each group isolates each one.",
+    approach: [
+      "XOR all numbers together to get xorAll = unique1 XOR unique2.",
+      "Find any set bit in xorAll (commonly the lowest: diffBit = xorAll & (-xorAll)).",
+      "Partition all numbers by whether they have that bit set; XOR each partition separately.",
+      "The two partition XORs are exactly unique1 and unique2.",
+    ],
+    cppSolution: `class Solution {
+public:
+    vector<int> singleNumber(vector<int>& nums) {
+        int xorAll = 0;
+        for (int n : nums) xorAll ^= n;
+        int diffBit = xorAll & (-xorAll); // lowest set bit
+        int a = 0, b = 0;
+        for (int n : nums) {
+            if (n & diffBit) a ^= n;
+            else b ^= n;
+        }
+        return {a, b};
+    }
+};`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Two linear passes over the array (one to XOR all, one to partition and XOR each group).",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "Only a few integer variables used.",
+    edgeCases: [
+      "Exactly two elements in the array — both are the unique numbers directly.",
+      "Unique numbers differ only in the sign bit — diffBit correctly identifies any distinguishing bit, sign bit included.",
+      "Order of returned pair — problem typically accepts either order, [a,b] or [b,a].",
+    ],
+    memoryTrick: "\"XOR all → get XOR of the two survivors. Their lowest differing bit partitions the array into 'has this bit' vs 'doesn't' — XOR each partition to isolate each survivor.\"",
+  },
+
+  "implement-queue-using-stacks": {
+    intuition:
+      "Two stacks simulate a queue: 'in-stack' receives pushes; 'out-stack' serves pops/peeks. When out-stack is empty and a pop/peek is requested, dump all of in-stack into out-stack — this reverses the order, turning stack (LIFO) behavior into queue (FIFO) behavior.",
+    approach: [
+      "push(x): always push onto inStack.",
+      "pop()/peek(): if outStack is empty, pour all elements from inStack into outStack (reversing order). Then operate on outStack's top.",
+      "This lazy-transfer means each element is moved from inStack to outStack at most once.",
+    ],
+    cppSolution: `class MyQueue {
+    stack<int> inStack, outStack;
+    void transfer() {
+        if (outStack.empty()) {
+            while (!inStack.empty()) {
+                outStack.push(inStack.top());
+                inStack.pop();
+            }
+        }
+    }
+public:
+    void push(int x) { inStack.push(x); }
+    int pop() {
+        transfer();
+        int val = outStack.top();
+        outStack.pop();
+        return val;
+    }
+    int peek() {
+        transfer();
+        return outStack.top();
+    }
+    bool empty() { return inStack.empty() && outStack.empty(); }
+};`,
+    timeComplexity: "O(1) amortized",
+    timeExplanation: "Each element is pushed and popped from each stack at most once over its lifetime, so total work across n operations is O(n) — amortized O(1) per call.",
+    spaceComplexity: "O(n)",
+    spaceExplanation: "Two stacks together hold at most n elements at any time.",
+    edgeCases: [
+      "pop/peek called when both stacks empty — undefined per problem constraints (assume valid calls only), but guard with empty() check in practice.",
+      "Interleaved push/pop calls — transfer() only triggers when outStack is empty, preserving correct FIFO order across interleaving.",
+      "Single element — push then pop returns it correctly via one transfer.",
+    ],
+    memoryTrick: "\"Two stacks, lazy transfer: only flip inStack into outStack when outStack runs dry. That single rule guarantees amortized O(1), not the transfer cost itself.\"",
+  },
+
+  "01-knapsack": {
+    intuition:
+      "Classic 0/1 knapsack: for each item, decide include or exclude to maximize value without exceeding weight capacity. dp[i][w] = best value using first i items with capacity w. Either skip item i (dp[i-1][w]) or take it (value[i] + dp[i-1][w-weight[i]], if it fits).",
+    approach: [
+      "Build dp[n+1][W+1], dp[0][*] = 0 (no items, no value regardless of capacity).",
+      "For each item i (1-indexed) and each capacity w: dp[i][w] = dp[i-1][w] (skip).",
+      "If weight[i-1] <= w: dp[i][w] = max(dp[i][w], value[i-1] + dp[i-1][w - weight[i-1]]) (take).",
+      "Answer is dp[n][W]. Optimize to O(W) space by iterating w from high to low in a 1D array (prevents reusing an item twice).",
+    ],
+    cppSolution: `class Solution {
+public:
+    int knapsack(int W, vector<int>& weights, vector<int>& values, int n) {
+        vector<int> dp(W + 1, 0);
+        for (int i = 0; i < n; i++) {
+            for (int w = W; w >= weights[i]; w--) {
+                dp[w] = max(dp[w], values[i] + dp[w - weights[i]]);
+            }
+        }
+        return dp[W];
+    }
+};`,
+    timeComplexity: "O(n · W)",
+    timeExplanation: "n items, each processed across up to W capacity values.",
+    spaceComplexity: "O(W)",
+    spaceExplanation: "1D DP array of size W+1 after space optimization (down from O(n·W) 2D table).",
+    edgeCases: [
+      "Capacity W = 0 — answer is 0, no item fits.",
+      "All items weigh more than W — none can be taken, answer is 0.",
+      "Single item that exactly fits W — take it, answer is its value.",
+    ],
+    memoryTrick: "\"0/1 knapsack: iterate capacity BACKWARDS (high to low) in the 1D optimization — that's what stops an item from being 'reused' within the same iteration, unlike unbounded knapsack which goes forward.\"",
+  },
+
+  "matrix-chain-multiplication": {
+    intuition:
+      "Matrix multiplication is associative but the number of scalar multiplications depends heavily on parenthesization. This is interval DP: dp[i][j] = minimum cost to multiply matrices i through j, trying every possible split point k and taking the best.",
+    approach: [
+      "Let dims[] be the dimension array (matrix i has dimensions dims[i-1] x dims[i]).",
+      "dp[i][j] = min cost to multiply matrices i..j. Base case dp[i][i] = 0 (single matrix, no multiplication).",
+      "For increasing chain length L from 2 to n: for each start i (end j = i+L-1), try every split k between i and j-1: dp[i][j] = min(dp[i][j], dp[i][k] + dp[k+1][j] + dims[i-1]*dims[k]*dims[j]).",
+      "Answer is dp[1][n-1] (using 1-indexed matrix positions).",
+    ],
+    cppSolution: `class Solution {
+public:
+    int matrixMultiplication(vector<int>& dims) {
+        int n = dims.size() - 1; // number of matrices
+        vector<vector<int>> dp(n + 1, vector<int>(n + 1, 0));
+        for (int len = 2; len <= n; len++) {
+            for (int i = 1; i <= n - len + 1; i++) {
+                int j = i + len - 1;
+                dp[i][j] = INT_MAX;
+                for (int k = i; k < j; k++) {
+                    int cost = dp[i][k] + dp[k + 1][j] + dims[i - 1] * dims[k] * dims[j];
+                    dp[i][j] = min(dp[i][j], cost);
+                }
+            }
+        }
+        return dp[1][n];
+    }
+};`,
+    timeComplexity: "O(n³)",
+    timeExplanation: "O(n²) (i,j) pairs, each trying O(n) split points k.",
+    spaceComplexity: "O(n²)",
+    spaceExplanation: "2D DP table sized (n+1) x (n+1) for the interval boundaries.",
+    edgeCases: [
+      "Only 1 matrix — no multiplication needed, cost is 0.",
+      "2 matrices — only one possible order, cost is dims[0]*dims[1]*dims[2] directly.",
+      "All matrices are square of the same size — cost still depends on order (grouping still matters), don't assume it's always the same.",
+    ],
+    memoryTrick: "\"Interval DP shape: iterate by LENGTH, not by start index — you need shorter subproblems (dp[i][k], dp[k+1][j]) fully solved before longer ones.\"",
+  },
+
+  "best-time-stock-iii": {
+    intuition:
+      "At most 2 transactions allowed. Track 4 states across the array: after 1st buy, after 1st sell, after 2nd buy, after 2nd sell — each state greedily maximized so far. Each state can only improve using the previous state's best value plus today's price.",
+    approach: [
+      "Initialize buy1 = -infinity, sell1 = 0, buy2 = -infinity, sell2 = 0.",
+      "For each price: buy1 = max(buy1, -price); sell1 = max(sell1, buy1 + price); buy2 = max(buy2, sell1 - price); sell2 = max(sell2, buy2 + price).",
+      "Order matters within one iteration — buy2 depends on this same day's sell1, meaning you can buy and sell on the same day for the second transaction (which is mathematically fine — it's equivalent to not doing that transaction).",
+      "Answer is sell2 (0 or 1 transactions are subsumed since sell2 starts at 0 and only increases).",
+    ],
+    cppSolution: `class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        long buy1 = LONG_MIN, sell1 = 0, buy2 = LONG_MIN, sell2 = 0;
+        for (int price : prices) {
+            buy1 = max(buy1, -(long)price);
+            sell1 = max(sell1, buy1 + price);
+            buy2 = max(buy2, sell1 - price);
+            sell2 = max(sell2, buy2 + price);
+        }
+        return (int)sell2;
+    }
+};`,
+    timeComplexity: "O(n)",
+    timeExplanation: "Single pass; 4 O(1) updates per price.",
+    spaceComplexity: "O(1)",
+    spaceExplanation: "Only 4 running variables tracked regardless of array size.",
+    edgeCases: [
+      "Prices strictly decreasing — no profitable transaction exists, all states stay at 0 or negative-buy, answer is 0.",
+      "Fewer than 2 profitable opportunities — sell2 naturally equals sell1's best since 'not taking the 2nd transaction' is always an option (buy2 can mirror sell1).",
+      "Empty or single-price array — answer is 0 (no transaction possible).",
+    ],
+    memoryTrick: "\"4 state variables in strict update order: buy1→sell1→buy2→sell2 — each builds on the immediately preceding state from the SAME iteration, letting profit chain through 2 transactions.\"",
+  },
+
+  "best-time-stock-iv": {
+    intuition:
+      "Generalizes 'Best Time III' from exactly 2 transactions to at most k. Maintain buy[] and sell[] arrays of size k, where buy[i] and sell[i] represent the best profit after completing the (i+1)-th buy/sell. Same recurrence, just looped k times instead of hardcoded twice.",
+    approach: [
+      "If k >= n/2, any number of transactions is effectively unlimited — solve as 'buy low sell high whenever profitable' (greedy, sum of all positive differences).",
+      "Otherwise: initialize buy[0..k-1] = -infinity, sell[0..k-1] = 0.",
+      "For each price: for j from 0 to k-1: buy[j] = max(buy[j], (j==0 ? 0 : sell[j-1]) - price); sell[j] = max(sell[j], buy[j] + price).",
+      "Answer is sell[k-1].",
+    ],
+    cppSolution: `class Solution {
+public:
+    int maxProfit(int k, vector<int>& prices) {
+        int n = prices.size();
+        if (n == 0) return 0;
+        if (k >= n / 2) { // unlimited transactions case
+            int profit = 0;
+            for (int i = 1; i < n; i++)
+                if (prices[i] > prices[i-1]) profit += prices[i] - prices[i-1];
+            return profit;
+        }
+        vector<long> buy(k, LONG_MIN), sell(k, 0);
+        for (int price : prices) {
+            for (int j = 0; j < k; j++) {
+                long prevSell = (j == 0) ? 0 : sell[j - 1];
+                buy[j] = max(buy[j], prevSell - price);
+                sell[j] = max(sell[j], buy[j] + price);
+            }
+        }
+        return (int)sell[k - 1];
+    }
+};`,
+    timeComplexity: "O(n · k)",
+    timeExplanation: "n prices, each updating k buy/sell state pairs.",
+    spaceComplexity: "O(k)",
+    spaceExplanation: "Two arrays of size k track the running best for each transaction count.",
+    edgeCases: [
+      "k = 0 — no transactions allowed, answer is 0.",
+      "k very large (>= n/2) — must use the greedy unlimited-transaction shortcut, or the O(n·k) DP could be wasteful/incorrect if not capped.",
+      "Empty prices array — answer is 0.",
+    ],
+    memoryTrick: "\"Best Time IV is Best Time III generalized to k slots — same buy/sell chaining, just looped, PLUS a greedy shortcut when k is large enough that the transaction limit stops mattering.\"",
+  },
 };
 
 // Merged: generated base + rich overrides + python solutions

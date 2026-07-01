@@ -259,6 +259,29 @@ export const PROBLEM_TECHNIQUES: Record<string, string> = {
   "swim-rising-water":         "Binary Search + BFS",
   "alien-dictionary":          "Topo Sort from Chars",
   "shortest-path-obstacle":    "BFS 3D State",
+
+  // ─── Additions: 15-Day Essentials depth pass ──────────────────────────────
+  "remove-duplicates-ii":      "Write Ptr Compare-2",
+  "merge-sorted-array":        "Merge From Back",
+  "next-permutation":          "Pivot + Reverse Tail",
+  "fruit-into-baskets":        "At-Most-K Distinct",
+  "max-consecutive-ones-iii":  "Budgeted Window",
+  "subarray-product-less-k":   "Count via Window Width",
+  "find-peak-element":         "Slope Binary Search",
+  "capacity-ship-packages":    "BS on Answer + Greedy",
+  "split-array-largest-sum":   "BS on Answer + Greedy",
+  "reverse-linked-list-ii":    "Head Insertion Reversal",
+  "zigzag-level-order":        "BFS Alternating Index",
+  "path-sum-ii":               "DFS Backtrack Path",
+  "vertical-order-traversal":  "Coordinate + Group Sort",
+  "boundary-traversal-tree":   "Left+Leaves+Right Spine",
+  "single-number-ii":          "Mod-3 Bitmask State",
+  "single-number-iii":         "XOR Split by Bit",
+  "implement-queue-using-stacks": "Two-Stack Lazy Transfer",
+  "01-knapsack":               "0/1 Knapsack Backward",
+  "matrix-chain-multiplication": "Interval DP by Length",
+  "best-time-stock-iii":       "4-State Chain",
+  "best-time-stock-iv":        "K-State Chain",
 };
 
 // Technique color palette — each distinct technique family gets a color

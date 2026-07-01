@@ -1,30 +1,35 @@
 // Curated "15-Day Essentials" — the non-negotiable set for a 30 LPA fresher
 // interview (MSRIT-style drives: Amazon, Microsoft, Google, Flipkart, De Shaw…).
-// 101 DSA problems + deep SE + deep SD. The 15-day intensive plan schedules
+// 122 DSA problems + deep SE + deep SD. The 15-day intensive plan schedules
 // ONLY these so 12 hr/day is realistic instead of an impossible full-syllabus cram.
 
-// 101 must-do DSA problems, pattern-wise (ids match data/problems.ts).
+// 122 must-do DSA problems, pattern-wise (ids match data/problems.ts).
 export const ESSENTIAL_DSA: string[] = [
   // Arrays & Hashing (7)
   "two-sum", "valid-anagram", "group-anagrams", "top-k-frequent",
   "product-except-self", "longest-consecutive", "contains-duplicate",
-  // Two Pointers (5)
+  // Two Pointers (8)
   "valid-palindrome", "two-sum-ii", "three-sum", "container-water", "trapping-rain-water",
-  // Sliding Window (4)
+  "remove-duplicates-ii", "merge-sorted-array", "next-permutation",
+  // Sliding Window (7)
   "best-time-stock", "longest-substring", "longest-repeating-replacement", "min-window-substring",
+  "fruit-into-baskets", "max-consecutive-ones-iii", "subarray-product-less-k",
   // Prefix Sum (3)
   "subarray-sum-equals-k", "find-pivot-index", "subarray-sums-divisible-k",
-  // Stack (5)
+  // Stack (6)
   "valid-parentheses", "min-stack", "daily-temperatures", "largest-rectangle-histogram", "reverse-polish",
-  // Binary Search (6)
+  "implement-queue-using-stacks",
+  // Binary Search (9)
   "binary-search", "search-rotated", "find-min-rotated", "koko-bananas", "find-first-last-position", "median-two-sorted",
-  // Linked List (8)
+  "find-peak-element", "capacity-ship-packages", "split-array-largest-sum",
+  // Linked List (9)
   "reverse-linked-list", "merge-two-sorted", "linked-list-cycle", "remove-nth-node",
-  "reorder-list", "copy-list-random", "lru-cache", "merge-k-sorted",
-  // Trees (12)
+  "reorder-list", "copy-list-random", "lru-cache", "merge-k-sorted", "reverse-linked-list-ii",
+  // Trees (16)
   "invert-binary-tree", "max-depth-tree", "diameter-tree", "subtree-of-another",
   "lowest-common-ancestor", "level-order-traversal", "right-side-view", "validate-bst",
   "kth-smallest-bst", "construct-tree-preorder", "serialize-deserialize", "max-path-sum",
+  "zigzag-level-order", "path-sum-ii", "vertical-order-traversal", "boundary-traversal-tree",
   // Heap (4)
   "kth-largest-array", "k-closest-points", "task-scheduler", "find-median-stream",
   // Backtracking (6)
@@ -32,16 +37,17 @@ export const ESSENTIAL_DSA: string[] = [
   // Graphs (9)
   "number-of-islands", "clone-graph", "max-area-island", "pacific-atlantic", "rotting-oranges",
   "course-schedule", "course-schedule-ii", "num-connected-components", "word-ladder",
-  // Dynamic Programming (12)
+  // Dynamic Programming (16)
   "climbing-stairs", "house-robber", "house-robber-ii", "coin-change", "longest-increasing-subsequence",
   "word-break", "max-product-subarray", "longest-palindromic-substr", "unique-paths",
   "longest-common-subsequence", "edit-distance", "partition-equal-subset",
+  "01-knapsack", "matrix-chain-multiplication", "best-time-stock-iii", "best-time-stock-iv",
   // Greedy (4)
   "max-subarray", "jump-game", "jump-game-ii", "gas-station",
   // Intervals (4)
   "insert-interval", "merge-intervals", "non-overlapping-intervals", "meeting-rooms-ii",
-  // Bit Manipulation (3)
-  "single-number", "number-1-bits", "counting-bits",
+  // Bit Manipulation (5)
+  "single-number", "number-1-bits", "counting-bits", "single-number-ii", "single-number-iii",
   // Tries (2)
   "implement-trie", "word-search-ii",
   // Math & Geometry (3)
