@@ -255,6 +255,11 @@ export default function StudyPlanPage() {
             </h1>
             <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "2px 0 0" }}>
               {completedTasks} tasks done · {totalTasks - completedTasks} remaining
+              {duration === 15 && (
+                <span style={{ color: "#06b6d4" }}>
+                  {" · "}15-Day Essentials — 100 curated problems + deep SE/SD
+                </span>
+              )}
               {daysBehind > 0 && (
                 <span style={{ color: "#F5A524" }}>
                   {" · "}{daysBehind} day{daysBehind > 1 ? "s" : ""} behind — catch up

@@ -2,6 +2,7 @@ import { PATTERNS } from "@/data/problems";
 import { SD_CHAPTERS } from "@/data/systemDesign";
 import { SE_SUBJECTS } from "@/data/seBasics";
 import { COMMON_QUESTIONS, COMPANY_VALUES } from "@/data/behavioral";
+import { ESSENTIAL_DSA_SET, ESSENTIAL_SE_SET, ESSENTIAL_SD_SET } from "@/data/essentials15";
 
 export type TaskDomain = "dsa" | "sd" | "se" | "behavioral";
 export type DayPhase = "dsa" | "sd" | "se" | "review" | "mock" | "behavioral";
@@ -268,10 +269,12 @@ function recallTask(dayNum: number, label: string): PlanTask {
 function generateIntensivePlan(startDate: string, weakIds: string[] = []): StudyPlan {
   const durationDays = 15 as const;
   const weakSet = new Set(weakIds);
-  // Priority-ordered queues — most interview-critical items first.
-  const dsaQueue = buildDSATasks(); // curriculum order: front-loads core patterns
-  const sdQueue = topByPriority(buildSDTasks(), 999);   // fundamentals first
-  const seQueue = topByPriority(buildSETasks(), 999);   // interview-focus chapters first
+  // Curated to the "15-Day Essentials" set (100 DSA + deep SE + deep SD) so a
+  // 12 hr/day sprint is realistic. Keep DSA pattern theory + only essential
+  // problems, in curriculum order.
+  const dsaQueue = buildDSATasks().filter((t) => t.kind === "theory" || ESSENTIAL_DSA_SET.has(t.id));
+  const sdQueue = buildSDTasks().filter((t) => ESSENTIAL_SD_SET.has(t.id));
+  const seQueue = buildSETasks().filter((t) => ESSENTIAL_SE_SET.has(t.id));
   const behavioralQueue = topByPriority(buildBehavioralTasks(), 999);
   const assigned: PlanTask[] = [];
   const window: PlanTask[] = []; // tasks from the last 2 study days, for revision
