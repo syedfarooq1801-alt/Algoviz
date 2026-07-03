@@ -397,10 +397,11 @@ function generateIntensivePlan(startDate: string, weakIds: string[] = []): Study
     studyDaysLeft--;
     studyDayIdx++;
 
-    // AM (fresh brain): first half of the day's DSA — hardest new material.
+    // AM (fresh brain): first half of the day's DSA — pattern theory + Easy/Medium
+    // warm-up (problems are Easy→Medium→Hard within each pattern by design).
     const half = Math.ceil(dsaSlice.length / 2);
     const amDsa = dsaSlice.slice(0, half).map((t) => ({ ...t, timeBlock: "AM" as const }));
-    // PM: rest of DSA + SE + SD theory.
+    // PM: the Hard problems for this pattern + SE + SD theory.
     const pmDsa = dsaSlice.slice(half).map((t) => ({ ...t, timeBlock: "PM" as const }));
     const seTasks = seSlice.map((t) => ({ ...t, timeBlock: "PM" as const }));
     const sdTasks = sdSlice.map((t) => ({ ...t, timeBlock: "PM" as const }));
