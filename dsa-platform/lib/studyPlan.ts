@@ -300,14 +300,13 @@ function packPatternGroups(groups: PlanTask[][], dayCount: number): PlanTask[][]
 }
 
 // 15-day intensive sprint: FULL syllabus coverage. Every DSA problem, SE chapter,
-// SD concept, and behavioral question is scheduled across the 10 study days
-// (AM/PM/Eve blocks), with revision every 2 study days and a final mock.
-// Queues are drained evenly so nothing is dropped — the hours badge shows the
-// (heavy) real daily load honestly.
+// and SD concept is scheduled across 9 study days (AM/PM/Eve blocks), with
+// revision every 2 study days, ONE dedicated behavioral day near the end
+// (day 14 — not woven daily), and a final mock on day 15.
 function generateIntensivePlan(startDate: string, weakIds: string[] = []): StudyPlan {
   const durationDays = 15 as const;
   const weakSet = new Set(weakIds);
-  // Curated to the "15-Day Essentials" set (101 DSA + deep SE + deep SD) so a
+  // Curated to the "15-Day Essentials" set (122 DSA + deep SE + deep SD) so a
   // 12 hr/day sprint is realistic. Keep DSA pattern theory + only essential
   // problems, in curriculum order.
   const dsaQueue = buildDSATasks().filter((t) => t.kind === "theory" || ESSENTIAL_DSA_SET.has(t.id));
@@ -318,10 +317,11 @@ function generateIntensivePlan(startDate: string, weakIds: string[] = []): Study
   const window: PlanTask[] = []; // tasks from the last 2 study days, for revision
   const days: DayPlan[] = [];
 
-  // Revision every 2 study days; final day is a full mock.
+  // Revision every 2 study days; day 14 is dedicated behavioral prep; final day is a full mock.
   const reviewDays = new Set([3, 6, 9, 12]);
-  // 15 days − 4 review − 1 mock = 10 study days.
-  const studyDayCount = durationDays - reviewDays.size - 1;
+  const behavioralDay = 14;
+  // 15 days − 4 review − 1 behavioral day − 1 mock = 9 study days.
+  const studyDayCount = durationDays - reviewDays.size - 2;
   let studyDaysLeft = studyDayCount;
 
   // DSA is pre-packed into whole-pattern day buckets — a pattern always
@@ -346,12 +346,30 @@ function generateIntensivePlan(startDate: string, weakIds: string[] = []): Study
         href: "/cheat-sheet", priority: 9, meta: "Last-minute reference",
         kind: "theory", timeBlock: "Eve",
       };
-      const behavioral = behavioralQueue.slice(0, 3).map((t) => ({ ...t, timeBlock: "PM" as const }));
+      // Behavioral was fully covered on day 14 — just re-drill 3 of the toughest as a warm-up.
+      const behavioral = topByPriority(assigned.filter((t) => t.domain === "behavioral"), 3)
+        .map((t) => ({ ...t, id: `rv-mock-${t.id}`, timeBlock: "PM" as const }));
       days.push({
         day: dayNum, date, phase: "mock", type: "mock",
         label: "Final mock — full interview simulation",
         color: PHASE_COLOR.mock, tasks: [...core, ...behavioral, cheatSheet],
         reviewNote: getReviewNote("mock"),
+      });
+      continue;
+    }
+
+    if (dayNum === behavioralDay) {
+      // Dedicated behavioral day — NOT woven daily. One full day, close to the
+      // end, so STAR stories and company values are freshest going into interviews.
+      const tasks = behavioralQueue.splice(0, behavioralQueue.length).map((t, i) => ({
+        ...t, timeBlock: (i % 2 === 0 ? "AM" : "PM") as "AM" | "PM",
+      }));
+      assigned.push(...tasks);
+      days.push({
+        day: dayNum, date, phase: "behavioral", type: "practice",
+        label: "Behavioral prep — STAR stories & company values",
+        color: PHASE_COLOR.behavioral, tasks,
+        reviewNote: getReviewNote("behavioral"),
       });
       continue;
     }
@@ -389,13 +407,13 @@ function generateIntensivePlan(startDate: string, weakIds: string[] = []): Study
     }
 
     // Study day — DSA comes from the pre-packed whole-pattern bucket for this
-    // study-day slot (never split across days). SE/SD/behavioral still drain
-    // an even share so the full syllabus lands by the last study day.
+    // study-day slot (never split across days). SE/SD still drain an even
+    // share so the full syllabus lands by the last study day. No behavioral
+    // here by design — it's concentrated on the dedicated day above.
     const share = (n: number) => Math.ceil(n / Math.max(1, studyDaysLeft));
     const dsaSlice = dsaBuckets[studyDayIdx] ?? [];
     const seSlice = seQueue.splice(0, share(seQueue.length));
     const sdSlice = sdQueue.splice(0, share(sdQueue.length));
-    const behSlice = behavioralQueue.splice(0, share(behavioralQueue.length));
     studyDaysLeft--;
     studyDayIdx++;
 
@@ -407,15 +425,14 @@ function generateIntensivePlan(startDate: string, weakIds: string[] = []): Study
     const pmDsa = dsaSlice.slice(half).map((t) => ({ ...t, timeBlock: "PM" as const }));
     const seTasks = seSlice.map((t) => ({ ...t, timeBlock: "PM" as const }));
     const sdTasks = sdSlice.map((t) => ({ ...t, timeBlock: "PM" as const }));
-    // Eve: behavioral STAR prep + timed recall of the day's hardest.
-    const behavioral = behSlice.map((t) => ({ ...t, timeBlock: "Eve" as const }));
+    // Eve: timed recall of the day's hardest — no behavioral mixed in.
     const recall = recallTask(dayNum, "Redo today's AM problems from memory — timed, no IDE");
 
-    const tasks = [...amDsa, ...pmDsa, ...seTasks, ...sdTasks, ...behavioral, recall];
+    const tasks = [...amDsa, ...pmDsa, ...seTasks, ...sdTasks, recall];
 
     // Only real (non-recall) tasks feed the revision window.
     window.push(...amDsa, ...pmDsa, ...seTasks, ...sdTasks);
-    assigned.push(...amDsa, ...pmDsa, ...seTasks, ...sdTasks, ...behavioral);
+    assigned.push(...amDsa, ...pmDsa, ...seTasks, ...sdTasks);
     days.push({
       day: dayNum, date, phase: "dsa",
       type: dayNum <= 4 ? "learn" : "practice",
@@ -439,8 +456,9 @@ export function generateStudyPlan(durationDays: 15 | 30 | 60 | 90, startDate: st
   const dsaQueue = buildDSATasks();
   const sdQueue = buildSDTasks();
   const seQueue = buildSETasks();
-  const behavioralQueue = buildBehavioralTasks();        // dedicated tail days (deep prep)
-  const behavioralSpread = topByPriority(buildBehavioralTasks(), 999); // 1/day woven through core
+  // Behavioral is NOT woven into daily study — concentrated entirely in the
+  // dedicated tail days below (last 3/5/7 days), so it stays sharp near the interview.
+  const behavioralQueue = buildBehavioralTasks();
   const assigned: PlanTask[] = [];
   const weeklyWindow: PlanTask[] = [];
   const days: DayPlan[] = [];
@@ -533,17 +551,11 @@ export function generateStudyPlan(durationDays: 15 | 30 | 60 | 90, startDate: st
       supportTasks = [...supportTasks, ...takeByEffort(alternateQueue, supportTarget, supportTasks.length ? 0 : 1)];
     }
 
-    // Weave 1 behavioral item into the evening of each core study day so it's
-    // visible from week 1, not crammed into the tail. The dedicated tail days
-    // (behavioralQueue) still cover everything deeply.
-    const behSpread = behavioralSpread.splice(0, 1).map((t) => ({ ...t, meta: "Behavioral · STAR" }));
-
-    const tasks = [...dsaTasks, ...supportTasks, ...behSpread];
+    const tasks = [...dsaTasks, ...supportTasks];
     const phase: DayPhase =
       supportTasks.some((task) => task.domain === "se") ? "se" :
       supportTasks.some((task) => task.domain === "sd") ? "sd" : "dsa";
 
-    // Behavioral stays out of the review window — keep weekly reviews DSA/SE/SD-focused.
     weeklyWindow.push(...dsaTasks, ...supportTasks);
     assigned.push(...dsaTasks, ...supportTasks);
     days.push({

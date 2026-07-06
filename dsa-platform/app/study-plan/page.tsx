@@ -420,8 +420,8 @@ export default function StudyPlanPage() {
                 </span>
               </div>
 
-              {/* Revision / mock protocol — how to work this day, not just what */}
-              {focusDay.reviewNote && (focusDay.type === "review" || focusDay.type === "mock") && (
+              {/* Revision / mock / behavioral protocol — how to work this day, not just what */}
+              {focusDay.reviewNote && (focusDay.type === "review" || focusDay.type === "mock" || focusDay.phase === "behavioral") && (
                 <div style={{
                   marginBottom: 14, padding: "10px 12px", borderRadius: 8,
                   background: focusDay.type === "mock" ? "rgba(239,68,68,0.07)" : "rgba(154,164,178,0.08)",
@@ -431,7 +431,7 @@ export default function StudyPlanPage() {
                     fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase",
                     color: focusDay.type === "mock" ? "#EF4444" : "var(--text-secondary)", marginBottom: 6,
                   }}>
-                    {focusDay.type === "mock" ? "Mock protocol" : "How to revise"}
+                    {focusDay.type === "mock" ? "Mock protocol" : focusDay.phase === "behavioral" ? "How to prep" : "How to revise"}
                   </div>
                   <div style={{
                     fontSize: 11.5, lineHeight: 1.6, color: "var(--text-secondary)",
