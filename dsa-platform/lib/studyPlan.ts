@@ -349,9 +349,10 @@ function packPatternGroups(groups: PlanTask[][], dayCount: number): PlanTask[][]
 }
 
 // 15-day intensive sprint: FULL syllabus coverage. Every DSA problem, SE chapter,
-// and SD concept is scheduled across 9 study days (AM/PM/Eve blocks), with
-// revision every 2 study days, ONE dedicated behavioral day near the end
-// (day 14 — not woven daily), and a final mock on day 15.
+// and SD concept is scheduled across 10 study days (AM/PM/Eve blocks), with
+// revision every 2 study days and a final technical mock on day 15. Behavioral
+// prep is NOT part of the 15 days at all — it's appended as 2 extra days
+// right after, so DSA/SE/SD fully own the stated time span.
 function generateIntensivePlan(startDate: string, weakIds: string[] = []): StudyPlan {
   const durationDays = 15 as const;
   const weakSet = new Set(weakIds);
@@ -366,11 +367,10 @@ function generateIntensivePlan(startDate: string, weakIds: string[] = []): Study
   const window: PlanTask[] = []; // tasks from the last 2 study days, for revision
   const days: DayPlan[] = [];
 
-  // Revision every 2 study days; day 14 is dedicated behavioral prep; final day is a full mock.
+  // Revision every 2 study days; final day is a full technical mock.
   const reviewDays = new Set([3, 6, 9, 12]);
-  const behavioralDay = 14;
-  // 15 days − 4 review − 1 behavioral day − 1 mock = 9 study days.
-  const studyDayCount = durationDays - reviewDays.size - 2;
+  // 15 days − 4 review − 1 mock = 10 study days.
+  const studyDayCount = durationDays - reviewDays.size - 1;
   let studyDaysLeft = studyDayCount;
 
   // DSA is pre-packed into whole-pattern day buckets — a pattern always
@@ -382,7 +382,7 @@ function generateIntensivePlan(startDate: string, weakIds: string[] = []): Study
     const date = addDays(startDate, dayNum - 1);
 
     if (dayNum === durationDays) {
-      // Day 15 — full interview simulation. Weak areas first, then best of everything.
+      // Day 15 — full TECHNICAL interview simulation (no behavioral — that's after).
       const weakFirst = topByPriority(assigned.filter((t) => weakSet.has(t.id)), 4);
       const rest = topByPriority(assigned.filter((t) => !weakSet.has(t.id)), 6);
       const core = [...weakFirst, ...rest].map((t) => ({
@@ -395,30 +395,11 @@ function generateIntensivePlan(startDate: string, weakIds: string[] = []): Study
         href: "/cheat-sheet", priority: 9, meta: "Last-minute reference",
         kind: "theory", timeBlock: "Eve",
       };
-      // Behavioral was fully covered on day 14 — just re-drill 3 of the toughest as a warm-up.
-      const behavioral = topByPriority(assigned.filter((t) => t.domain === "behavioral"), 3)
-        .map((t) => ({ ...t, id: `rv-mock-${t.id}`, timeBlock: "PM" as const }));
       days.push({
         day: dayNum, date, phase: "mock", type: "mock",
-        label: "Final mock — full interview simulation",
-        color: PHASE_COLOR.mock, tasks: [...core, ...behavioral, cheatSheet],
+        label: "Final technical mock — DSA/SE/SD simulation",
+        color: PHASE_COLOR.mock, tasks: [...core, cheatSheet],
         reviewNote: getReviewNote("mock"),
-      });
-      continue;
-    }
-
-    if (dayNum === behavioralDay) {
-      // Dedicated behavioral day — NOT woven daily. One full day, close to the
-      // end, so STAR stories and company values are freshest going into interviews.
-      const tasks = behavioralQueue.splice(0, behavioralQueue.length).map((t, i) => ({
-        ...t, timeBlock: (i % 2 === 0 ? "AM" : "PM") as "AM" | "PM",
-      }));
-      assigned.push(...tasks);
-      days.push({
-        day: dayNum, date, phase: "behavioral", type: "practice",
-        label: "Behavioral prep — STAR stories & company values",
-        color: PHASE_COLOR.behavioral, tasks,
-        reviewNote: getReviewNote("behavioral"),
       });
       continue;
     }
@@ -490,6 +471,24 @@ function generateIntensivePlan(startDate: string, weakIds: string[] = []): Study
     });
   }
 
+  // Behavioral prep — entirely OUTSIDE the 15 days, appended right after so
+  // DSA/SE/SD get the full stated time span with nothing carved out of it.
+  const behavioralExtraDays = 2;
+  const behavioralPerDay = Math.ceil(behavioralQueue.length / behavioralExtraDays);
+  for (let i = 0; i < behavioralExtraDays; i++) {
+    const dayNum = durationDays + i + 1;
+    const date = addDays(startDate, dayNum - 1);
+    const slice = behavioralQueue.splice(0, behavioralPerDay).map((t, ti) => ({
+      ...t, timeBlock: (ti % 2 === 0 ? "AM" : "PM") as "AM" | "PM",
+    }));
+    days.push({
+      day: dayNum, date, phase: "behavioral", type: "practice",
+      label: `Behavioral prep ${i + 1}/${behavioralExtraDays} — STAR stories & company values`,
+      color: PHASE_COLOR.behavioral, tasks: slice,
+      reviewNote: getReviewNote("behavioral"),
+    });
+  }
+
   return { durationDays, startDate, days };
 }
 
@@ -505,28 +504,27 @@ export function generateStudyPlan(durationDays: 15 | 30 | 60 | 90, startDate: st
   const dsaQueue = buildDSATasks();
   const sdQueue = buildSDTasks();
   const seQueue = buildSETasks();
-  // Behavioral is NOT woven into daily study — concentrated entirely in the
-  // dedicated tail days below (last 3/5/7 days), so it stays sharp near the interview.
+  // Behavioral is entirely OUTSIDE these durationDays — appended as extra days
+  // after the loop, so DSA/SE/SD fully own the stated time span (no carve-out).
   const behavioralQueue = buildBehavioralTasks();
   const assigned: PlanTask[] = [];
   const weeklyWindow: PlanTask[] = [];
   const days: DayPlan[] = [];
   const behavioralDays = durationDays === 30 ? 3 : durationDays === 60 ? 5 : 7;
-  const coreEndDay = durationDays - behavioralDays;
   // Real weekday of a plan day (0 = Sunday, 6 = Saturday).
   // Saturday = review, Sunday = mock. Both are weekend days (no new learning).
   const weekdayOf = (dn: number) => new Date(addDays(startDate, dn - 1) + "T00:00:00").getDay();
   const isSatReview = (dn: number) => weekdayOf(dn) === 6;
   const isSunMock   = (dn: number) => weekdayOf(dn) === 0;
   const isWeekend   = (dn: number) => isSatReview(dn) || isSunMock(dn);
-  const coreWorkDays = Array.from({ length: coreEndDay }, (_, i) => i + 1).filter((day) => !isWeekend(day)).length;
+  const coreWorkDays = Array.from({ length: durationDays }, (_, i) => i + 1).filter((day) => !isWeekend(day)).length;
 
   function remainingCoreEffort() {
     return totalEffort(dsaQueue) + totalEffort(sdQueue) + totalEffort(seQueue);
   }
 
   function remainingCoreWorkDays(dayNum: number) {
-    return Array.from({ length: Math.max(0, coreEndDay - dayNum + 1) }, (_, i) => dayNum + i)
+    return Array.from({ length: Math.max(0, durationDays - dayNum + 1) }, (_, i) => dayNum + i)
       .filter((day) => !isWeekend(day)).length;
   }
 
@@ -534,22 +532,6 @@ export function generateStudyPlan(durationDays: 15 | 30 | 60 | 90, startDate: st
     const date = addDays(startDate, dayNum - 1);
     const slot = (dayNum - 1) % 7;
     const week = Math.ceil(dayNum / 7);
-
-    if (dayNum > coreEndDay) {
-      const target = Math.max(3, totalEffort(behavioralQueue) / Math.max(1, durationDays - dayNum + 1));
-      const tasks = takeByEffort(behavioralQueue, target, 2);
-      days.push({
-        day: dayNum,
-        date,
-        phase: dayNum === durationDays ? "mock" : "behavioral",
-        type: dayNum === durationDays ? "mock" : "practice",
-        label: dayNum === durationDays ? "Final behavioral + technical mock" : labelFromTasks("Behavioral prep", tasks),
-        color: dayNum === durationDays ? PHASE_COLOR.mock : PHASE_COLOR.behavioral,
-        tasks: dayNum === durationDays ? [...tasks, ...topByPriority(assigned, 4)] : tasks,
-        reviewNote: getReviewNote(dayNum === durationDays ? "mock" : "behavioral"),
-      });
-      continue;
-    }
 
     if (isSatReview(dayNum)) {
       // Saturday: review this week's learning — separate completion tracking via "rv-" prefix
@@ -618,8 +600,25 @@ export function generateStudyPlan(durationDays: 15 | 30 | 60 | 90, startDate: st
     });
   }
 
-  while (behavioralQueue.length > 0 && days.length > 0) {
-    days[days.length - 1].tasks.push(...takeByEffort(behavioralQueue, 999, 0));
+  // Behavioral prep — entirely OUTSIDE durationDays, appended right after so
+  // DSA/SE/SD get the full stated time span. Last appended day is the capstone:
+  // a combined behavioral + technical mock.
+  for (let i = 0; i < behavioralDays; i++) {
+    const dayNum = durationDays + i + 1;
+    const date = addDays(startDate, dayNum - 1);
+    const isFinal = i === behavioralDays - 1;
+    const target = Math.max(3, totalEffort(behavioralQueue) / Math.max(1, behavioralDays - i));
+    const tasks = takeByEffort(behavioralQueue, target, 2);
+    days.push({
+      day: dayNum,
+      date,
+      phase: isFinal ? "mock" : "behavioral",
+      type: isFinal ? "mock" : "practice",
+      label: isFinal ? "Final behavioral + technical mock" : labelFromTasks("Behavioral prep", tasks),
+      color: isFinal ? PHASE_COLOR.mock : PHASE_COLOR.behavioral,
+      tasks: isFinal ? [...tasks, ...topByPriority(assigned, 4)] : tasks,
+      reviewNote: getReviewNote(isFinal ? "mock" : "behavioral"),
+    });
   }
 
   return { durationDays, startDate, days };
