@@ -277,26 +277,75 @@ function groupByPattern(queue: PlanTask[]): PlanTask[][] {
 }
 
 // Bin-pack whole pattern-groups into `dayCount` buckets, in curriculum order,
-// without ever splitting a group across two buckets. The per-day target is
-// recomputed from what's left (remaining tasks / remaining days) each time,
-// so patterns spread evenly across ALL days instead of front-loading and
-// leaving trailing days empty — the last day always absorbs whatever remains.
+// without ever splitting a group across two buckets — minimizing the largest
+// bucket (the "split array into k parts, minimize max part sum" problem,
+// same technique as Split Array Largest Sum / Capacity to Ship Packages).
+//
+// Binary search finds the smallest max-sum achievable in <= dayCount
+// contiguous partitions, then a greedy pass builds those partitions. If that
+// leaves fewer than dayCount buckets (parts merged more than needed), the
+// largest remaining bucket is repeatedly split at its best internal boundary
+// — still only ever moving a boundary BETWEEN groups, never through one —
+// until all dayCount slots are used. This spreads patterns far more evenly
+// than a single-pass greedy-with-overflow-margin approach.
 function packPatternGroups(groups: PlanTask[][], dayCount: number): PlanTask[][] {
-  const queue = [...groups];
-  const buckets: PlanTask[][] = [];
-  let remainingDays = dayCount;
-  while (buckets.length < dayCount) {
-    if (queue.length === 0) { buckets.push([]); remainingDays--; continue; }
-    const remainingTotal = queue.reduce((n, g) => n + g.length, 0);
-    const target = remainingTotal / Math.max(1, remainingDays);
-    const bucket: PlanTask[] = [];
-    while (queue.length > 0 && (bucket.length === 0 || bucket.length + queue[0].length <= target * 1.3)) {
-      bucket.push(...queue.shift()!);
+  const n = groups.length;
+  if (n === 0) return Array.from({ length: dayCount }, () => []);
+  const sizes = groups.map((g) => g.length);
+
+  const countParts = (maxSum: number): number => {
+    let parts = 1, cur = 0;
+    for (const s of sizes) {
+      if (cur + s > maxSum && cur > 0) { parts++; cur = 0; }
+      cur += s;
     }
-    buckets.push(bucket);
-    remainingDays--;
+    return parts;
+  };
+
+  let lo = Math.max(...sizes), hi = sizes.reduce((a, b) => a + b, 0);
+  while (lo < hi) {
+    const mid = Math.floor((lo + hi) / 2);
+    if (countParts(mid) <= dayCount) hi = mid; else lo = mid + 1;
   }
-  return buckets;
+  const maxSum = lo;
+
+  // Build the actual index-partitions using that minimal maxSum.
+  let partitions: number[][] = [];
+  {
+    let cur: number[] = [], curSum = 0;
+    for (let i = 0; i < n; i++) {
+      if (curSum + sizes[i] > maxSum && cur.length > 0) { partitions.push(cur); cur = []; curSum = 0; }
+      cur.push(i);
+      curSum += sizes[i];
+    }
+    if (cur.length) partitions.push(cur);
+  }
+
+  // Fewer partitions than day slots? Split the largest one at its best
+  // boundary (minimizing the resulting max of the two halves) and repeat.
+  while (partitions.length < dayCount) {
+    let bestIdx = -1, bestSum = -1;
+    for (let i = 0; i < partitions.length; i++) {
+      if (partitions[i].length <= 1) continue;
+      const sum = partitions[i].reduce((s, gi) => s + sizes[gi], 0);
+      if (sum > bestSum) { bestSum = sum; bestIdx = i; }
+    }
+    if (bestIdx === -1) break; // nothing left splittable (each partition is a single group)
+
+    const part = partitions[bestIdx];
+    const total = part.reduce((s, gi) => s + sizes[gi], 0);
+    let bestSplit = 1, bestMax = Infinity, leftSum = 0;
+    for (let k = 1; k < part.length; k++) {
+      leftSum += sizes[part[k - 1]];
+      const m = Math.max(leftSum, total - leftSum);
+      if (m < bestMax) { bestMax = m; bestSplit = k; }
+    }
+    partitions.splice(bestIdx, 1, part.slice(0, bestSplit), part.slice(bestSplit));
+  }
+
+  const result: PlanTask[][] = partitions.map((idxs) => idxs.flatMap((i) => groups[i]));
+  while (result.length < dayCount) result.push([]); // only if n < dayCount
+  return result;
 }
 
 // 15-day intensive sprint: FULL syllabus coverage. Every DSA problem, SE chapter,
