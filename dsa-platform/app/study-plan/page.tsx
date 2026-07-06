@@ -7,8 +7,8 @@ import { useProgressStore } from "@/lib/store";
 import { useSDStore } from "@/lib/sdStore";
 import { useSEStore } from "@/lib/seStore";
 
-const DAYS_OPTIONS = [15, 30, 60, 90] as const;
-type Duration = 15 | 30 | 60 | 90;
+const DAYS_OPTIONS = [15, 21, 30, 60, 90] as const;
+type Duration = 15 | 21 | 30 | 60 | 90;
 
 const PHASE_LABEL: Record<string, string> = {
   dsa: "DSA", sd: "System Design", se: "SE Basics",
