@@ -359,12 +359,33 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
   const targetDays = 21;
   const weakSet = new Set(weakIds);
   const dsaQueue = buildDSATasks().filter((t) => t.kind === "theory" || ESSENTIAL_DSA_SET.has(t.id));
-  const sdQueue = buildSDTasks().filter((t) => ESSENTIAL_SD_SET.has(t.id));
-  const seQueue = buildSETasks().filter((t) => ESSENTIAL_SE_SET.has(t.id));
+  let sdQueue = buildSDTasks().filter((t) => ESSENTIAL_SD_SET.has(t.id));
+  let seQueue = buildSETasks().filter((t) => ESSENTIAL_SE_SET.has(t.id));
   const behavioralQueue = topByPriority(buildBehavioralTasks(), 999);
   const assigned: PlanTask[] = [];
   const window: PlanTask[] = [];
   const days: DayPlan[] = [];
+
+  // Manual pin: IPC, Process Synchronization, Deadlocks (SE) + Caching, CDN &
+  // Edge (SD) all belong together on the Two-Pointers/Prefix-Sum day. Pull
+  // them out of the normal sequential drain now so they land there exactly,
+  // not wherever the day-by-day split would otherwise put them.
+  const pinnedDay2Ids = new Set([
+    "operating-systems/inter-process-communication",
+    "operating-systems/process-synchronization",
+    "operating-systems/deadlocks",
+    "caching",
+    "cdn",
+  ]);
+  const pinnedDay2Tasks: PlanTask[] = [];
+  seQueue = seQueue.filter((t) => {
+    if (pinnedDay2Ids.has(t.id)) { pinnedDay2Tasks.push(t); return false; }
+    return true;
+  });
+  sdQueue = sdQueue.filter((t) => {
+    if (pinnedDay2Ids.has(t.id)) { pinnedDay2Tasks.push(t); return false; }
+    return true;
+  });
 
   const weekdayOf = (dn: number) => new Date(addDays(startDate, dn - 1) + "T00:00:00").getDay();
   const allDays = Array.from({ length: targetDays }, (_, i) => i + 1);
@@ -471,8 +492,25 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
       const aSeSd = dayTwoPointersOnly.tasks.filter(isSeSd);
       const aRest = dayTwoPointersOnly.tasks.filter((t) => !isSeSd(t));
       const bRest = dayPrefixAndSliding.tasks.filter((t) => !isSeSd(t) && !(t.domain === "dsa" && t.tag === "Prefix Sum"));
-      dayTwoPointersOnly.tasks = [...aRest, ...prefixTasks.map((t) => ({ ...t, timeBlock: "PM" as const }))];
+      dayTwoPointersOnly.tasks = [
+        ...aRest,
+        ...prefixTasks.map((t) => ({ ...t, timeBlock: "PM" as const })),
+        ...pinnedDay2Tasks.map((t) => ({ ...t, timeBlock: "Eve" as const })),
+      ];
       dayPrefixAndSliding.tasks = [...bRest, ...aSeSd, ...bSeSd];
+      // Pinned tasks were pulled out before the main drain, so they never
+      // entered `assigned` — add them now so the final mock can still pull
+      // from them (review days have already run by this point in the loop).
+      assigned.push(...pinnedDay2Tasks);
+    } else {
+      // Fallback — the expected day shapes weren't found (e.g. pattern
+      // grouping changed). Don't silently drop the pinned tasks: attach
+      // them to the first study day instead.
+      const firstStudyDay = days.find((d) => d.type === "learn" || d.type === "practice");
+      if (firstStudyDay) {
+        firstStudyDay.tasks = [...firstStudyDay.tasks, ...pinnedDay2Tasks.map((t) => ({ ...t, timeBlock: "Eve" as const }))];
+        assigned.push(...pinnedDay2Tasks);
+      }
     }
   }
 
