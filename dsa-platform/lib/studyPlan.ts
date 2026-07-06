@@ -348,14 +348,17 @@ function packPatternGroups(groups: PlanTask[][], dayCount: number): PlanTask[][]
   return result;
 }
 
-// 21-day intensive plan: FULL syllabus coverage (122 DSA + 51 SE + 43 SD
-// essentials) at a sustainable daily load. Real calendar Sundays are genuine
-// REST days — no tasks, no review, nothing. Review/mock/study slots are
-// computed dynamically from whichever non-Sunday days remain (Sunday can
-// land anywhere depending on the chosen start date). Behavioral is fully
-// outside these 21 days — appended as extra days right after.
+// 21-day plan: the EXACT same 15-slot content structure as the original
+// 15-day sprint (10 study slots, review after every 2 study slots — slots
+// 3/6/9/12 — slot 15 is the final technical mock, then 2 behavioral slots
+// after) — nothing about that internal cadence or DSA pattern-bucketing
+// changed. The only difference: slots are laid onto the real calendar
+// skipping Sundays (genuine rest days, zero tasks), which naturally spreads
+// the same content across ~21 calendar days instead of 15 back-to-back days.
+// Any leftover days once all slots are placed become buffer/rest so the
+// plan always reaches the full 21 days.
 function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan {
-  const durationDays = 21 as const;
+  const targetDays = 21;
   const weakSet = new Set(weakIds);
   const dsaQueue = buildDSATasks().filter((t) => t.kind === "theory" || ESSENTIAL_DSA_SET.has(t.id));
   const sdQueue = buildSDTasks().filter((t) => ESSENTIAL_SD_SET.has(t.id));
@@ -365,42 +368,37 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
   const window: PlanTask[] = [];
   const days: DayPlan[] = [];
 
-  const weekdayOf = (dn: number) => new Date(addDays(startDate, dn - 1) + "T00:00:00").getDay();
-  const allDays = Array.from({ length: durationDays }, (_, i) => i + 1);
-  const sundays = new Set(allDays.filter((d) => weekdayOf(d) === 0));
-  const nonSundays = allDays.filter((d) => !sundays.has(d));
-
-  // Last non-Sunday day is the final technical mock. Every 3rd non-Sunday
-  // day before that is a revision day. Everything else is a study day.
-  const mockDay = nonSundays[nonSundays.length - 1];
-  const reviewDays = new Set<number>();
-  {
-    let count = 0;
-    for (const d of nonSundays) {
-      if (d === mockDay) continue;
-      count++;
-      if (count % 3 === 0) reviewDays.add(d);
-    }
-  }
-  const studyDayCount = nonSundays.length - reviewDays.size - 1; // minus reviews, minus mock
+  // Same fixed cadence as the original 15-day plan — 10 study slots, review
+  // at slots 3/6/9/12, mock at slot 15, then 2 behavioral slots.
+  const CORE_SLOTS = 15;
+  const reviewSlots = new Set([3, 6, 9, 12]);
+  const mockSlot = 15;
+  const studyDayCount = 10;
+  const behavioralExtraSlots = 2;
 
   const dsaBuckets = packPatternGroups(groupByPattern(dsaQueue), studyDayCount);
   let studyDayIdx = 0;
   let studyDaysLeft = studyDayCount;
+  const behavioralPerSlot = Math.ceil(behavioralQueue.length / behavioralExtraSlots);
 
-  for (let dayNum = 1; dayNum <= durationDays; dayNum++) {
+  const weekdayOf = (dn: number) => new Date(addDays(startDate, dn - 1) + "T00:00:00").getDay();
+
+  let slot = 1;
+  let dayNum = 1;
+  while (slot <= CORE_SLOTS + behavioralExtraSlots) {
     const date = addDays(startDate, dayNum - 1);
 
-    if (sundays.has(dayNum)) {
+    if (weekdayOf(dayNum) === 0) {
       days.push({
         day: dayNum, date, phase: "review", type: "rest",
         label: "Rest day", color: PHASE_COLOR.review, tasks: [],
       });
+      dayNum++;
       continue;
     }
 
-    if (dayNum === mockDay) {
-      // Final TECHNICAL mock (no behavioral — that's after day 21).
+    if (slot === mockSlot) {
+      // Final TECHNICAL mock (no behavioral — that's the 2 slots after).
       const weakFirst = topByPriority(assigned.filter((t) => weakSet.has(t.id)), 4);
       const rest = topByPriority(assigned.filter((t) => !weakSet.has(t.id)), 6);
       const core = [...weakFirst, ...rest].map((t) => ({
@@ -419,10 +417,27 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
         color: PHASE_COLOR.mock, tasks: [...core, cheatSheet],
         reviewNote: getReviewNote("mock"),
       });
+      slot++; dayNum++;
       continue;
     }
 
-    if (reviewDays.has(dayNum)) {
+    if (slot > CORE_SLOTS) {
+      // Behavioral slot (slot 16 or 17) — entirely outside the core 15.
+      const bi = slot - CORE_SLOTS;
+      const slice = behavioralQueue.splice(0, behavioralPerSlot).map((t, ti) => ({
+        ...t, timeBlock: (ti % 2 === 0 ? "AM" : "PM") as "AM" | "PM",
+      }));
+      days.push({
+        day: dayNum, date, phase: "behavioral", type: "practice",
+        label: `Behavioral prep ${bi}/${behavioralExtraSlots} — STAR stories & company values`,
+        color: PHASE_COLOR.behavioral, tasks: slice,
+        reviewNote: getReviewNote("behavioral"),
+      });
+      slot++; dayNum++;
+      continue;
+    }
+
+    if (reviewSlots.has(slot)) {
       const recent = topByPriority(window, 6);
       const recentIds = new Set(window.map((t) => t.id));
       const olderPool = assigned.filter((t) => !recentIds.has(t.id));
@@ -447,11 +462,12 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
         reviewCovered: [...window], reviewNote: getReviewNote("review"),
       });
       window.length = 0;
+      slot++; dayNum++;
       continue;
     }
 
-    // Study day — DSA comes from the pre-packed whole-pattern bucket for this
-    // slot, so a pattern always starts and finishes on the same day.
+    // Study slot — DSA comes from the pre-packed whole-pattern bucket for
+    // this slot, so a pattern always starts and finishes on the same day.
     const share = (n: number) => Math.ceil(n / Math.max(1, studyDaysLeft));
     const dsaSlice = dsaBuckets[studyDayIdx] ?? [];
     const seSlice = seQueue.splice(0, share(seQueue.length));
@@ -471,30 +487,27 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
     assigned.push(...amDsa, ...pmDsa, ...seTasks, ...sdTasks);
     days.push({
       day: dayNum, date, phase: "dsa",
-      type: dayNum <= 6 ? "learn" : "practice",
+      type: slot <= 4 ? "learn" : "practice",
       label: labelFromTasks("Core sprint", [...amDsa, ...pmDsa]),
       color: PHASE_COLOR.dsa, tasks,
     });
+    slot++; dayNum++;
   }
 
-  // Behavioral prep — entirely OUTSIDE the 21 days, appended right after.
-  const behavioralExtraDays = 2;
-  const behavioralPerDay = Math.ceil(behavioralQueue.length / behavioralExtraDays);
-  for (let i = 0; i < behavioralExtraDays; i++) {
-    const dayNum = durationDays + i + 1;
+  // All 17 slots (15 core + 2 behavioral) placed — pad any remaining days up
+  // to the full 21 as buffer/rest, so the plan always spans exactly 21 days.
+  while (dayNum <= targetDays) {
     const date = addDays(startDate, dayNum - 1);
-    const slice = behavioralQueue.splice(0, behavioralPerDay).map((t, ti) => ({
-      ...t, timeBlock: (ti % 2 === 0 ? "AM" : "PM") as "AM" | "PM",
-    }));
+    const isSunday = weekdayOf(dayNum) === 0;
     days.push({
-      day: dayNum, date, phase: "behavioral", type: "practice",
-      label: `Behavioral prep ${i + 1}/${behavioralExtraDays} — STAR stories & company values`,
-      color: PHASE_COLOR.behavioral, tasks: slice,
-      reviewNote: getReviewNote("behavioral"),
+      day: dayNum, date, phase: "review", type: "rest",
+      label: isSunday ? "Rest day" : "Buffer day — catch up or relax",
+      color: PHASE_COLOR.review, tasks: [],
     });
+    dayNum++;
   }
 
-  return { durationDays, startDate, days };
+  return { durationDays: targetDays, startDate, days };
 }
 
 export function generateStudyPlan(durationDays: 21 | 30 | 60 | 90, startDate: string, trackWeights?: Record<string, number>, weakIds?: string[]): StudyPlan {
