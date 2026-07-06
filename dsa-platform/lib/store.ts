@@ -11,7 +11,7 @@ interface ProgressState {
   xp: number;
   solvedDates: Record<string, string>;
   solveTimes: Record<string, number>;
-  studyPlanDuration: 15 | 21 | 30 | 60 | 90;
+  studyPlanDuration: 21 | 30 | 60 | 90;
   planStartDate: string; // YYYY-MM-DD — anchors the plan to the calendar
   setPlanStartDate: (d: string) => void;
   username: string;
@@ -23,14 +23,14 @@ interface ProgressState {
   isBookmarked: (id: string) => boolean;
   isWeak: (id: string) => boolean;
   getSolvedCount: (patternId: string, problemIds: string[]) => number;
-  setStudyPlanDuration: (d: 15 | 21 | 30 | 60 | 90) => void;
+  setStudyPlanDuration: (d: 21 | 30 | 60 | 90) => void;
   hydrateFromFirestore: (data: {
     solved: Set<string>;
     bookmarked: Set<string>;
     xp: number;
     streak: number;
     lastActivity: string;
-    studyPlanDuration?: 15 | 21 | 30 | 60 | 90;
+    studyPlanDuration?: 21 | 30 | 60 | 90;
     solvedDates?: Record<string, string>;
     solveTimes?: Record<string, number>;
     username?: string;
@@ -51,7 +51,7 @@ export const useProgressStore = create<ProgressState>()(
       xp: 0,
       solvedDates: {},
       solveTimes: {},
-      studyPlanDuration: 30 as 15 | 21 | 30 | 60 | 90,
+      studyPlanDuration: 30 as 21 | 30 | 60 | 90,
       planStartDate: "",
       username: "",
 

@@ -36,7 +36,7 @@ export interface DayPlan {
 }
 
 export interface StudyPlan {
-  durationDays: 15 | 21 | 30 | 60 | 90;
+  durationDays: 21 | 30 | 60 | 90;
   startDate: string;
   days: DayPlan[];
 }
@@ -348,156 +348,12 @@ function packPatternGroups(groups: PlanTask[][], dayCount: number): PlanTask[][]
   return result;
 }
 
-// 15-day intensive sprint: FULL syllabus coverage. Every DSA problem, SE chapter,
-// and SD concept is scheduled across 10 study days (AM/PM/Eve blocks), with
-// revision every 2 study days and a final technical mock on day 15. Behavioral
-// prep is NOT part of the 15 days at all — it's appended as 2 extra days
-// right after, so DSA/SE/SD fully own the stated time span.
-function generateIntensivePlan(startDate: string, weakIds: string[] = []): StudyPlan {
-  const durationDays = 15 as const;
-  const weakSet = new Set(weakIds);
-  // Curated to the "15-Day Essentials" set (122 DSA + deep SE + deep SD) so a
-  // 12 hr/day sprint is realistic. Keep DSA pattern theory + only essential
-  // problems, in curriculum order.
-  const dsaQueue = buildDSATasks().filter((t) => t.kind === "theory" || ESSENTIAL_DSA_SET.has(t.id));
-  const sdQueue = buildSDTasks().filter((t) => ESSENTIAL_SD_SET.has(t.id));
-  const seQueue = buildSETasks().filter((t) => ESSENTIAL_SE_SET.has(t.id));
-  const behavioralQueue = topByPriority(buildBehavioralTasks(), 999);
-  const assigned: PlanTask[] = [];
-  const window: PlanTask[] = []; // tasks from the last 2 study days, for revision
-  const days: DayPlan[] = [];
-
-  // Revision every 2 study days; final day is a full technical mock.
-  const reviewDays = new Set([3, 6, 9, 12]);
-  // 15 days − 4 review − 1 mock = 10 study days.
-  const studyDayCount = durationDays - reviewDays.size - 1;
-  let studyDaysLeft = studyDayCount;
-
-  // DSA is pre-packed into whole-pattern day buckets — a pattern always
-  // starts and finishes on the same day, never spilling into the next.
-  const dsaBuckets = packPatternGroups(groupByPattern(dsaQueue), studyDayCount);
-  let studyDayIdx = 0;
-
-  for (let dayNum = 1; dayNum <= durationDays; dayNum++) {
-    const date = addDays(startDate, dayNum - 1);
-
-    if (dayNum === durationDays) {
-      // Day 15 — full TECHNICAL interview simulation (no behavioral — that's after).
-      const weakFirst = topByPriority(assigned.filter((t) => weakSet.has(t.id)), 4);
-      const rest = topByPriority(assigned.filter((t) => !weakSet.has(t.id)), 6);
-      const core = [...weakFirst, ...rest].map((t) => ({
-        ...t, id: `rv-mock-${t.id}`,
-        tag: `${weakSet.has(t.id) ? "⚠ Weak area · " : ""}${t.tag ?? ""}`,
-        timeBlock: "AM" as const,
-      }));
-      const cheatSheet: PlanTask = {
-        domain: "dsa", id: "rv-cheat-sheet", title: "Interview cheat-sheet — final glance",
-        href: "/cheat-sheet", priority: 9, meta: "Last-minute reference",
-        kind: "theory", timeBlock: "Eve",
-      };
-      days.push({
-        day: dayNum, date, phase: "mock", type: "mock",
-        label: "Final technical mock — DSA/SE/SD simulation",
-        color: PHASE_COLOR.mock, tasks: [...core, cheatSheet],
-        reviewNote: getReviewNote("mock"),
-      });
-      continue;
-    }
-
-    if (reviewDays.has(dayNum)) {
-      // Revision day — spaced repetition: weak areas + fresh (last 2 days) +
-      // highest-value older items so earlier patterns don't decay.
-      // "rv-" prefix keeps completion separate from the learning-day toggle.
-      const recent = topByPriority(window, 6);
-      const recentIds = new Set(window.map((t) => t.id));
-      const olderPool = assigned.filter((t) => !recentIds.has(t.id));
-      const weakFirst = topByPriority(olderPool.filter((t) => weakSet.has(t.id)), 3);
-      const weakFirstIds = new Set(weakFirst.map((t) => t.id));
-      const remainingOlder = olderPool.filter((t) => !weakFirstIds.has(t.id));
-      // Balance domains so SE/SD get revised too, not just DSA.
-      const olderDsa = topByPriority(remainingOlder.filter((t) => t.domain === "dsa"), 2);
-      const olderSupport = topByPriority(remainingOlder.filter((t) => t.domain !== "dsa"), 2);
-      const merged = [...weakFirst, ...recent, ...olderDsa, ...olderSupport];
-      const tasks = merged.map((t) => {
-        const label = weakSet.has(t.id) ? "⚠ Weak area" : recentIds.has(t.id) ? "Fresh" : "Spaced recall";
-        return {
-          ...t, id: `rv-${t.id}`,
-          tag: `${label}${t.tag ? ` · ${t.tag}` : ""}`,
-          timeBlock: (weakSet.has(t.id) ? "AM" : t.domain === "dsa" ? "PM" : "Eve") as "AM" | "PM" | "Eve",
-        };
-      });
-      days.push({
-        day: dayNum, date, phase: "review", type: "review",
-        label: "Revision — weak areas + fresh + spaced recall",
-        color: PHASE_COLOR.review, tasks,
-        reviewCovered: [...window], reviewNote: getReviewNote("review"),
-      });
-      window.length = 0;
-      continue;
-    }
-
-    // Study day — DSA comes from the pre-packed whole-pattern bucket for this
-    // study-day slot (never split across days). SE/SD still drain an even
-    // share so the full syllabus lands by the last study day. No behavioral
-    // here by design — it's concentrated on the dedicated day above.
-    const share = (n: number) => Math.ceil(n / Math.max(1, studyDaysLeft));
-    const dsaSlice = dsaBuckets[studyDayIdx] ?? [];
-    const seSlice = seQueue.splice(0, share(seQueue.length));
-    const sdSlice = sdQueue.splice(0, share(sdQueue.length));
-    studyDaysLeft--;
-    studyDayIdx++;
-
-    // AM (fresh brain): first half of the day's DSA — pattern theory + Easy/Medium
-    // warm-up (problems are Easy→Medium→Hard within each pattern by design).
-    const half = Math.ceil(dsaSlice.length / 2);
-    const amDsa = dsaSlice.slice(0, half).map((t) => ({ ...t, timeBlock: "AM" as const }));
-    // PM: the Hard problems for this pattern + SE + SD theory.
-    const pmDsa = dsaSlice.slice(half).map((t) => ({ ...t, timeBlock: "PM" as const }));
-    const seTasks = seSlice.map((t) => ({ ...t, timeBlock: "PM" as const }));
-    const sdTasks = sdSlice.map((t) => ({ ...t, timeBlock: "PM" as const }));
-    // Eve: timed recall of the day's hardest — no behavioral mixed in.
-    const recall = recallTask(dayNum, "Redo today's AM problems from memory — timed, no IDE");
-
-    const tasks = [...amDsa, ...pmDsa, ...seTasks, ...sdTasks, recall];
-
-    // Only real (non-recall) tasks feed the revision window.
-    window.push(...amDsa, ...pmDsa, ...seTasks, ...sdTasks);
-    assigned.push(...amDsa, ...pmDsa, ...seTasks, ...sdTasks);
-    days.push({
-      day: dayNum, date, phase: "dsa",
-      type: dayNum <= 4 ? "learn" : "practice",
-      label: labelFromTasks("Core sprint", [...amDsa, ...pmDsa]),
-      color: PHASE_COLOR.dsa, tasks,
-    });
-  }
-
-  // Behavioral prep — entirely OUTSIDE the 15 days, appended right after so
-  // DSA/SE/SD get the full stated time span with nothing carved out of it.
-  const behavioralExtraDays = 2;
-  const behavioralPerDay = Math.ceil(behavioralQueue.length / behavioralExtraDays);
-  for (let i = 0; i < behavioralExtraDays; i++) {
-    const dayNum = durationDays + i + 1;
-    const date = addDays(startDate, dayNum - 1);
-    const slice = behavioralQueue.splice(0, behavioralPerDay).map((t, ti) => ({
-      ...t, timeBlock: (ti % 2 === 0 ? "AM" : "PM") as "AM" | "PM",
-    }));
-    days.push({
-      day: dayNum, date, phase: "behavioral", type: "practice",
-      label: `Behavioral prep ${i + 1}/${behavioralExtraDays} — STAR stories & company values`,
-      color: PHASE_COLOR.behavioral, tasks: slice,
-      reviewNote: getReviewNote("behavioral"),
-    });
-  }
-
-  return { durationDays, startDate, days };
-}
-
-// 21-day plan: same full syllabus (122 DSA + 51 SE + 43 SD essentials) as the
-// 15-day sprint, but spread over more days for a lighter daily load. Real
-// calendar Sundays are genuine REST days — no tasks, no review, nothing.
-// Review/mock/study slots are computed dynamically from whichever non-Sunday
-// days remain (Sunday can land anywhere depending on the chosen start date).
-// Behavioral is appended after day 21, same as the 15-day plan.
+// 21-day intensive plan: FULL syllabus coverage (122 DSA + 51 SE + 43 SD
+// essentials) at a sustainable daily load. Real calendar Sundays are genuine
+// REST days — no tasks, no review, nothing. Review/mock/study slots are
+// computed dynamically from whichever non-Sunday days remain (Sunday can
+// land anywhere depending on the chosen start date). Behavioral is fully
+// outside these 21 days — appended as extra days right after.
 function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan {
   const durationDays = 21 as const;
   const weakSet = new Set(weakIds);
@@ -594,7 +450,8 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
       continue;
     }
 
-    // Study day — same whole-pattern-per-day guarantee as the 15-day plan.
+    // Study day — DSA comes from the pre-packed whole-pattern bucket for this
+    // slot, so a pattern always starts and finishes on the same day.
     const share = (n: number) => Math.ceil(n / Math.max(1, studyDaysLeft));
     const dsaSlice = dsaBuckets[studyDayIdx] ?? [];
     const seSlice = seQueue.splice(0, share(seQueue.length));
@@ -640,8 +497,7 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
   return { durationDays, startDate, days };
 }
 
-export function generateStudyPlan(durationDays: 15 | 21 | 30 | 60 | 90, startDate: string, trackWeights?: Record<string, number>, weakIds?: string[]): StudyPlan {
-  if (durationDays === 15) return generateIntensivePlan(startDate, weakIds);
+export function generateStudyPlan(durationDays: 21 | 30 | 60 | 90, startDate: string, trackWeights?: Record<string, number>, weakIds?: string[]): StudyPlan {
   if (durationDays === 21) return generate21DayPlan(startDate, weakIds);
   const tw = trackWeights ?? {};
   const wDsa = tw.dsa ?? 0;

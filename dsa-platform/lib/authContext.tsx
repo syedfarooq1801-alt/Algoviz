@@ -65,8 +65,8 @@ function hydrateAllStores(d: Record<string, unknown>) {
     xp: (d.xp as number) ?? 0,
     streak: (d.streak as number) ?? 0,
     lastActivity: (d.lastActivity as string) ?? "",
-    studyPlanDuration: ([15, 21, 30, 60, 90].includes(d.studyPlanDuration as number)
-      ? d.studyPlanDuration : 30) as 15 | 21 | 30 | 60 | 90,
+    studyPlanDuration: ([21, 30, 60, 90].includes(d.studyPlanDuration as number)
+      ? d.studyPlanDuration : 30) as 21 | 30 | 60 | 90,
     solvedDates: (d.solvedDates as Record<string, string>) ?? {},
     solveTimes: (d.solveTimes as Record<string, number>) ?? {},
     username: (d.username as string) ?? "",
