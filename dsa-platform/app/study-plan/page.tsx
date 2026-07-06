@@ -17,6 +17,12 @@ const PHASE_LABEL: Record<string, string> = {
 
 const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
+// Same palette as /dsa sheet, so a company reads the same color everywhere.
+const COMPANY_COLORS: Record<string, string> = {
+  Google: "#4F8CFF", Amazon: "#F5A524", Meta: "#A78BFA", Facebook: "#A78BFA",
+  Apple: "#9499C0", Microsoft: "#22D587", LinkedIn: "#0EA5E9", Netflix: "#EF4444",
+};
+
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -205,6 +211,18 @@ export default function StudyPlanPage() {
           )}
           {task.tag && (
             <div style={{ fontSize: 10, color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>{task.tag}</div>
+          )}
+          {!!task.companies?.length && (
+            <div style={{ fontSize: 9.5, fontFamily: "var(--font-mono)", marginTop: 1 }}>
+              {task.companies.slice(0, 3).map((c, ci) => (
+                <span key={c}>
+                  <span style={{ color: COMPANY_COLORS[c] ?? "var(--text-muted)" }}>{c}</span>
+                  {ci < Math.min(task.companies!.length, 3) - 1 && (
+                    <span style={{ color: "var(--text-muted)", opacity: 0.4 }}> &middot; </span>
+                  )}
+                </span>
+              ))}
+            </div>
           )}
         </div>
 

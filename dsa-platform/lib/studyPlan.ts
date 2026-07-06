@@ -20,6 +20,7 @@ export interface PlanTask {
   meta?: string;
   kind?: "theory" | "problem" | "concept" | "behavioral";
   timeBlock?: "AM" | "PM" | "Eve"; // intensive plan: morning / afternoon / evening
+  companies?: string[]; // which companies this DSA problem is frequent at (from data/problems.ts)
 }
 
 export interface DayPlan {
@@ -84,6 +85,7 @@ function buildDSATasks(): PlanTask[] {
         priority: dsaPriority(p.difficulty, freq),
         meta: `${p.difficulty} · ${freq} freq`,
         kind: "problem" as const,
+        companies: (p as { companies?: string[] }).companies ?? [],
       };
     }),
   ]);
