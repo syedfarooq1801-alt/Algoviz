@@ -455,6 +455,27 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
     slot++;
   }
 
+  // Manual rebalance: Prefix Sum bundled with Sliding Window makes that day
+  // too hard (two non-trivial patterns same day). Move Prefix Sum onto the
+  // day that has Two Pointers alone instead, and swap that day's SE/SD load
+  // onto the (now Sliding-Window-only) day — so neither day stacks a hard
+  // second DSA pattern AND a context-switch into SE/SD.
+  {
+    const isSeSd = (t: PlanTask) => t.domain === "se" || t.domain === "sd";
+    const hasTag = (d: DayPlan, tag: string) => d.tasks.some((t) => t.domain === "dsa" && t.tag === tag);
+    const dayTwoPointersOnly = days.find((d) => d.type !== "rest" && hasTag(d, "Two Pointers") && !hasTag(d, "Prefix Sum"));
+    const dayPrefixAndSliding = days.find((d) => d.type !== "rest" && hasTag(d, "Prefix Sum") && hasTag(d, "Sliding Window"));
+    if (dayTwoPointersOnly && dayPrefixAndSliding) {
+      const prefixTasks = dayPrefixAndSliding.tasks.filter((t) => t.domain === "dsa" && t.tag === "Prefix Sum");
+      const bSeSd = dayPrefixAndSliding.tasks.filter(isSeSd);
+      const aSeSd = dayTwoPointersOnly.tasks.filter(isSeSd);
+      const aRest = dayTwoPointersOnly.tasks.filter((t) => !isSeSd(t));
+      const bRest = dayPrefixAndSliding.tasks.filter((t) => !isSeSd(t) && !(t.domain === "dsa" && t.tag === "Prefix Sum"));
+      dayTwoPointersOnly.tasks = [...aRest, ...prefixTasks.map((t) => ({ ...t, timeBlock: "PM" as const }))];
+      dayPrefixAndSliding.tasks = [...bRest, ...aSeSd, ...bSeSd];
+    }
+  }
+
   // Final technical mock — entirely OUTSIDE the 21 days, day 22.
   let dayNum = targetDays + 1;
   {
