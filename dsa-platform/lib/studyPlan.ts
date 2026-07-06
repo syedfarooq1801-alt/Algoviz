@@ -348,14 +348,13 @@ function packPatternGroups(groups: PlanTask[][], dayCount: number): PlanTask[][]
   return result;
 }
 
-// 21-day plan: the EXACT same 14-slot CORE content structure as the original
-// 15-day sprint's study+review portion (10 study slots, review after every 2
-// study slots — slots 3/6/9/12) — nothing about that internal cadence or DSA
-// pattern-bucketing changed. Slots are laid onto the real calendar skipping
-// Sundays (genuine rest days, zero tasks); leftover days become buffer/rest
-// so the 21-day span is always exactly 21 days of DSA/SE/SD only. The final
-// mock and behavioral prep are NOT part of the 21 days at all — both are
-// appended as separate days right after, same principle as the old 15-day plan.
+// 21-day plan: the SAME essentials (122 DSA + 51 SE + 43 SD) and the SAME
+// cadence ratio as the original 15-day plan (review after every 2 study
+// days), but actually spread across every available non-Sunday day in the
+// 21-day span — not squeezed into a fixed 10 study days with a dead week of
+// buffer at the end. Real calendar Sundays are the only rest days; every
+// other day carries real (lighter) work. Final mock and behavioral prep are
+// NOT part of the 21 days — both are appended as separate days right after.
 function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan {
   const targetDays = 21;
   const weakSet = new Set(weakIds);
@@ -367,21 +366,29 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
   const window: PlanTask[] = [];
   const days: DayPlan[] = [];
 
-  // Same fixed cadence as the original 15-day plan's core — 10 study slots,
-  // review at slots 3/6/9/12. No mock or behavioral inside these 14 slots.
-  const CORE_SLOTS = 14;
-  const reviewSlots = new Set([3, 6, 9, 12]);
-  const studyDayCount = 10;
+  const weekdayOf = (dn: number) => new Date(addDays(startDate, dn - 1) + "T00:00:00").getDay();
+  const allDays = Array.from({ length: targetDays }, (_, i) => i + 1);
+  const nonSundays = allDays.filter((d) => weekdayOf(d) !== 0);
+
+  // Same ratio as the original plan (review after every 2 study days —
+  // i.e. every 3rd non-Sunday day is review), but applied across ALL
+  // non-Sunday days in the 21-day span so every one of them gets real work.
+  const reviewDays = new Set<number>();
+  {
+    let count = 0;
+    for (const d of nonSundays) {
+      count++;
+      if (count % 3 === 0) reviewDays.add(d);
+    }
+  }
+  const studyDayCount = nonSundays.length - reviewDays.size;
 
   const dsaBuckets = packPatternGroups(groupByPattern(dsaQueue), studyDayCount);
   let studyDayIdx = 0;
   let studyDaysLeft = studyDayCount;
 
-  const weekdayOf = (dn: number) => new Date(addDays(startDate, dn - 1) + "T00:00:00").getDay();
-
-  let slot = 1;
-  let dayNum = 1;
-  while (slot <= CORE_SLOTS) {
+  let slot = 0; // counts study slots only, for the "learn vs practice" split below
+  for (let dayNum = 1; dayNum <= targetDays; dayNum++) {
     const date = addDays(startDate, dayNum - 1);
 
     if (weekdayOf(dayNum) === 0) {
@@ -389,11 +396,10 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
         day: dayNum, date, phase: "review", type: "rest",
         label: "Rest day", color: PHASE_COLOR.review, tasks: [],
       });
-      dayNum++;
       continue;
     }
 
-    if (reviewSlots.has(slot)) {
+    if (reviewDays.has(dayNum)) {
       const recent = topByPriority(window, 6);
       const recentIds = new Set(window.map((t) => t.id));
       const olderPool = assigned.filter((t) => !recentIds.has(t.id));
@@ -418,7 +424,6 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
         reviewCovered: [...window], reviewNote: getReviewNote("review"),
       });
       window.length = 0;
-      slot++; dayNum++;
       continue;
     }
 
@@ -447,23 +452,11 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
       label: labelFromTasks("Core sprint", [...amDsa, ...pmDsa]),
       color: PHASE_COLOR.dsa, tasks,
     });
-    slot++; dayNum++;
-  }
-
-  // All 14 core slots placed — pad any remaining days up to the full 21 as
-  // buffer/rest, so the 21-day span is always exactly 21 days of DSA/SE/SD.
-  while (dayNum <= targetDays) {
-    const date = addDays(startDate, dayNum - 1);
-    const isSunday = weekdayOf(dayNum) === 0;
-    days.push({
-      day: dayNum, date, phase: "review", type: "rest",
-      label: isSunday ? "Rest day" : "Buffer day — catch up or relax",
-      color: PHASE_COLOR.review, tasks: [],
-    });
-    dayNum++;
+    slot++;
   }
 
   // Final technical mock — entirely OUTSIDE the 21 days, day 22.
+  let dayNum = targetDays + 1;
   {
     const date = addDays(startDate, dayNum - 1);
     const weakFirst = topByPriority(assigned.filter((t) => weakSet.has(t.id)), 4);
