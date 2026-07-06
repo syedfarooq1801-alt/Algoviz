@@ -58,7 +58,7 @@ export const ESSENTIAL_DSA: string[] = [
 
 // Deep SE coverage — ids are `${subjectId}/${chapterId}` (match buildSETasks).
 export const ESSENTIAL_SE: string[] = [
-  // Operating Systems (11)
+  // Operating Systems (12)
   "operating-systems/why-an-operating-system-exists",
   "operating-systems/os-architecture-kernel-modes-system-calls",
   "operating-systems/processes-states-the-pcb-context-switching",
@@ -70,7 +70,8 @@ export const ESSENTIAL_SE: string[] = [
   "operating-systems/memory-management",
   "operating-systems/page-replacement-algorithms",
   "operating-systems/file-systems",
-  // DBMS (9)
+  "operating-systems/linux-essentials-interview-focused",
+  // DBMS (10)
   "dbms/er-modeling",
   "dbms/keys-and-constraints",
   "dbms/normalization",
@@ -80,7 +81,8 @@ export const ESSENTIAL_SE: string[] = [
   "dbms/concurrency-control",
   "dbms/isolation-levels-anomalies",
   "dbms/storage-and-file-organization",
-  // Computer Networks (8)
+  "dbms/recovery-and-logging",
+  // Computer Networks (9)
   "computer-networks/why-networking-is-layered",
   "computer-networks/addressing-mac-ip-subnetting",
   "computer-networks/transport-layer-tcp-vs-udp",
@@ -89,38 +91,50 @@ export const ESSENTIAL_SE: string[] = [
   "computer-networks/what-happens-when-you-type-a-url",
   "computer-networks/routing-basics",
   "computer-networks/security-essentials",
-  // OOP (8)
+  "computer-networks/sockets",
+  // OOP (9)
   "oop/classes-objects-why-oop-exists",
   "oop/encapsulation",
   "oop/abstraction",
   "oop/inheritance",
   "oop/polymorphism",
   "oop/constructors-destructors-rule-of-three-five",
+  "oop/operator-overloading",
   "oop/solid-design-principles",
   "oop/common-design-patterns",
-  // Concurrency (4)
+  // Concurrency (7)
   "concurrency/threads-processes",
   "concurrency/mutex-semaphore",
   "concurrency/producer-consumer",
+  "concurrency/dining-philosophers",
+  "concurrency/thread-pool",
   "concurrency/deadlock-detection",
-  // Linux & SE fundamentals (3)
+  "concurrency/async-programming",
+  // Linux & SE fundamentals (4)
   "linux-se/complexity-analysis-big-o",
   "linux-se/git-and-version-control",
+  "linux-se/testing",
   "linux-se/system-design-basics",
 ];
 
 // Deep SD coverage — concept + case-study ids (match buildSDTasks).
 export const ESSENTIAL_SD: string[] = [
-  // Foundations (14)
+  // Foundations (17)
   "scalability", "availability", "latency-vs-throughput", "load-balancing", "caching",
   "cdn", "database-indexing", "replication", "sharding", "cap-theorem", "acid-vs-base",
-  "message-queues", "api-gateway", "rate-limiting",
-  // Databases in depth (5)
-  "relational-vs-nosql", "nosql-types", "transactions-isolation", "replication-strategies", "sharding-strategies",
-  // Networking (4)
-  "tcp-udp-quic", "http-versions", "dns-resolution", "connection-pooling",
-  // Interview framework (4)
-  "clarify-requirements", "back-of-envelope", "api-data-model", "high-level-architecture",
+  "message-queues", "microservices-vs-monolith", "api-gateway", "rate-limiting",
+  "security-authn-authz", "api-styles",
+  // Databases in depth (6)
+  "relational-vs-nosql", "nosql-types", "oltp-vs-olap", "transactions-isolation",
+  "replication-strategies", "sharding-strategies",
+  // Networking (6)
+  "osi-model", "tcp-udp-quic", "http-versions", "tls-handshake", "dns-resolution", "connection-pooling",
+  // Interview framework (6)
+  "45-minute-clock", "clarify-requirements", "back-of-envelope", "api-data-model",
+  "high-level-architecture", "red-flags",
+  // Cheat-sheets & mental models — the tactical shortcuts that make 15 days enough (6)
+  "repeatable-model", "numbers-to-know", "patterns-by-problem",
+  "what-breaks-first", "decision-matrix", "question-types",
   // Case studies — do these end to end (2)
   "url-shortener", "rate-limiter-system",
 ];
