@@ -348,15 +348,14 @@ function packPatternGroups(groups: PlanTask[][], dayCount: number): PlanTask[][]
   return result;
 }
 
-// 21-day plan: the EXACT same 15-slot content structure as the original
-// 15-day sprint (10 study slots, review after every 2 study slots — slots
-// 3/6/9/12 — slot 15 is the final technical mock, then 2 behavioral slots
-// after) — nothing about that internal cadence or DSA pattern-bucketing
-// changed. The only difference: slots are laid onto the real calendar
-// skipping Sundays (genuine rest days, zero tasks), which naturally spreads
-// the same content across ~21 calendar days instead of 15 back-to-back days.
-// Any leftover days once all slots are placed become buffer/rest so the
-// plan always reaches the full 21 days.
+// 21-day plan: the EXACT same 14-slot CORE content structure as the original
+// 15-day sprint's study+review portion (10 study slots, review after every 2
+// study slots — slots 3/6/9/12) — nothing about that internal cadence or DSA
+// pattern-bucketing changed. Slots are laid onto the real calendar skipping
+// Sundays (genuine rest days, zero tasks); leftover days become buffer/rest
+// so the 21-day span is always exactly 21 days of DSA/SE/SD only. The final
+// mock and behavioral prep are NOT part of the 21 days at all — both are
+// appended as separate days right after, same principle as the old 15-day plan.
 function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan {
   const targetDays = 21;
   const weakSet = new Set(weakIds);
@@ -368,24 +367,21 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
   const window: PlanTask[] = [];
   const days: DayPlan[] = [];
 
-  // Same fixed cadence as the original 15-day plan — 10 study slots, review
-  // at slots 3/6/9/12, mock at slot 15, then 2 behavioral slots.
-  const CORE_SLOTS = 15;
+  // Same fixed cadence as the original 15-day plan's core — 10 study slots,
+  // review at slots 3/6/9/12. No mock or behavioral inside these 14 slots.
+  const CORE_SLOTS = 14;
   const reviewSlots = new Set([3, 6, 9, 12]);
-  const mockSlot = 15;
   const studyDayCount = 10;
-  const behavioralExtraSlots = 2;
 
   const dsaBuckets = packPatternGroups(groupByPattern(dsaQueue), studyDayCount);
   let studyDayIdx = 0;
   let studyDaysLeft = studyDayCount;
-  const behavioralPerSlot = Math.ceil(behavioralQueue.length / behavioralExtraSlots);
 
   const weekdayOf = (dn: number) => new Date(addDays(startDate, dn - 1) + "T00:00:00").getDay();
 
   let slot = 1;
   let dayNum = 1;
-  while (slot <= CORE_SLOTS + behavioralExtraSlots) {
+  while (slot <= CORE_SLOTS) {
     const date = addDays(startDate, dayNum - 1);
 
     if (weekdayOf(dayNum) === 0) {
@@ -394,46 +390,6 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
         label: "Rest day", color: PHASE_COLOR.review, tasks: [],
       });
       dayNum++;
-      continue;
-    }
-
-    if (slot === mockSlot) {
-      // Final TECHNICAL mock (no behavioral — that's the 2 slots after).
-      const weakFirst = topByPriority(assigned.filter((t) => weakSet.has(t.id)), 4);
-      const rest = topByPriority(assigned.filter((t) => !weakSet.has(t.id)), 6);
-      const core = [...weakFirst, ...rest].map((t) => ({
-        ...t, id: `rv-mock-${t.id}`,
-        tag: `${weakSet.has(t.id) ? "⚠ Weak area · " : ""}${t.tag ?? ""}`,
-        timeBlock: "AM" as const,
-      }));
-      const cheatSheet: PlanTask = {
-        domain: "dsa", id: "rv-cheat-sheet", title: "Interview cheat-sheet — final glance",
-        href: "/cheat-sheet", priority: 9, meta: "Last-minute reference",
-        kind: "theory", timeBlock: "Eve",
-      };
-      days.push({
-        day: dayNum, date, phase: "mock", type: "mock",
-        label: "Final technical mock — DSA/SE/SD simulation",
-        color: PHASE_COLOR.mock, tasks: [...core, cheatSheet],
-        reviewNote: getReviewNote("mock"),
-      });
-      slot++; dayNum++;
-      continue;
-    }
-
-    if (slot > CORE_SLOTS) {
-      // Behavioral slot (slot 16 or 17) — entirely outside the core 15.
-      const bi = slot - CORE_SLOTS;
-      const slice = behavioralQueue.splice(0, behavioralPerSlot).map((t, ti) => ({
-        ...t, timeBlock: (ti % 2 === 0 ? "AM" : "PM") as "AM" | "PM",
-      }));
-      days.push({
-        day: dayNum, date, phase: "behavioral", type: "practice",
-        label: `Behavioral prep ${bi}/${behavioralExtraSlots} — STAR stories & company values`,
-        color: PHASE_COLOR.behavioral, tasks: slice,
-        reviewNote: getReviewNote("behavioral"),
-      });
-      slot++; dayNum++;
       continue;
     }
 
@@ -494,8 +450,8 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
     slot++; dayNum++;
   }
 
-  // All 17 slots (15 core + 2 behavioral) placed — pad any remaining days up
-  // to the full 21 as buffer/rest, so the plan always spans exactly 21 days.
+  // All 14 core slots placed — pad any remaining days up to the full 21 as
+  // buffer/rest, so the 21-day span is always exactly 21 days of DSA/SE/SD.
   while (dayNum <= targetDays) {
     const date = addDays(startDate, dayNum - 1);
     const isSunday = weekdayOf(dayNum) === 0;
@@ -503,6 +459,47 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
       day: dayNum, date, phase: "review", type: "rest",
       label: isSunday ? "Rest day" : "Buffer day — catch up or relax",
       color: PHASE_COLOR.review, tasks: [],
+    });
+    dayNum++;
+  }
+
+  // Final technical mock — entirely OUTSIDE the 21 days, day 22.
+  {
+    const date = addDays(startDate, dayNum - 1);
+    const weakFirst = topByPriority(assigned.filter((t) => weakSet.has(t.id)), 4);
+    const rest = topByPriority(assigned.filter((t) => !weakSet.has(t.id)), 6);
+    const core = [...weakFirst, ...rest].map((t) => ({
+      ...t, id: `rv-mock-${t.id}`,
+      tag: `${weakSet.has(t.id) ? "⚠ Weak area · " : ""}${t.tag ?? ""}`,
+      timeBlock: "AM" as const,
+    }));
+    const cheatSheet: PlanTask = {
+      domain: "dsa", id: "rv-cheat-sheet", title: "Interview cheat-sheet — final glance",
+      href: "/cheat-sheet", priority: 9, meta: "Last-minute reference",
+      kind: "theory", timeBlock: "Eve",
+    };
+    days.push({
+      day: dayNum, date, phase: "mock", type: "mock",
+      label: "Final technical mock — DSA/SE/SD simulation",
+      color: PHASE_COLOR.mock, tasks: [...core, cheatSheet],
+      reviewNote: getReviewNote("mock"),
+    });
+    dayNum++;
+  }
+
+  // Behavioral prep — entirely OUTSIDE the 21 days, appended right after the mock.
+  const behavioralExtraDays = 2;
+  const behavioralPerDay = Math.ceil(behavioralQueue.length / behavioralExtraDays);
+  for (let i = 0; i < behavioralExtraDays; i++) {
+    const date = addDays(startDate, dayNum - 1);
+    const slice = behavioralQueue.splice(0, behavioralPerDay).map((t, ti) => ({
+      ...t, timeBlock: (ti % 2 === 0 ? "AM" : "PM") as "AM" | "PM",
+    }));
+    days.push({
+      day: dayNum, date, phase: "behavioral", type: "practice",
+      label: `Behavioral prep ${i + 1}/${behavioralExtraDays} — STAR stories & company values`,
+      color: PHASE_COLOR.behavioral, tasks: slice,
+      reviewNote: getReviewNote("behavioral"),
     });
     dayNum++;
   }
