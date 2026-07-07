@@ -366,18 +366,21 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
   const window: PlanTask[] = [];
   const days: DayPlan[] = [];
 
-  // Manual pin: CPU Scheduling, IPC, Process Synchronization, Deadlocks (SE) +
-  // Caching, CDN & Edge (SD) all belong together on the Two-Pointers/Prefix-Sum
-  // day. Pull them out of the normal sequential drain now so they land there
-  // exactly, not wherever the day-by-day split would otherwise put them.
-  // Order here doesn't control display order — that comes from seQueue's
-  // curriculum order, where cpu-scheduling-algorithms already precedes
-  // inter-process-communication.
+  // Manual pin: all the OS topics (CPU Scheduling, IPC, Process
+  // Synchronization, Deadlocks, Memory Management, Linux Essentials) +
+  // Caching, CDN & Edge (SD) all belong together on the Two-Pointers/
+  // Prefix-Sum day. Pull them out of the normal sequential drain now so
+  // they land there exactly, not wherever the day-by-day split would
+  // otherwise put them. Order here doesn't control display order — that
+  // comes from seQueue's curriculum order (OS chapters stay in their
+  // natural chapter sequence).
   const pinnedDay2Ids = new Set([
     "operating-systems/cpu-scheduling-algorithms",
     "operating-systems/inter-process-communication",
     "operating-systems/process-synchronization",
     "operating-systems/deadlocks",
+    "operating-systems/memory-management",
+    "operating-systems/linux-essentials-interview-focused",
     "caching",
     "cdn",
   ]);
