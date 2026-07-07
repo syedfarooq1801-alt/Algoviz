@@ -65,8 +65,11 @@ function hydrateAllStores(d: Record<string, unknown>) {
     xp: (d.xp as number) ?? 0,
     streak: (d.streak as number) ?? 0,
     lastActivity: (d.lastActivity as string) ?? "",
-    studyPlanDuration: ([21, 30, 60, 90].includes(d.studyPlanDuration as number)
-      ? d.studyPlanDuration : 30) as 21 | 30 | 60 | 90,
+    studyPlanDuration: ((raw: number) =>
+      raw === 15 ? 21 // legacy 15-day plan was replaced by the 21-day plan
+      : [21, 30, 60, 90].includes(raw) ? raw
+      : 30
+    )(d.studyPlanDuration as number) as 21 | 30 | 60 | 90,
     solvedDates: (d.solvedDates as Record<string, string>) ?? {},
     solveTimes: (d.solveTimes as Record<string, number>) ?? {},
     username: (d.username as string) ?? "",

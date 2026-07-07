@@ -81,6 +81,14 @@ export default function AskTutor() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
+  // The panel unmounts on close, so its scroll container is fresh every time
+  // it reopens — without this it defaults to scrolled-to-top instead of
+  // showing the most recent question/answer.
+  useEffect(() => {
+    if (isOpen && messages.length > 0) scrollToEnd();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
   return (
     <>
       {/* Floating launcher — top right of every page */}

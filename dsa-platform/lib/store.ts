@@ -159,6 +159,8 @@ export const useProgressStore = create<ProgressState>()(
               weakAreas: new Set(state.weakAreas ?? []),
               solvedDates: state.solvedDates ?? {},
               solveTimes: state.solveTimes ?? {},
+              // Legacy 15-day plan was replaced by the 21-day plan.
+              studyPlanDuration: state.studyPlanDuration === 15 ? 21 : state.studyPlanDuration,
             },
             version,
           };
