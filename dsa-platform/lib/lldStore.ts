@@ -7,6 +7,7 @@ interface LLDState {
   toggleChapter: (key: string) => void;
   isComplete: (key: string) => boolean;
   subjectDone: (subjectId: string, chapterIds: string[]) => number;
+  hydrateFromFirestore: (data: { completed: Set<string> }) => void;
 }
 
 export const useLLDStore = create<LLDState>()(
@@ -24,6 +25,7 @@ export const useLLDStore = create<LLDState>()(
         const { completed } = get();
         return chapterIds.filter((id) => completed.has(`${subjectId}/${id}`)).length;
       },
+      hydrateFromFirestore: (data) => set({ completed: data.completed }),
     }),
     {
       name: "lld-progress",
