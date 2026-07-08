@@ -214,8 +214,9 @@ export default function LLDSubjectPage({ params }: Props) {
             </aside>
           )}
 
-          {/* Center: chapter content */}
-          <article className="min-w-0 max-w-[760px]">
+          {/* Center: chapter content — widen when Notes is closed so the
+              reclaimed space is actually used instead of left blank */}
+          <article className={`min-w-0 mx-auto ${rightOpen ? "max-w-[760px]" : "max-w-[960px]"}`}>
             {activeChapter && (
               <>
                 <div className="mb-8">
@@ -227,7 +228,8 @@ export default function LLDSubjectPage({ params }: Props) {
                   </h1>
                   <div className="flex items-center gap-3">
                     <button
-                      onClick={() => toggleChapter(key)}
+                      type="button"
+                      onClick={() => key && toggleChapter(key)}
                       className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-all"
                       style={{
                         background: done ? "rgba(34,197,94,0.1)" : "var(--bg-card)",
