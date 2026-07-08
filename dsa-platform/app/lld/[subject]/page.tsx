@@ -229,9 +229,11 @@ export default function LLDSubjectPage({ params }: Props) {
                   <div className="flex items-center gap-3">
                     <button
                       type="button"
-                      onClick={() => key && toggleChapter(key)}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => { e.stopPropagation(); key && toggleChapter(key); }}
                       className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-all"
                       style={{
+                        position: "relative", zIndex: 50, pointerEvents: "auto",
                         background: done ? "rgba(34,197,94,0.1)" : "var(--bg-card)",
                         border: `1px solid ${done ? "#22c55e" : "var(--border)"}`,
                         color: done ? "#22c55e" : "var(--text-muted)",
