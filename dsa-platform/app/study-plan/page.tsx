@@ -12,7 +12,7 @@ const DAYS_OPTIONS = [21, 30, 60, 90] as const;
 type Duration = 21 | 30 | 60 | 90;
 
 const PHASE_LABEL: Record<string, string> = {
-  dsa: "DSA", sd: "System Design", se: "SE Basics",
+  dsa: "DSA", sd: "System Design", se: "SE Basics", lld: "LLD",
   review: "Review", mock: "Mock", behavioral: "Behavioral",
 };
 
@@ -525,7 +525,7 @@ export default function StudyPlanPage() {
             {/* Milestones — all domains with real progress */}
             <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, padding: 16, alignSelf: "start" }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)", marginBottom: 12 }}>Week milestones</div>
-              {(["dsa", "sd", "se"] as const).map((phase) => {
+              {(["dsa", "sd", "se", "lld"] as const).map((phase) => {
                 const phaseTasks = week.flatMap((d) => d.tasks.filter((t) => t.domain === phase));
                 if (!phaseTasks.length) return null;
                 const color = PHASE_COLOR[phase] ?? "var(--text-muted)";
