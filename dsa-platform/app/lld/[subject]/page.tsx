@@ -230,7 +230,12 @@ export default function LLDSubjectPage({ params }: Props) {
                     <button
                       type="button"
                       onPointerDown={(e) => e.stopPropagation()}
-                      onClick={(e) => { e.stopPropagation(); key && toggleChapter(key); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Temporary diagnostic — remove once the undo bug is confirmed fixed.
+                        console.debug("[Mark done] click", { key, doneBeforeClick: done });
+                        if (key) toggleChapter(key);
+                      }}
                       className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-all"
                       style={{
                         position: "relative", zIndex: 50, pointerEvents: "auto",

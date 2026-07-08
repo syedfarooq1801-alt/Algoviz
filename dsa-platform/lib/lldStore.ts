@@ -16,8 +16,17 @@ export const useLLDStore = create<LLDState>()(
       completed: new Set<string>(),
       toggleChapter: (key) =>
         set((state) => {
+          const wasComplete = state.completed.has(key);
           const next = new Set(state.completed);
-          next.has(key) ? next.delete(key) : next.add(key);
+          if (wasComplete) {
+            next.delete(key);
+          } else {
+            next.add(key);
+          }
+          if (typeof window !== "undefined") {
+            // Temporary diagnostic — remove once the undo bug is confirmed fixed.
+            console.debug("[lldStore] toggleChapter", { key, wasComplete, nowComplete: next.has(key), size: next.size });
+          }
           return { completed: next };
         }),
       isComplete: (key) => get().completed.has(key),
