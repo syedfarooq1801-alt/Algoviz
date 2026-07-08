@@ -320,38 +320,19 @@ export default function StudyPlanPage() {
             <div
               title="Blends actual DSA/SE/SD/LLD completion, minus a small penalty for flagged weak areas"
               style={{
-                display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", borderRadius: 8,
-                background: "var(--bg-secondary)",
-                border: `1px solid ${readiness >= 70 ? "rgba(47,191,113,0.35)" : readiness >= 40 ? "rgba(245,165,36,0.35)" : "rgba(239,68,68,0.35)"}`,
+                display: "flex", alignItems: "center", gap: 7, padding: "5px 10px", borderRadius: 6,
+                background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)",
               }}
             >
-              <div style={{ position: "relative", width: 34, height: 34 }}>
-                <svg width="34" height="34" viewBox="0 0 34 34" style={{ transform: "rotate(-90deg)" }}>
-                  <circle cx="17" cy="17" r="14" fill="none" stroke="var(--border-subtle)" strokeWidth="4" />
-                  <circle
-                    cx="17" cy="17" r="14" fill="none"
-                    stroke={readiness >= 70 ? "#2FBF71" : readiness >= 40 ? "#F5A524" : "#EF4444"}
-                    strokeWidth="4" strokeLinecap="round"
-                    strokeDasharray={`${2 * Math.PI * 14}`}
-                    strokeDashoffset={`${2 * Math.PI * 14 * (1 - readiness / 100)}`}
-                  />
-                </svg>
-                <span style={{
-                  position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 9, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--text-primary)",
-                }}>{readiness}</span>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
-                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--text-muted)" }}>
-                  Readiness
-                </span>
-                <span style={{
-                  fontSize: 11, fontWeight: 600,
-                  color: readiness >= 70 ? "#2FBF71" : readiness >= 40 ? "#F5A524" : "#EF4444",
-                }}>
-                  {readiness >= 70 ? "Interview-ready" : readiness >= 40 ? "Getting there" : "Not yet"}
-                </span>
-              </div>
+              <span style={{
+                width: 6, height: 6, borderRadius: "50%", flexShrink: 0,
+                background: readiness >= 70 ? "#2FBF71" : readiness >= 40 ? "#F5A524" : "#EF4444",
+              }} />
+              <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Readiness</span>
+              <span style={{
+                fontSize: 12, fontWeight: 700, fontFamily: "var(--font-mono)",
+                color: readiness >= 70 ? "#2FBF71" : readiness >= 40 ? "#F5A524" : "#EF4444",
+              }}>{readiness}%</span>
             </div>
             <Link href="/cheat-sheet" style={{
               fontSize: 11, fontWeight: 600, color: "var(--accent)", textDecoration: "none",
