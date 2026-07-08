@@ -103,6 +103,32 @@ export default function StudyPlanPage() {
   }, [plan, todayIdx, solved, mastered, completed, lldCompleted]);
   const daysBehind = todayIdx - currentIdx;
 
+  // Readiness — a single running signal instead of waiting until the last
+  // day to find out. Blends actual completion across DSA/SE/SD/LLD (deduped
+  // by underlying id, so a problem re-listed on a review/mock day only
+  // counts once) with a small penalty for flagged weak areas.
+  const readiness = useMemo(() => {
+    const byDomain: Record<string, Set<string>> = { dsa: new Set(), se: new Set(), sd: new Set(), lld: new Set() };
+    for (const day of plan.days) {
+      for (const t of day.tasks) {
+        if (t.domain === "behavioral" || t.id.startsWith("recall-") || t.id === "rv-cheat-sheet") continue;
+        const set = byDomain[t.domain];
+        if (set) set.add(baseId(t.id));
+      }
+    }
+    const doneIn = (domain: keyof typeof byDomain, isDone: (id: string) => boolean) =>
+      [...byDomain[domain]].filter(isDone).length;
+    const totalAll = Object.values(byDomain).reduce((s, set) => s + set.size, 0);
+    const doneAll =
+      doneIn("dsa", (id) => solved.has(id)) +
+      doneIn("se", (id) => completed.has(id)) +
+      doneIn("sd", (id) => mastered.has(id)) +
+      doneIn("lld", (id) => lldCompleted.has(id));
+    const pct = totalAll ? (doneAll / totalAll) * 100 : 0;
+    const weakPenalty = Math.min(15, weakAreas.size * 1.5);
+    return Math.max(0, Math.min(100, Math.round(pct - weakPenalty)));
+  }, [plan, solved, mastered, completed, lldCompleted, weakAreas]);
+
   const weeks: DayPlan[][] = useMemo(() => {
     const w: DayPlan[][] = [];
     for (let i = 0; i < plan.days.length; i += 7) w.push(plan.days.slice(i, i + 7));
@@ -291,6 +317,42 @@ export default function StudyPlanPage() {
             </p>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <div
+              title="Blends actual DSA/SE/SD/LLD completion, minus a small penalty for flagged weak areas"
+              style={{
+                display: "flex", alignItems: "center", gap: 8, padding: "6px 12px", borderRadius: 8,
+                background: "var(--bg-secondary)",
+                border: `1px solid ${readiness >= 70 ? "rgba(47,191,113,0.35)" : readiness >= 40 ? "rgba(245,165,36,0.35)" : "rgba(239,68,68,0.35)"}`,
+              }}
+            >
+              <div style={{ position: "relative", width: 34, height: 34 }}>
+                <svg width="34" height="34" viewBox="0 0 34 34" style={{ transform: "rotate(-90deg)" }}>
+                  <circle cx="17" cy="17" r="14" fill="none" stroke="var(--border-subtle)" strokeWidth="4" />
+                  <circle
+                    cx="17" cy="17" r="14" fill="none"
+                    stroke={readiness >= 70 ? "#2FBF71" : readiness >= 40 ? "#F5A524" : "#EF4444"}
+                    strokeWidth="4" strokeLinecap="round"
+                    strokeDasharray={`${2 * Math.PI * 14}`}
+                    strokeDashoffset={`${2 * Math.PI * 14 * (1 - readiness / 100)}`}
+                  />
+                </svg>
+                <span style={{
+                  position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 9, fontWeight: 700, fontFamily: "var(--font-mono)", color: "var(--text-primary)",
+                }}>{readiness}</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--text-muted)" }}>
+                  Readiness
+                </span>
+                <span style={{
+                  fontSize: 11, fontWeight: 600,
+                  color: readiness >= 70 ? "#2FBF71" : readiness >= 40 ? "#F5A524" : "#EF4444",
+                }}>
+                  {readiness >= 70 ? "Interview-ready" : readiness >= 40 ? "Getting there" : "Not yet"}
+                </span>
+              </div>
+            </div>
             <Link href="/cheat-sheet" style={{
               fontSize: 11, fontWeight: 600, color: "var(--accent)", textDecoration: "none",
               padding: "5px 10px", borderRadius: 6, border: "1px solid var(--border-subtle)",
