@@ -1,11 +1,12 @@
 import { PATTERNS } from "@/data/problems";
 import { SD_CHAPTERS } from "@/data/systemDesign";
 import { SE_SUBJECTS } from "@/data/seBasics";
+import { LLD_SUBJECTS } from "@/data/lld";
 import { COMMON_QUESTIONS, COMPANY_VALUES } from "@/data/behavioral";
-import { ESSENTIAL_DSA_SET, ESSENTIAL_SE_SET, ESSENTIAL_SD_SET } from "@/data/essentials15";
+import { ESSENTIAL_DSA_SET, ESSENTIAL_SE_SET, ESSENTIAL_SD_SET, ESSENTIAL_LLD_SET } from "@/data/essentials15";
 
-export type TaskDomain = "dsa" | "sd" | "se" | "behavioral";
-export type DayPhase = "dsa" | "sd" | "se" | "review" | "mock" | "behavioral";
+export type TaskDomain = "dsa" | "sd" | "se" | "lld" | "behavioral";
+export type DayPhase = "dsa" | "sd" | "se" | "lld" | "review" | "mock" | "behavioral";
 export type DayType = "learn" | "practice" | "review" | "mock" | "rest";
 
 export interface PlanTask {
@@ -45,6 +46,7 @@ export const PHASE_COLOR: Record<DayPhase, string> = {
   dsa: "#4F8CFF",
   sd: "#2FBF71",
   se: "#F5A524",
+  lld: "#EC4899",
   review: "#9AA4B2",
   mock: "#EF4444",
   behavioral: "#A5AFBD",
@@ -132,6 +134,22 @@ function buildSETasks(): PlanTask[] {
         kind: "concept" as const,
       };
     })
+  );
+}
+
+function buildLLDTasks(): PlanTask[] {
+  return LLD_SUBJECTS.flatMap((subject) =>
+    subject.chapters.map((ch) => ({
+      domain: "lld" as const,
+      id: `${subject.id}/${ch.id}`,
+      title: ch.title,
+      href: `/lld/${subject.id}#${ch.id}`,
+      tag: subject.title,
+      subjectId: subject.id,
+      priority: 3,
+      meta: subject.title,
+      kind: "concept" as const,
+    }))
   );
 }
 
@@ -361,6 +379,7 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
   const dsaQueue = buildDSATasks().filter((t) => t.kind === "theory" || ESSENTIAL_DSA_SET.has(t.id));
   let sdQueue = buildSDTasks().filter((t) => ESSENTIAL_SD_SET.has(t.id));
   let seQueue = buildSETasks().filter((t) => ESSENTIAL_SE_SET.has(t.id));
+  const lldQueue = buildLLDTasks().filter((t) => ESSENTIAL_LLD_SET.has(t.id));
   const behavioralQueue = topByPriority(buildBehavioralTasks(), 999);
   const assigned: PlanTask[] = [];
   const window: PlanTask[] = [];
@@ -468,6 +487,7 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
     const isTwoPointersDay = dsaSlice.some((t) => t.tag === "Two Pointers");
     const seSlice = isTwoPointersDay ? [] : seQueue.splice(0, share(seQueue.length));
     const sdSlice = isTwoPointersDay ? [] : sdQueue.splice(0, share(sdQueue.length));
+    const lldSlice = lldQueue.splice(0, share(lldQueue.length));
     studyDaysLeft--;
     studyDayIdx++;
 
@@ -476,11 +496,12 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
     const pmDsa = dsaSlice.slice(half).map((t) => ({ ...t, timeBlock: "PM" as const }));
     const seTasks = seSlice.map((t) => ({ ...t, timeBlock: "PM" as const }));
     const sdTasks = sdSlice.map((t) => ({ ...t, timeBlock: "PM" as const }));
+    const lldTasks = lldSlice.map((t) => ({ ...t, timeBlock: "Eve" as const }));
     const recall = recallTask(dayNum, "Redo today's AM problems from memory — timed, no IDE");
 
-    const tasks = [...amDsa, ...pmDsa, ...seTasks, ...sdTasks, recall];
-    window.push(...amDsa, ...pmDsa, ...seTasks, ...sdTasks);
-    assigned.push(...amDsa, ...pmDsa, ...seTasks, ...sdTasks);
+    const tasks = [...amDsa, ...pmDsa, ...seTasks, ...sdTasks, ...lldTasks, recall];
+    window.push(...amDsa, ...pmDsa, ...seTasks, ...sdTasks, ...lldTasks);
+    assigned.push(...amDsa, ...pmDsa, ...seTasks, ...sdTasks, ...lldTasks);
     days.push({
       day: dayNum, date, phase: "dsa",
       type: slot <= 4 ? "learn" : "practice",

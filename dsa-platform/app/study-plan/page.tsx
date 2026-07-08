@@ -6,6 +6,7 @@ import { generateStudyPlan, PHASE_COLOR, estHours, type DayPlan, type PlanTask }
 import { useProgressStore } from "@/lib/store";
 import { useSDStore } from "@/lib/sdStore";
 import { useSEStore } from "@/lib/seStore";
+import { useLLDStore } from "@/lib/lldStore";
 
 const DAYS_OPTIONS = [21, 30, 60, 90] as const;
 type Duration = 21 | 30 | 60 | 90;
@@ -52,6 +53,7 @@ export default function StudyPlanPage() {
   const { solved, toggleSolved, studyPlanDuration, setStudyPlanDuration, planStartDate, setPlanStartDate, weakAreas, toggleWeak, isWeak } = useProgressStore();
   const { mastered, toggleMastered } = useSDStore();
   const { completed, toggleChapter } = useSEStore();
+  const { completed: lldCompleted, toggleChapter: toggleLLDChapter } = useLLDStore();
   const duration: Duration = studyPlanDuration;
   const [activeWeek, setActiveWeek] = useState(0);
 
@@ -89,6 +91,7 @@ export default function StudyPlanPage() {
       t.domain === "dsa" ? solved.has(t.id)
       : t.domain === "sd" ? mastered.has(t.id)
       : t.domain === "se" ? completed.has(t.id)
+      : t.domain === "lld" ? lldCompleted.has(t.id)
       : true; // behavioral has no toggle
     for (let i = 0; i <= todayIdx; i++) {
       const d = plan.days[i];
@@ -97,7 +100,7 @@ export default function StudyPlanPage() {
       if (todo.length && !todo.every(isDone)) return i;
     }
     return todayIdx; // all caught up → real today
-  }, [plan, todayIdx, solved, mastered, completed]);
+  }, [plan, todayIdx, solved, mastered, completed, lldCompleted]);
   const daysBehind = todayIdx - currentIdx;
 
   const weeks: DayPlan[][] = useMemo(() => {
@@ -142,6 +145,7 @@ export default function StudyPlanPage() {
     if (task.domain === "dsa") return solved.has(task.id);
     if (task.domain === "sd") return mastered.has(task.id);
     if (task.domain === "se") return completed.has(task.id);
+    if (task.domain === "lld") return lldCompleted.has(task.id);
     return false;
   }
 
@@ -149,6 +153,7 @@ export default function StudyPlanPage() {
     if (task.domain === "dsa") { toggleSolved(task.id); return; }
     if (task.domain === "sd") { toggleMastered(task.id); return; }
     if (task.domain === "se") { toggleChapter(task.id); return; }
+    if (task.domain === "lld") { toggleLLDChapter(task.id); return; }
   }
 
   function tasksDoneCount(tasks: PlanTask[]) {

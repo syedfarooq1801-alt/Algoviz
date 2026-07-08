@@ -117,28 +117,53 @@ export const ESSENTIAL_SE: string[] = [
   "linux-se/system-design-basics",
 ];
 
-// Deep SD coverage — concept + case-study ids (match buildSDTasks).
+// Deep SD coverage — FRESHER-LEVEL ONLY. Deliberately excludes SDE-2+ depth:
+// sharding strategies, replication protocols/quorum, consistent hashing,
+// OSI/TCP internals, TLS handshake, OLTP/OLAP, distributed consensus. Those
+// live in the "advanced" SD chapter and are skipped entirely here.
 export const ESSENTIAL_SD: string[] = [
-  // Foundations (17)
+  // Foundations — concept level only (13)
   "scalability", "availability", "latency-vs-throughput", "load-balancing", "caching",
-  "cdn", "database-indexing", "replication", "sharding", "cap-theorem", "acid-vs-base",
-  "message-queues", "microservices-vs-monolith", "api-gateway", "rate-limiting",
-  "security-authn-authz", "api-styles",
-  // Databases in depth (6)
-  "relational-vs-nosql", "nosql-types", "oltp-vs-olap", "transactions-isolation",
-  "replication-strategies", "sharding-strategies",
-  // Networking (6)
-  "osi-model", "tcp-udp-quic", "http-versions", "tls-handshake", "dns-resolution", "connection-pooling",
-  // Interview framework (6)
+  "cdn", "database-indexing", "replication", "cap-theorem", "acid-vs-base",
+  "message-queues", "api-gateway", "rate-limiting",
+  // Databases — SQL vs NoSQL decision level only (2)
+  "relational-vs-nosql", "nosql-types",
+  // Interview framework — the sketch-level skills for the case studies below (6)
   "45-minute-clock", "clarify-requirements", "back-of-envelope", "api-data-model",
   "high-level-architecture", "red-flags",
-  // Cheat-sheets & mental models — the tactical shortcuts that make 15 days enough (6)
+  // Cheat-sheets & mental models — tactical shortcuts (6)
   "repeatable-model", "numbers-to-know", "patterns-by-problem",
   "what-breaks-first", "decision-matrix", "question-types",
-  // Case studies — do these end to end (2)
-  "url-shortener", "rate-limiter-system",
+  // Case studies — sketch-level (5 required + 1 optional if time permits)
+  "url-shortener", "rate-limiter-system", "whatsapp", "notification-system",
+  "amazon-ecommerce", "twitter-feed",
+];
+
+// LLD coverage — SOLID (all 5), the core pattern set, and 6 full-design case
+// studies. OOP fundamentals themselves (encapsulation/inheritance/polymorphism/
+// abstraction) live in ESSENTIAL_SE's oop/ entries above, not duplicated here.
+export const ESSENTIAL_LLD: string[] = [
+  // SOLID — all five (5)
+  "solid-principles/srp", "solid-principles/ocp", "solid-principles/lsp",
+  "solid-principles/isp", "solid-principles/dip",
+  // Core pattern set (7)
+  "design-patterns-creational/singleton",
+  "design-patterns-creational/factory-method",
+  "design-patterns-creational/abstract-factory",
+  "design-patterns-creational/builder",
+  "design-patterns-structural/decorator",
+  "design-patterns-behavioral/strategy",
+  "design-patterns-behavioral/observer",
+  // Full-design case studies — requirements -> class diagram -> code -> extensibility (6)
+  "lld-problems-classic/parking-lot",
+  "lld-problems-classic/lru-cache-design",
+  "lld-problems-classic/elevator-system",
+  "lld-problems-classic/chess-game",
+  "lld-problems-classic/library-system",
+  "lld-problems-realworld/splitwise",
 ];
 
 export const ESSENTIAL_DSA_SET = new Set(ESSENTIAL_DSA);
 export const ESSENTIAL_SE_SET = new Set(ESSENTIAL_SE);
 export const ESSENTIAL_SD_SET = new Set(ESSENTIAL_SD);
+export const ESSENTIAL_LLD_SET = new Set(ESSENTIAL_LLD);
