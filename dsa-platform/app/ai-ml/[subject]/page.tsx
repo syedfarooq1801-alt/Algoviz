@@ -14,7 +14,11 @@ export default function AIMLSubjectPage({ params }: Props) {
   if (!subject) notFound();
 
   const meta = AIML_SUBJECT_META[subjectId];
-  const { toggleChapter, isComplete } = useAIMLStore();
+  // Subscribe reactively to `completed` (a selector) so the component re-renders
+  // on toggle — the store's isComplete() helper is a non-reactive get().
+  const completed = useAIMLStore((s) => s.completed);
+  const toggleChapter = useAIMLStore((s) => s.toggleChapter);
+  const isComplete = (k: string) => completed.has(k);
   const [activeId, setActiveId] = useState<string>(subject.chapters[0]?.id ?? "");
   const [leftOpen, setLeftOpen] = useState(() =>
     typeof window === "undefined" ? true : localStorage.getItem("aiml-left-open") !== "0");

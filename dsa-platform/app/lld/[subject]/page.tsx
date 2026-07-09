@@ -70,7 +70,12 @@ export default function LLDSubjectPage({ params }: Props) {
   if (!subject) notFound();
 
   const meta = LLD_SUBJECT_META[subjectId];
-  const { toggleChapter, isComplete } = useLLDStore();
+  // Subscribe reactively to `completed` (a selector) so the component actually
+  // re-renders when a chapter is toggled. Reading via the store's isComplete()
+  // helper is a non-reactive get() and won't trigger a re-render on its own.
+  const completed = useLLDStore((s) => s.completed);
+  const toggleChapter = useLLDStore((s) => s.toggleChapter);
+  const isComplete = (k: string) => completed.has(k);
   const [activeId, setActiveId] = useState<string>(subject.chapters[0]?.id ?? "");
   const [leftOpen, setLeftOpen] = useState(() =>
     typeof window === "undefined" ? true : localStorage.getItem("lld-left-open") !== "0"

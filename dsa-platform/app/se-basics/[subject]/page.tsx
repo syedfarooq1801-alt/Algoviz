@@ -16,7 +16,12 @@ export default function SubjectPage({ params }: Props) {
   if (!subject) notFound();
 
   const meta = SUBJECT_META[subjectId];
-  const { toggleChapter, isComplete } = useSEStore();
+  // Subscribe reactively to `completed` (a selector) so the component re-renders
+  // on toggle. The store's isComplete() helper reads a non-reactive get() and
+  // won't trigger a re-render, so deriving `done` from it left the UI stale.
+  const completed = useSEStore((s) => s.completed);
+  const toggleChapter = useSEStore((s) => s.toggleChapter);
+  const isComplete = (k: string) => completed.has(k);
   const [activeId, setActiveId] = useState<string>(subject.chapters[0]?.id ?? "");
   // Init synchronously from localStorage so there's no open->closed flash on load.
   const [leftOpen, setLeftOpen] = useState(() =>
