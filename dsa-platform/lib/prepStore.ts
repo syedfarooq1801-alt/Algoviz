@@ -83,6 +83,7 @@ interface PrepState {
   hydrateFromFirestore: (data: { reviewDue?: Record<string, string>; problemStates?: Record<string, ReadinessState>; selectedTrack?: PrepTrackId; behavioralDrafts?: Record<string, BehavioralDraft> }) => void;
   setProblemState: (problemId: string, state: ReadinessState) => void;
   scheduleReview: (problemId: string, outcome: "solved" | "failed" | "reviewed-fast" | "mastered") => void;
+  clearReview: (problemId: string) => void;
   addMockSession: (session: Omit<MockSessionReview, "id" | "date" | "score" | "insights">) => MockSessionReview;
   addDiagnosisAttempt: (attempt: Omit<DiagnosisAttempt, "id" | "date">) => void;
   addCodeAttempt: (attempt: Omit<CodeAttempt, "id" | "date">) => void;
@@ -186,6 +187,17 @@ export const usePrepStore = create<PrepState>()(
             successfulReviews: { ...s.successfulReviews, [problemId]: fastCount },
             reviewDue: { ...s.reviewDue, [problemId]: addDays(offset) },
           };
+        }),
+
+      clearReview: (problemId) =>
+        set((s) => {
+          const nextDue = { ...s.reviewDue };
+          const nextStates = { ...s.problemStates };
+          const nextReviews = { ...s.successfulReviews };
+          delete nextDue[problemId];
+          delete nextStates[problemId];
+          delete nextReviews[problemId];
+          return { reviewDue: nextDue, problemStates: nextStates, successfulReviews: nextReviews };
         }),
 
       addMockSession: (session) => {

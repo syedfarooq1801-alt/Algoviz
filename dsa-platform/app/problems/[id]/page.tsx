@@ -24,18 +24,25 @@ export default function ProblemPage({ params }: Props) {
   const pattern = getPatternById(problem.pattern);
   const content = PROBLEM_CONTENT[id];
   const VizComponent = getProblemViz(id);
-  const { isSolved, isBookmarked, toggleSolved, toggleBookmark } = useProgressStore();
+  // Subscribe reactively to the underlying sets/maps (selectors) so this page
+  // re-renders on toggle. Reading via isSolved()/isBookmarked() helpers is a
+  // non-reactive get() and leaves the buttons visually stale.
+  const solvedSet = useProgressStore((s) => s.solved);
+  const bookmarkedSet = useProgressStore((s) => s.bookmarked);
+  const toggleSolved = useProgressStore((s) => s.toggleSolved);
+  const toggleBookmark = useProgressStore((s) => s.toggleBookmark);
   const { getNote, setNote, hasNote } = useNotesStore();
-  const { scheduleReview, reviewDue } = usePrepStore();
-  const solved = isSolved(id);
-  const bookmarked = isBookmarked(id);
+  const reviewDue = usePrepStore((s) => s.reviewDue);
+  const scheduleReview = usePrepStore((s) => s.scheduleReview);
+  const clearReview = usePrepStore((s) => s.clearReview);
+  const solved = solvedSet.has(id);
+  const bookmarked = bookmarkedSet.has(id);
   const dueDate = reviewDue[id];
-  const [reviewScheduled, setReviewScheduled] = useState(false);
 
   const handleScheduleReview = () => {
-    scheduleReview(id, "solved");
-    setReviewScheduled(true);
-    setTimeout(() => setReviewScheduled(false), 2000);
+    // Toggle: if already scheduled, remove it; otherwise schedule.
+    if (dueDate) clearReview(id);
+    else scheduleReview(id, "solved");
   };
   const [codeCopied, setCodeCopied] = useState(false);
   const [noteText, setNoteText] = useState(() => getNote(id));
@@ -110,9 +117,9 @@ export default function ProblemPage({ params }: Props) {
                   onClick={handleScheduleReview}
                   className="btn-ghost px-3 py-2 text-sm inline-flex items-center gap-2"
                   style={dueDate ? { color: "#F5A524" } : undefined}
-                  title={dueDate ? `Review due ${dueDate}` : "Schedule review"}
+                  title={dueDate ? `Review due ${dueDate} — click to remove` : "Schedule review"}
                 >
-                  {reviewScheduled ? "Scheduled ✓" : dueDate ? `Due ${dueDate}` : "Review later"}
+                  {dueDate ? `Due ${dueDate} ✕` : "Review later"}
                 </button>
                 <a href={problem.leetcodeUrl} target="_blank" rel="noopener noreferrer" className="btn-ghost px-3 py-2 text-sm inline-flex items-center gap-2">
                   <ExternalLink size={15} /> LeetCode
