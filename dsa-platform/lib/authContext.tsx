@@ -111,6 +111,11 @@ async function loadAndSubscribe(uid: string) {
   if (unsubSnapshot) unsubSnapshot();
   unsubSnapshot = onSnapshot(ref, (s) => {
     if (!s.exists()) return;
+    // Never let a cached/offline snapshot or one carrying our own not-yet-
+    // acknowledged writes overwrite local state. Without this, going offline
+    // and toggling something (e.g. un-marking a chapter) gets silently
+    // reverted when a stale cached snapshot re-applies the pre-toggle value.
+    if (s.metadata.fromCache || s.metadata.hasPendingWrites) return;
     // Skip if we wrote this within the last 3s (our own debounced sync bouncing back)
     if (Date.now() - lastLocalWriteAt < 3000) return;
     hydrateAllStores(s.data() as Record<string, unknown>);
