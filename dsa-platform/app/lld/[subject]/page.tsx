@@ -13,6 +13,13 @@ function LLDBlock({ block }: { block: Block }) {
       return <p className="text-[15px] leading-8 mb-4" style={{ color: "var(--text-secondary)" }}>{block.text}</p>;
     case "heading":
       return <h4 className="text-base font-semibold mt-6 mb-3" style={{ color: "var(--text-primary)" }}>{block.text}</h4>;
+    case "eli5":
+      return (
+        <div className="rounded-xl px-5 py-4 mb-4" style={{ background: "rgba(34,197,94,0.07)", border: "1px solid rgba(34,197,94,0.22)" }}>
+          <div className="text-xs font-semibold mb-1.5" style={{ color: "#22c55e" }}>In plain words</div>
+          <p className="text-[15px] leading-8" style={{ color: "var(--text-secondary)" }}>{block.text}</p>
+        </div>
+      );
     case "analogy":
       return (
         <div className="rounded-xl px-5 py-4 mb-4" style={{ background: "rgba(79,142,247,0.06)", border: "1px solid rgba(79,142,247,0.18)" }}>

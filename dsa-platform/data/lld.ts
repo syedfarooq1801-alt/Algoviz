@@ -4,7 +4,7 @@ import lldPart3 from "./lldContent-part3";
 
 export type BlockType =
   | "para" | "heading" | "analogy" | "memory-trick" | "example"
-  | "common-mistake" | "placement" | "pre" | "interview";
+  | "common-mistake" | "placement" | "pre" | "interview" | "eli5";
 
 export interface QA { q: string; a: string; }
 
