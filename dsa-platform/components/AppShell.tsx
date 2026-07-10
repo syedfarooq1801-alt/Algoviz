@@ -10,7 +10,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="lg:grid min-h-screen" style={{ gridTemplateColumns: collapsed ? "0px 1fr" : "220px 1fr" }}>
       <Sidebar />
-      <div className="pb-16 lg:pb-0 min-h-screen">{children}</div>
+      {/* Sidebar unmounts entirely when collapsed, leaving one grid child —
+          pin it to column 2 explicitly so auto-placement doesn't drop it
+          into the (now sidebar-less) 0px first track. */}
+      <div className="pb-16 lg:pb-0 min-h-screen" style={{ gridColumn: 2 }}>{children}</div>
 
       {collapsed && (
         <button
