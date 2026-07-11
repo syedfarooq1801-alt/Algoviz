@@ -164,7 +164,10 @@ export default function AIMLSubjectPage({ params }: Props) {
                   {activeChapter.blocks.map((b, i) => <SEBlock key={i} block={b} />)}
                 </div>
 
-                <div className="mt-16 flex items-center justify-between gap-6 pt-8" style={{ borderTop: "1px solid var(--border-subtle)" }}>
+                {/* paddingRight reserves room for the fixed "Ask Axon" launcher
+                    (bottom:24 right:20, ~150px wide) so the flex-end Next button
+                    doesn't render underneath it. */}
+                <div className="mt-16 flex items-center justify-between gap-6 pt-8" style={{ borderTop: "1px solid var(--border-subtle)", paddingRight: 150 }}>
                   <ChapterNav subject={subject} activeId={activeId} dir={-1} onGo={setActiveId} />
                   <ChapterNav subject={subject} activeId={activeId} dir={1} onGo={setActiveId} />
                 </div>
