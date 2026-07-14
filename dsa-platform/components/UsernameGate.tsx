@@ -44,7 +44,7 @@ export default function UsernameGate({ children }: { children: React.ReactNode }
       <div style={{ width: "100%", maxWidth: 400, padding: "36px 32px", borderRadius: 16, background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <h1 style={{ fontSize: 22, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>Pick your username</h1>
         <p style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 6, marginBottom: 20 }}>
-          This is the name shown on the leaderboard and your public profile. Choose carefully — it must be unique.
+          This is the name shown on your public profile. Choose carefully — it must be unique.
         </p>
 
         <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 12px", borderRadius: 10, background: "var(--bg-secondary)", border: `1px solid ${error ? "#EF4444" : "var(--border)"}` }}>

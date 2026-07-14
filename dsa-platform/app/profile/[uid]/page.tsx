@@ -58,7 +58,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ uid: s
     return (
       <div style={{ maxWidth: 600, margin: "0 auto", padding: "60px 24px", textAlign: "center" }}>
         <p style={{ color: "var(--text-secondary)", marginBottom: 16 }}>User not found.</p>
-        <Link href="/leaderboard" style={{ color: "var(--accent)", fontSize: 13 }}>← Back to leaderboard</Link>
+        <Link href="/" style={{ color: "var(--accent)", fontSize: 13 }}>← Back to dashboard</Link>
       </div>
     );
   }
@@ -70,11 +70,11 @@ export default function PublicProfilePage({ params }: { params: Promise<{ uid: s
 
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", padding: "32px 24px 60px" }}>
-      <Link href="/leaderboard" style={{
+      <Link href="/" style={{
         display: "inline-flex", alignItems: "center", gap: 6,
         fontSize: 13, color: "var(--text-muted)", marginBottom: 24, textDecoration: "none",
       }}>
-        <ArrowLeft size={14} /> Leaderboard
+        <ArrowLeft size={14} /> Dashboard
       </Link>
 
       {/* Profile header */}

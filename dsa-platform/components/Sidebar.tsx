@@ -167,12 +167,6 @@ export default function Sidebar() {
       icon: Swords,
       active: pathname.startsWith("/mock"),
     },
-    {
-      href: "/leaderboard",
-      label: "Leaderboard",
-      icon: Trophy,
-      active: pathname.startsWith("/leaderboard"),
-    },
   ];
 
   if (collapsed) return null;
