@@ -7,6 +7,7 @@ import { getProblemById, getPatternById, getAllProblems } from "@/data/problems"
 import { PROBLEM_CONTENT } from "@/data/problemContent";
 import { PROBLEM_TECHNIQUES, getTechniqueColor } from "@/data/problemTechniques";
 import NextNav from "@/components/NextNav";
+import ExampleVisual from "@/components/ExampleVisual";
 import { useProgressStore } from "@/lib/store";
 import { useNotesStore } from "@/lib/notesStore";
 import { usePrepStore } from "@/lib/prepStore";
@@ -139,6 +140,7 @@ export default function ProblemPage({ params }: Props) {
                       {content.examples.map((ex, i) => (
                         <div key={i} className="quiet-panel p-3 text-xs" style={{ fontFamily: "var(--font-mono)" }}>
                           <div className="mb-1" style={{ color: "var(--text-muted)" }}>Example {i + 1}:</div>
+                          <ExampleVisual input={ex.input} />
                           <div><span style={{ color: "var(--text-muted)" }}>Input: </span><span style={{ color: "var(--text-primary)" }}>{ex.input}</span></div>
                           <div><span style={{ color: "var(--text-muted)" }}>Output: </span><span style={{ color: "var(--text-primary)" }}>{ex.output}</span></div>
                           {ex.explanation && (
