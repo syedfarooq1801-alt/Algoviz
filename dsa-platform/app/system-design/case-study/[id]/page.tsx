@@ -23,6 +23,9 @@ export default function CaseStudyPage({ params }: Props) {
   const [openDeepDives, setOpenDeepDives] = useState<Record<number, boolean>>({});
   const toggleDeepDive = (i: number) => setOpenDeepDives((prev) => ({ ...prev, [i]: !prev[i] }));
 
+  const [openFollowUps, setOpenFollowUps] = useState<Record<number, boolean>>({});
+  const toggleFollowUp = (i: number) => setOpenFollowUps((prev) => ({ ...prev, [i]: !prev[i] }));
+
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
       <main className="max-w-4xl mx-auto px-4 pb-8">
@@ -165,18 +168,40 @@ export default function CaseStudyPage({ params }: Props) {
             </ul>
           </Section>
 
-          {/* Follow-up + Red Flags */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Section icon="❓" title="Follow-up Questions" color="#4F8CFF">
-              <ul className="space-y-1.5">
-                {cs.followUpQuestions.map((q, i) => (
-                  <li key={i} className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                    <span style={{ color: "#4F8CFF" }}>{i + 1}. </span>{q}
-                  </li>
-                ))}
-              </ul>
-            </Section>
-            <Section icon="🚩" title="Red Flags (Avoid These)" color="#ef4444">
+          {/* Follow-up Questions — expandable, with answers */}
+          <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+            <div className="px-4 py-3 flex items-center gap-2" style={{ background: "var(--bg-card)", borderBottom: "1px solid var(--border-subtle)" }}>
+              <span>❓</span>
+              <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Follow-up Questions</h3>
+            </div>
+            <div>
+              {cs.followUpQuestions.map((fq, i) => (
+                <div key={i} className="border-b last:border-b-0" style={{ borderColor: "var(--border-subtle)" }}>
+                  <button
+                    onClick={() => toggleFollowUp(i)}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left"
+                    style={{ background: "var(--bg-card)" }}
+                  >
+                    <div className="transition-transform duration-200" style={{ transform: openFollowUps[i] ? "rotate(90deg)" : "rotate(0deg)" }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-muted)" }}>
+                        <path d="M9 18l6-6-6-6" />
+                      </svg>
+                    </div>
+                    <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                      <span style={{ color: "#4F8CFF" }}>{i + 1}. </span>{fq.q}
+                    </span>
+                  </button>
+                  {openFollowUps[i] && (
+                    <div className="px-4 pb-4" style={{ borderTop: "1px solid var(--border-subtle)" }}>
+                      <p className="text-sm leading-relaxed pt-3" style={{ color: "var(--text-secondary)" }}>{fq.a}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <Section icon="🚩" title="Red Flags (Avoid These)" color="#ef4444">
               <ul className="space-y-1.5">
                 {cs.redFlags.map((r, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm" style={{ color: "var(--text-secondary)" }}>
@@ -185,7 +210,6 @@ export default function CaseStudyPage({ params }: Props) {
                 ))}
               </ul>
             </Section>
-          </div>
         </div>
 
         <div className="mt-8 flex justify-center">
