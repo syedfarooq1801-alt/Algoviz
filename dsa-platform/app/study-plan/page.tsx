@@ -1,12 +1,13 @@
 "use client";
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { useMobile } from "@/lib/useMobile";
 import Link from "next/link";
-import { generateStudyPlan, PHASE_COLOR, estHours, type DayPlan, type PlanTask } from "@/lib/studyPlan";
+import { generateStudyPlan, rebalancePlan, PHASE_COLOR, estHours, type DayPlan, type PlanTask } from "@/lib/studyPlan";
 import { useProgressStore } from "@/lib/store";
 import { useSDStore } from "@/lib/sdStore";
 import { useSEStore } from "@/lib/seStore";
 import { useLLDStore } from "@/lib/lldStore";
+import { useInterviewStore } from "@/lib/interviewStore";
 
 const DAYS_OPTIONS = [21, 30, 60, 90] as const;
 type Duration = 21 | 30 | 60 | 90;
@@ -54,6 +55,7 @@ export default function StudyPlanPage() {
   const { mastered, toggleMastered } = useSDStore();
   const { completed, toggleChapter } = useSEStore();
   const { completed: lldCompleted, toggleChapter: toggleLLDChapter } = useLLDStore();
+  const targetDate = useInterviewStore((s) => s.targetDate);
   const duration: Duration = studyPlanDuration;
   const [activeWeek, setActiveWeek] = useState(0);
 
@@ -73,10 +75,28 @@ export default function StudyPlanPage() {
   }
 
   const weakKey = useMemo(() => Array.from(weakAreas).sort().join(","), [weakAreas]);
-  const plan = useMemo(
+  const basePlan = useMemo(
     () => generateStudyPlan(duration, startDate, undefined, weakKey ? weakKey.split(",") : []),
     [duration, startDate, weakKey]
   );
+
+  // Completion check shared by the rebalancer and the task rows below.
+  const isDoneTask = useCallback(
+    (t: PlanTask) =>
+      t.domain === "dsa" ? solved.has(t.id)
+      : t.domain === "sd" ? mastered.has(t.id)
+      : t.domain === "se" ? completed.has(t.id)
+      : t.domain === "lld" ? lldCompleted.has(t.id)
+      : false,
+    [solved, mastered, completed, lldCompleted]
+  );
+
+  // Missed days never strand their work. With no interview date the plan
+  // extends; with one set it compresses into the days left before it.
+  const { plan, rebalance } = useMemo(() => {
+    const r = rebalancePlan(basePlan, today, isDoneTask, targetDate);
+    return { plan: r.plan, rebalance: r.info };
+  }, [basePlan, today, isDoneTask, targetDate]);
 
   // Which day index is "today" within the plan (clamped to the plan range).
   const todayIdx = useMemo(() => {
@@ -87,20 +107,14 @@ export default function StudyPlanPage() {
   // Effective "current" day = earliest day (up to today) with unfinished work.
   // Missed days roll forward instead of being skipped; advances only when done.
   const currentIdx = useMemo(() => {
-    const isDone = (t: PlanTask) =>
-      t.domain === "dsa" ? solved.has(t.id)
-      : t.domain === "sd" ? mastered.has(t.id)
-      : t.domain === "se" ? completed.has(t.id)
-      : t.domain === "lld" ? lldCompleted.has(t.id)
-      : true; // behavioral has no toggle
     for (let i = 0; i <= todayIdx; i++) {
       const d = plan.days[i];
       if (!d || d.type === "rest") continue;
       const todo = d.tasks.filter((t) => t.domain !== "behavioral");
-      if (todo.length && !todo.every(isDone)) return i;
+      if (todo.length && !todo.every(isDoneTask)) return i;
     }
     return todayIdx; // all caught up → real today
-  }, [plan, todayIdx, solved, mastered, completed, lldCompleted]);
+  }, [plan, todayIdx, isDoneTask]);
   const daysBehind = todayIdx - currentIdx;
 
   // Readiness — a single running signal instead of waiting until the last
@@ -309,7 +323,7 @@ export default function StudyPlanPage() {
                   {" · "}21-Day Essentials — 122 curated problems + deep SE/SD
                 </span>
               )}
-              {daysBehind > 0 && (
+              {rebalance.mode === "none" && daysBehind > 0 && (
                 <span style={{ color: "#F5A524" }}>
                   {" · "}{daysBehind} day{daysBehind > 1 ? "s" : ""} behind — catch up
                 </span>
@@ -365,6 +379,45 @@ export default function StudyPlanPage() {
             </div>
           </div>
         </div>
+
+        {/* Missed-day rebalance notice — explains where the carried work went */}
+        {rebalance.mode !== "none" && (
+          <div style={{
+            display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 14px",
+            borderRadius: 8, marginBottom: 16,
+            background: rebalance.overloaded ? "rgba(239,68,68,0.08)" : "rgba(47,191,113,0.07)",
+            border: `1px solid ${rebalance.overloaded ? "rgba(239,68,68,0.25)" : "rgba(47,191,113,0.22)"}`,
+          }}>
+            <span style={{ fontSize: 14, lineHeight: "18px" }}>{rebalance.overloaded ? "⚠" : "↺"}</span>
+            <div style={{ fontSize: 12, lineHeight: 1.6, color: "var(--text-secondary)" }}>
+              <strong style={{ color: rebalance.overloaded ? "#EF4444" : "#2FBF71" }}>
+                {rebalance.carriedCount} task{rebalance.carriedCount > 1 ? "s" : ""} carried forward
+              </strong>
+              {rebalance.mode === "extend" ? (
+                <>
+                  {" — "}nothing was lost. Your missed work moved into today and everything after it
+                  shifted along, so the plan now runs{" "}
+                  <strong style={{ color: "var(--text-primary)" }}>
+                    {rebalance.daysAdded} day{rebalance.daysAdded === 1 ? "" : "s"} longer
+                  </strong>
+                  . Daily load is unchanged. Set an interview date to compress instead of extend.
+                </>
+              ) : rebalance.overloaded ? (
+                <>
+                  {" — "}but there aren&apos;t enough days left before your interview to absorb it
+                  comfortably. The remaining days are now heavier than normal. Consider trimming
+                  scope rather than trying to do everything.
+                </>
+              ) : (
+                <>
+                  {" — "}nothing was lost. Because you have an interview date set, the plan
+                  can&apos;t run longer, so the missed work was spread thinly across the days you
+                  have left. Your finish date is unchanged.
+                </>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Weekly calendar card */}
         <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, padding: 16, marginBottom: 20 }}>

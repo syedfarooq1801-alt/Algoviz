@@ -723,6 +723,260 @@ export function generateStudyPlan(durationDays: 21 | 30 | 60 | 90, startDate: st
   return { durationDays, startDate, days };
 }
 
+// ---------------------------------------------------------------------------
+// Missed-day rebalancing
+//
+// A generated plan pins every day to a fixed calendar date, so unfinished work
+// on a past day would otherwise sit stranded there forever. Instead we pull
+// that work forward. Two modes, chosen by whether an interview date is set:
+//
+//   • No interview date  → EXTEND. The plan grows by however many days the
+//     missed work needs. Nothing gets denser; the finish date moves out.
+//   • Interview date set → COMPRESS. The deadline is real, so the plan cannot
+//     grow. Missed work is spread thinly across the days that remain before
+//     the interview — miss one day with 18 left and each day grows a few
+//     percent, which is invisible in practice.
+//
+// Rest days stay pinned to real Sundays in both modes: work is only ever
+// placed on non-Sunday days, and after any day is inserted the whole array is
+// re-dated and Sundays re-marked as rest.
+// ---------------------------------------------------------------------------
+
+export type RebalanceMode = "none" | "extend" | "compress";
+
+export interface RebalanceInfo {
+  mode: RebalanceMode;
+  /** How many unfinished tasks were pulled forward off past days. */
+  carriedCount: number;
+  /** Extra days appended to fit the carried work (extend mode only). */
+  daysAdded: number;
+  /**
+   * Compress mode only: the remaining days can't absorb the carried work
+   * without going well past a normal day's load. The deadline is at risk.
+   */
+  overloaded: boolean;
+}
+
+const CARRY_TAG = "↺ Carried";
+
+function isSundayISO(iso: string): boolean {
+  return new Date(iso + "T00:00:00").getDay() === 0;
+}
+
+/** Split `arr` into `n` contiguous, near-equal chunks (keeps original order). */
+function chunkEvenly<T>(arr: T[], n: number): T[][] {
+  const out: T[][] = Array.from({ length: Math.max(0, n) }, () => [] as T[]);
+  if (n <= 0) return out;
+  const per = Math.floor(arr.length / n);
+  const extra = arr.length % n;
+  let k = 0;
+  for (let i = 0; i < n; i++) {
+    const take = per + (i < extra ? 1 : 0);
+    out[i] = arr.slice(k, k + take);
+    k += take;
+  }
+  return out;
+}
+
+function markCarried(t: PlanTask): PlanTask {
+  const base = t.tag ?? "";
+  return { ...t, tag: base.startsWith(CARRY_TAG) ? base : `${CARRY_TAG}${base ? ` · ${base}` : ""}` };
+}
+
+function blankStudyDay(): DayPlan {
+  return {
+    day: 0, date: "", phase: "dsa", type: "practice",
+    label: "Catch-up", color: PHASE_COLOR.dsa, tasks: [],
+  };
+}
+
+/**
+ * Re-date and renumber every day from the start date, then force any day that
+ * lands on a Sunday to be a rest day. Tasks displaced off a Sunday are
+ * returned so the caller can re-place them.
+ */
+function redateAndFixRest(days: DayPlan[], startDate: string): PlanTask[] {
+  const displaced: PlanTask[] = [];
+  days.forEach((d, i) => {
+    d.day = i + 1;
+    d.date = addDays(startDate, i);
+  });
+  for (const d of days) {
+    if (isSundayISO(d.date)) {
+      if (d.tasks.length) { displaced.push(...d.tasks); d.tasks = []; }
+      d.type = "rest";
+      d.phase = "review";
+      d.label = "Rest day";
+      d.color = PHASE_COLOR.review;
+    } else if (d.type === "rest") {
+      // Shifted off Sunday — it's an ordinary (currently empty) day again.
+      d.type = "practice";
+      d.phase = "dsa";
+      d.label = "Catch-up";
+      d.color = PHASE_COLOR.dsa;
+    }
+  }
+  return displaced;
+}
+
+export function rebalancePlan(
+  plan: StudyPlan,
+  today: string,
+  isDone: (task: PlanTask) => boolean,
+  interviewDate?: string | null
+): { plan: StudyPlan; info: RebalanceInfo } {
+  const none: RebalanceInfo = { mode: "none", carriedCount: 0, daysAdded: 0, overloaded: false };
+  const elapsed = daysDiff(plan.startDate, today);
+  if (elapsed <= 0) return { plan, info: none };
+
+  const days: DayPlan[] = plan.days.map((d) => ({ ...d, tasks: [...d.tasks] }));
+  const todayIdx = Math.min(elapsed, days.length - 1);
+  // Mutable: extend mode splices extra study days into the core span.
+  let coreCount = Math.min(plan.durationDays, days.length);
+
+  // 1. Strip unfinished work off past days. Behavioral tasks have no
+  //    completion toggle so they'd carry forever — leave them where they are.
+  //    Per-day recall prompts ("redo today's AM problems") are tied to that
+  //    day's content and every new day generates its own, so they're dropped
+  //    rather than carried stale.
+  const carried: PlanTask[] = [];
+  for (let i = 0; i < todayIdx; i++) {
+    const d = days[i];
+    if (!d || d.type === "rest") continue;
+    const keep: PlanTask[] = [];
+    for (const t of d.tasks) {
+      if (isDone(t)) { keep.push(t); continue; }            // finished work stays as history
+      if (t.domain === "behavioral") { keep.push(t); continue; } // no toggle → would carry forever
+      // Per-day recall prompts ("redo today's AM problems") are tied to the
+      // content that was scheduled that day. That content has just moved, and
+      // every study day generates its own prompt, so this one is dropped
+      // rather than carried stale or left behind looking unfinished.
+      if (t.id.startsWith("recall-")) continue;
+      carried.push(markCarried(t));
+    }
+    d.tasks = keep;
+  }
+  if (carried.length === 0) return { plan: { ...plan, days }, info: none };
+
+  const compress = Boolean(interviewDate);
+
+  // Days eligible to receive carried work: study days from today onward,
+  // inside the core span (never the trailing mock / behavioral days).
+  const eligible = (): number[] => {
+    const out: number[] = [];
+    for (let i = todayIdx; i < coreCount; i++) {
+      const d = days[i];
+      if (!d || d.type === "rest") continue;
+      if (d.phase === "mock" || d.phase === "behavioral") continue;
+      if (compress && interviewDate && d.date > interviewDate) continue;
+      out.push(i);
+    }
+    return out;
+  };
+
+  if (compress) {
+    // Deadline is fixed — spread carried work across what's left, no new days.
+    const slots = eligible();
+    if (slots.length === 0) {
+      // Nothing left before the interview: dump on the soonest working day so
+      // the work is at least still visible rather than silently dropped.
+      const fallback = days.findIndex((d, i) => i >= todayIdx && d.type !== "rest");
+      if (fallback >= 0) days[fallback].tasks.push(...carried);
+      return {
+        plan: { ...plan, days },
+        info: { mode: "compress", carriedCount: carried.length, daysAdded: 0, overloaded: true },
+      };
+    }
+    const chunks = chunkEvenly(carried, slots.length);
+    let worstRatio = 0;
+    slots.forEach((dayIdx, ci) => {
+      const before = totalEffort(days[dayIdx].tasks);
+      days[dayIdx].tasks = [...days[dayIdx].tasks, ...chunks[ci]];
+      const after = totalEffort(days[dayIdx].tasks);
+      if (before > 0) worstRatio = Math.max(worstRatio, after / before);
+    });
+    return {
+      plan: { ...plan, days },
+      info: {
+        mode: "compress",
+        carriedCount: carried.length,
+        daysAdded: 0,
+        overloaded: worstRatio > 1.6,
+      },
+    };
+  }
+
+  // EXTEND — no deadline, so keep daily load flat and let the plan grow.
+  // Rebuild the remaining stream (carried work first, then everything already
+  // scheduled from today onward) and re-slice it over the study days using
+  // each day's original effort budget, appending days for the overflow.
+  const slots = eligible();
+  const budget = (() => {
+    const study = plan.days.filter((d) => d.type === "learn" || d.type === "practice");
+    const eff = study.length ? totalEffort(study.flatMap((d) => d.tasks)) / study.length : 0;
+    return Math.max(4, eff);
+  })();
+
+  const stream: PlanTask[] = [...carried];
+  for (const i of slots) {
+    stream.push(...days[i].tasks);
+    days[i].tasks = [];
+  }
+
+  let daysAdded = 0;
+  const MAX_ADDED = 60; // hard stop; a plan needing more than this is a rewrite
+  let leftover = 0;
+
+  for (let guard = 0; guard < MAX_ADDED + 2; guard++) {
+    const targets = eligible();
+    // Clear every target first — a previous pass may have filled days that a
+    // re-date has since turned into rest days or shifted around.
+    for (const i of targets) days[i].tasks = [];
+
+    const queue = [...stream];
+    for (const i of targets) {
+      if (queue.length === 0) break;
+      const day = days[i];
+      let eff = 0;
+      while (queue.length > 0) {
+        const next = queue[0];
+        const e = taskEffort(next);
+        if (day.tasks.length > 0 && eff + e > budget + 0.75) break;
+        day.tasks.push(queue.shift()!);
+        eff += e;
+        if (eff >= budget) break;
+      }
+      day.label = labelFromTasks(day.label, day.tasks);
+    }
+
+    leftover = queue.length;
+    if (leftover === 0) break;
+    if (daysAdded >= MAX_ADDED) break;
+
+    // Still work left over — append another study day at the end of the core
+    // span (before the mock / behavioral tail), then re-date so Sundays stay
+    // rest days, and run the fill again over the new slot set.
+    days.splice(coreCount, 0, blankStudyDay());
+    coreCount += 1;
+    daysAdded++;
+    const displaced = redateAndFixRest(days, plan.startDate);
+    if (displaced.length) stream.push(...displaced);
+  }
+
+  // Clear any day that ended up with nothing so it doesn't render as an empty
+  // work day, and refresh labels.
+  for (const d of days) {
+    if (d.type !== "rest" && d.tasks.length === 0 && d.phase !== "mock" && d.phase !== "behavioral") {
+      d.label = "Free — buffer day";
+    }
+  }
+
+  return {
+    plan: { ...plan, days },
+    info: { mode: "extend", carriedCount: carried.length, daysAdded, overloaded: false },
+  };
+}
+
 const REVIEW_INTERVALS = [1, 3, 7, 14, 30];
 
 export function getDueForReview(solvedDates: Record<string, string>, today: string): string[] {
