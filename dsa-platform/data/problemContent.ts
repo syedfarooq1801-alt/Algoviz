@@ -6,6 +6,9 @@ import { PYTHON_SOLUTIONS } from "./pythonSolutions";
 // Rich overrides — merge generated base with high-quality entries below
 const RICH_OVERRIDES: Record<string, import("./problemContent.generated").ProblemContent> = {
   "two-sum": {
+    statement: "Given an array of integers nums and an integer target, find the indices of the two numbers in the array that add up to target. Assume each input has exactly one valid answer, and you may not use the same array element twice; return the two indices in any order.",
+    examples: [{"input":"nums = [2,7,11,15], target = 9","output":"[0,1]","explanation":"nums[0] + nums[1] = 2 + 7 = 9."},{"input":"nums = [3,2,4], target = 6","output":"[1,2]"},{"input":"nums = [3,3], target = 6","output":"[0,1]"}],
+    constraints: ["2 <= nums.length <= 10^4","-10^9 <= nums[i] <= 10^9","-10^9 <= target <= 10^9","Exactly one valid answer exists"],
     intuition:
       "Brute force checks every pair in O(n²). The insight: if we need a + b = target, then b = target - a. Store each number in a hash map as we walk the array. For each number, instantly check if its complement already exists.",
     approach: [
@@ -41,6 +44,9 @@ public:
   },
 
   "contains-duplicate": {
+    statement: "You are given an integer array nums. Determine whether any value appears more than once in the array, and return true if so; otherwise return false if every element is distinct.",
+    examples: [{"input":"nums = [1,2,3,1]","output":"true","explanation":"The value 1 appears at indices 0 and 3."},{"input":"nums = [1,2,3,4]","output":"false","explanation":"All elements are distinct."},{"input":"nums = [1,1,1,3,3,4,3,2,4,2]","output":"true"}],
+    constraints: ["1 <= nums.length <= 10^5","-10^9 <= nums[i] <= 10^9"],
     intuition:
       "We need to know if any value appears more than once. Hash set membership check is O(1). Walk the array: if element is already in set, we found a duplicate. Otherwise add it.",
     approach: [
@@ -74,6 +80,9 @@ public:
   },
 
   "valid-anagram": {
+    statement: "Given two strings s and t, determine whether t is an anagram of s, meaning t can be formed by rearranging all of the letters of s exactly once with no letters added or removed. Return true if t is an anagram of s, and false otherwise.",
+    examples: [{"input":"s = \"anagram\", t = \"nagaram\"","output":"true"},{"input":"s = \"rat\", t = \"car\"","output":"false"}],
+    constraints: ["1 <= s.length, t.length <= 5 * 10^4","s and t consist of lowercase English letters"],
     intuition:
       "Two strings are anagrams if they contain the same characters with the same frequencies. Sort both and compare — O(n log n). Better: count character frequencies using array of size 26 or hash map, then compare counts.",
     approach: [
@@ -109,6 +118,9 @@ public:
   },
 
   "group-anagrams": {
+    statement: "Given an array of strings strs, group the strings that are anagrams of each other into separate lists, and return the collection of these groups. Groups and the strings within each group may be returned in any order.",
+    examples: [{"input":"strs = [\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]","output":"[[\"bat\"],[\"nat\",\"tan\"],[\"ate\",\"eat\",\"tea\"]]"},{"input":"strs = [\"\"]","output":"[[\"\"]]"},{"input":"strs = [\"a\"]","output":"[[\"a\"]]"}],
+    constraints: ["1 <= strs.length <= 10^4","0 <= strs[i].length <= 100","strs[i] consists of lowercase English letters"],
     intuition:
       "Anagrams share the same sorted string. Use sorted string as hash map key. Group all strings with the same key together.",
     approach: [
@@ -144,6 +156,9 @@ public:
   },
 
   "longest-substring": {
+    statement: "Given a string, find the length of the longest contiguous substring in which no character repeats.",
+    examples: [{"input":"s = \"abcabcbb\"","output":"3","explanation":"The longest substring without repeating characters is \"abc\"."},{"input":"s = \"bbbbb\"","output":"1"},{"input":"s = \"pwwkew\"","output":"3","explanation":"The answer is \"wke\", with length 3."}],
+    constraints: ["0 <= s.length <= 5 * 10^4","s consists of English letters, digits, symbols, and spaces"],
     intuition:
       "Track a window [left, right] with no repeating characters. When we add a character that already exists in the window, shrink left until the duplicate is removed. Use hash map to store last seen index of each character for O(1) jump.",
     approach: [
@@ -182,6 +197,9 @@ public:
   },
 
   "best-time-stock": {
+    statement: "Given an array where each element is the price of a stock on that day, find the single best day to buy and a later day to sell in order to maximize profit. Return the maximum profit achievable, or 0 if no profit is possible.",
+    examples: [{"input":"prices = [7,1,5,3,6,4]","output":"5","explanation":"Buy on day 2 at price 1 and sell on day 5 at price 6 for a profit of 5."},{"input":"prices = [7,6,4,3,1]","output":"0","explanation":"Prices only decrease, so no profitable transaction is possible."},{"input":"prices = [2,4,1]","output":"2"}],
+    constraints: ["1 <= prices.length <= 10^5","0 <= prices[i] <= 10^4"],
     intuition:
       "We want max(prices[j] - prices[i]) where j > i. Equivalently: track the minimum price seen so far, and for each day, compute profit if we sold today. Keep track of maximum profit seen.",
     approach: [
@@ -215,6 +233,9 @@ public:
   },
 
   "valid-parentheses": {
+    statement: "Given a string s consisting only of the bracket characters '(', ')', '{', '}', '[', and ']', determine whether every opening bracket is closed by the same type of bracket in the correct order. Return true if the string is valid, false otherwise.",
+    examples: [{"input":"s = \"()[]{}\"","output":"true"},{"input":"s = \"(]\"","output":"false"},{"input":"s = \"([)]\"","output":"false","explanation":"The brackets close out of order, so it is invalid even though each type appears in matching pairs."}],
+    constraints: ["1 <= s.length <= 10^4","s consists only of the characters '()[]{}'"],
     intuition:
       "Every closing bracket must match the most recently opened bracket. Stack perfectly models this LIFO requirement: push opening brackets, pop when we see closing bracket and verify match.",
     approach: [
@@ -256,6 +277,9 @@ public:
   },
 
   "binary-search": {
+    statement: "Given an array of integers sorted in ascending order and a target value, search for the target in the array using an algorithm that runs in logarithmic time. Return the index of the target if found, or -1 otherwise.",
+    examples: [{"input":"nums = [-1,0,3,5,9,12], target = 9","output":"4","explanation":"9 exists in nums and its index is 4."},{"input":"nums = [-1,0,3,5,9,12], target = 2","output":"-1","explanation":"2 does not exist in nums so -1 is returned."}],
+    constraints: ["1 <= nums.length <= 10^4","-10^4 < nums[i], target < 10^4","All the integers in nums are unique","nums is sorted in ascending order"],
     intuition:
       "Array is sorted. At each step, compare middle element with target. If equal, found. If target > mid, answer is in right half. If target < mid, answer is in left half. Each step halves the search space.",
     approach: [
@@ -294,6 +318,9 @@ public:
   },
 
   "reverse-linked-list": {
+    statement: "Given the head of a singly linked list, reverse the list and return the head of the reversed list.",
+    examples: [{"input":"head = [1,2,3,4,5]","output":"[5,4,3,2,1]"},{"input":"head = [1,2]","output":"[2,1]"},{"input":"head = []","output":"[]"}],
+    constraints: ["the number of nodes is in the range [0, 5000]","-5000 <= Node.val <= 5000"],
     intuition:
       "We need to make each node point backward. Keep track of previous node. For each current node, save its next, point it to prev, advance prev to current, advance current to saved next.",
     approach: [
@@ -331,6 +358,9 @@ public:
   },
 
   "climbing-stairs": {
+    statement: "You are climbing a staircase that requires n steps to reach the top, and on each move you may advance either 1 or 2 steps. Return the number of distinct sequences of moves that reach exactly the top.",
+    examples: [{"input":"n = 2","output":"2","explanation":"The two ways are: 1 step + 1 step, or 2 steps."},{"input":"n = 3","output":"3","explanation":"The three ways are: 1+1+1, 1+2, and 2+1."},{"input":"n = 1","output":"1"}],
+    constraints: ["1 <= n <= 45"],
     intuition:
       "To reach step n, you can come from step n-1 (1 step) or step n-2 (2 steps). So ways(n) = ways(n-1) + ways(n-2). This is exactly the Fibonacci sequence! ways(1)=1, ways(2)=2.",
     approach: [
@@ -364,6 +394,9 @@ public:
   },
 
   "house-robber": {
+    statement: "You are a robber planning to rob houses arranged in a single row, where nums[i] is the amount of money stored in house i, but robbing two directly adjacent houses on the same night will trigger the alarm. Return the maximum total amount of money you can steal without robbing two adjacent houses.",
+    examples: [{"input":"nums = [1,2,3,1]","output":"4","explanation":"Rob house 0 (1) and house 2 (3) for a total of 4."},{"input":"nums = [2,7,9,3,1]","output":"12","explanation":"Rob houses 0, 2, and 4 for 2 + 9 + 1 = 12."},{"input":"nums = [5]","output":"5"}],
+    constraints: ["1 <= nums.length <= 100","0 <= nums[i] <= 400"],
     intuition:
       "Can't rob adjacent houses. For each house, decide: rob it (gain + skip previous) or skip it (take whatever was best up to previous). dp[i] = max(dp[i-2] + nums[i], dp[i-1]).",
     approach: [
@@ -397,6 +430,9 @@ public:
   },
 
   "number-of-islands": {
+    statement: "You are given a 2D grid of '1's (land) and '0's (water). An island is formed by land cells connected horizontally or vertically, and is surrounded by water. Return the total number of distinct islands in the grid.",
+    examples: [{"input":"grid = [[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"1\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"1\",\"1\"]]","output":"3"},{"input":"grid = [[\"1\",\"1\",\"1\"],[\"0\",\"1\",\"0\"],[\"1\",\"1\",\"1\"]]","output":"1"}],
+    constraints: ["1 <= grid.length, grid[i].length <= 300","grid[i][j] is '0' or '1'"],
     intuition:
       "Grid has '1' (land) and '0' (water). An island is a group of connected '1's (4-directional). Walk the grid; when we find an unvisited '1', it's a new island — flood-fill (DFS/BFS) to mark all connected land as visited.",
     approach: [
@@ -442,6 +478,9 @@ public:
   },
 
   "coin-change": {
+    statement: "You are given an array coins representing distinct coin denominations, each available in unlimited supply, and an integer amount representing a target sum. Return the minimum number of coins needed to make up exactly that amount; if the amount cannot be made up by any combination of the coins, return -1.",
+    examples: [{"input":"coins = [1,2,5], amount = 11","output":"3","explanation":"11 can be made with 5 + 5 + 1, which uses 3 coins."},{"input":"coins = [2], amount = 3","output":"-1","explanation":"It is impossible to make an odd amount using only coins of value 2."},{"input":"coins = [1], amount = 0","output":"0"}],
+    constraints: ["1 <= coins.length <= 12","1 <= coins[i] <= 2^31 - 1","0 <= amount <= 10^4","all values in coins are unique"],
     intuition:
       "Find minimum coins to make amount. Greedy doesn't always work (e.g., coins=[1,3,4], amount=6 → greedy gives 4+1+1=3 but 3+3=2 is better). Use DP: dp[i] = min coins to make amount i.",
     approach: [
@@ -477,6 +516,9 @@ public:
   },
 
   "invert-binary-tree": {
+    statement: "Given the root of a binary tree, produce its mirror image by swapping the left and right subtree of every node, and return the root of the transformed tree.",
+    examples: [{"input":"root = [4,2,7,1,3,6,9]","output":"[4,7,2,9,6,3,1]"},{"input":"root = [2,1,3]","output":"[2,3,1]"},{"input":"root = []","output":"[]"}],
+    constraints: ["The number of nodes in the tree is in the range [0, 100]","-100 <= Node.val <= 100"],
     intuition:
       "Swap left and right children for every node. Recurse down. The key insight: after swapping children, recursively invert each subtree.",
     approach: [
@@ -509,6 +551,9 @@ public:
   },
 
   "max-subarray": {
+    statement: "Given an integer array, find a contiguous, non-empty subarray whose elements sum to the largest possible value. Return that maximum sum.",
+    examples: [{"input":"nums = [-2,1,-3,4,-1,2,1,-5,4]","output":"6","explanation":"The subarray [4,-1,2,1] has the largest sum, 6."},{"input":"nums = [1]","output":"1"},{"input":"nums = [5,4,-1,7,8]","output":"23","explanation":"The entire array sums to 23, which is the maximum."}],
+    constraints: ["1 <= nums.length <= 10^5","-10^4 <= nums[i] <= 10^4"],
     intuition:
       "Kadane's algorithm: at each position, decide — should I extend the existing subarray or start fresh? If current sum + nums[i] < nums[i], the current sum is dragging us down. Start fresh from nums[i].",
     approach: [
@@ -541,6 +586,9 @@ public:
   },
 
   "single-number": {
+    statement: "Given an array of integers where every element appears exactly twice except for a single element that appears only once, find and return that unique element. Your solution should run in linear time using constant extra space.",
+    examples: [{"input":"nums = [2,2,1]","output":"1"},{"input":"nums = [4,1,2,1,2]","output":"4"}],
+    constraints: ["1 <= nums.length <= 3 * 10^4","-3 * 10^4 <= nums[i] <= 3 * 10^4","Each element appears twice except for one which appears exactly once"],
     intuition:
       "XOR properties: a XOR a = 0, a XOR 0 = a. If every number appears twice except one, XOR all numbers together — pairs cancel out (→ 0), leaving only the single number.",
     approach: [
@@ -569,6 +617,9 @@ public:
   },
 
   "linked-list-cycle": {
+    statement: "Given the head of a singly linked list, determine whether the list contains a cycle, i.e. whether some node can be reached again by repeatedly following the next pointer. Return true if a cycle exists, otherwise false.",
+    examples: [{"input":"head = [3,2,0,-4], pos = 1","output":"true","explanation":"The tail connects to the node at index 1, forming a cycle."},{"input":"head = [1,2], pos = 0","output":"true"},{"input":"head = [1], pos = -1","output":"false","explanation":"pos = -1 means there is no cycle."}],
+    constraints: ["the number of nodes is in the range [0, 10^4]","-10^5 <= Node.val <= 10^5","pos is -1 or a valid index representing where the tail connects to"],
     intuition:
       "Floyd's cycle detection: slow pointer moves 1 step, fast pointer moves 2 steps. If there's a cycle, fast will eventually lap slow and they'll meet. If no cycle, fast reaches null.",
     approach: [
@@ -605,6 +656,9 @@ public:
   },
 
   "implement-trie": {
+    statement: "Design and implement a Trie (prefix tree) data structure that supports three operations: inserting a lowercase English word, checking whether an exact word has previously been inserted, and checking whether any inserted word begins with a given prefix. All operations should run efficiently regardless of how many words have been stored.",
+    examples: [{"input":"insert(\"apple\"); search(\"apple\"); search(\"app\"); startsWith(\"app\"); insert(\"app\"); search(\"app\")","output":"true, false, true, true","explanation":"After inserting \"apple\", searching for the exact word \"app\" fails, but \"app\" is a valid prefix; once \"app\" is inserted, searching for it succeeds."}],
+    constraints: ["1 <= word.length, prefix.length <= 2000","word and prefix consist only of lowercase English letters","At most 3 * 10^4 total calls will be made to insert, search, and startsWith"],
     intuition:
       "Trie stores strings letter by letter in a tree. Each path from root to an isEnd node represents a word. Insert: walk/create nodes for each letter. Search: walk nodes, check isEnd. StartsWith: walk nodes, return true if all exist.",
     approach: [
@@ -664,6 +718,9 @@ public:
   },
 
   "subsets": {
+    statement: "Given an array of distinct integers, return every possible subset of the array (the power set), without including any duplicate subset. The subsets may be returned in any order.",
+    examples: [{"input":"nums = [1,2,3]","output":"[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]"},{"input":"nums = [0]","output":"[[],[0]]"}],
+    constraints: ["1 <= nums.length <= 10","-10 <= nums[i] <= 10","All the numbers in nums are unique"],
     intuition:
       "Every element has two choices: include or exclude. This gives 2^n subsets. Backtracking: at each index, decide include/exclude, recurse, undo. Alternative: iterative bit manipulation.",
     approach: [
@@ -700,6 +757,9 @@ public:
   },
 
   "max-area-island": {
+    statement: "You are given a 2D grid of 0s (water) and 1s (land), where land cells connected horizontally or vertically form an island. Return the area (number of cells) of the largest island in the grid, or 0 if there are no islands.",
+    examples: [{"input":"grid = [[0,0,1,0,0],[0,0,1,1,1],[0,1,1,0,0],[0,1,0,0,0]]","output":"6"},{"input":"grid = [[0,0,0],[0,0,0]]","output":"0"}],
+    constraints: ["1 <= grid.length, grid[i].length <= 50","grid[i][j] is 0 or 1"],
     intuition:
       "Same as number of islands, but instead of counting islands, compute the area of each (by counting cells during DFS). Track the maximum.",
     approach: [
@@ -736,6 +796,9 @@ public:
   },
 
   "ransom-note": {
+    statement: "Given two strings ransomNote and magazine, determine whether ransomNote can be constructed by using the letters from magazine, where each letter in magazine may be used at most once. Return true if it is possible, otherwise return false.",
+    examples: [{"input":"ransomNote = \"a\", magazine = \"b\"","output":"false"},{"input":"ransomNote = \"aa\", magazine = \"ab\"","output":"false","explanation":"magazine only has one 'a', but ransomNote needs two."},{"input":"ransomNote = \"aa\", magazine = \"aab\"","output":"true"}],
+    constraints: ["1 <= ransomNote.length, magazine.length <= 10^5","ransomNote and magazine consist of lowercase English letters"],
     intuition:
       "You need to build the ransom note using only letters from the magazine — each magazine letter can be used at most once. This is a frequency-counting problem: count how many of each letter the magazine has, then verify the ransom note never requires more of any letter than the magazine provides.",
     approach: [
@@ -772,6 +835,9 @@ public:
   },
 
   "container-water": {
+    statement: "You are given an array of non-negative integers where each value represents the height of a vertical line drawn at that index on the x-axis. Choose two of these lines that, together with the x-axis, form a container, and return the maximum amount of water the container can hold. Note that the container cannot be tilted.",
+    examples: [{"input":"height = [1,8,6,2,5,4,8,3,7]","output":"49","explanation":"Lines at index 1 (height 8) and index 8 (height 7) give width 7 and height min(8,7)=7, so area = 49, which is the maximum possible."},{"input":"height = [1,1]","output":"1"},{"input":"height = [4,3,2,1,4]","output":"16"}],
+    constraints: ["2 <= height.length <= 10^5","0 <= height[i] <= 10^4"],
     intuition: "Two-pointer from both ends. The water height is limited by the shorter wall. To potentially find more water, move the shorter pointer inward — moving the taller one can only make things worse.",
     approach: [
       "Place left pointer at index 0, right pointer at last index.",
@@ -804,6 +870,9 @@ public:
   },
 
   "product-except-self": {
+    statement: "Given an integer array nums, return an array answer such that answer[i] is equal to the product of every element of nums except nums[i]. You must solve it without using the division operator, and in O(n) time.",
+    examples: [{"input":"nums = [1,2,3,4]","output":"[24,12,8,6]"},{"input":"nums = [-1,1,0,-3,3]","output":"[0,0,9,0,0]"}],
+    constraints: ["2 <= nums.length <= 10^5","-30 <= nums[i] <= 30","The product of any prefix or suffix of nums is guaranteed to fit in a 32-bit integer"],
     intuition: "For each index i, the answer is (product of all elements left of i) × (product of all elements right of i). Compute prefix products left-to-right, then multiply suffix products right-to-left — no division needed.",
     approach: [
       "Initialize result array with all 1s.",
@@ -835,6 +904,9 @@ public:
   },
 
   "three-sum": {
+    statement: "Given an integer array nums, find all unique triplets of distinct indices [i, j, k] such that nums[i] + nums[j] + nums[k] equals zero, and return the list of value triplets with no duplicate triplets included. The triplets and their values may be returned in any order.",
+    examples: [{"input":"nums = [-1,0,1,2,-1,-4]","output":"[[-1,-1,2],[-1,0,1]]"},{"input":"nums = [0,1,1]","output":"[]","explanation":"No triplet in the array sums to 0."},{"input":"nums = [0,0,0]","output":"[[0,0,0]]"}],
+    constraints: ["3 <= nums.length <= 3000","-10^5 <= nums[i] <= 10^5"],
     intuition: "Sort the array, then for each element use two pointers on the rest. Sorting lets us skip duplicates and use the two-pointer squeeze trick from Two Sum II.",
     approach: [
       "Sort the array.",
@@ -878,6 +950,9 @@ public:
   },
 
   "two-sum-ii": {
+    statement: "Given a 1-indexed array of integers numbers that is already sorted in non-decreasing order, and an integer target, find two numbers in the array that add up to target. Return their indices (1-indexed) as an array of length two, using each element at most once; exactly one valid solution is guaranteed to exist, and you should aim to use only constant extra space.",
+    examples: [{"input":"numbers = [2,7,11,15], target = 9","output":"[1,2]","explanation":"numbers[0] + numbers[1] = 2 + 7 = 9, so the 1-indexed answer is [1,2]."},{"input":"numbers = [2,3,4], target = 6","output":"[1,3]"},{"input":"numbers = [-1,0], target = -1","output":"[1,2]"}],
+    constraints: ["2 <= numbers.length <= 3 * 10^4","-1000 <= numbers[i] <= 1000","numbers is sorted in non-decreasing order","-1000 <= target <= 1000","Exactly one valid answer exists"],
     intuition: "Array is sorted. Use two pointers from both ends. If sum too big move right inward, if too small move left outward. Guaranteed one solution.",
     approach: [
       "left = 0, right = n-1.",
@@ -910,6 +985,9 @@ public:
   },
 
   "valid-palindrome": {
+    statement: "Given a string s, consider only alphanumeric characters and ignore case to determine whether it reads the same forwards and backwards. Return true if s is a palindrome under these rules, and false otherwise.",
+    examples: [{"input":"s = \"A man, a plan, a canal: Panama\"","output":"true","explanation":"After removing non-alphanumeric characters and lowercasing, it becomes \"amanaplanacanalpanama\", which is a palindrome."},{"input":"s = \"race a car\"","output":"false"},{"input":"s = \" \"","output":"true","explanation":"After removing non-alphanumeric characters, the string is empty, which is trivially a palindrome."}],
+    constraints: ["1 <= s.length <= 2 * 10^5","s consists only of printable ASCII characters"],
     intuition: "Two pointers from both ends. Skip non-alphanumeric characters, compare lowercased chars. If any mismatch, not palindrome.",
     approach: [
       "left = 0, right = n-1.",
@@ -944,6 +1022,9 @@ public:
   },
 
   "longest-consecutive": {
+    statement: "Given an unsorted array of integers nums, find the length of the longest run of consecutive integers that can be formed using elements from the array. The elements of the run do not need to appear in order within nums, and your algorithm should run in O(n) time.",
+    examples: [{"input":"nums = [100,4,200,1,3,2]","output":"4","explanation":"The longest consecutive sequence is 1, 2, 3, 4."},{"input":"nums = [0,3,7,2,5,8,4,6,0,1]","output":"9","explanation":"The longest consecutive sequence is 0,1,2,3,4,5,6,7,8."}],
+    constraints: ["0 <= nums.length <= 10^5","-10^9 <= nums[i] <= 10^9"],
     intuition: "Put all numbers in a hash set. For each number that is the START of a sequence (n-1 not in set), count how long the consecutive run is. This ensures O(n) — each number is the start of at most one sequence.",
     approach: [
       "Insert all numbers into unordered_set.",
@@ -979,6 +1060,9 @@ public:
   },
 
   "move-zeroes": {
+    statement: "Given an integer array nums, move all zeros in the array to the end while preserving the relative order of the non-zero elements. This must be done in-place without making a copy of the array.",
+    examples: [{"input":"nums = [0,1,0,3,12]","output":"[1,3,12,0,0]"},{"input":"nums = [0]","output":"[0]"}],
+    constraints: ["1 <= nums.length <= 10^4","-2^31 <= nums[i] <= 2^31 - 1"],
     intuition: "Two-pointer in-place. One pointer (insert) tracks where next non-zero goes. Walk the array — when non-zero found, swap it to insert position, advance both.",
     approach: [
       "insert = 0.",
@@ -1005,6 +1089,9 @@ public:
   },
 
   "longest-repeating-replacement": {
+    statement: "Given a string of uppercase letters and an integer k, you may change at most k characters of the string to any other uppercase letter. Return the length of the longest substring that can be made to consist of a single repeating letter after performing at most k such changes.",
+    examples: [{"input":"s = \"ABAB\", k = 2","output":"4","explanation":"Replace the two 'A's or the two 'B's to get a string like \"AAAA\" or \"BBBB\"."},{"input":"s = \"AABABBA\", k = 1","output":"4","explanation":"Replace one 'B' in \"AABA\" to get \"AAAA\", length 4."},{"input":"s = \"ABBB\", k = 2","output":"4"}],
+    constraints: ["1 <= s.length <= 10^5","s consists of only uppercase English letters","0 <= k <= s.length"],
     intuition: "Sliding window. Key insight: window is valid if (window size − count of most frequent char) ≤ k. We can replace the minority chars. Expand right always, shrink left when invalid.",
     approach: [
       "left = 0, maxCount = 0, freq map.",
@@ -1036,6 +1123,9 @@ public:
   },
 
   "permutation-in-string": {
+    statement: "Given two strings s1 and s2, determine whether s2 contains a contiguous substring that is a permutation (any reordering) of s1.",
+    examples: [{"input":"s1 = \"ab\", s2 = \"eidbaooo\"","output":"true","explanation":"\"ba\" is a substring of s2 and is a permutation of \"ab\"."},{"input":"s1 = \"ab\", s2 = \"eidboaoo\"","output":"false"},{"input":"s1 = \"adc\", s2 = \"dcda\"","output":"true"}],
+    constraints: ["1 <= s1.length, s2.length <= 10^4","s1 and s2 consist of lowercase English letters only"],
     intuition: "Fixed-size sliding window of length len(s1). Check if character frequencies in window match s1's frequencies. Slide window across s2.",
     approach: [
       "Count frequencies of s1 chars in array need[26].",
@@ -1070,6 +1160,9 @@ public:
   },
 
   "min-window-substring": {
+    statement: "Given two strings s and t, find the smallest contiguous substring of s that contains every character of t, including duplicates, in any order. Return an empty string if no such window exists.",
+    examples: [{"input":"s = \"ADOBECODEBANC\", t = \"ABC\"","output":"\"BANC\"","explanation":"\"BANC\" is the smallest substring of s containing 'A', 'B', and 'C'."},{"input":"s = \"a\", t = \"a\"","output":"\"a\""},{"input":"s = \"a\", t = \"aa\"","output":"\"\"","explanation":"s only has one 'a', so it cannot contain two copies required by t."}],
+    constraints: ["1 <= s.length, t.length <= 10^5","s and t consist of uppercase and lowercase English letters","It is guaranteed a valid answer, if one exists, is unique"],
     intuition: "Sliding window with variable size. Expand right to include needed chars, contract left to minimize window once all chars are covered. Track 'formed' count — how many unique chars satisfy required frequency.",
     approach: [
       "Build need map from t. formed = 0, required = need.size().",
@@ -1109,6 +1202,9 @@ public:
   },
 
   "sliding-window-max": {
+    statement: "Given an integer array nums and a window size k, a window of size k slides from the very left of the array to the very right, moving one position at a time. For each position of the window, return the maximum value contained inside it, producing an output array of these maximums.",
+    examples: [{"input":"nums = [1,3,-1,-3,5,3,6,7], k = 3","output":"[3,3,5,5,6,7]"},{"input":"nums = [1], k = 1","output":"[1]"},{"input":"nums = [9,11], k = 2","output":"[11]"}],
+    constraints: ["1 <= nums.length <= 10^5","-10^4 <= nums[i] <= 10^4","1 <= k <= nums.length"],
     intuition: "Use a monotonic deque (decreasing). Back of deque is always the index of the current max. When sliding, pop front if out of window, pop back if new element is larger (they're useless now).",
     approach: [
       "Use deque storing indices. Maintain decreasing order of values.",
@@ -1143,6 +1239,9 @@ public:
   },
 
   "max-points-cards": {
+    statement: "There are cards arranged in a row, each with a point value. In each of k moves you may take exactly one card from either the beginning or the end of the remaining row. Return the maximum total number of points you can collect after making exactly k moves.",
+    examples: [{"input":"cardPoints = [1,2,3,4,5,6,1], k = 3","output":"12","explanation":"Taking the three rightmost cards (6, 1) plus one more from an optimal end selection sums to 12; concretely taking [4,5,6] or the equivalent rightmost run gives the max total of 12."},{"input":"cardPoints = [2,2,2], k = 2","output":"4"},{"input":"cardPoints = [9,7,7,9,7,7,9], k = 7","output":"55","explanation":"k equals the total number of cards, so all cards must be taken."}],
+    constraints: ["1 <= cardPoints.length <= 10^5","1 <= cardPoints[i] <= 10^4","1 <= k <= cardPoints.length"],
     intuition: "You take k cards from left or right end. Total = fixed sum of k cards. Equivalently: maximize sum of k cards from ends = total_sum − minimize sum of middle (n−k) subarray. Use sliding window of size n−k.",
     approach: [
       "Compute totalSum of all k cards you'd take from left initially.",
@@ -1177,6 +1276,9 @@ public:
   },
 
   "encode-decode-strings": {
+    statement: "Design an algorithm to encode a list of strings into a single string, and a corresponding decode function that reconstructs the original list of strings from the encoded string. Your encoding scheme must handle strings that contain any characters, including delimiters you might otherwise use, so that decode(encode(strs)) always equals strs.",
+    examples: [{"input":"strs = [\"lint\",\"code\",\"love\",\"you\"]","output":"[\"lint\",\"code\",\"love\",\"you\"]","explanation":"encode(strs) produces some single string, and decoding that string returns the original list unchanged."},{"input":"strs = [\"we\",\"say\",\":\",\"yes\"]","output":"[\"we\",\"say\",\":\",\"yes\"]"}],
+    constraints: ["1 <= strs.length <= 200","0 <= strs[i].length <= 200","strs[i] can contain any possible character out of 256 valid ASCII characters"],
     intuition: "Encode each string as its length followed by '#' followed by the string. Decode by reading length, skipping '#', reading that many chars.",
     approach: [
       "Encode: for each s, append to_string(s.size()) + '#' + s.",
@@ -1214,6 +1316,9 @@ public:
   },
 
   "valid-sudoku": {
+    statement: "Given a 9x9 Sudoku board partially filled with digits and empty cells marked '.', determine whether the currently filled cells satisfy Sudoku rules: each row, each column, and each of the nine 3x3 sub-boxes must not contain the same digit 1-9 more than once. You only need to validate the filled cells according to these rules, not check whether the board is solvable.",
+    examples: [{"input":"board = [[\"5\",\"3\",\".\",\".\",\"7\",\".\",\".\",\".\",\".\"],[\"6\",\".\",\".\",\"1\",\"9\",\"5\",\".\",\".\",\".\"],[\".\",\"9\",\"8\",\".\",\".\",\".\",\".\",\"6\",\".\"],[\"8\",\".\",\".\",\".\",\"6\",\".\",\".\",\".\",\"3\"],[\"4\",\".\",\".\",\"8\",\".\",\"3\",\".\",\".\",\"1\"],[\"7\",\".\",\".\",\".\",\"2\",\".\",\".\",\".\",\"6\"],[\".\",\"6\",\".\",\".\",\".\",\".\",\"2\",\"8\",\".\"],[\".\",\".\",\".\",\"4\",\"1\",\"9\",\".\",\".\",\"5\"],[\".\",\".\",\".\",\".\",\"8\",\".\",\".\",\"7\",\"9\"]]","output":"true"},{"input":"board = [[\"8\",\"3\",\".\",\".\",\"7\",\".\",\".\",\".\",\".\"],[\"6\",\".\",\".\",\"1\",\"9\",\"5\",\".\",\".\",\".\"],[\".\",\"9\",\"8\",\".\",\".\",\".\",\".\",\"6\",\".\"],[\"8\",\".\",\".\",\".\",\"6\",\".\",\".\",\".\",\"3\"],[\"4\",\".\",\".\",\"8\",\".\",\"3\",\".\",\".\",\"1\"],[\"7\",\".\",\".\",\".\",\"2\",\".\",\".\",\".\",\"6\"],[\".\",\"6\",\".\",\".\",\".\",\".\",\"2\",\"8\",\".\"],[\".\",\".\",\".\",\"4\",\"1\",\"9\",\".\",\".\",\"5\"],[\".\",\".\",\".\",\".\",\"8\",\".\",\".\",\"7\",\"9\"]]","output":"false","explanation":"The top-left 3x3 box now contains the digit 8 twice (row 0 and row 3, column 0)."}],
+    constraints: ["board.length == 9","board[i].length == 9","board[i][j] is a digit '1'-'9' or '.'"],
     intuition: "Each row, column, and 3×3 box must contain digits 1-9 with no repetition. Use sets (or bit arrays) to track seen digits. Box index = (row/3)*3 + col/3.",
     approach: [
       "Three 9-element arrays of sets: rows[9], cols[9], boxes[9].",
@@ -1251,6 +1356,9 @@ public:
   },
 
   "rotate-image": {
+    statement: "You are given an n x n 2D matrix representing an image. Rotate the matrix by 90 degrees clockwise, modifying it directly without allocating another matrix.",
+    examples: [{"input":"matrix = [[1,2,3],[4,5,6],[7,8,9]]","output":"[[7,4,1],[8,5,2],[9,6,3]]"},{"input":"matrix = [[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]]","output":"[[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]"}],
+    constraints: ["n == matrix.length == matrix[i].length","1 <= n <= 20","-1000 <= matrix[i][j] <= 1000","You must rotate the matrix in place, using O(1) extra space"],
     intuition: "Rotate 90° clockwise = transpose then reverse each row. Transpose: swap matrix[i][j] with matrix[j][i]. Reverse rows: standard reversal.",
     approach: [
       "Transpose: for i in [0,n): for j in [i+1,n): swap(matrix[i][j], matrix[j][i]).",
@@ -1279,6 +1387,9 @@ public:
   },
 
   "spiral-matrix": {
+    statement: "Given an m x n matrix, return all of its elements ordered as if you were traversing the matrix in a clockwise spiral, starting from the top-left corner and working inward.",
+    examples: [{"input":"matrix = [[1,2,3],[4,5,6],[7,8,9]]","output":"[1,2,3,6,9,8,7,4,5]"},{"input":"matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]","output":"[1,2,3,4,8,12,11,10,9,5,6,7]"}],
+    constraints: ["m == matrix.length","n == matrix[i].length","1 <= m, n <= 10","-100 <= matrix[i][j] <= 100"],
     intuition: "Maintain four boundaries: top, bottom, left, right. Traverse right → down → left → up, shrinking the boundary after each direction.",
     approach: [
       "top=0, bottom=m-1, left=0, right=n-1.",
@@ -1314,6 +1425,9 @@ public:
   },
 
   "set-matrix-zeroes": {
+    statement: "Given an m x n matrix, if an element is 0, set its entire row and its entire column to 0. Perform the transformation directly on the input matrix.",
+    examples: [{"input":"matrix = [[1,1,1],[1,0,1],[1,1,1]]","output":"[[1,0,1],[0,0,0],[1,0,1]]"},{"input":"matrix = [[0,1,2,0],[3,4,5,2],[1,3,1,5]]","output":"[[0,0,0,0],[0,4,5,0],[0,3,1,0]]"}],
+    constraints: ["m == matrix.length","n == matrix[0].length","1 <= m, n <= 200","-2^31 <= matrix[i][j] <= 2^31 - 1","Try to solve it using O(1) additional space"],
     intuition: "If cell (i,j) is 0, mark entire row i and col j as zero. Naively scanning and modifying causes cascading false zeros. Solution: first record which rows/cols need zeroing, then apply.",
     approach: [
       "Scan matrix: collect set of zero rows and zero cols.",
@@ -1349,6 +1463,9 @@ public:
   },
 
   "is-subsequence": {
+    statement: "Given two strings s and t, determine whether s is a subsequence of t, meaning s can be obtained from t by deleting some (possibly zero) characters without changing the relative order of the remaining characters. Return true if s is a subsequence of t, otherwise false.",
+    examples: [{"input":"s = \"abc\", t = \"ahbgdc\"","output":"true"},{"input":"s = \"axc\", t = \"ahbgdc\"","output":"false"}],
+    constraints: ["0 <= s.length <= 100","0 <= t.length <= 10^4","s and t consist only of lowercase English letters"],
     intuition: "Walk both strings with two pointers. When chars match advance both; otherwise advance only the t pointer. If s pointer reaches end, s is a subsequence.",
     approach: [
       "i = 0 (pointer in s), j = 0 (pointer in t).",
@@ -1378,6 +1495,9 @@ public:
   },
 
   "reverse-polish": {
+    statement: "Evaluate an arithmetic expression given as an array of tokens written in Reverse Polish (postfix) Notation, where tokens are integers or the operators +, -, *, /. Return the integer result of the expression, using integer division that truncates toward zero.",
+    examples: [{"input":"tokens = [\"2\",\"1\",\"+\",\"3\",\"*\"]","output":"9","explanation":"(2 + 1) * 3 = 9."},{"input":"tokens = [\"4\",\"13\",\"5\",\"/\",\"+\"]","output":"6","explanation":"13 / 5 truncates to 2, then 4 + 2 = 6."},{"input":"tokens = [\"10\",\"6\",\"9\",\"3\",\"+\",\"-11\",\"*\",\"/\",\"*\",\"17\",\"+\",\"5\",\"+\"]","output":"22"}],
+    constraints: ["1 <= tokens.length <= 10^4","Each token is either an operator ('+', '-', '*', '/') or an integer in the range [-200, 200]","The expression is always a valid RPN expression","Division between two integers always truncates toward zero, and the answer fits in a 32-bit integer"],
     intuition: "Stack-based evaluation. Numbers push onto stack. Operators pop two operands, compute, push result. Final stack top is the answer.",
     approach: [
       "For each token:",
@@ -1414,6 +1534,9 @@ public:
   },
 
   "min-stack": {
+    statement: "Design a stack that supports push, pop, top, and retrieving the minimum element, all in constant time. Implement the MinStack class with these operations.",
+    examples: [{"input":"[\"MinStack\",\"push\",\"push\",\"push\",\"getMin\",\"pop\",\"top\",\"getMin\"]\n[[],[-2],[0],[-3],[],[],[],[]]","output":"[null,null,null,null,-3,null,0,-2]","explanation":"After pushing -2, 0, -3, getMin returns -3. After popping -3, top is 0 and getMin is now -2."}],
+    constraints: ["-2^31 <= val <= 2^31 - 1","Methods pop, top, and getMin will always be called on a non-empty stack","At most 3 * 10^4 calls will be made to push, pop, top, and getMin"],
     intuition: "Maintain two stacks: main stack and a min-tracking stack. Min stack stores the current minimum at each level. When pushing x, push min(x, minStack.top()) to minStack.",
     approach: [
       "push(x): main.push(x), minStack.push(min(x, minStack.empty() ? x : minStack.top())).",
@@ -1443,6 +1566,9 @@ public:
   },
 
   "daily-temperatures": {
+    statement: "Given an array of daily temperatures, return an array where each position holds the number of days you would have to wait after that day to reach a strictly warmer temperature. If there is no future day with a warmer temperature, put 0 in that position.",
+    examples: [{"input":"temperatures = [73,74,75,71,69,72,76,73]","output":"[1,1,4,2,1,1,0,0]"},{"input":"temperatures = [30,40,50,60]","output":"[1,1,1,0]"},{"input":"temperatures = [30,60,90]","output":"[1,1,0]"}],
+    constraints: ["1 <= temperatures.length <= 10^5","30 <= temperatures[i] <= 100"],
     intuition: "Monotonic stack (decreasing). For each temperature, pop all stack entries with smaller temperatures — those found their 'next warmer day'. Push current index. Unpopped entries never find a warmer day.",
     approach: [
       "Initialize answer array with zeros, stack of indices.",
@@ -1478,6 +1604,9 @@ public:
   },
 
   "decode-string": {
+    statement: "Given an encoded string containing digits, letters, and square brackets in the pattern k[encoded_string] (meaning the enclosed string is repeated k times), decode it fully and return the resulting string. Encodings may be nested.",
+    examples: [{"input":"s = \"3[a]2[bc]\"","output":"\"aaabcbc\""},{"input":"s = \"3[a2[c]]\"","output":"\"accaccacc\"","explanation":"2[c] expands to \"cc\", then 3[a\"cc\"] expands to \"acc\" repeated 3 times."},{"input":"s = \"2[abc]3[cd]ef\"","output":"\"abcabccdcdcdef\""}],
+    constraints: ["1 <= s.length <= 30","s consists of lowercase English letters, digits, and square brackets '[]'","s is guaranteed to be a valid encoding","All integers in s are between 1 and 300"],
     intuition: "Use a stack. When encountering '[', push current string and count onto stack. When ']', pop and repeat current string count times. Build string character by character.",
     approach: [
       "curr = \"\", k = 0, stack of (string, int).",
@@ -1518,6 +1647,9 @@ public:
   },
 
   "generate-parentheses": {
+    statement: "Given an integer n representing the number of pairs of parentheses, generate all combinations of well-formed (properly matched and nested) parentheses that can be made using exactly n pairs. Return them as an array of strings in any order.",
+    examples: [{"input":"n = 3","output":"[\"((()))\",\"(()())\",\"(())()\",\"()(())\",\"()()()\"]"},{"input":"n = 1","output":"[\"()\"]"}],
+    constraints: ["1 <= n <= 8"],
     intuition: "Backtracking with two counters: open (# of '(' added) and close (# of ')' added). Rule: can add '(' if open < n. Can add ')' if close < open. Recursion builds valid combos.",
     approach: [
       "Recurse with (current_string, open_count, close_count).",
@@ -1550,6 +1682,9 @@ public:
   },
 
   "car-fleet": {
+    statement: "Cars are positioned along a one-lane road, each with a starting position and speed, all heading toward the same target position. A faster car that catches up to a slower one merges into its fleet and thereafter travels at the slower car's speed. Given position, speed, and target, return the number of distinct fleets that will eventually arrive at the target.",
+    examples: [{"input":"target = 12, position = [10,8,0,5,3], speed = [2,4,1,1,3]","output":"3","explanation":"The cars at positions 10 and 8 form one fleet, the car at 0 forms its own fleet, and the cars at 5 and 3 form another fleet, giving 3 fleets total."},{"input":"target = 10, position = [3], speed = [3]","output":"1"}],
+    constraints: ["1 <= target <= 10^6","0 <= n == position.length == speed.length <= 10^5","0 <= position[i] < target","All values in position are unique","0 < speed[i] <= 10^6"],
     intuition: "Sort cars by starting position descending (closest to target first). Calculate time for each car to reach target. If a car behind reaches target faster than car ahead, it merges into that fleet.",
     approach: [
       "Pair positions and speeds, sort by position descending.",
@@ -1584,6 +1719,9 @@ public:
   },
 
   "asteroid-collision": {
+    statement: "Given an array of integers representing asteroids in a row, where the absolute value indicates size and the sign indicates direction (positive moves right, negative moves left), simulate collisions: when two asteroids meet, the smaller one explodes, and equal-sized asteroids both explode. Return the state of the asteroids after all collisions are resolved.",
+    examples: [{"input":"asteroids = [5,10,-5]","output":"[5,10]","explanation":"The 10 and -5 collide, and since 10 is larger, -5 explodes, leaving 5 and 10 which never collide."},{"input":"asteroids = [8,-8]","output":"[]","explanation":"The two asteroids are equal in size, so both explode."},{"input":"asteroids = [10,2,-5]","output":"[10]","explanation":"2 and -5 collide and -5 wins, becoming -5, which then collides with 10 and explodes."}],
+    constraints: ["2 <= asteroids.length <= 10^4","-1000 <= asteroids[i] <= 1000","asteroids[i] != 0"],
     intuition: "Stack simulation. Positive asteroids move right, negative move left. Collision only when positive asteroid is on stack and incoming asteroid is negative. Larger absolute value wins; equal = both destroyed.",
     approach: [
       "For each asteroid a:",
@@ -1623,6 +1761,9 @@ public:
   },
 
   "add-two-numbers": {
+    statement: "You are given two non-empty linked lists representing two non-negative integers, where each node holds a single digit and the digits are stored in reverse order (the ones digit first). Add the two numbers together and return the sum as a new linked list, also in reverse-digit order.",
+    examples: [{"input":"l1 = [2,4,3], l2 = [5,6,4]","output":"[7,0,8]","explanation":"342 + 465 = 807, represented in reverse order as [7,0,8]."},{"input":"l1 = [0], l2 = [0]","output":"[0]"},{"input":"l1 = [9,9,9,9,9,9,9], l2 = [9,9,9,9]","output":"[8,9,9,9,0,0,0,1]","explanation":"9999999 + 9999 = 10009998, whose reverse-digit representation is [8,9,9,9,0,0,0,1]."}],
+    constraints: ["the number of nodes in each list is in the range [1, 100]","0 <= Node.val <= 9","the numbers do not have leading zeros, except the number 0 itself"],
     intuition: "Simulate column-by-column addition with carry. Walk both lists simultaneously. Sum = l1->val + l2->val + carry. New digit = sum % 10. New carry = sum / 10. Continue until both lists exhausted AND carry is 0.",
     approach: [
       "Dummy head node for easy result construction.",
@@ -1661,6 +1802,9 @@ public:
   },
 
   "merge-two-sorted": {
+    statement: "You are given the heads of two singly linked lists, list1 and list2, each already sorted in non-decreasing order. Merge the two lists into a single sorted linked list by splicing together their nodes, and return the head of the merged list.",
+    examples: [{"input":"list1 = [1,2,4], list2 = [1,3,4]","output":"[1,1,2,3,4,4]"},{"input":"list1 = [], list2 = []","output":"[]"},{"input":"list1 = [], list2 = [0]","output":"[0]"}],
+    constraints: ["the number of nodes in each list is in the range [0, 50]","-100 <= Node.val <= 100","both list1 and list2 are sorted in non-decreasing order"],
     intuition: "Two pointers, one per list. Compare front nodes, attach smaller to result, advance that pointer. Attach remaining list after loop.",
     approach: [
       "Dummy head for easy construction.",
@@ -1694,6 +1838,9 @@ public:
   },
 
   "remove-nth-node": {
+    statement: "Given the head of a singly linked list, remove the n-th node counted from the end of the list and return the head of the resulting list. Aim to do it in a single pass.",
+    examples: [{"input":"head = [1,2,3,4,5], n = 2","output":"[1,2,3,5]"},{"input":"head = [1], n = 1","output":"[]"},{"input":"head = [1,2], n = 1","output":"[1]"}],
+    constraints: ["the number of nodes in the list is sz","1 <= sz <= 30","0 <= Node.val <= 100","1 <= n <= sz"],
     intuition: "Two-pointer gap trick. Advance fast pointer n+1 steps ahead of slow. When fast reaches null, slow is right before the node to remove.",
     approach: [
       "Dummy head pointing to head.",
@@ -1726,6 +1873,9 @@ public:
   },
 
   "reorder-list": {
+    statement: "Given the head of a singly linked list containing nodes L0, L1, ..., Ln-1, Ln, reorder it in place to become L0, Ln, L1, Ln-1, L2, Ln-2, and so on, without altering the node values. You may not simply rearrange the values in the nodes; the actual node links must be changed.",
+    examples: [{"input":"head = [1,2,3,4]","output":"[1,4,2,3]"},{"input":"head = [1,2,3,4,5]","output":"[1,5,2,4,3]"}],
+    constraints: ["the number of nodes is in the range [1, 5 * 10^4]","1 <= Node.val <= 1000"],
     intuition: "Three-step: 1) Find middle. 2) Reverse second half. 3) Merge two halves alternately.",
     approach: [
       "Find middle using slow/fast pointers.",
@@ -1763,6 +1913,9 @@ public:
   },
 
   "palindrome-linked-list": {
+    statement: "Given the head of a singly linked list, determine whether the sequence of values it represents reads the same forwards and backwards. Return true if the list is a palindrome, otherwise false.",
+    examples: [{"input":"head = [1,2,2,1]","output":"true"},{"input":"head = [1,2]","output":"false"}],
+    constraints: ["the number of nodes is in the range [1, 10^5]","0 <= Node.val <= 9"],
     intuition: "Find middle, reverse second half, compare with first half. O(1) space. Optionally restore the list afterward.",
     approach: [
       "Find middle with slow/fast pointers.",
@@ -1800,6 +1953,9 @@ public:
   },
 
   "reverse-k-group": {
+    statement: "Given the head of a linked list and an integer k, reverse the nodes of the list k at a time and return the modified head. If the number of remaining nodes at the end is fewer than k, leave that final group in its original order. Nodes themselves (not just their values) must be rearranged.",
+    examples: [{"input":"head = [1,2,3,4,5], k = 2","output":"[2,1,4,3,5]","explanation":"The last group [5] has fewer than k nodes so it stays as is."},{"input":"head = [1,2,3,4,5], k = 3","output":"[3,2,1,4,5]"},{"input":"head = [1,2,3,4,5,6], k = 3","output":"[3,2,1,6,5,4]"}],
+    constraints: ["The number of nodes is n","1 <= k <= n <= 5000","0 <= Node.val <= 1000"],
     intuition: "Iteratively reverse chunks of k nodes. For each group: check k nodes exist, reverse them, relink to previous group's tail and next group's head.",
     approach: [
       "Dummy head. prev = dummy.",
@@ -1842,6 +1998,9 @@ public:
   },
 
   "copy-list-random": {
+    statement: "You are given a linked list where each node has an additional random pointer that can point to any node in the list, or to null. Construct a deep copy of the list, where the new list consists of entirely new nodes with the same val values, and every next and random pointer points to nodes within the copied list rather than the original.",
+    examples: [{"input":"head = [[7,null],[13,0],[11,4],[10,2],[1,0]]","output":"[[7,null],[13,0],[11,4],[10,2],[1,0]]","explanation":"Each pair is [val, random_index], where random_index is the index of the node the random pointer targets, or null."},{"input":"head = [[1,1],[2,1]]","output":"[[1,1],[2,1]]"},{"input":"head = []","output":"[]"}],
+    constraints: ["the number of nodes is in the range [0, 1000]","-10^4 <= Node.val <= 10^4","Node.random is null or points to some node in the list"],
     intuition: "Three-pass approach using the original list as a hash map. 1) Interleave clones between originals. 2) Set random pointers. 3) Separate lists.",
     approach: [
       "Pass 1: for each node, insert clone right after it: A→A'→B→B'→...",
@@ -1881,6 +2040,9 @@ public:
   },
 
   "swap-pairs": {
+    statement: "You are given the head of a singly linked list. Swap every pair of adjacent nodes (exchange their positions, not just their values) and return the head of the modified list. If the list has an odd number of nodes, the final node is left in place.",
+    examples: [{"input":"head = [1,2,3,4]","output":"[2,1,4,3]","explanation":"Nodes 1-2 swap and nodes 3-4 swap."},{"input":"head = [1,2,3]","output":"[2,1,3]","explanation":"Nodes 1-2 swap; node 3 has no partner so it stays."},{"input":"head = []","output":"[]"}],
+    constraints: ["The number of nodes is in the range [0, 100]","0 <= Node.val <= 100","You may not modify the values in the list's nodes (only the node positions may be changed)"],
     intuition: "Recursively (or iteratively) swap every two adjacent nodes. For recursive: swap first two, recurse on rest, relink.",
     approach: [
       "Base: if head null or head->next null, return head.",
@@ -1911,6 +2073,9 @@ public:
   },
 
   "level-order-traversal": {
+    statement: "Given the root of a binary tree, return the values of its nodes grouped level by level, from top to bottom, where each level is listed left to right as its own list.",
+    examples: [{"input":"root = [3,9,20,null,null,15,7]","output":"[[3],[9,20],[15,7]]"},{"input":"root = [1]","output":"[[1]]"},{"input":"root = []","output":"[]"}],
+    constraints: ["The number of nodes in the tree is in the range [0, 2000]","-1000 <= Node.val <= 1000"],
     intuition: "BFS with level separation. Track queue size at start of each level to know when one level ends and next begins.",
     approach: [
       "Queue starting with root.",
@@ -1951,6 +2116,9 @@ public:
   },
 
   "right-side-view": {
+    statement: "Given the root of a binary tree, imagine standing on the right side of it. Return the values of the nodes you can see, ordered from the topmost level to the bottommost — that is, the rightmost node visible at each depth.",
+    examples: [{"input":"root = [1,2,3,null,5,null,4]","output":"[1,3,4]"},{"input":"root = [1,null,3]","output":"[1,3]"},{"input":"root = []","output":"[]"}],
+    constraints: ["The number of nodes in the tree is in the range [0, 100]","-100 <= Node.val <= 100"],
     intuition: "BFS level order. For each level, the last node is visible from the right. Add last node of each level to result.",
     approach: [
       "BFS with level separation.",
@@ -1987,6 +2155,9 @@ public:
   },
 
   "max-depth-tree": {
+    statement: "Given the root of a binary tree, return its maximum depth, defined as the number of nodes along the longest path from the root down to the farthest leaf node.",
+    examples: [{"input":"root = [3,9,20,null,null,15,7]","output":"3"},{"input":"root = [1,null,2]","output":"2"},{"input":"root = []","output":"0"}],
+    constraints: ["The number of nodes in the tree is in the range [0, 10^4]","-100 <= Node.val <= 100"],
     intuition: "Recursively, max depth = 1 + max(depth(left), depth(right)). Base: null node has depth 0.",
     approach: [
       "If root is null: return 0.",
@@ -2012,6 +2183,9 @@ public:
   },
 
   "min-depth-tree": {
+    statement: "Given the root of a binary tree, return its minimum depth, defined as the number of nodes along the shortest path from the root down to the nearest leaf node (a node with no children).",
+    examples: [{"input":"root = [3,9,20,null,null,15,7]","output":"2"},{"input":"root = [2,null,3,null,4,null,5,null,6]","output":"5","explanation":"The tree is a single chain of right children, so the only leaf is at depth 5."},{"input":"root = []","output":"0"}],
+    constraints: ["The number of nodes in the tree is in the range [0, 10^5]","-1000 <= Node.val <= 1000"],
     intuition: "Min depth is to nearest leaf. Can't just take min(left, right) — if one subtree is null, it's not a path to a leaf. Must handle null subtrees specially.",
     approach: [
       "If root null: return 0.",
@@ -2040,6 +2214,9 @@ public:
   },
 
   "diameter-tree": {
+    statement: "Given the root of a binary tree, return the length (measured in number of edges) of the longest path between any two nodes in the tree. This path may or may not pass through the root.",
+    examples: [{"input":"root = [1,2,3,4,5]","output":"3","explanation":"The longest path is 4 -> 2 -> 1 -> 3 (or 5 -> 2 -> 1 -> 3), which has 3 edges."},{"input":"root = [1,2]","output":"1"},{"input":"root = [1]","output":"0"}],
+    constraints: ["The number of nodes in the tree is in the range [1, 10^4]","-100 <= Node.val <= 100"],
     intuition: "Diameter through any node = left height + right height. Compute height recursively; at each node update global max diameter as left_height + right_height.",
     approach: [
       "DFS returns height of subtree.",
@@ -2073,6 +2250,9 @@ public:
   },
 
   "balanced-tree": {
+    statement: "Given the root of a binary tree, determine whether it is height-balanced, meaning that for every node in the tree, the heights of its left and right subtrees differ by no more than 1.",
+    examples: [{"input":"root = [3,9,20,null,null,15,7]","output":"true"},{"input":"root = [1,2,2,3,3,null,null,4,4]","output":"false","explanation":"The subtree rooted at the leftmost node 2 has left and right subtree heights that differ by more than 1."},{"input":"root = []","output":"true"}],
+    constraints: ["The number of nodes in the tree is in the range [0, 5000]","-10^4 <= Node.val <= 10^4"],
     intuition: "Bottom-up check. At each node, compute height of subtrees. If heights differ by > 1, return -1 (sentinel for 'unbalanced'). Propagate -1 up to short-circuit.",
     approach: [
       "Helper returns height or -1 if unbalanced.",
@@ -2103,6 +2283,9 @@ public:
   },
 
   "same-tree": {
+    statement: "Given the roots of two binary trees, determine whether the two trees are structurally identical and every corresponding pair of nodes holds the same value.",
+    examples: [{"input":"p = [1,2,3], q = [1,2,3]","output":"true"},{"input":"p = [1,2], q = [1,null,2]","output":"false","explanation":"Node 2 is a left child in p but a right child in q."},{"input":"p = [1,2,1], q = [1,1,2]","output":"false"}],
+    constraints: ["The number of nodes in both trees is in the range [0, 100]","-10^4 <= Node.val <= 10^4"],
     intuition: "Recursively compare: both null → true, one null → false, values differ → false, else recurse on children.",
     approach: [
       "If both null: return true.",
@@ -2129,6 +2312,9 @@ public:
   },
 
   "symmetric-tree": {
+    statement: "Given the root of a binary tree, determine whether it is a mirror of itself, meaning the tree looks the same when reflected across the vertical line through the root.",
+    examples: [{"input":"root = [1,2,2,3,4,4,3]","output":"true"},{"input":"root = [1,2,2,null,3,null,3]","output":"false","explanation":"The inner values 3 and 3 are positioned asymmetrically, one on the far right of the left subtree and one on the far right of the right subtree."},{"input":"root = [1]","output":"true"}],
+    constraints: ["The number of nodes in the tree is in the range [1, 1000]","-100 <= Node.val <= 100"],
     intuition: "Tree is symmetric if left subtree mirrors right subtree. Check recursively: outer children match, inner children match.",
     approach: [
       "Helper isMirror(left, right).",
@@ -2158,6 +2344,9 @@ public:
   },
 
   "subtree-of-another": {
+    statement: "Given the roots of two binary trees root and subRoot, determine whether subRoot appears as an exact subtree somewhere within root — that is, whether there is a node in root such that the subtree rooted at that node is structurally identical to subRoot with matching values.",
+    examples: [{"input":"root = [3,4,5,1,2], subRoot = [4,1,2]","output":"true"},{"input":"root = [3,4,5,1,2,null,null,null,null,0], subRoot = [4,1,2]","output":"false","explanation":"The subtree at node 4 has an extra node 0, so it does not match subRoot exactly."},{"input":"root = [1,1], subRoot = [1]","output":"true"}],
+    constraints: ["The number of nodes in root is in the range [1, 2000]","The number of nodes in subRoot is in the range [1, 1000]","-10^4 <= Node.val <= 10^4"],
     intuition: "At every node of s, check if the subtree rooted there is identical to t. Use the isSameTree subroutine.",
     approach: [
       "If s is null: return false.",
@@ -2189,6 +2378,9 @@ public:
   },
 
   "find-min-rotated": {
+    statement: "An array of n unique integers, originally sorted in ascending order, has been rotated between 1 and n times. Given the rotated array nums, return the minimum element. Your algorithm must run in O(log n) time.",
+    examples: [{"input":"nums = [3,4,5,1,2]","output":"1"},{"input":"nums = [4,5,6,7,0,1,2]","output":"0"},{"input":"nums = [11,13,15,17]","output":"11"}],
+    constraints: ["n == nums.length","1 <= n <= 5000","-5000 <= nums[i] <= 5000","all values in nums are unique","nums was originally sorted ascending then rotated between 1 and n times"],
     intuition: "Rotated sorted array has one 'break point' where the min lives. Binary search: if mid > right, min is in right half. Otherwise min is in left half (including mid).",
     approach: [
       "left = 0, right = n-1.",
@@ -2221,6 +2413,9 @@ public:
   },
 
   "search-rotated": {
+    statement: "An array of unique integers, originally sorted in ascending order, has been rotated at some unknown pivot. Given the rotated array nums and a target value, return the index of target in nums, or -1 if it is not present. The solution must run in O(log n) time.",
+    examples: [{"input":"nums = [4,5,6,7,0,1,2], target = 0","output":"4"},{"input":"nums = [4,5,6,7,0,1,2], target = 3","output":"-1"},{"input":"nums = [1], target = 0","output":"-1"}],
+    constraints: ["1 <= nums.length <= 5000","-10^4 <= nums[i] <= 10^4","all values in nums are unique","nums is an ascending array rotated at some pivot","-10^4 <= target <= 10^4"],
     intuition: "One half of the rotated array is always sorted. Use that property: if left half sorted, check if target falls in that range; else search right half. Mirror for right half sorted.",
     approach: [
       "l=0, r=n-1. While l<=r: mid = (l+r)/2.",
@@ -2258,6 +2453,9 @@ public:
   },
 
   "search-2d-matrix": {
+    statement: "Given an m x n matrix in which each row is sorted in ascending order and the first number of each row is greater than the last number of the previous row, determine whether a given target value exists anywhere in the matrix. Return true or false. The algorithm should run in O(log(m*n)) time by treating the matrix as a single sorted sequence.",
+    examples: [{"input":"matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3","output":"true"},{"input":"matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 13","output":"false"}],
+    constraints: ["m == matrix.length","n == matrix[i].length","1 <= m, n <= 100","-10^4 <= matrix[i][j] <= 10^4","-10^4 <= target <= 10^4"],
     intuition: "Matrix rows are sorted, first element of each row > last of previous row. Treat as 1D sorted array: index i maps to row i/n, col i%n.",
     approach: [
       "lo=0, hi=m*n-1.",
@@ -2291,6 +2489,9 @@ public:
   },
 
   "koko-bananas": {
+    statement: "Koko has n piles of bananas, where piles[i] is the number of bananas in the i-th pile, and h hours until the guards return. Each hour she chooses one pile and eats up to k bananas from it; if the pile has fewer than k bananas she finishes that pile and moves on without eating more that hour. Return the minimum integer eating speed k such that she can finish all the piles within h hours.",
+    examples: [{"input":"piles = [3,6,7,11], h = 8","output":"4"},{"input":"piles = [30,11,23,4,20], h = 5","output":"30"},{"input":"piles = [30,11,23,4,20], h = 6","output":"23"}],
+    constraints: ["1 <= piles.length <= 10^4","piles.length <= h <= 10^9","1 <= piles[i] <= 10^9"],
     intuition: "Binary search on the answer (eating speed k). For each candidate speed, check feasibility. Answer is minimum valid k.",
     approach: [
       "lo=1, hi=max(piles).",
@@ -2324,6 +2525,9 @@ public:
   },
 
   "first-bad-version": {
+    statement: "You have n versions numbered 1 to n, and you know that once a version is bad, all following versions are also bad. Given a way to check whether a given version is bad (via a provided isBadVersion API), find and return the first bad version while minimizing the number of API calls.",
+    examples: [{"input":"n = 5, bad = 4","output":"4","explanation":"Calling isBadVersion(3) returns false and isBadVersion(4) returns true, so 4 is the first bad version."},{"input":"n = 1, bad = 1","output":"1"}],
+    constraints: ["1 <= bad <= n <= 2^31 - 1","isBadVersion is consistent: it returns false for all versions before bad and true from bad onward"],
     intuition: "First bad version makes all subsequent bad. Binary search: if mid is bad, answer is at mid or left. If good, answer is right of mid.",
     approach: [
       "lo=1, hi=n.",
@@ -2355,6 +2559,9 @@ public:
   },
 
   "search-insert-position": {
+    statement: "Given a sorted array of distinct integers and a target value, return the index of the target if it is found in the array. If not found, return the index where it would be inserted to keep the array sorted.",
+    examples: [{"input":"nums = [1,3,5,6], target = 5","output":"2","explanation":"5 is found at index 2."},{"input":"nums = [1,3,5,6], target = 2","output":"1","explanation":"2 is not present, but it would be inserted at index 1 to keep nums sorted."},{"input":"nums = [1,3,5,6], target = 7","output":"4","explanation":"7 is larger than every element, so it would be inserted at the end, index 4."}],
+    constraints: ["1 <= nums.length <= 10^4","-10^4 <= nums[i] <= 10^4","nums contains distinct values sorted in ascending order","-10^4 <= target <= 10^4"],
     intuition: "Standard lower_bound: find first index where nums[i] >= target. That's either where target is or where it should be inserted.",
     approach: [
       "lo=0, hi=n (n allows insertion after last).",
@@ -2386,6 +2593,9 @@ public:
   },
 
   "time-based-key-value": {
+    statement: "Design a time-based key-value store that supports storing multiple values for the same key at different timestamps, and retrieving the value associated with a key at a certain timestamp. Implement set(key, value, timestamp) to store the value at the given timestamp, and get(key, timestamp) to return the value whose recorded timestamp is the largest one less than or equal to the given timestamp, or an empty string if none exists. Timestamps passed to set for a given key are strictly increasing.",
+    examples: [{"input":"[\"TimeMap\",\"set\",\"get\",\"get\",\"set\",\"get\",\"get\"]\n[[],[\"foo\",\"bar\",1],[\"foo\",1],[\"foo\",3],[\"foo\",\"bar2\",4],[\"foo\",4],[\"foo\",5]]","output":"[null,null,\"bar\",\"bar\",null,\"bar2\",\"bar2\"]","explanation":"At timestamp 3 the most recent set at or before it is (\"bar\",1); at timestamp 5 it is (\"bar2\",4)."}],
+    constraints: ["1 <= key.length, value.length <= 100","1 <= timestamp <= 10^7","all timestamps of set calls for the same key are strictly increasing","at most 2 * 10^5 calls total to set and get"],
     intuition: "Each key stores (timestamp, value) pairs. Since timestamps are strictly increasing, the list is sorted. Binary search for largest timestamp <= query timestamp.",
     approach: [
       "Store map<string, vector<pair<int,string>>>.",
@@ -2422,6 +2632,9 @@ public:
   },
 
   "course-schedule": {
+    statement: "There are a given number of courses labeled from 0 to numCourses - 1, and a list of prerequisite pairs where [a, b] means course b must be completed before course a. Determine whether it is possible to finish all courses given these prerequisites (i.e., whether the prerequisite graph has no cycle).",
+    examples: [{"input":"numCourses = 2, prerequisites = [[1,0]]","output":"true"},{"input":"numCourses = 2, prerequisites = [[1,0],[0,1]]","output":"false","explanation":"Course 0 requires course 1 and course 1 requires course 0, forming a cycle."}],
+    constraints: ["1 <= numCourses <= 2000","0 <= prerequisites.length <= 5000","prerequisites[i].length == 2","All pairs prerequisites[i] are unique"],
     intuition: "Detect cycle in directed graph. Circular dependency = impossible. DFS with 3 states: 0=unvisited, 1=in current path, 2=done. Hitting state 1 again = cycle.",
     approach: [
       "Build adjacency list from prerequisites.",
@@ -2460,6 +2673,9 @@ public:
   },
 
   "course-schedule-ii": {
+    statement: "There are a given number of courses labeled from 0 to numCourses - 1, and a list of prerequisite pairs where [a, b] means course b must be completed before course a. Return a valid order in which to take all the courses, or an empty array if no valid order exists because of a cycle.",
+    examples: [{"input":"numCourses = 2, prerequisites = [[1,0]]","output":"[0,1]"},{"input":"numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]","output":"[0,1,2,3]","explanation":"Course 0 first, then 1 and 2 in either order, then 3; [0,2,1,3] is also valid."},{"input":"numCourses = 1, prerequisites = []","output":"[0]"}],
+    constraints: ["1 <= numCourses <= 2000","0 <= prerequisites.length <= 5000","prerequisites[i].length == 2","All pairs prerequisites[i] are unique"],
     intuition: "Topological sort. Same DFS cycle detection, but push node to order AFTER processing all its neighbors (post-order). Reverse post-order = topological order.",
     approach: [
       "Same 3-state DFS.",
@@ -2499,6 +2715,9 @@ public:
   },
 
   "clone-graph": {
+    statement: "Given a reference to a node in a connected undirected graph, where each node stores a value and a list of neighbor references, produce a deep copy (clone) of the entire graph and return the reference to the corresponding cloned starting node.",
+    examples: [{"input":"adjList = [[2,4],[1,3],[2,4],[1,3]]","output":"[[2,4],[1,3],[2,4],[1,3]]","explanation":"Node 1's neighbors are 2 and 4, node 2's neighbors are 1 and 3, etc.; the cloned graph has identical structure with new node objects."},{"input":"adjList = [[]]","output":"[[]]","explanation":"A single node with no neighbors."}],
+    constraints: ["The number of nodes is in the range [0, 100]","1 <= Node.val <= 100","Node.val is unique for each node","There are no repeated edges and no self-loops","The graph is connected"],
     intuition: "DFS with memoization. Map original to clone. First visit: create clone, record, then recursively clone all neighbors.",
     approach: [
       "visited map: Node* → Node*.",
@@ -2533,6 +2752,9 @@ public:
   },
 
   "pacific-atlantic": {
+    statement: "You are given an m x n grid of heights representing a terrain, where the Pacific Ocean touches the top and left edges and the Atlantic Ocean touches the bottom and right edges. Water can flow from a cell to an adjacent cell with equal or lower height. Return the list of coordinates from which water can reach both oceans.",
+    examples: [{"input":"heights = [[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]","output":"[[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]"},{"input":"heights = [[1]]","output":"[[0,0]]","explanation":"The single cell touches both oceans by definition."}],
+    constraints: ["1 <= heights.length, heights[i].length <= 200","0 <= heights[i][j] <= 10^5"],
     intuition: "Reverse direction: start from ocean boundaries and flood inward (uphill). BFS from all Pacific edges, BFS from all Atlantic edges. Intersection = cells that reach both.",
     approach: [
       "Pacific: top row + left col. Atlantic: bottom row + right col.",
@@ -2577,6 +2799,9 @@ public:
   },
 
   "rotting-oranges": {
+    statement: "You are given a grid where each cell is 0 (empty), 1 (a fresh orange), or 2 (a rotten orange). Every minute, any fresh orange adjacent (up, down, left, right) to a rotten orange becomes rotten. Return the minimum number of minutes until no fresh orange remains, or -1 if that is impossible.",
+    examples: [{"input":"grid = [[2,1,1],[1,1,0],[0,1,1]]","output":"4"},{"input":"grid = [[2,1,1],[0,1,1],[1,0,1]]","output":"-1","explanation":"The orange in the bottom-left corner is isolated by zeros and can never rot."},{"input":"grid = [[0,2]]","output":"0"}],
+    constraints: ["1 <= grid.length, grid[i].length <= 10","grid[i][j] is 0, 1, or 2"],
     intuition: "Multi-source BFS from all rotten oranges simultaneously. Each BFS level = 1 minute. Track fresh count — if any remain after BFS, return -1.",
     approach: [
       "Enqueue all rotten (2) oranges, count fresh (1) oranges.",
@@ -2619,6 +2844,9 @@ public:
   },
 
   "walls-gates": {
+    statement: "You are given an m x n grid where each cell is either -1 (a wall), 0 (a gate), or a very large number representing an empty room. Fill each empty room with the distance to its nearest gate, moving only through empty rooms (walls block movement); rooms that cannot reach any gate keep their large value. Modify the grid in place.",
+    examples: [{"input":"rooms = [[2147483647,-1,0,2147483647],[2147483647,2147483647,2147483647,-1],[2147483647,-1,2147483647,-1],[0,-1,2147483647,2147483647]]","output":"[[3,-1,0,1],[2,2,1,-1],[1,-1,2,-1],[0,-1,3,4]]"},{"input":"rooms = [[-1]]","output":"[[-1]]"}],
+    constraints: ["1 <= rooms.length, rooms[i].length <= 250","rooms[i][j] is -1, 0, or 2^31 - 1"],
     intuition: "Multi-source BFS from all gates (value 0) simultaneously. Distance flows outward — each room gets shortest distance to nearest gate naturally.",
     approach: [
       "Enqueue all gate positions.",
@@ -2655,6 +2883,9 @@ public:
   },
 
   "combination-sum": {
+    statement: "Given an array of distinct positive integers and a target integer, find all unique combinations where the chosen numbers sum exactly to the target. The same number from the array may be reused an unlimited number of times in a combination, and combinations that use the same numbers in a different order should only be counted once.",
+    examples: [{"input":"candidates = [2,3,6,7], target = 7","output":"[[2,2,3],[7]]","explanation":"2+2+3 = 7 and 7 = 7 are the only combinations that sum to the target."},{"input":"candidates = [2,3,5], target = 8","output":"[[2,2,2,2],[2,3,3],[3,5]]"}],
+    constraints: ["1 <= candidates.length <= 30","2 <= candidates[i] <= 40","All elements of candidates are distinct","1 <= target <= 40"],
     intuition: "Backtracking where same element can be reused. Two choices at each index: use it again (recurse at same index) or skip it (recurse at index+1).",
     approach: [
       "bt(index, remaining):",
@@ -2688,6 +2919,9 @@ public:
   },
 
   "combination-sum-ii": {
+    statement: "Given a collection of candidate numbers (which may contain duplicates) and a target value, find all unique combinations where the chosen numbers sum to the target. Each number from the input may be used at most once per combination, and the result must not contain duplicate combinations.",
+    examples: [{"input":"candidates = [10,1,2,7,6,1,5], target = 8","output":"[[1,1,6],[1,2,5],[1,7],[2,6]]"},{"input":"candidates = [2,5,2,1,2], target = 5","output":"[[1,2,2],[5]]"}],
+    constraints: ["1 <= candidates.length <= 100","1 <= candidates[i] <= 50","1 <= target <= 30"],
     intuition: "Each element used once, skip duplicates at same level. Sort first. In loop: if j > start and candidates[j] == candidates[j-1], skip.",
     approach: [
       "Sort candidates.",
@@ -2721,6 +2955,9 @@ public:
   },
 
   "permutations": {
+    statement: "You are given an array of distinct integers. Return every possible ordering (permutation) of the array's elements, in any order.",
+    examples: [{"input":"nums = [1,2,3]","output":"[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]"},{"input":"nums = [0,1]","output":"[[0,1],[1,0]]"},{"input":"nums = [1]","output":"[[1]]"}],
+    constraints: ["1 <= nums.length <= 6","-10 <= nums[i] <= 10","All the integers of nums are unique"],
     intuition: "Backtracking. Pick each unused element, add to path, recurse, undo. Boolean used[] tracks current permutation members.",
     approach: [
       "bt(): if path.size()==n, record.",
@@ -2754,6 +2991,9 @@ public:
   },
 
   "letter-combinations": {
+    statement: "Given a string of digits from 2 through 9, using the same letter mapping found on a telephone keypad, return every possible letter combination that the digits could represent. Return the combinations in any order.",
+    examples: [{"input":"digits = \"23\"","output":"[\"ad\",\"ae\",\"af\",\"bd\",\"be\",\"bf\",\"cd\",\"ce\",\"cf\"]"},{"input":"digits = \"\"","output":"[]"},{"input":"digits = \"2\"","output":"[\"a\",\"b\",\"c\"]"}],
+    constraints: ["0 <= digits.length <= 4","digits[i] is a digit in the range ['2','9']"],
     intuition: "Backtracking. Map each digit to letters. For each digit expand all partial strings by each letter of that digit.",
     approach: [
       "Map: 2→abc, 3→def, ..., 9→wxyz.",
@@ -2785,6 +3025,9 @@ public:
   },
 
   "n-queens": {
+    statement: "The n-queens puzzle asks you to place n chess queens on an n x n board so that no two queens threaten each other (no shared row, column, or diagonal). Return all distinct board arrangements that satisfy this, each represented as a list of strings where 'Q' marks a queen and '.' marks an empty square.",
+    examples: [{"input":"n = 4","output":"[[\".Q..\",\"...Q\",\"Q...\",\"..Q.\"],[\"..Q.\",\"Q...\",\"...Q\",\".Q..\"]]"},{"input":"n = 1","output":"[[\"Q\"]]"}],
+    constraints: ["1 <= n <= 9"],
     intuition: "Place one queen per row. Track cols, diagonals (row-col), anti-diagonals (row+col) in sets. All three must be free.",
     approach: [
       "bt(row): if row==n, record board.",
@@ -2821,6 +3064,9 @@ public:
   },
 
   "word-search": {
+    statement: "Given a 2D grid of letters and a target word, determine whether the word can be traced out by moving between horizontally or vertically adjacent cells, where the same cell may not be reused within one path. Return true if such a path spelling the word exists, false otherwise.",
+    examples: [{"input":"board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"ABCCED\"","output":"true"},{"input":"board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"SEE\"","output":"true"},{"input":"board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"ABCB\"","output":"false","explanation":"The letter 'B' cannot be reused, so no valid path spells ABCB."}],
+    constraints: ["1 <= board.length, board[i].length <= 6","1 <= word.length <= 15","board and word consist of only lowercase and uppercase English letters"],
     intuition: "DFS from each cell. Match word char by char. Mark visited with '#'. Unmark on backtrack.",
     approach: [
       "For each cell: if matches word[0], start DFS.",
@@ -2855,6 +3101,9 @@ public:
   },
 
   "palindrome-partitioning": {
+    statement: "Given a string s, split it into one or more substrings such that every substring is a palindrome. Return every possible such partitioning of s.",
+    examples: [{"input":"s = \"aab\"","output":"[[\"a\",\"a\",\"b\"],[\"aa\",\"b\"]]"},{"input":"s = \"a\"","output":"[[\"a\"]]"}],
+    constraints: ["1 <= s.length <= 16","s consists of only lowercase English letters"],
     intuition: "Backtracking with DP palindrome precomputation. At each position try all substrings — if palindrome, recurse on rest. O(1) palindrome check via DP table.",
     approach: [
       "Precompute dp[i][j] = true if s[i..j] is palindrome.",
@@ -2893,6 +3142,9 @@ public:
   },
 
   "house-robber-ii": {
+    statement: "This is a variation of the classic house-robbing problem where the houses are arranged in a circle, so the first and last houses are also considered adjacent. Given the array nums of money stored in each house, return the maximum amount you can rob without robbing two adjacent houses, taking the circular arrangement into account.",
+    examples: [{"input":"nums = [2,3,2]","output":"3","explanation":"Robbing houses 0 and 2 is not allowed since they are adjacent in the circle, so the best choice is house 1 alone."},{"input":"nums = [1,2,3,1]","output":"4","explanation":"Rob houses 0 and 2 for 1 + 3 = 4; house 3 cannot also be robbed since it is adjacent to house 0."},{"input":"nums = [1,2,3]","output":"3"}],
+    constraints: ["1 <= nums.length <= 100","0 <= nums[i] <= 1000"],
     intuition: "Houses arranged in circle — first and last are adjacent, can't rob both. Split into two subproblems: rob houses [0..n-2] and [1..n-1]. Take max of both. Each subproblem is standard House Robber I.",
     approach: [
       "If n==1: return nums[0].",
@@ -2927,6 +3179,9 @@ public:
   },
 
   "jump-game": {
+    statement: "You are given an array of non-negative integers where each value represents the maximum number of steps you can advance forward from that position. Starting at index 0, determine whether it is possible to reach the last index.",
+    examples: [{"input":"nums = [2,3,1,1,4]","output":"true","explanation":"Jump 1 step from index 0 to index 1, then 3 steps to the last index."},{"input":"nums = [3,2,1,0,4]","output":"false","explanation":"Every path gets stuck at index 3, whose value is 0, so index 4 is unreachable."}],
+    constraints: ["1 <= nums.length <= 10^4","0 <= nums[i] <= 10^5"],
     intuition: "Greedy: track the farthest reachable index. At each step, if current index > farthest reachable, stuck. Otherwise update farthest.",
     approach: [
       "maxReach = 0.",
@@ -2957,6 +3212,9 @@ public:
   },
 
   "jump-game-ii": {
+    statement: "Given an array of non-negative integers where each value is the farthest you may jump forward from that index, and assuming the last index is always reachable from index 0, return the minimum number of jumps needed to reach the last index.",
+    examples: [{"input":"nums = [2,3,1,1,4]","output":"2","explanation":"Jump from index 0 to index 1 (value 3), then from index 1 to index 4."},{"input":"nums = [2,3,0,1,4]","output":"2","explanation":"Jump from index 0 to index 1, then directly from index 1 to index 4 since its value is 3."}],
+    constraints: ["1 <= nums.length <= 10^4","0 <= nums[i] <= 1000","It is guaranteed the last index is reachable"],
     intuition: "Greedy BFS-like. Track current jump range end and farthest reachable within current range. When you reach the end of current range, take a jump and update range to farthest.",
     approach: [
       "jumps=0, curEnd=0, farthest=0.",
@@ -2987,6 +3245,9 @@ public:
   },
 
   "gas-station": {
+    statement: "There are n gas stations arranged in a circle, each with a given amount of gas and a given cost to travel to the next station. Starting with an empty tank at some station, determine the index of the unique station from which you can complete the full circuit, or return -1 if no such station exists.",
+    examples: [{"input":"gas = [1,2,3,4,5], cost = [3,4,5,1,2]","output":"3","explanation":"Starting at station 3, the tank never goes negative while completing the loop."},{"input":"gas = [2,3,4], cost = [3,4,3]","output":"-1","explanation":"Total gas (9) is less than total cost (10), so completing the circuit is impossible from any station."}],
+    constraints: ["n == gas.length == cost.length","1 <= n <= 10^5","0 <= gas[i], cost[i] <= 10^4"],
     intuition: "If total gas >= total cost, solution exists. Start from 0, track running tank. When tank < 0, reset start to next station (current start can't work).",
     approach: [
       "total = 0, tank = 0, start = 0.",
@@ -3018,6 +3279,9 @@ public:
   },
 
   "lemonade-change": {
+    statement: "You are running a lemonade stand where each lemonade costs $5. Customers arrive one at a time (given as an array of bills, each either $5, $10, or $20) and pay with one bill each; you must give back the correct change using only the bills you currently hold, starting with no money at all. Determine whether you can serve every customer in order while always being able to provide exact change.",
+    examples: [{"input":"bills = [5,5,5,10,20]","output":"true","explanation":"Each customer can be given correct change using the $5 and $10 bills collected so far."},{"input":"bills = [5,5,10,10,20]","output":"false","explanation":"By the time the second $10 customer and the $20 customer arrive, there aren't enough $5 bills left to make change."},{"input":"bills = [5,5,10]","output":"true"}],
+    constraints: ["1 <= bills.length <= 10^5","bills[i] is either 5, 10, or 20"],
     intuition: "Greedy. Track counts of $5 and $10 bills. For $20 payment: prefer to give $10+$5 (saves more $5s). Never have $20 as change — pass $20 through.",
     approach: [
       "Track five=0, ten=0.",
@@ -3054,6 +3318,9 @@ public:
   },
 
   "best-time-stock-ii": {
+    statement: "You are given an array where each element is the stock price on that day. You may buy and sell the stock any number of times, but you must sell before you buy again, and you cannot hold more than one share at a time. Return the maximum total profit achievable.",
+    examples: [{"input":"prices = [7,1,5,3,6,4]","output":"7","explanation":"Buy on day 2 (price 1), sell on day 3 (price 5) for profit 4, then buy on day 4 (price 3) and sell on day 5 (price 6) for profit 3."},{"input":"prices = [1,2,3,4,5]","output":"4","explanation":"Buy on day 1 and sell on day 5, or accumulate the same total by buying/selling each consecutive day."},{"input":"prices = [7,6,4,3,1]","output":"0","explanation":"Prices only fall, so no transaction is profitable."}],
+    constraints: ["1 <= prices.length <= 3 * 10^4","0 <= prices[i] <= 10^4"],
     intuition: "Unlimited transactions. Collect every upward move. If prices[i] > prices[i-1], add the difference to profit. Equivalently: sum all positive differences.",
     approach: [
       "profit = 0.",
@@ -3081,6 +3348,9 @@ public:
   },
 
   "insert-interval": {
+    statement: "You are given a list of non-overlapping intervals sorted by start time, along with a new interval to add. Insert the new interval into the list, merging any intervals that overlap as a result, and return the final sorted list of non-overlapping intervals.",
+    examples: [{"input":"intervals = [[1,3],[6,9]], newInterval = [2,5]","output":"[[1,5],[6,9]]","explanation":"The new interval [2,5] overlaps [1,3], merging into [1,5]."},{"input":"intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]","output":"[[1,2],[3,10],[12,16]]","explanation":"The new interval merges with [3,5], [6,7], and [8,10] into one interval [3,10]."}],
+    constraints: ["0 <= intervals.length <= 10^4","intervals is sorted by start time and non-overlapping","0 <= starti <= endi <= 10^5"],
     intuition: "Three phases: add all intervals that end before newInterval starts. Merge all overlapping intervals with newInterval. Add remaining intervals.",
     approach: [
       "Phase 1: while intervals[i].end < newInterval.start: add intervals[i], i++.",
@@ -3116,6 +3386,9 @@ public:
   },
 
   "meeting-rooms": {
+    statement: "Given an array of meeting time intervals, each with a start and end time, determine whether a single person could attend every meeting without any two meetings overlapping in time.",
+    examples: [{"input":"intervals = [[0,30],[5,10],[15,20]]","output":"false","explanation":"The interval [0,30] overlaps with both [5,10] and [15,20]."},{"input":"intervals = [[7,10],[2,4]]","output":"true","explanation":"The two meetings don't overlap once sorted: [2,4] ends before [7,10] begins."}],
+    constraints: ["0 <= intervals.length <= 10^4","0 <= starti < endi <= 10^6"],
     intuition: "Sort by start time. If any meeting starts before previous ends, overlap exists.",
     approach: [
       "Sort intervals by start time.",
@@ -3143,6 +3416,9 @@ public:
   },
 
   "meeting-rooms-ii": {
+    statement: "Given an array of meeting time intervals, each with a start and end time, determine the minimum number of meeting rooms required so that all meetings can be held without conflicts.",
+    examples: [{"input":"intervals = [[0,30],[5,10],[15,20]]","output":"2","explanation":"The meeting [0,30] overlaps with [5,10] and separately with [15,20], but the latter two never overlap each other, so 2 rooms suffice."},{"input":"intervals = [[7,10],[2,4]]","output":"1","explanation":"The meetings don't overlap, so they can share a single room."}],
+    constraints: ["1 <= intervals.length <= 10^4","0 <= starti < endi <= 10^6"],
     intuition: "Min-heap of end times. Tracks earliest-ending room. If new meeting starts after earliest end, reuse that room. Else need new room. Heap size at end = min rooms needed.",
     approach: [
       "Sort by start time.",
@@ -3175,6 +3451,9 @@ public:
   },
 
   "hand-of-straights": {
+    statement: "Given a hand of cards represented as an array of integers and a group size, determine whether the cards can be rearranged into groups of that exact size where each group consists of consecutive values with no gaps.",
+    examples: [{"input":"hand = [1,2,3,6,2,3,4,7,8], groupSize = 3","output":"true","explanation":"The cards can be split into the runs [1,2,3], [2,3,4], and [6,7,8]."},{"input":"hand = [1,2,3,4,5], groupSize = 4","output":"false","explanation":"The 5 cards cannot be evenly divided into groups of 4 consecutive values."}],
+    constraints: ["1 <= hand.length <= 10^4","0 <= hand[i] <= 10^9","1 <= groupSize <= hand.length"],
     intuition: "Greedy: always form groups starting from smallest card. If can't complete a group, return false. Use sorted map to process cards in order.",
     approach: [
       "If hand.size() % groupSize != 0: return false.",
@@ -3211,6 +3490,9 @@ public:
   },
 
   "partition-labels": {
+    statement: "Given a string of lowercase letters, split it into as many contiguous parts as possible such that each letter appears in at most one part. Return the lengths of these parts in order.",
+    examples: [{"input":"s = \"ababcbacadefegdehijhklij\"","output":"[9,7,8]","explanation":"The string splits into \"ababcbaca\", \"defegde\", and \"hijhklij\", each containing letters that don't appear in any other part."},{"input":"s = \"abac\"","output":"[4]","explanation":"Since 'a' reappears at the last position before 'c' finishes, the whole string forms a single part."},{"input":"s = \"eccbbbbdec\"","output":"[10]"}],
+    constraints: ["1 <= s.length <= 500","s consists of lowercase English letters only"],
     intuition: "Each character's last occurrence determines the partition end. Walk the string: expand current partition end to max last occurrence of characters seen. When current index = partition end, cut.",
     approach: [
       "Precompute last[c] = last index of char c.",
@@ -3244,6 +3526,9 @@ public:
   },
 
   "missing-number": {
+    statement: "Given an array containing n distinct numbers taken from the range [0, n], find the one number in that range that is missing from the array.",
+    examples: [{"input":"nums = [3,0,1]","output":"2","explanation":"n = 3, the range is [0,3], and 2 is the value not present in the array."},{"input":"nums = [0,1]","output":"2"},{"input":"nums = [9,6,4,2,3,5,7,0,1]","output":"8"}],
+    constraints: ["n == nums.length","1 <= n <= 10^4","0 <= nums[i] <= n","All the numbers in nums are unique"],
     intuition: "Expected sum 0+1+...+n = n*(n+1)/2. Subtract actual sum. Difference is missing number. Alternatively use XOR: XOR all indices and all values, mismatched pair cancels.",
     approach: [
       "expected = n*(n+1)/2.",
@@ -3269,6 +3554,9 @@ public:
   },
 
   "counting-bits": {
+    statement: "Given an integer n, return an array ans of length n + 1 where ans[i] is the number of 1 bits in the binary representation of i, for every i from 0 to n.",
+    examples: [{"input":"n = 2","output":"[0,1,1]","explanation":"0 -> 0, 1 -> 1, 2 -> 10, which has one 1 bit."},{"input":"n = 5","output":"[0,1,1,2,1,2]"}],
+    constraints: ["0 <= n <= 10^5"],
     intuition: "DP: for even n, bits(n) = bits(n/2). For odd n, bits(n) = bits(n/2) + 1. Equivalently bits(n) = bits(n>>1) + (n&1).",
     approach: [
       "dp[0] = 0.",
@@ -3294,6 +3582,9 @@ public:
   },
 
   "number-1-bits": {
+    statement: "Given a 32-bit unsigned integer, return the number of bits set to 1 in its binary representation (its Hamming weight).",
+    examples: [{"input":"n = 00000000000000000000000000001011","output":"3","explanation":"The binary form has three 1 bits."},{"input":"n = 00000000000000000000000010000000","output":"1"},{"input":"n = 11111111111111111111111111111101","output":"31"}],
+    constraints: ["The input is a 32-bit unsigned binary representation of an integer","0 <= n <= 2^32 - 1"],
     intuition: "Brian Kernighan: n & (n-1) clears the lowest set bit. Count how many times until n = 0.",
     approach: [
       "count = 0.",
@@ -3320,6 +3611,9 @@ public:
   },
 
   "reverse-bits": {
+    statement: "Given a 32-bit unsigned integer, reverse the order of its bits and return the resulting unsigned integer.",
+    examples: [{"input":"n = 00000010100101000001111010011100","output":"964176192","explanation":"Reversing the 32 bits gives 00111001011110000010100101000000, which equals 964176192."},{"input":"n = 11111111111111111111111111111101","output":"3221225471","explanation":"Reversing the 32 bits gives 10111111111111111111111111111111, which equals 3221225471."}],
+    constraints: ["The input is a binary string of exactly 32 characters","Represents an unsigned 32-bit integer"],
     intuition: "Process bit by bit. Extract LSB of n, shift result left, OR in that bit, shift n right. Repeat 32 times.",
     approach: [
       "result = 0.",
@@ -3349,6 +3643,9 @@ public:
   },
 
   "power-of-two": {
+    statement: "Given an integer n, determine whether it is a power of two (that is, whether it can be written as 2 raised to some non-negative integer exponent). Return true if so, false otherwise.",
+    examples: [{"input":"n = 1","output":"true","explanation":"2^0 = 1."},{"input":"n = 16","output":"true","explanation":"2^4 = 16."},{"input":"n = 3","output":"false"}],
+    constraints: ["-2^31 <= n <= 2^31 - 1"],
     intuition: "Power of two has exactly one set bit. n & (n-1) == 0 checks this (clears the one set bit to 0). Also n must be > 0.",
     approach: [
       "Return n > 0 && (n & (n-1)) == 0.",
@@ -3372,6 +3669,9 @@ public:
   },
 
   "sum-two-integers": {
+    statement: "Given two integers a and b, return their sum without using the '+' or '-' operators, relying instead on bitwise operations.",
+    examples: [{"input":"a = 1, b = 2","output":"3"},{"input":"a = 2, b = 3","output":"5"}],
+    constraints: ["-1000 <= a, b <= 1000"],
     intuition: "Simulate addition with XOR (sum without carry) and AND shifted left (carry). Repeat until carry is 0.",
     approach: [
       "While b != 0: carry = (a & b) << 1. a = a ^ b. b = carry.",
@@ -3400,6 +3700,9 @@ public:
   },
 
   "decode-ways": {
+    statement: "A message made only of digits was encoded by mapping the letters 'A' to 'Z' to the numbers '1' to '26'. Given the encoded string s, return the number of distinct ways it can be decoded back into letters; if s contains an invalid arrangement of digits (such as a leading zero that can't map to any letter), return 0.",
+    examples: [{"input":"s = \"12\"","output":"2","explanation":"\"12\" can be decoded as \"AB\" (1 2) or \"L\" (12)."},{"input":"s = \"226\"","output":"3","explanation":"\"226\" can be decoded as \"BZ\" (2 26), \"VF\" (22 6), or \"BBF\" (2 2 6)."},{"input":"s = \"06\"","output":"0","explanation":"A leading zero cannot be decoded on its own or combined validly, so there are no valid decodings."}],
+    constraints: ["1 <= s.length <= 100","s consists only of digit characters '0'-'9'"],
     intuition: "DP. dp[i] = ways to decode s[0..i-1]. If s[i-1] is valid single digit (1-9): dp[i] += dp[i-1]. If s[i-2..i-1] is valid two-digit (10-26): dp[i] += dp[i-2].",
     approach: [
       "dp[0]=1 (empty string), dp[1]=s[0]!='0' ? 1 : 0.",
@@ -3437,6 +3740,9 @@ public:
   },
 
   "unique-paths": {
+    statement: "A robot sits at the top-left corner of an m x n grid and wants to reach the bottom-right corner. At every step the robot may only move one cell to the right or one cell down. Count the total number of distinct paths from the start to the destination.",
+    examples: [{"input":"m = 3, n = 7","output":"28"},{"input":"m = 3, n = 2","output":"3","explanation":"The three paths are Down-Down-Right, Down-Right-Down, and Right-Down-Down."},{"input":"m = 1, n = 1","output":"1"}],
+    constraints: ["1 <= m, n <= 100","The answer fits comfortably in a 32-bit integer"],
     intuition: "Robot moves right or down only. dp[i][j] = ways to reach (i,j) = dp[i-1][j] + dp[i][j-1]. First row and column all 1s (only one path).",
     approach: [
       "dp[m][n], initialize all 1s in first row and col.",
@@ -3465,6 +3771,9 @@ public:
   },
 
   "minimum-path-sum": {
+    statement: "Given an m x n grid filled with non-negative integers, find a path from the top-left cell to the bottom-right cell that minimizes the sum of all numbers along it. From any cell you may only move either down or right.",
+    examples: [{"input":"grid = [[1,3,1],[1,5,1],[4,2,1]]","output":"7","explanation":"The path 1 -> 3 -> 1 -> 1 -> 1 minimizes the sum."},{"input":"grid = [[1,2,3],[4,5,6]]","output":"12"}],
+    constraints: ["1 <= m, n <= 200","0 <= grid[i][j] <= 100"],
     intuition: "DP: dp[i][j] = minimum cost path to (i,j) = grid[i][j] + min(dp[i-1][j], dp[i][j-1]).",
     approach: [
       "Initialize dp[0][0] = grid[0][0].",
@@ -3498,6 +3807,9 @@ public:
   },
 
   "longest-common-subsequence": {
+    statement: "Given two strings text1 and text2, return the length of their longest common subsequence, that is, the longest sequence of characters that appears in both strings in the same relative order but not necessarily contiguously. If no common subsequence exists, return 0.",
+    examples: [{"input":"text1 = \"abcde\", text2 = \"ace\"","output":"3","explanation":"The longest common subsequence is \"ace\"."},{"input":"text1 = \"abc\", text2 = \"abc\"","output":"3"},{"input":"text1 = \"abc\", text2 = \"def\"","output":"0"}],
+    constraints: ["1 <= text1.length, text2.length <= 1000","text1 and text2 consist of lowercase English characters only"],
     intuition: "DP: dp[i][j] = LCS length for s1[0..i-1] and s2[0..j-1]. If chars match: dp[i][j] = dp[i-1][j-1] + 1. Else: max(dp[i-1][j], dp[i][j-1]).",
     approach: [
       "dp[m+1][n+1] initialized to 0.",
@@ -3529,6 +3841,9 @@ public:
   },
 
   "longest-increasing-subsequence": {
+    statement: "Given an integer array nums, find the length of the longest strictly increasing subsequence, where a subsequence is formed by deleting zero or more elements without changing the relative order of the remaining ones.",
+    examples: [{"input":"nums = [10,9,2,5,3,7,101,18]","output":"4","explanation":"One longest increasing subsequence is [2,3,7,101], which has length 4."},{"input":"nums = [0,1,0,3,2,3]","output":"4","explanation":"One longest increasing subsequence is [0,1,2,3]."},{"input":"nums = [7,7,7,7]","output":"1"}],
+    constraints: ["1 <= nums.length <= 2500","-10^4 <= nums[i] <= 10^4"],
     intuition: "DP: dp[i] = length of LIS ending at index i. For each i, dp[i] = max(dp[j]+1) for all j < i where nums[j] < nums[i]. O(n²). Patience sorting gives O(n log n).",
     approach: [
       "tails array (patience sorting): for each num, binary search for first tail >= num.",
@@ -3559,6 +3874,9 @@ public:
   },
 
   "longest-palindromic-substr": {
+    statement: "Given a string s, find and return the longest contiguous substring of s that reads the same forwards and backwards. If multiple substrings of the same maximum length qualify, returning any one of them is acceptable.",
+    examples: [{"input":"s = \"babad\"","output":"\"bab\"","explanation":"\"aba\" is also a valid answer of the same length."},{"input":"s = \"cbbd\"","output":"\"bb\""},{"input":"s = \"a\"","output":"\"a\""}],
+    constraints: ["1 <= s.length <= 1000","s consists only of digits and English letters"],
     intuition: "Expand around center. For each index (and each gap between indices), expand outward as long as chars match. Track max expansion.",
     approach: [
       "For each i: expand around i (odd length) and between i,i+1 (even length).",
@@ -3589,6 +3907,9 @@ public:
   },
 
   "palindromic-substrings": {
+    statement: "Given a string s, count how many contiguous substrings of s are palindromes, counting substrings that occur at different positions separately even if the text is identical.",
+    examples: [{"input":"s = \"abc\"","output":"3","explanation":"The palindromic substrings are \"a\", \"b\", and \"c\"."},{"input":"s = \"aaa\"","output":"6","explanation":"The palindromic substrings are \"a\", \"a\", \"a\", \"aa\", \"aa\", and \"aaa\"."},{"input":"s = \"aba\"","output":"4"}],
+    constraints: ["1 <= s.length <= 1000","s consists of lowercase English letters"],
     intuition: "Same expand-around-center. Count each expansion as a palindrome found.",
     approach: [
       "For each i: expand odd (center i) and even (center i,i+1).",
@@ -3617,6 +3938,9 @@ public:
   },
 
   "edit-distance": {
+    statement: "Given two strings word1 and word2, return the minimum number of single-character insert, delete, or replace operations required to transform word1 into word2.",
+    examples: [{"input":"word1 = \"horse\", word2 = \"ros\"","output":"3","explanation":"horse -> rorse (replace 'h' with 'r') -> rose (remove 'r') -> ros (remove 'e')."},{"input":"word1 = \"intention\", word2 = \"execution\"","output":"5"}],
+    constraints: ["0 <= word1.length, word2.length <= 500","word1 and word2 consist of lowercase English letters"],
     intuition: "DP: dp[i][j] = min ops to convert word1[0..i-1] to word2[0..j-1]. If chars match: dp[i][j] = dp[i-1][j-1]. Else: 1 + min(delete, insert, replace).",
     approach: [
       "dp[m+1][n+1]. dp[i][0]=i, dp[0][j]=j.",
@@ -3650,6 +3974,9 @@ public:
   },
 
   "coin-change-ii": {
+    statement: "You are given an integer amount and an array coins representing distinct coin denominations, each available in unlimited supply. Count the number of different combinations of coins (order does not matter) that sum exactly to amount.",
+    examples: [{"input":"amount = 5, coins = [1,2,5]","output":"4","explanation":"The combinations are 5, 2+2+1, 2+1+1+1, and 1+1+1+1+1."},{"input":"amount = 3, coins = [2]","output":"0"},{"input":"amount = 0, coins = [7]","output":"1"}],
+    constraints: ["1 <= coins.length <= 300","1 <= coins[i] <= 5000","all coin values are distinct","0 <= amount <= 5000"],
     intuition: "Count ways to make amount using coins with unlimited use. DP: dp[i] = number of ways to make amount i. For each coin, update dp[i] += dp[i-coin] for all i >= coin.",
     approach: [
       "dp[amount+1] = {1, 0, 0, ...}.",
@@ -3679,6 +4006,9 @@ public:
   },
 
   "max-product-subarray": {
+    statement: "Given an integer array nums that may contain both positive and negative numbers as well as zeros, find the contiguous non-empty subarray whose elements multiply together to give the largest product, and return that product.",
+    examples: [{"input":"nums = [2,3,-2,4]","output":"6","explanation":"The subarray [2,3] has the largest product, 6."},{"input":"nums = [-2,0,-1]","output":"0","explanation":"The subarray [0] gives the largest possible product since any subarray spanning across it includes a negative value or a zero."},{"input":"nums = [-2,3,-4]","output":"24"}],
+    constraints: ["1 <= nums.length <= 2 * 10^4","-10 <= nums[i] <= 10","the product of any prefix or suffix of nums fits within a 32-bit integer"],
     intuition: "Two running products: maxProd and minProd (min because negative × negative = positive). At each step update both using current element and previous max/min. Track global max.",
     approach: [
       "maxP = minP = res = nums[0].",
@@ -3714,6 +4044,9 @@ public:
   },
 
   "word-break": {
+    statement: "Given a string s and a dictionary of strings wordDict, determine whether s can be split into a sequence of one or more space-free segments such that every segment appears in wordDict. The same dictionary word may be reused as many times as needed. Return true or false.",
+    examples: [{"input":"s = \"leetcode\", wordDict = [\"leet\",\"code\"]","output":"true","explanation":"\"leetcode\" splits into \"leet\" and \"code\", both of which are in the dictionary."},{"input":"s = \"catsandog\", wordDict = [\"cats\",\"dog\",\"sand\",\"and\",\"cat\"]","output":"false","explanation":"No combination of dictionary words can be concatenated to form \"catsandog\"."},{"input":"s = \"applepenapple\", wordDict = [\"apple\",\"pen\"]","output":"true"}],
+    constraints: ["1 <= s.length <= 300","1 <= wordDict.length <= 1000","1 <= wordDict[i].length <= 20","s and wordDict[i] consist of lowercase English letters","all strings in wordDict are unique"],
     intuition: "DP: dp[i] = true if s[0..i-1] can be segmented using wordDict. For each i, try all j < i: if dp[j] && s[j..i-1] is in dict, dp[i] = true.",
     approach: [
       "Set from wordDict for O(1) lookup.",
@@ -3746,6 +4079,9 @@ public:
   },
 
   "partition-equal-subset": {
+    statement: "Given a non-empty array of positive integers nums, determine whether the array can be divided into two subsets such that the sum of elements in both subsets is exactly equal. Return true if such a partition exists, or false otherwise.",
+    examples: [{"input":"nums = [1,5,11,5]","output":"true","explanation":"The array can be split into [1,5,5] and [11], both summing to 11."},{"input":"nums = [1,2,3,5]","output":"false","explanation":"The total sum is 11, which is odd, so it cannot be split into two equal-sum subsets."},{"input":"nums = [1,2,5]","output":"false"}],
+    constraints: ["1 <= nums.length <= 200","1 <= nums[i] <= 100"],
     intuition: "Find if subset sums to total/2. If total is odd, impossible. 0/1 knapsack DP: dp[j] = can we achieve sum j using elements so far.",
     approach: [
       "If total sum is odd: return false.",
@@ -3780,6 +4116,9 @@ public:
   },
 
   "target-sum": {
+    statement: "Given an array of non-negative integers nums and an integer target, you must assign either a '+' or a '-' sign in front of every number and then compute the resulting expression's sum. Count how many distinct sign assignments make this sum equal target.",
+    examples: [{"input":"nums = [1,1,1,1,1], target = 3","output":"5","explanation":"There are 5 ways to assign signs so the expression evaluates to 3, e.g. -1+1+1+1+1 = 3."},{"input":"nums = [1], target = 1","output":"1"}],
+    constraints: ["1 <= nums.length <= 20","0 <= nums[i] <= 1000","0 <= sum(nums) <= 1000","-1000 <= target <= 1000"],
     intuition: "DFS with memoization or DP. The number of ways to assign +/- to reach target. DP: dp[sum+offset] = count of ways. Or use subset-sum: S(+) - S(-) = target, S(+) + S(-) = total → S(+) = (total+target)/2.",
     approach: [
       "Convert to subset sum: find subsets summing to (total+target)/2.",
@@ -3814,6 +4153,9 @@ public:
   },
 
   "buy-sell-cooldown": {
+    statement: "Given an array prices where prices[i] is the price of a stock on day i, find the maximum profit achievable with as many buy/sell transactions as desired, under two rules: you may hold at most one share at a time, and after selling a share you must wait one full day (a cooldown) before buying again.",
+    examples: [{"input":"prices = [1,2,3,0,2]","output":"3","explanation":"Buy on day 0, sell on day 1, cooldown on day 2, buy on day 3, sell on day 4: profit = (2-1) + (2-0) = 3."},{"input":"prices = [1]","output":"0"}],
+    constraints: ["1 <= prices.length <= 5000","0 <= prices[i] <= 1000"],
     intuition: "State machine DP. Three states: holding (can sell), sold (must cooldown next day), cooldown (can buy). Transitions: holding→sold (sell), sold→cooldown (forced), cooldown→holding (buy) or stay.",
     approach: [
       "hold = max profit when holding a stock.",
@@ -3847,6 +4189,9 @@ public:
   },
 
   "k-closest-points": {
+    statement: "Given an array of points on the 2D plane and an integer k, return the k points that are closest to the origin (0, 0), using ordinary Euclidean distance. The answer may be returned in any order.",
+    examples: [{"input":"points = [[1,3],[-2,2]], k = 1","output":"[[-2,2]]","explanation":"The distance of (1,3) from the origin is sqrt(10) while (-2,2) is sqrt(8), so (-2,2) is closer."},{"input":"points = [[3,3],[5,-1],[-2,4]], k = 2","output":"[[3,3],[-2,4]]"}],
+    constraints: ["1 <= k <= points.length <= 10^4","-10^4 <= points[i][0], points[i][1] <= 10^4"],
     intuition: "Max-heap of size k. Maintain k smallest distances. If new point closer than heap max, swap. Result is heap contents.",
     approach: [
       "Max-heap (priority_queue) storing (dist², x, y).",
@@ -3880,6 +4225,9 @@ public:
   },
 
   "kth-largest-array": {
+    statement: "Given an integer array and an integer k, find the k-th largest element in the array when the elements are ranked in sorted order (the k-th largest, counting duplicates as separate entries, not the k-th distinct value).",
+    examples: [{"input":"nums = [3,2,1,5,6,4], k = 2","output":"5","explanation":"Sorted descending: [6,5,4,3,2,1]; the 2nd element is 5."},{"input":"nums = [3,2,3,1,2,4,5,5,6], k = 4","output":"4"}],
+    constraints: ["1 <= k <= nums.length <= 10^5","-10^4 <= nums[i] <= 10^4"],
     intuition: "Quickselect (average O(n)) or min-heap of size k. Heap approach: maintain heap of k largest seen. Top = kth largest.",
     approach: [
       "Min-heap of size k.",
@@ -3909,6 +4257,9 @@ public:
   },
 
   "kth-largest-stream": {
+    statement: "Design a class that keeps track of the k-th largest value in a continuously growing stream of integers. The constructor receives k and an initial array of numbers, and an add method inserts a new number into the stream and returns the current k-th largest element.",
+    examples: [{"input":"[\"KthLargest\",\"add\",\"add\",\"add\",\"add\"], k = 3, nums = [4,5,8,2], values to add = [3,5,10,9]","output":"[null,4,5,5,8]","explanation":"After construction the 3rd largest of {4,5,8,2} is 4; adding 3,5,10,9 one at a time updates the 3rd largest to 4, 5, 5, and 8 respectively."},{"input":"[\"KthLargest\",\"add\"], k = 1, nums = [], values to add = [-3]","output":"[null,-3]"}],
+    constraints: ["1 <= k <= 10^4","0 <= nums.length <= 10^4","-10^4 <= nums[i] <= 10^4","-10^4 <= value to add <= 10^4","At least k elements will exist in the stream before a call needing the k-th largest"],
     intuition: "Maintain min-heap of size k. Top of heap is always the kth largest. On add: push, if size > k, pop. Return top.",
     approach: [
       "Init: build min-heap from vals, trim to size k.",
@@ -3939,6 +4290,9 @@ public:
   },
 
   "last-stone-weight": {
+    statement: "You are given the weights of a collection of stones. Repeatedly pick the two heaviest stones and smash them together: if they have equal weight both are destroyed, otherwise the lighter one is destroyed and the heavier one's weight is reduced by the lighter one's weight and put back. Return the weight of the single stone left at the end, or 0 if none remain.",
+    examples: [{"input":"stones = [2,7,4,1,8,1]","output":"1","explanation":"Smashing repeatedly: (8,7)->1, (4,2)->2, (2,1)->1, (1,1)->0, leaving a single stone of weight 1."},{"input":"stones = [1]","output":"1"}],
+    constraints: ["1 <= stones.length <= 30","1 <= stones[i] <= 1000"],
     intuition: "Repeatedly smash the two heaviest stones. Max-heap gives constant-time access to heaviest.",
     approach: [
       "Build max-heap.",
@@ -3970,6 +4324,9 @@ public:
   },
 
   "task-scheduler": {
+    statement: "You are given a list of CPU tasks, each labeled with a letter, and a non-negative cooldown integer n meaning that the same task letter must be separated by at least n intervals of time. Each interval the CPU can either run one task or sit idle. Return the minimum number of intervals needed to finish all the given tasks.",
+    examples: [{"input":"tasks = [\"A\",\"A\",\"A\",\"B\",\"B\",\"B\"], n = 2","output":"8","explanation":"One valid ordering is A -> B -> idle -> A -> B -> idle -> A -> B, which takes 8 intervals."},{"input":"tasks = [\"A\",\"A\",\"A\",\"B\",\"B\",\"B\"], n = 0","output":"6","explanation":"With no cooldown required, tasks can run back-to-back in any order."}],
+    constraints: ["1 <= tasks.length <= 10^4","tasks[i] is an uppercase English letter","0 <= n <= 100"],
     intuition: "Most frequent task determines idle time. Sort tasks by frequency. The formula: result = max(n+1 frames × (maxFreq-1) + tasks with maxFreq, total tasks).",
     approach: [
       "Count task frequencies.",
@@ -4000,6 +4357,9 @@ public:
   },
 
   "find-median-stream": {
+    statement: "Design a data structure that supports adding integers from a stream one at a time and, at any point, efficiently returning the median of all numbers added so far.",
+    examples: [{"input":"addNum(1); addNum(2); findMedian(); addNum(3); findMedian()","output":"[null, null, 1.5, null, 2.0]","explanation":"After adding 1 and 2, the median of [1,2] is 1.5; after adding 3, the median of [1,2,3] is 2.0."}],
+    constraints: ["-10^5 <= num <= 10^5","At most 5 * 10^4 calls will be made to addNum and findMedian combined","findMedian is only called after at least one number has been added"],
     intuition: "Two heaps: max-heap for lower half, min-heap for upper half. Keep sizes balanced (|maxH| - |minH| <= 1). Median is top of larger heap or average of both tops.",
     approach: [
       "addNum: push to maxH. Move maxH.top() to minH. If minH.size() > maxH.size(): move minH.top() to maxH.",
@@ -4030,6 +4390,9 @@ public:
   },
 
   "merge-k-sorted": {
+    statement: "You are given an array of k linked lists, each sorted in ascending order. Merge all of the lists into a single sorted linked list and return its head.",
+    examples: [{"input":"lists = [[1,4,5],[1,3,4],[2,6]]","output":"[1,1,2,3,4,4,5,6]","explanation":"Merging the three lists and sorting all values yields this list."},{"input":"lists = []","output":"[]"},{"input":"lists = [[]]","output":"[]"}],
+    constraints: ["k == lists.length","0 <= k <= 10^4","0 <= lists[i].length <= 500","-10^4 <= lists[i][j] <= 10^4","lists[i] is sorted in ascending order","The sum of lists[i].length will not exceed 10^4"],
     intuition: "Min-heap of (value, list_index, element_index). Always extract minimum across all lists. Push next element from same list.",
     approach: [
       "Dummy head. Min-heap initialized with first element of each list.",
@@ -4064,6 +4427,9 @@ public:
   },
 
   "lru-cache": {
+    statement: "Design a data structure that implements a Least Recently Used (LRU) cache with a fixed capacity. Implement get(key), which returns the value for the key if present (or -1 otherwise) and marks it as recently used, and put(key, value), which inserts or updates the value and, if inserting exceeds capacity, evicts the least recently used entry. Both operations must run in average O(1) time.",
+    examples: [{"input":"[\"LRUCache\",\"put\",\"put\",\"get\",\"put\",\"get\",\"put\",\"get\",\"get\",\"get\"]\n[[2],[1,1],[2,2],[1],[3,3],[2],[4,4],[1],[3],[4]]","output":"[null,null,null,1,null,-1,null,-1,3,4]","explanation":"Capacity is 2; inserting a third key (3) evicts key 2 since key 1 was just accessed, and later inserting key 4 evicts key 1."}],
+    constraints: ["1 <= capacity <= 3000","0 <= key <= 10^4","0 <= value <= 10^5","at most 2 * 10^5 calls total to get and put"],
     intuition: "Combine hashmap (O(1) lookup) with doubly-linked list (O(1) insertion/deletion). Most recently used at head, least recently used at tail. On access/put: move to head. On eviction: remove tail.",
     approach: [
       "Doubly linked list with dummy head and tail.",
@@ -4104,6 +4470,9 @@ public:
   },
 
   "kth-smallest-bst": {
+    statement: "Given the root of a binary search tree and an integer k, return the k-th smallest value stored in the tree (1-indexed, so k = 1 returns the smallest value).",
+    examples: [{"input":"root = [3,1,4,null,2], k = 1","output":"1","explanation":"The sorted (in-order) values are [1,2,3,4], so the 1st smallest is 1."},{"input":"root = [5,3,6,2,4,null,null,1], k = 3","output":"3","explanation":"The sorted values are [1,2,3,4,5,6], so the 3rd smallest is 3."},{"input":"root = [2,1], k = 2","output":"2"}],
+    constraints: ["The number of nodes in the tree is n","1 <= k <= n <= 10^4","0 <= Node.val <= 10^4"],
     intuition: "Inorder traversal of BST gives sorted sequence. k-th element in inorder = kth smallest. Perform inorder, count down.",
     approach: [
       "Inorder DFS (left → root → right).",
@@ -4135,6 +4504,9 @@ public:
   },
 
   "validate-bst": {
+    statement: "Given the root of a binary tree, determine whether it satisfies the binary search tree property: for every node, all values in its left subtree are strictly less than the node's value, all values in its right subtree are strictly greater, and both subtrees are themselves valid binary search trees.",
+    examples: [{"input":"root = [2,1,3]","output":"true"},{"input":"root = [5,1,4,null,null,3,6]","output":"false","explanation":"The right subtree of 5 contains a node with value 3, which is less than 5, violating the BST property."},{"input":"root = [1,1]","output":"false","explanation":"Values must be strictly greater in the right subtree, so a duplicate value is invalid."}],
+    constraints: ["The number of nodes in the tree is in the range [1, 10^4]","-2^31 <= Node.val <= 2^31 - 1"],
     intuition: "Pass valid range [min, max] down recursively. Root (-∞, +∞). Left subtree (-∞, root.val). Right subtree (root.val, +∞). Any violation → invalid.",
     approach: [
       "validate(node, minVal, maxVal):",
@@ -4165,6 +4537,9 @@ public:
   },
 
   "lowest-common-ancestor": {
+    statement: "Given the root of a binary search tree and two nodes p and q that both exist in the tree, find and return their lowest common ancestor — the deepest node that has both p and q as descendants (a node is allowed to be a descendant of itself).",
+    examples: [{"input":"root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8","output":"6","explanation":"6 is the lowest node that is an ancestor of both 2 and 8."},{"input":"root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4","output":"2","explanation":"2 is an ancestor of 4, and a node can be its own ancestor."},{"input":"root = [2,1], p = 2, q = 1","output":"2"}],
+    constraints: ["The number of nodes in the tree is in the range [2, 10^5]","-10^9 <= Node.val <= 10^9","All Node.val are unique","p and q are distinct nodes that both exist in the BST"],
     intuition: "BST property: if both p and q are less than root, LCA is in left subtree. If both greater, in right. If split (one each side, or one equals root), root is LCA.",
     approach: [
       "While root not null:",
@@ -4195,6 +4570,9 @@ public:
   },
 
   "count-good-nodes": {
+    statement: "Given the root of a binary tree, a node X in the tree is called good if the path from the root to X does not contain any node with a value greater than X's value. Return the total number of good nodes in the tree.",
+    examples: [{"input":"root = [3,1,4,3,null,1,5]","output":"4","explanation":"Nodes 3 (root), 4, 5, and the second 3 are all good; the 1s are not since a 3 or 4 precedes them."},{"input":"root = [3,3,null,4,2]","output":"3"},{"input":"root = [1]","output":"1"}],
+    constraints: ["The number of nodes in the tree is in the range [1, 10^5]","0 <= Node.val <= 10^4"],
     intuition: "DFS passing the maximum value seen so far on the path from root. A node is 'good' if its value >= that maximum.",
     approach: [
       "DFS(node, maxSoFar):",
@@ -4227,6 +4605,9 @@ public:
   },
 
   "max-path-sum": {
+    statement: "Given the root of a binary tree, a path is any sequence of nodes connected by parent-child edges where each node appears at most once, and it does not need to pass through the root. Return the maximum possible sum of node values along any such path.",
+    examples: [{"input":"root = [1,2,3]","output":"6","explanation":"The path 2 -> 1 -> 3 gives the maximum sum."},{"input":"root = [-10,9,20,null,null,15,7]","output":"42","explanation":"The path 15 -> 20 -> 7 gives the maximum sum, without using the root."}],
+    constraints: ["The number of nodes in the tree is in the range [1, 3 * 10^4]","-1000 <= Node.val <= 1000"],
     intuition: "At each node, max path sum through it = node.val + max(0, left contribution) + max(0, right contribution). For the recursive return: only one branch (left or right) can extend upward.",
     approach: [
       "DFS returns max path sum extending upward from this node.",
@@ -4257,6 +4638,9 @@ public:
   },
 
   "serialize-deserialize": {
+    statement: "Design an algorithm to convert a binary tree into a single string (serialization) and to reconstruct the exact same tree structure from that string (deserialization). Implement both a serialize function and a deserialize function; they only need to work correctly with each other.",
+    examples: [{"input":"root = [1,2,3,null,null,4,5]","output":"[1,2,3,null,null,4,5]","explanation":"After serializing the tree and then deserializing the resulting string, the reconstructed tree matches the original."},{"input":"root = []","output":"[]"}],
+    constraints: ["The number of nodes in the tree is in the range [0, 10^4]","-1000 <= Node.val <= 1000","Your serialized format may be any encoding of your choosing"],
     intuition: "Preorder DFS serialization. Use '#' for null nodes, ',' as delimiter. Deserialize by reading tokens and reconstructing preorder.",
     approach: [
       "Serialize: DFS, append node val or '#' for null, separated by ','.",
@@ -4290,6 +4674,9 @@ public:
   },
 
   "average-of-levels": {
+    statement: "Given the root of a binary tree, compute the average value of the nodes at each depth level. Return the averages as an array ordered from the root level downward.",
+    examples: [{"input":"root = [3,9,20,null,null,15,7]","output":"[3.0,14.5,11.0]","explanation":"Level 0 has only 3, level 1 has 9 and 20 (avg 14.5), level 2 has 15 and 7 (avg 11.0)."},{"input":"root = [5]","output":"[5.0]"}],
+    constraints: ["The number of nodes in the tree is in the range [1, 10^4]","-2^31 <= Node.val <= 2^31 - 1"],
     intuition: "BFS level by level. For each level, compute average of all node values.",
     approach: [
       "BFS with level separation (queue size snapshot).",
@@ -4325,6 +4712,9 @@ public:
   },
 
   "binary-tree-paths": {
+    statement: "Given the root of a binary tree, return every root-to-leaf path as a string, with node values joined by the arrow symbol \"->\". The order of paths does not need to match any particular sequence.",
+    examples: [{"input":"root = [1,2,3,null,5]","output":"[\"1->2->5\",\"1->3\"]"},{"input":"root = [1]","output":"[\"1\"]"}],
+    constraints: ["The number of nodes in the tree is in the range [1, 100]","-100 <= Node.val <= 100"],
     intuition: "DFS collecting path string. At leaf, add to result. Pass path by value for automatic backtracking.",
     approach: [
       "DFS(node, path).",
@@ -4356,6 +4746,9 @@ public:
   },
 
   "path-sum": {
+    statement: "Given the root of a binary tree and an integer targetSum, determine whether the tree has a root-to-leaf path such that the values along that path add up exactly to targetSum.",
+    examples: [{"input":"root = [5,4,8,11,null,13,4,7,2,null,null,null,1], targetSum = 22","output":"true","explanation":"The path 5 -> 4 -> 11 -> 2 sums to 22."},{"input":"root = [1,2,3], targetSum = 5","output":"false"},{"input":"root = [], targetSum = 0","output":"false"}],
+    constraints: ["The number of nodes in the tree is in the range [0, 5000]","-1000 <= Node.val <= 1000","-1000 <= targetSum <= 1000"],
     intuition: "DFS with running sum. At each node subtract its value from target. At leaf check if remainder == 0.",
     approach: [
       "If null: return false.",
@@ -4384,6 +4777,9 @@ public:
   },
 
   "construct-tree-preorder": {
+    statement: "You are given two integer arrays representing the preorder and inorder traversal of a binary tree with unique node values. Reconstruct the original binary tree from these two traversals and return its root.",
+    examples: [{"input":"preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]","output":"[3,9,20,null,null,15,7]","explanation":"The first value in preorder (3) is the root; it splits inorder into left subtree [9] and right subtree [15,20,7]."},{"input":"preorder = [-1], inorder = [-1]","output":"[-1]"}],
+    constraints: ["1 <= preorder.length <= 3000","inorder.length == preorder.length","-3000 <= preorder[i], inorder[i] <= 3000","All values in preorder and inorder are unique","inorder is guaranteed to be a valid inorder traversal of the tree described by preorder"],
     intuition: "Preorder[0] = root. Find root in inorder — left part is left subtree, right part is right subtree. Recurse with proper index ranges. Use hashmap for O(1) inorder lookup.",
     approach: [
       "Build inorder index map.",
@@ -4421,6 +4817,9 @@ public:
   },
 
   "roman-to-integer": {
+    statement: "Given a string representing a number in Roman numeral form (using symbols I, V, X, L, C, D, M), convert it to its equivalent integer value, accounting for subtractive notation such as IV meaning 4.",
+    examples: [{"input":"s = \"III\"","output":"3"},{"input":"s = \"LVIII\"","output":"58","explanation":"L = 50, V = 5, III = 3, summing to 58."},{"input":"s = \"MCMXCIV\"","output":"1994","explanation":"M = 1000, CM = 900, XC = 90, IV = 4, summing to 1994."}],
+    constraints: ["1 <= s.length <= 15","s contains only the characters 'I','V','X','L','C','D','M'","The input is guaranteed to be a valid Roman numeral representing a value between 1 and 3999"],
     intuition: "Map each Roman numeral to its value. Walk left to right. If current value < next value, subtract current (subtractive pair like IV=4). Else add.",
     approach: [
       "Map: I=1,V=5,X=10,L=50,C=100,D=500,M=1000.",
@@ -4449,6 +4848,9 @@ public:
   },
 
   "happy-number": {
+    statement: "A number is defined as happy if repeatedly replacing it with the sum of the squares of its digits eventually reaches 1. If instead this process enters a cycle that never includes 1, the number is not happy. Given an integer, determine whether it is happy.",
+    examples: [{"input":"n = 19","output":"true","explanation":"1^2+9^2=82, 8^2+2^2=68, 6^2+8^2=100, 1^2+0^2+0^2=1, so the sequence reaches 1."},{"input":"n = 2","output":"false","explanation":"The sequence of sums enters a repeating cycle that never reaches 1."}],
+    constraints: ["1 <= n <= 2^31 - 1"],
     intuition: "Repeatedly replace number with sum of squares of digits. Eventually hits 1 (happy) or enters cycle. Floyd's cycle detection catches cycle without HashSet.",
     approach: [
       "sumSquares(n): extract digits, sum squares.",
@@ -4476,6 +4878,9 @@ public:
   },
 
   "plus-one": {
+    statement: "You are given a non-empty array of digits representing a non-negative integer, where each element is a single digit and the most significant digit comes first (no leading zeros, except the number zero itself). Add one to the number represented by the array and return the resulting digits in the same format.",
+    examples: [{"input":"digits = [1,2,3]","output":"[1,2,4]","explanation":"The array represents 123, and 123 + 1 = 124."},{"input":"digits = [4,3,2,1]","output":"[4,3,2,2]","explanation":"The array represents 4321, and 4321 + 1 = 4322."},{"input":"digits = [9]","output":"[1,0]","explanation":"9 + 1 = 10, which requires an extra digit."}],
+    constraints: ["1 <= digits.length <= 100","0 <= digits[i] <= 9","digits does not contain any leading zero, except for the number 0 itself"],
     intuition: "Add 1 from last digit. If becomes 10, set 0 and carry. If carry propagates through all digits, prepend 1.",
     approach: [
       "Walk from end to start.",
@@ -4506,6 +4911,9 @@ public:
   },
 
   "pow-x-n": {
+    statement: "Implement a function that computes x raised to the power n (x^n), where x is a floating-point base and n is a signed integer that may be negative, zero, or positive.",
+    examples: [{"input":"x = 2.00000, n = 10","output":"1024.00000"},{"input":"x = 2.10000, n = 3","output":"9.26100"},{"input":"x = 2.00000, n = -2","output":"0.25000","explanation":"2^-2 = 1 / 2^2 = 1/4 = 0.25."}],
+    constraints: ["-100.0 < x < 100.0","-2^31 <= n <= 2^31 - 1","n is an integer","Either x is not zero or n > 0","-10^4 <= x^n <= 10^4"],
     intuition: "Fast exponentiation (binary). Even n: x^n = (x²)^(n/2). Odd n: x^n = x × x^(n-1). O(log n). Handle negative n.",
     approach: [
       "If n < 0: x = 1/x, n = -n. Use long long for n.",
@@ -4538,6 +4946,9 @@ public:
   },
 
   "reverse-integer": {
+    statement: "Given a signed 32-bit integer x, reverse the digits of x and return the result. If the reversed value falls outside the range of a signed 32-bit integer, return 0 instead.",
+    examples: [{"input":"x = 123","output":"321"},{"input":"x = -123","output":"-321"},{"input":"x = 120","output":"21"}],
+    constraints: ["-2^31 <= x <= 2^31 - 1"],
     intuition: "Extract digits right to left, build reversed number. Before each step check if adding next digit would overflow 32-bit int bounds.",
     approach: [
       "rev = 0.",
@@ -4571,6 +4982,9 @@ public:
   },
 
   "trapping-rain-water": {
+    statement: "Given an array of non-negative integers describing an elevation map where each bar has width 1, compute how much rainwater the terrain can trap after it rains, assuming water outside the leftmost and rightmost bars drains away.",
+    examples: [{"input":"height = [0,1,0,2,1,0,1,3,2,1,2,1]","output":"6"},{"input":"height = [4,2,0,3,2,5]","output":"9"},{"input":"height = [1,0,1]","output":"1"}],
+    constraints: ["1 <= height.length <= 2 * 10^4","0 <= height[i] <= 10^5"],
     intuition: "Two-pointer. Water at each index = min(maxLeft, maxRight) - height[i]. Track running maxLeft and maxRight from each side. Process the smaller-max side first.",
     approach: [
       "l=0, r=n-1, maxL=0, maxR=0, water=0.",
@@ -4604,6 +5018,9 @@ public:
   },
 
   "largest-rectangle-histogram": {
+    statement: "Given an array of integers representing the heights of bars in a histogram, where each bar has width 1 and the bars are adjacent, find the area of the largest rectangle that can be formed using contiguous bars. Return that maximum area.",
+    examples: [{"input":"heights = [2,1,5,6,2,3]","output":"10","explanation":"The largest rectangle is formed by the bars of height 5 and 6, giving an area of 2 * 5 = 10."},{"input":"heights = [2,4]","output":"4"}],
+    constraints: ["1 <= heights.length <= 10^5","0 <= heights[i] <= 10^4"],
     intuition: "Monotonic stack of indices (increasing heights). When shorter bar found, pop and calculate area using popped bar as height. Width = i to left stack element.",
     approach: [
       "Append 0-height sentinel to force all pops at end.",
@@ -4640,6 +5057,9 @@ public:
   },
 
   "valid-parenthesis-string": {
+    statement: "Given a string containing only the characters '(', ')', and '*', where '*' can be treated as either '(', ')', or an empty string, determine whether the string can be interpreted so that the parentheses are validly balanced.",
+    examples: [{"input":"s = \"()\"","output":"true"},{"input":"s = \"(*)\"","output":"true","explanation":"The '*' can be treated as an empty string, leaving a balanced \"()\"."},{"input":"s = \"(*))\"","output":"true","explanation":"Treating the '*' as '(' gives \"(())\", which is balanced."}],
+    constraints: ["1 <= s.length <= 100","s[i] is '(', ')', or '*'"],
     intuition: "Track range [lo, hi] of possible open-paren counts. '(' increments both. ')' decrements both. '*' expands range (lo--, hi++). Clamp lo at 0. If hi < 0: invalid. End: lo must be 0.",
     approach: [
       "lo=0, hi=0.",
@@ -4674,6 +5094,9 @@ public:
   },
 
   "surrounded-regions": {
+    statement: "Given an m x n board containing 'X' and 'O' characters, capture all regions of 'O' that are fully surrounded by 'X' on all sides by flipping those 'O' cells to 'X'. A region touching the border of the board is not considered surrounded and should be left unchanged. Modify the board in place.",
+    examples: [{"input":"board = [[\"X\",\"X\",\"X\",\"X\"],[\"X\",\"O\",\"O\",\"X\"],[\"X\",\"X\",\"O\",\"X\"],[\"X\",\"O\",\"X\",\"X\"]]","output":"[[\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\"],[\"X\",\"O\",\"X\",\"X\"]]","explanation":"The bottom-left 'O' touches the border (via the region path) so it stays; the enclosed region is flipped to 'X'."},{"input":"board = [[\"X\"]]","output":"[[\"X\"]]"}],
+    constraints: ["1 <= board.length, board[i].length <= 200","board[i][j] is 'X' or 'O'"],
     intuition: "Any 'O' connected to border is safe. DFS/BFS from all border 'O's, mark them. Then flip all remaining 'O' to 'X', restore marked to 'O'.",
     approach: [
       "For each border cell with 'O': DFS to mark connected 'O's as 'S'.",
@@ -4706,6 +5129,9 @@ public:
   },
 
   "evaluate-division": {
+    statement: "You are given a list of variable pairs and corresponding real-valued results representing known equations of the form a / b = value. Given a list of queries, each asking for the value of a / b for some pair of variables, compute the answer for each query by chaining known equations together, treating each variable relationship as a weighted, directed connection. If a query's answer cannot be derived from the given equations (either variable is unknown or no chain connects them), return -1.0 for that query.",
+    examples: [{"input":"equations = [[\"a\",\"b\"],[\"b\",\"c\"]], values = [2.0,3.0], queries = [[\"a\",\"c\"],[\"b\",\"a\"],[\"a\",\"e\"],[\"a\",\"a\"],[\"x\",\"x\"]]","output":"[6.00000,0.50000,-1.00000,1.00000,-1.00000]","explanation":"a/c = (a/b)*(b/c) = 2*3 = 6; b/a = 1/2 = 0.5; \"e\" and \"x\" never appear so those queries are unanswerable, while a/a = 1."}],
+    constraints: ["1 <= equations.length <= 20","equations[i].length == 2","1 <= variable name length <= 5","values.length == equations.length and 0.0 < values[i] <= 20.0","1 <= queries.length <= 20"],
     intuition: "Build weighted directed graph: a/b=val → edge a→b weight val, b→a weight 1/val. For each query BFS from source to target, multiply edge weights along path.",
     approach: [
       "Build adj: adj[a][b]=val, adj[b][a]=1/val.",
@@ -4752,6 +5178,9 @@ public:
   },
 
   "network-delay-time": {
+    statement: "There are n nodes labeled from 1 to n connected by directed, weighted edges given as times[i] = [u, v, w], meaning it takes w time units for a signal to travel from node u to node v. Starting a signal from a given source node k, determine the minimum time needed for the signal to reach every node in the network. Return that minimum time, or -1 if some node is unreachable.",
+    examples: [{"input":"times = [[2,1,1],[2,3,1],[3,4,1]], n = 4, k = 2","output":"2","explanation":"From node 2, node 1 is reached in 1 unit, node 3 in 1 unit, and node 4 via node 3 in 2 units; the maximum of these is 2."},{"input":"times = [[1,2,1]], n = 2, k = 1","output":"1"},{"input":"times = [[1,2,1]], n = 2, k = 2","output":"-1","explanation":"Node 1 is unreachable from node 2 since the only edge is directed from 1 to 2."}],
+    constraints: ["1 <= n <= 100","1 <= times.length <= 6000","1 <= u, v <= n and u != v","1 <= w <= 100","All pairs (u, v) are distinct"],
     intuition: "Single source shortest path from k. Dijkstra with min-heap. Answer = max dist among all nodes. If any unreachable: -1.",
     approach: [
       "Build adjacency list.",
@@ -4788,6 +5217,9 @@ public:
   },
 
   "redundant-connection": {
+    statement: "A tree with n nodes originally had exactly n-1 edges, but one extra edge was added, creating exactly one cycle and turning it into a graph with n edges. Given the list of edges in the order they were added, find and return the one edge that can be removed so the remaining graph is again a valid tree; if more than one such edge could be removed, return the one that appears last in the input.",
+    examples: [{"input":"edges = [[1,2],[1,3],[2,3]]","output":"[2,3]","explanation":"Removing edge [2,3] breaks the only cycle and leaves a valid tree."},{"input":"edges = [[1,2],[2,3],[3,4],[1,4],[1,5]]","output":"[1,4]","explanation":"Edge [1,4] is the last edge added that completes a cycle among nodes 1-2-3-4."},{"input":"edges = [[1,2],[2,3],[1,3]]","output":"[1,3]"}],
+    constraints: ["n == edges.length","3 <= n <= 1000","edges[i].length == 2","1 <= edges[i][0] < edges[i][1] <= n","there are no repeated edges"],
     intuition: "Union-Find. Add edges one by one. If both endpoints already same component: that edge creates cycle — return it.",
     approach: [
       "Union-Find with path compression + rank.",
@@ -4824,6 +5256,9 @@ public:
   },
 
   "min-cost-connect-points": {
+    statement: "Given the coordinates of a set of points on a 2D plane, you must connect all points together using edges so that there is a path between every pair of points, where the cost of an edge between two points equals the Manhattan distance between them. Return the minimum total cost required to connect all the points.",
+    examples: [{"input":"points = [[0,0],[2,2],[3,10],[5,2],[7,0]]","output":"20","explanation":"A minimum spanning tree over these points using Manhattan distances totals 20."},{"input":"points = [[3,12],[-2,5],[-4,1]]","output":"18"}],
+    constraints: ["1 <= points.length <= 1000","-10^6 <= xi, yi <= 10^6","All pairs (xi, yi) are distinct"],
     intuition: "MST on complete graph with Manhattan distance edges. Prim's without heap is O(n²) — efficient for dense graphs. Always add cheapest unvisited node reachable from current MST.",
     approach: [
       "minCost[i] = min cost to connect node i to MST. Start: minCost[0]=0, rest INF.",
@@ -4861,6 +5296,9 @@ public:
   },
 
   "swim-rising-water": {
+    statement: "You are given an n x n grid where each cell holds a distinct elevation value. Starting at the top-left cell at time 0, you may move to an adjacent cell (up, down, left, or right) at time t only if the elevation of that cell is at most t, since water is rising uniformly and fills every cell whose elevation is no greater than the current time. Return the minimum time at which it becomes possible to reach the bottom-right cell.",
+    examples: [{"input":"grid = [[0,2],[1,3]]","output":"3","explanation":"At time 3, all four cells (elevations 0,1,2,3) are accessible, allowing a path from top-left to bottom-right."},{"input":"grid = [[0,1,2,3,4],[24,23,22,21,5],[12,13,14,15,16],[11,17,18,19,20],[10,9,8,7,6]]","output":"16","explanation":"Following the spiral of increasing elevations, the bottom-right cell first becomes reachable once time reaches 16."}],
+    constraints: ["1 <= n <= 50","0 <= grid[i][j] < n^2","Every integer in the range [0, n^2 - 1] appears exactly once in grid"],
     intuition: "Minimax path: minimize the maximum cell value along path from (0,0) to (n-1,n-1). Dijkstra where cost = max(cost_so_far, cell_value).",
     approach: [
       "dist[i][j] = min bottleneck value to reach cell.",
@@ -4902,6 +5340,9 @@ public:
   },
 
   "cheapest-flights": {
+    statement: "There are n cities connected by flights, each given as [from, to, price] representing a one-way flight and its cost. Given a source city, a destination city, and a maximum number of intermediate stops allowed, find the cheapest total price to travel from the source to the destination using at most that many stops. Return -1 if no such route exists within the stop limit.",
+    examples: [{"input":"n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1","output":"700","explanation":"With at most 1 stop, the path 0 -> 1 -> 3 costs 100 + 600 = 700. The cheaper path 0 -> 1 -> 2 -> 3 (cost 400) uses 2 stops, exceeding the limit of k = 1, so it is not allowed."},{"input":"n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 1","output":"200","explanation":"With at most 1 stop, the path 0 -> 1 -> 2 costs 100 + 100 = 200, which is cheaper than the direct flight at 500."},{"input":"n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 0","output":"500","explanation":"With 0 stops allowed, only the direct flight 0 -> 2 is usable."}],
+    constraints: ["1 <= n <= 100","0 <= flights.length <= (n * (n - 1) / 2)","0 <= from, to < n and from != to","1 <= price <= 10^4","0 <= src, dst, k < n"],
     intuition: "Bellman-Ford limited to k+1 rounds (k stops = k+1 edges). Use copy of previous round's distances to prevent same-round chaining.",
     approach: [
       "dist = INF everywhere. dist[src] = 0.",
@@ -4935,6 +5376,9 @@ public:
   },
 
   "add-search-words": {
+    statement: "Design a data structure that stores a collection of words and supports adding new words as well as searching for a word, where the search query may contain the wildcard character '.' that can match any single letter. Implement addWord to insert a word into the structure, and search to return true if some previously added word matches the given query pattern.",
+    examples: [{"input":"addWord(\"bad\"); addWord(\"dad\"); addWord(\"mad\"); search(\"pad\"); search(\"bad\"); search(\".ad\"); search(\"b..\")","output":"false, true, true, true","explanation":"\"pad\" was never added so it fails. \"bad\" matches exactly. \".ad\" matches \"bad\", \"dad\", or \"mad\" since '.' matches any letter. \"b..\" matches \"bad\"."}],
+    constraints: ["1 <= word.length <= 25","word consists of lowercase English letters and possibly '.'","At most 2 * 10^4 calls will be made to addWord and search","There are at most 2 dots in any search query"],
     intuition: "Trie for insertion. DFS for search — '.' matches any child, letter matches exact child. Backtrack through trie for wildcard.",
     approach: [
       "Trie with isEnd flag.",
@@ -4973,6 +5417,9 @@ public:
   },
 
   "word-search-ii": {
+    statement: "Given an m x n grid of letters and a list of words, determine which words can be formed by tracing a path through adjacent grid cells (horizontally or vertically neighboring), without reusing the same cell more than once within a single word. Return all words from the list that can be found in the grid, in any order.",
+    examples: [{"input":"board = [[\"o\",\"a\",\"a\",\"n\"],[\"e\",\"t\",\"a\",\"e\"],[\"i\",\"h\",\"k\",\"r\"],[\"i\",\"f\",\"l\",\"v\"]], words = [\"oath\",\"pea\",\"eat\",\"rain\"]","output":"[\"eat\",\"oath\"]","explanation":"\"oath\" traces down the first column and across, \"eat\" traces through adjacent cells; \"pea\" and \"rain\" cannot be traced."},{"input":"board = [[\"a\",\"b\"],[\"c\",\"d\"]], words = [\"abcb\"]","output":"[]","explanation":"\"abcb\" would require reusing the cell containing 'b', which is not allowed."}],
+    constraints: ["1 <= m, n <= 12","board[i][j] is a lowercase English letter","1 <= words.length <= 3 * 10^4","1 <= words[i].length <= 10","All words[i] are unique"],
     intuition: "Build Trie from all words. DFS from each board cell, matching Trie path. When Trie node has word ending, record it. Clear word after found to deduplicate.",
     approach: [
       "Build Trie from words.",
@@ -5013,6 +5460,9 @@ public:
   },
 
   "merge-triplets": {
+    statement: "You are given a list of triplets, each with three integers, and a target triplet. You may pick any subset of the triplets and repeatedly merge them by taking the elementwise maximum, and you want to know if some sequence of merges can produce exactly the target triplet. Return true if it is achievable, otherwise false.",
+    examples: [{"input":"triplets = [[2,5,3],[1,8,4],[1,7,5]], target = [2,7,5]","output":"true","explanation":"Merging triplet [2,5,3] (valid since 2<=2,5<=7,3<=5) with [1,7,5] (valid since all coordinates <= target) gives elementwise max [2,7,5]."},{"input":"triplets = [[2,5,3],[1,8,4],[1,7,5]], target = [2,7,6]","output":"false","explanation":"Any triplet with a value exceeding the target's on some coordinate (like 8 > 7) cannot be used, and the remaining valid triplets never reach a third coordinate of 6."},{"input":"triplets = [[3,4,5],[4,4,5],[5,5,5]], target = [5,5,5]","output":"true"}],
+    constraints: ["1 <= triplets.length <= 10^5","triplets[i].length == target.length == 3","1 <= triplets[i][j], target[j] <= 1000"],
     intuition: "Skip any triplet that exceeds target in any component (it can't help). From remaining valid triplets, take max per component. Check if result equals target.",
     approach: [
       "For each triplet: if any triplet[i] > target[i]: skip.",
@@ -5042,6 +5492,9 @@ public:
   },
 
   "min-interval-query": {
+    statement: "You are given a list of intervals and a list of query points. For each query, find the size (end minus start plus one) of the smallest interval that fully contains that query point, or -1 if no interval contains it. Return the answers as an array in the order of the queries.",
+    examples: [{"input":"intervals = [[1,4],[2,4],[3,6],[4,4]], queries = [2,3,4,5]","output":"[3,3,1,4]","explanation":"For query 4, the interval [4,4] has size 1 and contains 4, which is the smallest containing interval."},{"input":"intervals = [[2,3],[2,5],[1,8],[20,25]], queries = [2,19,5,22]","output":"[2,-1,4,6]","explanation":"No interval contains 19, so the answer for that query is -1."}],
+    constraints: ["1 <= intervals.length <= 5 * 10^4","1 <= queries.length <= 5 * 10^4","1 <= starti <= endi <= 10^7","1 <= queries[j] <= 10^7"],
     intuition: "Sort queries and intervals by start. Min-heap of (size, end) for active intervals. For each query: add intervals starting <= query. Remove expired. Heap top = smallest active.",
     approach: [
       "Sort intervals by start. Sort query indices by query value.",
@@ -5080,6 +5533,9 @@ public:
   },
 
   "distinct-subsequences": {
+    statement: "Given two strings s and t, count the number of distinct ways to pick a subsequence from s (by deleting some, possibly zero, characters without reordering the rest) so that the resulting sequence equals t exactly.",
+    examples: [{"input":"s = \"rabbbit\", t = \"rabbit\"","output":"3","explanation":"There are 3 ways to choose which of the three 'b' characters in s to keep so the remaining letters spell 'rabbit'."},{"input":"s = \"babgbag\", t = \"bag\"","output":"5"}],
+    constraints: ["1 <= s.length, t.length <= 1000","s and t consist of English letters"],
     intuition: "DP: dp[i][j] = ways to embed t[0..j-1] in s[0..i-1]. Match: dp[i][j] = dp[i-1][j-1] + dp[i-1][j] (use current char or skip). No match: dp[i][j] = dp[i-1][j].",
     approach: [
       "dp[0][j]=0. dp[i][0]=1.",
@@ -5110,6 +5566,9 @@ public:
   },
 
   "interleaving-string": {
+    statement: "Given three strings s1, s2, and s3, determine whether s3 can be formed by interleaving the characters of s1 and s2 while preserving the original left-to-right order of characters within each of s1 and s2.",
+    examples: [{"input":"s1 = \"aabcc\", s2 = \"dbbca\", s3 = \"aadbbcbcac\"","output":"true"},{"input":"s1 = \"aabcc\", s2 = \"dbbca\", s3 = \"aadbbbaccc\"","output":"false"},{"input":"s1 = \"\", s2 = \"\", s3 = \"\"","output":"true"}],
+    constraints: ["0 <= s1.length, s2.length <= 100","0 <= s3.length <= 200","s1, s2, and s3 consist of lowercase English letters"],
     intuition: "DP: dp[i][j] = can s1[0..i-1] and s2[0..j-1] interleave to form s3[0..i+j-1]. Two ways to reach dp[i][j]: use s1[i-1] or use s2[j-1].",
     approach: [
       "dp[m+1][n+1]. dp[0][0]=true.",
@@ -5142,6 +5601,9 @@ public:
   },
 
   "burst-balloons": {
+    statement: "There are n balloons in a row, each with a number painted on it, given in an array nums. Bursting balloon i earns nums[left] * nums[i] * nums[right] coins, where left and right are the indices of the balloons currently adjacent to it (treat both ends of the row as bordered by an imaginary balloon of value 1). After a balloon bursts, its former neighbors become adjacent to each other. Determine the maximum total coins obtainable by bursting all the balloons in some order.",
+    examples: [{"input":"nums = [3,1,5,8]","output":"167","explanation":"Bursting in the order 1, 5, 3, 8 yields 3*1*5 + 3*5*8 + 1*3*8 + 1*8*1 = 15+120+24+8 = 167."},{"input":"nums = [1,5]","output":"10"}],
+    constraints: ["1 <= nums.length <= 300","0 <= nums[i] <= 100"],
     intuition: "Interval DP. Think of LAST balloon burst in range [l,r]. If k is last burst: coins = nums[l-1]*nums[k]*nums[r+1] + dp[l][k-1] + dp[k+1][r]. Add sentinel 1s at boundaries.",
     approach: [
       "Pad nums with 1 on both ends.",
@@ -5174,6 +5636,9 @@ public:
   },
 
   "regular-expression-matching": {
+    statement: "Given an input string s and a pattern p that may contain the special characters '.' (matches any single character) and '*' (matches zero or more occurrences of the preceding character), determine whether the pattern matches the entire string s, not just a substring of it.",
+    examples: [{"input":"s = \"aa\", p = \"a\"","output":"false","explanation":"\"a\" does not match the whole string \"aa\"."},{"input":"s = \"aa\", p = \"a*\"","output":"true","explanation":"'*' lets 'a' repeat, matching \"aa\"."},{"input":"s = \"ab\", p = \".*\"","output":"true","explanation":"\".*\" matches any sequence, including \"ab\"."}],
+    constraints: ["1 <= s.length <= 20","1 <= p.length <= 30","s consists of lowercase English letters","p consists of lowercase English letters, '.', and '*'","every '*' in p is preceded by a valid character to repeat"],
     intuition: "DP: dp[i][j] = s[0..i-1] matches p[0..j-1]. If p[j-1]='*': zero use (dp[i][j-2]) OR one-more use (dp[i-1][j] if s[i-1] matches p[j-2]). Else match/dot: dp[i-1][j-1].",
     approach: [
       "dp[m+1][n+1]. dp[0][0]=true.",
@@ -5209,6 +5674,9 @@ public:
   },
 
   "design-twitter": {
+    statement: "Design a simplified version of Twitter that supports posting a tweet, following and unfollowing another user, and retrieving the 10 most recent tweet ids in a user's news feed (their own tweets plus tweets from users they follow), ordered from most recent to least recent.",
+    examples: [{"input":"postTweet(1,5); getNewsFeed(1); follow(1,2); postTweet(2,6); getNewsFeed(1); unfollow(1,2); getNewsFeed(1)","output":"[null, [5], null, null, [6,5], null, [5]]","explanation":"User 1 posts tweet 5, then follows user 2 who posts tweet 6, making the feed [6,5]; after unfollowing, the feed reverts to [5]."}],
+    constraints: ["1 <= userId, followerId, followeeId <= 500","0 <= tweetId <= 10^4","All tweet ids are unique","At most 3 * 10^4 calls will be made in total to postTweet, getNewsFeed, follow, and unfollow"],
     intuition: "Each user has tweet list (timestamp, tweetId). Followees in sets. getNewsFeed: max-heap merge over all followees' tweet lists, pull top 10.",
     approach: [
       "tweets[userId] = list of (time, tweetId).",
@@ -5253,6 +5721,9 @@ public:
   },
 
   "find-duplicate-number": {
+    statement: "Given an array of n + 1 integers where every value lies between 1 and n inclusive, there is exactly one number that is repeated (though it may appear more than twice). Find and return that repeated number without modifying the array and using only O(1) extra space.",
+    examples: [{"input":"nums = [1,3,4,2,2]","output":"2"},{"input":"nums = [3,1,3,4,2]","output":"3"},{"input":"nums = [3,3,3,3,3]","output":"3"}],
+    constraints: ["1 <= n <= 10^5","nums.length == n + 1","1 <= nums[i] <= n","exactly one integer in nums repeats, possibly more than once"],
     intuition: "Floyd's cycle detection. Array as linked list: index i → nums[i]. Duplicate = two indices pointing to same value = cycle. Find cycle entry = duplicate.",
     approach: [
       "Phase 1: slow=nums[0], fast=nums[nums[0]]. Move until slow==fast.",
@@ -5281,6 +5752,9 @@ public:
   },
 
   "nth-tribonacci": {
+    statement: "The Tribonacci sequence is defined by T0 = 0, T1 = 1, T2 = 1, and each following term equal to the sum of the previous three terms. Given an integer n, return the value of Tn.",
+    examples: [{"input":"n = 4","output":"4","explanation":"T3 = 0+1+1 = 2, and T4 = 1+1+2 = 4."},{"input":"n = 25","output":"1389537"},{"input":"n = 0","output":"0"}],
+    constraints: ["0 <= n <= 37","the answer is guaranteed to fit within a 32-bit integer"],
     intuition: "T(0)=0, T(1)=1, T(2)=1, T(n)=T(n-1)+T(n-2)+T(n-3). Rolling three variables.",
     approach: [
       "a=0,b=1,c=1.",
@@ -5306,6 +5780,9 @@ public:
   },
 
   "min-cost-climbing": {
+    statement: "You are given an array cost where cost[i] is the price paid to step on stair i; once you pay for a step you may climb either 1 or 2 steps forward, and you may start from index 0 or index 1. Return the minimum total cost needed to reach a position past the last stair (index cost.length).",
+    examples: [{"input":"cost = [10,15,20]","output":"15","explanation":"Start at index 1, pay 15, then take two steps to go past the top, skipping index 2 entirely."},{"input":"cost = [1,100,1,1,1,100,1,1,100,1]","output":"6","explanation":"Starting at index 0 and always hopping 2 steps over the expensive 100-cost stairs yields total cost 6."},{"input":"cost = [0,0,0,1]","output":"0"}],
+    constraints: ["2 <= cost.length <= 1000","0 <= cost[i] <= 999"],
     intuition: "dp[i] = cost[i] + min(dp[i-1], dp[i-2]). Modify in-place. Top = beyond last step = min of last two.",
     approach: [
       "For i from 2 to n-1: cost[i] += min(cost[i-1], cost[i-2]).",
@@ -5328,6 +5805,9 @@ public:
   },
 
   "reconstruct-itinerary": {
+    statement: "Given a list of airline tickets, each represented as a [from, to] pair of airport codes, reconstruct the itinerary that uses every ticket exactly once, starting from \"JFK\". If multiple valid itineraries exist, return the one that is lexicographically smallest when the airport codes are read as a sequence. You may assume the given tickets always form a valid itinerary that uses all of them.",
+    examples: [{"input":"tickets = [[\"MUC\",\"LHR\"],[\"JFK\",\"MUC\"],[\"SFO\",\"SJC\"],[\"LHR\",\"SFO\"]]","output":"[\"JFK\",\"MUC\",\"LHR\",\"SFO\",\"SJC\"]"},{"input":"tickets = [[\"JFK\",\"SFO\"],[\"JFK\",\"ATL\"],[\"SFO\",\"ATL\"],[\"ATL\",\"JFK\"],[\"ATL\",\"SFO\"]]","output":"[\"JFK\",\"ATL\",\"JFK\",\"SFO\",\"ATL\",\"SFO\"]","explanation":"This route uses all five tickets and is lexicographically smaller than the alternative starting \"JFK\",\"SFO\",\"ATL\",...."}],
+    constraints: ["1 <= tickets.length <= 300","tickets[i].length == 2","Airport codes are three uppercase English letters","All tickets form at least one valid Eulerian itinerary starting at JFK"],
     intuition: "Eulerian path via Hierholzer's. DFS with sorted adjacency (multiset). Post-order append builds reverse path. Reverse at end.",
     approach: [
       "Build adjacency: multiset per airport.",
@@ -5362,6 +5842,9 @@ public:
   },
 
   "graph-valid-tree": {
+    statement: "Given a number of nodes labeled from 0 to n-1 and a list of undirected edges, determine whether these edges form a valid tree, meaning the graph is fully connected and contains no cycles.",
+    examples: [{"input":"n = 5, edges = [[0,1],[0,2],[0,3],[1,4]]","output":"true"},{"input":"n = 5, edges = [[0,1],[1,2],[2,3],[1,3],[1,4]]","output":"false","explanation":"The edges 1-2, 2-3, and 1-3 form a cycle."}],
+    constraints: ["1 <= n <= 2000","0 <= edges.length <= 5000","edges[i].length == 2","There are no self-loops or duplicate edges"],
     intuition: "Tree = n-1 edges + no cycle + connected. Check edge count first (quick reject). Union-Find for cycle detection.",
     approach: [
       "If edges.size() != n-1: return false.",
@@ -5395,6 +5878,9 @@ public:
   },
 
   "num-connected-components": {
+    statement: "You are given an integer n representing nodes labeled from 0 to n-1, and a list of undirected edges connecting pairs of these nodes. Determine and return the total number of connected components in the resulting graph.",
+    examples: [{"input":"n = 5, edges = [[0,1],[1,2],[3,4]]","output":"2","explanation":"Nodes 0,1,2 form one component and nodes 3,4 form another."},{"input":"n = 5, edges = [[0,1],[1,2],[2,3],[3,4]]","output":"1","explanation":"All five nodes are connected in a single chain."},{"input":"n = 4, edges = []","output":"4","explanation":"With no edges, every node is its own component."}],
+    constraints: ["1 <= n <= 2000","0 <= edges.length <= n * (n - 1) / 2","edges[i].length == 2","0 <= edges[i][0], edges[i][1] < n","there are no duplicate edges and no self-loops"],
     intuition: "Union-Find. Start with n components. Each union of different components reduces count by 1.",
     approach: [
       "components = n.",
@@ -5427,6 +5913,9 @@ public:
   },
 
   "all-paths-source-target": {
+    statement: "You are given a directed acyclic graph of n nodes labeled 0 to n-1, represented as an adjacency list graph where graph[i] is the list of nodes reachable directly from node i. Return every possible path that starts at node 0 and ends at node n-1, with each path given as a list of node indices in the order visited.",
+    examples: [{"input":"graph = [[1,2],[3],[3],[]]","output":"[[0,1,3],[0,2,3]]","explanation":"Both paths start at node 0 and end at node 3 (the last node)."},{"input":"graph = [[1,2],[2],[]]","output":"[[0,1,2],[0,2]]"},{"input":"graph = [[1],[]]","output":"[[0,1]]"}],
+    constraints: ["2 <= n <= 15","0 <= graph[i][j] < n","graph[i][j] != i (no self-loops)","all values in graph[i] are unique","the graph is a DAG (no cycles)"],
     intuition: "DFS from node 0, collecting all paths to n-1. DAG so no visited set needed. Backtrack after each call.",
     approach: [
       "DFS(node, path): if node==n-1: add path to result.",
@@ -5457,6 +5946,9 @@ public:
   },
 
   "alien-dictionary": {
+    statement: "You are given a list of words from an alien language, listed in the order they would appear in that language's dictionary, using an unknown ordering of the English alphabet. Determine a valid ordering of the letters used, consistent with how the given words are sorted, and return that ordering as a string. If the given word list contains a contradiction (no valid ordering exists), or contains an invalid case such as a longer word appearing before a shorter word that is its own prefix, return an empty string.",
+    examples: [{"input":"words = [\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\"]","output":"\"wertf\"","explanation":"Comparing adjacent words gives constraints t<f, w<e, r<t, e<r, yielding the order w, e, r, t, f."},{"input":"words = [\"z\",\"x\"]","output":"\"zx\""},{"input":"words = [\"z\",\"x\",\"z\"]","output":"\"\"","explanation":"The constraints z<x and x<z contradict each other, so no valid ordering exists."}],
+    constraints: ["1 <= words.length <= 100","1 <= words[i].length <= 100","words[i] consists of lowercase English letters","All characters used belong to the alien alphabet being reconstructed"],
     intuition: "Extract char ordering by comparing adjacent words. Build directed graph. Topo sort (Kahn's BFS). Cycle = invalid alphabet.",
     approach: [
       "Build graph: compare adjacent word pairs, first differing char = edge.",
@@ -5497,6 +5989,9 @@ public:
   },
 
   "longest-increasing-path-matrix": {
+    statement: "Given an m x n integer matrix, find the length of the longest path of cells such that each next cell is reachable by moving up, down, left, or right, and each successive cell holds a strictly greater value than the previous one.",
+    examples: [{"input":"matrix = [[9,9,4],[6,6,8],[2,1,1]]","output":"4","explanation":"The longest increasing path is 1 -> 2 -> 6 -> 9."},{"input":"matrix = [[3,4,5],[3,2,6],[2,2,1]]","output":"4"}],
+    constraints: ["1 <= m, n <= 200","0 <= matrix[i][j] <= 2^31 - 1"],
     intuition: "DFS + memoization. memo[i][j] = longest increasing path from (i,j). Recurse to strictly greater neighbors. No visited array needed (increasing = no cycles).",
     approach: [
       "memo[m][n] = 0.",
@@ -5537,6 +6032,9 @@ public:
   },
 
   "word-ladder": {
+    statement: "Given a beginWord, an endWord, and a dictionary wordList, find the length of the shortest transformation sequence from beginWord to endWord such that only one letter is changed at each step and every intermediate word produced must exist in wordList. Return 0 if no such transformation sequence exists; note that beginWord itself is not required to be in wordList but endWord must be.",
+    examples: [{"input":"beginWord = \"hit\", endWord = \"cog\", wordList = [\"hot\",\"dot\",\"dog\",\"lot\",\"log\",\"cog\"]","output":"5","explanation":"One shortest sequence is hit -> hot -> dot -> dog -> cog, which has 5 words."},{"input":"beginWord = \"hit\", endWord = \"cog\", wordList = [\"hot\",\"dot\",\"dog\",\"lot\",\"log\"]","output":"0","explanation":"endWord \"cog\" is not in wordList, so no valid transformation exists."},{"input":"beginWord = \"a\", endWord = \"c\", wordList = [\"a\",\"b\",\"c\"]","output":"2"}],
+    constraints: ["1 <= beginWord.length <= 10","endWord.length == beginWord.length","1 <= wordList.length <= 5000","wordList[i].length == beginWord.length","beginWord, endWord, and wordList[i] consist of lowercase English letters","beginWord != endWord"],
     intuition: "BFS from beginWord. Each step try changing each character to a-z, check if in wordList. Shortest BFS path = minimum transformations.",
     approach: [
       "Set from wordList for O(1) lookup.",
@@ -5578,6 +6076,9 @@ public:
   },
 
   "triangle": {
+    statement: "Given a triangular arrangement of numbers as a list of rows, find the minimum possible sum of a path that starts at the top and ends at the bottom row. From a number at index i in a row, the next step in the path may go to index i or index i + 1 in the row directly below.",
+    examples: [{"input":"triangle = [[2],[3,4],[6,5,7],[4,1,8,3]]","output":"11","explanation":"The minimum path is 2 + 3 + 5 + 1 = 11."},{"input":"triangle = [[-10]]","output":"-10"}],
+    constraints: ["1 <= triangle.length <= 200","triangle[i].length == i + 1","-10^4 <= triangle[i][j] <= 10^4"],
     intuition: "Bottom-up DP. Start from second-to-last row. Each cell = triangle[i][j] + min(triangle[i+1][j], triangle[i+1][j+1]). Work up to apex. Modify in-place or use 1D array.",
     approach: [
       "For i from n-2 down to 0: for j from 0 to i: triangle[i][j] += min(triangle[i+1][j], triangle[i+1][j+1]).",
@@ -5604,6 +6105,9 @@ public:
   },
 
   "count-primes": {
+    statement: "Given an integer n, count how many prime numbers exist that are strictly less than n.",
+    examples: [{"input":"n = 10","output":"4","explanation":"The primes less than 10 are 2, 3, 5, and 7."},{"input":"n = 0","output":"0"},{"input":"n = 1","output":"0"}],
+    constraints: ["0 <= n <= 5 * 10^6"],
     intuition: "Sieve of Eratosthenes. Mark all composites by iterating multiples of each prime. Count remaining unmarked numbers up to n.",
     approach: [
       "sieve[n] = {true}. sieve[0]=sieve[1]=false.",
@@ -5633,6 +6137,9 @@ public:
   },
 
   "multiply-strings": {
+    statement: "Given two non-negative integers represented as strings, return their product, also as a string, computed without converting the inputs directly into built-in big-integer types.",
+    examples: [{"input":"num1 = \"2\", num2 = \"3\"","output":"\"6\""},{"input":"num1 = \"123\", num2 = \"456\"","output":"\"56088\""}],
+    constraints: ["1 <= num1.length, num2.length <= 200","num1 and num2 consist of digits only","num1 and num2 do not contain any leading zero, except the number 0 itself"],
     intuition: "Grade-school multiplication. Digit at num1[i] × num2[j] contributes to result positions [i+j] and [i+j+1]. Build result array, handle carries, convert to string.",
     approach: [
       "result[m+n] = {0}.",
@@ -5667,6 +6174,9 @@ public:
   },
 
   "path-max-probability": {
+    statement: "You are given an undirected graph with n nodes, a list of edges, and a success probability for each edge indicating the likelihood a signal successfully traverses that edge. Given a start node and an end node, find the path between them that maximizes the product of the success probabilities along its edges, and return that maximum probability. Return 0 if no path connects the two nodes.",
+    examples: [{"input":"n = 3, edges = [[0,1],[1,2],[0,2]], succProb = [0.5,0.5,0.2], start = 0, end = 2","output":"0.25000","explanation":"The path 0 -> 1 -> 2 has probability 0.5 * 0.5 = 0.25, which exceeds the direct edge's probability of 0.2."},{"input":"n = 3, edges = [[0,1],[1,2],[0,2]], succProb = [0.5,0.5,0.3], start = 0, end = 2","output":"0.30000","explanation":"The direct edge 0 -> 2 with probability 0.3 beats the two-edge path's probability of 0.25."}],
+    constraints: ["2 <= n <= 10^4","0 <= edges.length <= 2 * 10^4","edges[i].length == 2 and succProb.length == edges.length","0 <= succProb[i] <= 1","0 <= start, end < n and start != end"],
     intuition: "Modified Dijkstra: maximize probability instead of minimize cost. Max-heap by probability. Multiply probabilities along path (all <= 1). Stop early when target reached.",
     approach: [
       "Build adj: (neighbor, prob).",
@@ -5707,6 +6217,9 @@ public:
   },
 
   "find-path-exists": {
+    statement: "You are given a number of nodes labeled from 0 to n-1 and a list of bidirectional edges connecting them, along with a source node and a destination node. Determine whether there is a path (through zero or more edges) that connects the source to the destination.",
+    examples: [{"input":"n = 3, edges = [[0,1],[1,2],[2,0]], source = 0, destination = 2","output":"true"},{"input":"n = 6, edges = [[0,1],[0,2],[3,5],[5,4],[4,3]], source = 0, destination = 5","output":"false"}],
+    constraints: ["1 <= n <= 2 * 10^5","0 <= edges.length <= 2 * 10^5","edges[i].length == 2","0 <= source, destination <= n - 1","There are no duplicate edges and no self-loops"],
     intuition: "Simple BFS/DFS or Union-Find. Check if source and destination are in same connected component.",
     approach: [
       "BFS from source. If destination reached: return true.",
@@ -5742,6 +6255,9 @@ public:
   },
 
   "replace-words": {
+    statement: "You are given a list of root words that form a dictionary, and a sentence made up of space-separated words. For every word in the sentence that has one of the roots as a prefix, replace it with that root; if a word can be formed from several roots, use the shortest matching root. Words with no matching root remain unchanged. Return the resulting sentence.",
+    examples: [{"input":"dictionary = [\"cat\",\"bat\",\"rat\"], sentence = \"the cattle was rattled by the battery\"","output":"\"the cat was rat by the bat\"","explanation":"\"cattle\" starts with \"cat\", \"rattled\" starts with \"rat\", and \"battery\" starts with \"bat\"."},{"input":"dictionary = [\"a\",\"b\",\"c\"], sentence = \"aadsfasf absbs bbab cadsfafs\"","output":"\"a a b c\"","explanation":"Every word in the sentence begins with one of the single-letter roots, so each is shortened to that root."}],
+    constraints: ["1 <= dictionary.length <= 1000","1 <= dictionary[i].length <= 100","dictionary[i] and sentence consist of lowercase English letters and spaces","1 <= sentence.length <= 10^6","The number of words in sentence is in the range [1, 1000]"],
     intuition: "Build Trie from all roots. For each word in sentence, walk Trie. If prefix (root) found: replace word with that root. Else keep word.",
     approach: [
       "Insert all roots into Trie.",
@@ -5781,6 +6297,9 @@ public:
   },
 
   "jump-game-vii": {
+    statement: "You are given a binary string s and two integers minJump and maxJump. Starting at index 0 (guaranteed s[0] == '0'), you may jump from index i to index j only if i + minJump <= j <= i + maxJump and s[j] == '0'. Determine whether it is possible to reach the last index of the string.",
+    examples: [{"input":"s = \"011010\", minJump = 2, maxJump = 3","output":"true","explanation":"Jump from 0 to 3 (s[3]='0'), then from 3 to 5 (s[5]='0'), the last index."},{"input":"s = \"01101110\", minJump = 2, maxJump = 3","output":"false"},{"input":"s = \"0000000000\", minJump = 1, maxJump = 1","output":"true"}],
+    constraints: ["2 <= s.length <= 10^5","s[i] is either '0' or '1'","s[0] == '0'","1 <= minJump <= maxJump < s.length"],
     intuition: "BFS/sliding window. From each reachable position i, can jump to [i+minJump, i+maxJump] where s[pos]=='0'. Track rightmost reached to avoid re-checking positions. Use prefix sum of reachable positions for O(n) range checks.",
     approach: [
       "reach = 0 (rightmost pos reachable so far checked).",
@@ -5814,6 +6333,9 @@ public:
   },
 
   "bitwise-and-numbers-range": {
+    statement: "Given two integers left and right that define an inclusive range, return the bitwise AND of all integers in that range.",
+    examples: [{"input":"left = 5, right = 7","output":"4","explanation":"5 & 6 & 7 = 4."},{"input":"left = 0, right = 0","output":"0"},{"input":"left = 1, right = 2147483647","output":"0"}],
+    constraints: ["0 <= left <= right <= 2^31 - 1"],
     intuition: "Common prefix of m and n in binary. Right-shift both until equal (find common prefix length), then shift result back left. Bits that differ get ANDed to 0.",
     approach: [
       "shift = 0.",
@@ -5840,6 +6362,9 @@ public:
   },
 
   "max-score-multiplication": {
+    statement: "You are given an integer array nums of length n and an array multipliers of length m (m <= n). You perform exactly m operations; on the i-th operation you remove either the leftmost or the rightmost remaining element of nums, multiply it by multipliers[i], add the result to your running score, and that element is gone for future operations. Return the maximum score achievable after all m operations.",
+    examples: [{"input":"nums = [1,2,3], multipliers = [3,2,1]","output":"14","explanation":"Take 3 from the right (3*3=9), then 2 from the right (2*2=4), then 1 from the remaining (1*1=1): total 9+4+1=14."},{"input":"nums = [-5,-3,-3,-2,7,1], multipliers = [-10,-5,3,4,6]","output":"102"}],
+    constraints: ["1 <= m <= 300","m <= n <= 10^5","-1000 <= nums[i], multipliers[i] <= 1000"],
     intuition: "DP: at step i, can pick from left or right end. dp[left][i] where i = number of picks = left picks + right picks. right = i - left. dp[left][i] = max(pick from left, pick from right).",
     approach: [
       "m = multipliers.size(), n = nums.size().",
@@ -5872,6 +6397,9 @@ public:
   },
 
   "detect-squares": {
+    statement: "Design a data structure that supports adding points on a 2D plane (duplicates allowed) and, given a query point, counting how many axis-aligned squares with positive area can be formed using the query point together with three previously added points. Implement `add(point)` to insert a point, and `count(point)` to return the number of such squares, treating points added multiple times as distinct occurrences.",
+    examples: [{"input":"add([3,10]); add([11,2]); add([3,2]); count([11,10]); count([14,8]); add([11,2]); count([11,10])","output":"1, 0, 2","explanation":"After the first three adds, (11,10) completes exactly one square with (3,10), (11,2), (3,2). (14,8) completes none. After adding (11,2) again, (11,10) can now form the same square in two ways since (11,2) exists twice."}],
+    constraints: ["point.length == 2","0 <= x, y <= 1000","At most 3000 calls in total will be made to add and count"],
     intuition: "For each query point (px,py), iterate all points with same x=px. For each such point (px,py2), try to form square: need (px2,py) and (px2,py2) where px2=px+(py2-py) or px2=px-(py2-py). Count combinations.",
     approach: [
       "Store points in map: cnt[(x,y)] = count. Also xToYs[x] = list of y values.",
@@ -5908,6 +6436,9 @@ public:
   },
 
   "longest-word-dictionary": {
+    statement: "Given a list of words, find the longest word that can be built one character at a time by other words present in the same list, meaning every prefix of that word obtained by removing its last letter(s) down to a single character must also appear in the list. If multiple words of the same maximum length qualify, return the lexicographically smallest one; if none qualify, return an empty string.",
+    examples: [{"input":"words = [\"w\",\"wo\",\"wor\",\"worl\",\"world\"]","output":"\"world\"","explanation":"\"world\" can be built up step by step: \"w\" -> \"wo\" -> \"wor\" -> \"worl\" -> \"world\", each prefix present in the list."},{"input":"words = [\"a\",\"banana\",\"app\",\"appl\",\"ap\",\"apply\",\"apple\"]","output":"\"apple\"","explanation":"Both \"apple\" and \"apply\" can be fully built from shorter list entries, and \"apple\" is lexicographically smaller."}],
+    constraints: ["1 <= words.length <= 1000","1 <= words[i].length <= 30","words[i] consists of lowercase English letters","All words[i] are unique"],
     intuition: "Sort words by length (then lexicographically). Use set to track buildable words. A word is buildable if word[:-1] is already in set. Greedily find longest.",
     approach: [
       "Sort by length ascending, then lex.",
@@ -5943,6 +6474,9 @@ public:
   },
 
   "index-pairs-string": {
+    statement: "Given a string text and a list of words, find every pair of indices [i, j] such that the substring of text starting at i and ending at j (inclusive) exactly matches one of the given words. Return the list of matching index pairs sorted in ascending order, first by starting index and then by ending index.",
+    examples: [{"input":"text = \"thestoryofleetcodeandme\", words = [\"story\",\"fleet\",\"leetcode\"]","output":"[[3,7],[9,13],[10,17]]","explanation":"text[3..7] = \"story\", text[9..13] = \"fleet\", and text[10..17] = \"leetcode\"."},{"input":"text = \"ababa\", words = [\"aba\",\"ab\"]","output":"[[0,1],[0,2],[2,3],[2,4]]","explanation":"\"ab\" occurs at [0,1] and [2,3]; \"aba\" occurs at [0,2] and [2,4]."}],
+    constraints: ["1 <= text.length <= 100","1 <= words.length <= 20","1 <= words[i].length <= 50","text and words[i] consist of lowercase English letters","All words[i] are unique"],
     intuition: "Build Trie from all words. For each start index in text, walk Trie. Whenever isEnd encountered, record [start, current_index].",
     approach: [
       "Insert all words into Trie.",
@@ -5977,6 +6511,9 @@ public:
   },
 
   "isomorphic-strings": {
+    statement: "Given two strings s and t of the same length, determine whether s is isomorphic to t: every character in s can be replaced consistently to get t, meaning there must be a one-to-one mapping between characters (no character maps to more than one character, and no two characters map to the same character), while character order stays the same. Return true if such a mapping exists, otherwise false.",
+    examples: [{"input":"s = \"egg\", t = \"add\"","output":"true","explanation":"'e'->'a' and 'g'->'d' forms a valid one-to-one mapping."},{"input":"s = \"foo\", t = \"bar\"","output":"false","explanation":"'o' would need to map to both 'a' and 'r'."},{"input":"s = \"paper\", t = \"title\"","output":"true"}],
+    constraints: ["1 <= s.length <= 5 * 10^4","t.length == s.length","s and t consist of any valid ASCII characters"],
     intuition: "Isomorphic means there's a consistent one-to-one character mapping from s to t. Key insight: the mapping must be a bijection — not just s[i] always maps to the same t[i], but also t[i] always maps back to the same s[i]. Without the reverse check, 'foo' → 'bar' would pass (f→b, o→a, o→r fails) but 'ab' → 'aa' would wrongly pass (a→a, b→a: two letters mapping to same letter is NOT isomorphic).",
     approach: [
       "Create two maps: st (s char → t char) and ts (t char → s char).",
@@ -6014,6 +6551,9 @@ public:
   },
 
   "combination-sum-iii": {
+    statement: "Find all combinations of exactly k distinct numbers, chosen from 1 through 9, that add up to a given number n. Each number may appear at most once in a combination, and only strictly increasing (duplicate-free) combinations should be returned.",
+    examples: [{"input":"k = 3, n = 7","output":"[[1,2,4]]"},{"input":"k = 3, n = 9","output":"[[1,2,6],[1,3,5],[2,3,4]]"},{"input":"k = 4, n = 1","output":"[]"}],
+    constraints: ["2 <= k <= 9","1 <= n <= 60"],
     intuition:
       "Find all combinations of exactly k numbers from 1–9 that sum to n. Classic backtracking: at each step choose the next number (must be > last chosen to avoid duplicates), recurse, then backtrack. Prune early when remaining sum goes negative or too few numbers remain.",
     approach: [
@@ -6057,6 +6597,9 @@ public:
   },
 
   "non-overlapping-intervals": {
+    statement: "Given an array of intervals, find the minimum number of intervals you must remove so that none of the remaining intervals overlap with each other.",
+    examples: [{"input":"intervals = [[1,2],[2,3],[3,4],[1,3]]","output":"1","explanation":"Removing [1,3] leaves [1,2], [2,3], [3,4], which don't overlap."},{"input":"intervals = [[1,2],[1,2],[1,2]]","output":"2","explanation":"You need to remove two of the three identical intervals to leave just one."},{"input":"intervals = [[1,2],[2,3]]","output":"0","explanation":"The intervals only touch at an endpoint and don't overlap, so nothing needs removing."}],
+    constraints: ["1 <= intervals.length <= 10^5","-5 * 10^4 <= starti < endi <= 5 * 10^4"],
     intuition:
       "Remove minimum intervals to make the rest non-overlapping. Greedy insight: always keep the interval that ends earliest — it leaves the most room for future intervals. Sort by end time. If next interval starts before current end, remove it (count it). Otherwise update current end.",
     approach: [
@@ -6099,6 +6642,9 @@ public:
   },
 
   "subsets-ii": {
+    statement: "Given an integer array that may contain duplicate values, return all possible subsets (the power set) without including any duplicate subset. Subsets may be returned in any order.",
+    examples: [{"input":"nums = [1,2,2]","output":"[[],[1],[1,2],[1,2,2],[2],[2,2]]"},{"input":"nums = [0]","output":"[[],[0]]"}],
+    constraints: ["1 <= nums.length <= 10","-10 <= nums[i] <= 10"],
     intuition:
       "Generate all subsets of an array that may have duplicates, without duplicate subsets. Sort first so duplicates are adjacent. In backtracking, skip an element if it's the same as the previous one at the same recursion level — this eliminates duplicate subsets without needing a set.",
     approach: [
@@ -6142,6 +6688,9 @@ public:
   },
 
   "merge-intervals": {
+    statement: "Given an array of intervals where each interval has a start and end value, merge all overlapping intervals and return an array of the resulting non-overlapping intervals that cover all the input ranges.",
+    examples: [{"input":"intervals = [[1,3],[2,6],[8,10],[15,18]]","output":"[[1,6],[8,10],[15,18]]","explanation":"Intervals [1,3] and [2,6] overlap and merge into [1,6]."},{"input":"intervals = [[1,4],[4,5]]","output":"[[1,5]]","explanation":"Intervals that merely touch at an endpoint are considered overlapping and get merged."}],
+    constraints: ["1 <= intervals.length <= 10^4","0 <= starti <= endi <= 10^4"],
     intuition:
       "Sort intervals by start time. Then walk through: if the current interval overlaps the last merged one (current.start ≤ merged.end), extend the end. Otherwise push a new interval. Overlap condition after sorting: current.start ≤ previous.end.",
     approach: [
@@ -6184,6 +6733,9 @@ public:
   },
 
   "top-k-frequent": {
+    statement: "Given an integer array nums and an integer k, return the k most frequently occurring elements in the array. The result may be returned in any order, and it is guaranteed that the answer is unique.",
+    examples: [{"input":"nums = [1,1,1,2,2,3], k = 2","output":"[1,2]"},{"input":"nums = [1], k = 1","output":"[1]"}],
+    constraints: ["1 <= nums.length <= 10^5","-10^4 <= nums[i] <= 10^4","k is between 1 and the number of distinct elements in nums","The test cases guarantee that the answer is unique"],
     intuition:
       "Count frequencies with a hash map. To find top-k without full sort: use bucket sort. Create an array of size n+1 where index = frequency. Bucket[i] holds all numbers that appear exactly i times. Scan buckets from high to low, collect until you have k elements.",
     approach: [
@@ -6226,6 +6778,9 @@ public:
   },
 
   "median-two-sorted": {
+    statement: "Given two sorted arrays nums1 and nums2 of sizes m and n respectively, return the median of the combined sorted array. The overall run time complexity should be O(log(m + n)).",
+    examples: [{"input":"nums1 = [1,3], nums2 = [2]","output":"2.00000","explanation":"The merged array is [1,2,3], whose median is 2."},{"input":"nums1 = [1,2], nums2 = [3,4]","output":"2.50000","explanation":"The merged array is [1,2,3,4], whose median is (2 + 3) / 2 = 2.5."}],
+    constraints: ["nums1.length == m","nums2.length == n","0 <= m, n <= 1000","1 <= m + n <= 2000","-10^6 <= nums1[i], nums2[i] <= 10^6"],
     intuition:
       "Binary search on the smaller array. Pick a cut point i in array A (0..m) and derive cut j = (m+n)/2 - i in array B. A valid cut means A[i-1] ≤ B[j] AND B[j-1] ≤ A[i] — left halves are all ≤ right halves. Binary search i until this holds. Then read median from the 4 boundary elements.",
     approach: [
@@ -6277,6 +6832,9 @@ public:
   },
 
   "first-missing-positive": {
+    statement: "Given an unsorted integer array nums, find the smallest positive integer that does not appear in the array. Your algorithm must run in O(n) time while using only O(1) extra space (in-place modification of the input array is allowed).",
+    examples: [{"input":"nums = [1,2,0]","output":"3"},{"input":"nums = [3,4,-1,1]","output":"2"},{"input":"nums = [7,8,9,11,12]","output":"1"}],
+    constraints: ["1 <= nums.length <= 10^5","-2^31 <= nums[i] <= 2^31 - 1"],
     intuition:
       "Find the smallest missing positive integer in O(n) time and O(1) space. Key insight: the answer must be in [1, n+1]. Use the array itself as a hash map — place each number x at index x-1 if 1 ≤ x ≤ n. Then scan for the first index where nums[i] ≠ i+1.",
     approach: [
@@ -6312,6 +6870,9 @@ public:
   },
 
   "count-of-smaller-after-self": {
+    statement: "Given an integer array, produce a new array where each position holds the count of elements to its right in the original array that are strictly smaller than the element at that position.",
+    examples: [{"input":"nums = [5,2,6,1]","output":"[2,1,1,0]","explanation":"To the right of 5 there are 2 smaller values (2 and 1); to the right of 2 there is 1 (1); to the right of 6 there is 1 (1); 1 has none to its right."},{"input":"nums = [-1,-1]","output":"[0,0]"},{"input":"nums = [2,0,1]","output":"[2,0,0]"}],
+    constraints: ["1 <= nums.length <= 10^5","-10^4 <= nums[i] <= 10^4"],
     intuition:
       "For each element, count how many elements to its right are strictly smaller. Brute force is O(n²). Use modified merge sort: during the merge step, when we pick from the right half, all remaining left-half elements are larger — add right-half index contribution to left-half counts.",
     approach: [
@@ -6366,6 +6927,9 @@ public:
   },
 
   "minimum-window-subsequence": {
+    statement: "Given strings s and t, find the minimum-length contiguous substring W of s such that t appears in W as a subsequence (characters in the same relative order, not necessarily adjacent). Return an empty string if no such W exists.",
+    examples: [{"input":"s = \"abcdebdde\", t = \"bde\"","output":"\"bcde\"","explanation":"\"bcde\" contains 'b','d','e' in order and is shorter than the other candidate \"bdde\"."},{"input":"s = \"fgrqsqsnodwmxzkzxwqegkndaa\", t = \"kzxwq\"","output":"\"kzxwq\""},{"input":"s = \"abc\", t = \"ac\"","output":"\"ac\""}],
+    constraints: ["1 <= s.length <= 2 * 10^4","1 <= t.length <= 100","s and t consist of lowercase English letters"],
     intuition:
       "Find the shortest contiguous substring of S that contains T as a subsequence (not substring). Two-pointer approach: forward scan to find where T ends in S, then backward scan from that point to tighten the window start.",
     approach: [
@@ -6412,6 +6976,9 @@ public:
   },
 
   "maximal-rectangle": {
+    statement: "Given a 2D binary matrix filled with '0's and '1's, find the largest rectangle containing only '1's and return its area.",
+    examples: [{"input":"matrix = [[\"1\",\"0\",\"1\",\"0\",\"0\"],[\"1\",\"0\",\"1\",\"1\",\"1\"],[\"1\",\"1\",\"1\",\"1\",\"1\"],[\"1\",\"0\",\"0\",\"1\",\"0\"]]","output":"6","explanation":"The largest rectangle of all 1's spans rows 1-2 and columns 2-4, giving an area of 2 * 3 = 6."},{"input":"matrix = [[\"0\"]]","output":"0"}],
+    constraints: ["rows == matrix.length, cols == matrix[i].length","1 <= rows, cols <= 200","matrix[i][j] is '0' or '1'"],
     intuition:
       "The classic histogram trick applied to a 2D matrix. For each row, compute the 'height' array — consecutive 1s above that cell including the cell itself. Then apply largest-rectangle-in-histogram on each row's heights.",
     approach: [
@@ -6462,6 +7029,9 @@ public:
   },
 
   "lfu-cache": {
+    statement: "Design a data structure that implements a Least Frequently Used (LFU) cache with a fixed positive capacity. It should support get(key), which returns the value if present or -1 otherwise while incrementing that key's use count, and put(key, value), which inserts or updates the key-value pair. When the cache is full and a new key must be inserted, evict the key with the lowest use count; if there is a tie, evict the least recently used among them. Both operations must run in O(1) average time.",
+    examples: [{"input":"[\"LFUCache\",\"put\",\"put\",\"get\",\"put\",\"get\",\"get\",\"put\",\"get\",\"get\",\"get\"]\n[[2],[1,1],[2,2],[1],[3,3],[2],[3],[4,4],[1],[3],[4]]","output":"[null,null,null,1,null,-1,3,null,-1,3,4]","explanation":"Capacity 2. Inserting key 3 evicts key 2 (least frequently used); inserting key 4 evicts key 1 since keys 1 and 3 tie in frequency but 1 was used less recently."}],
+    constraints: ["0 <= capacity <= 10^4","0 <= key <= 10^5","0 <= value <= 10^9","At most 2 * 10^5 calls total will be made to get and put"],
     intuition:
       "LFU evicts the Least Frequently Used key (ties broken by LRU). Needs O(1) get and put. Use two hash maps: key→{value, freq} and freq→ordered set (doubly linked list) of keys. Track minFreq to know which bucket to evict from.",
     approach: [
@@ -6518,6 +7088,9 @@ public:
   },
 
   "maximum-sum-bst": {
+    statement: "Given the root of a binary tree, find the subtree (a node together with all of its descendants) that is a valid binary search tree and whose node values sum to the maximum possible amount. Return that maximum sum; if no subtree is a valid BST other than possibly empty ones, treat the sum as 0.",
+    examples: [{"input":"root = [5,4,8,3,null,6,3]","output":"7","explanation":"The subtree rooted at the node with value 4 (containing 4 and 3) is the largest valid BST subtree, summing to 7; the subtree rooted at 8 is invalid because its right child (3) is not greater than 8."},{"input":"root = [4,2,6,1,3,5,7]","output":"28","explanation":"The entire tree is already a valid BST, so its full sum is the answer."}],
+    constraints: ["The number of nodes in the tree is in the range [1, 4 * 10^4]","-4 * 10^4 <= Node.val <= 4 * 10^4"],
     intuition:
       "Find the maximum sum of all keys in any BST subtree of the binary tree. Post-order DFS: at each node, determine if its subtree is a valid BST and compute its sum. Return up min, max, sum, and isValid to the parent.",
     approach: [
@@ -6560,6 +7133,9 @@ public:
   },
 
   "smallest-range-k-lists": {
+    statement: "You are given k sorted lists of integers. Find the smallest range [a, b] such that it contains at least one number from each of the k lists. If multiple ranges have the same smallest length, return the one with the smallest starting value.",
+    examples: [{"input":"nums = [[4,10,15,24,26],[0,9,12,20],[5,18,22,30]]","output":"[20,24]","explanation":"The range [20,24] includes 24 from list 1, 20 from list 2, and 22 from list 3, and no smaller range covers all three lists."},{"input":"nums = [[1,2,3],[1,2,3],[1,2,3]]","output":"[1,1]"}],
+    constraints: ["k == nums.length","1 <= k <= 3500","1 <= nums[i].length <= 50","-10^5 <= nums[i][j] <= 10^5","nums[i] is sorted in non-decreasing order"],
     intuition:
       "Given k sorted lists, find the smallest range [a, b] such that there is at least one element from each list. Use a min-heap of size k — always expand the maximum element's range by advancing the pointer in that list.",
     approach: [
@@ -6604,6 +7180,9 @@ public:
   },
 
   "sudoku-solver": {
+    statement: "You are given a 9x9 Sudoku board that is partially filled in, with empty cells marked '.'. Fill in the empty cells in place so that every row, every column, and every 3x3 sub-box contains each of the digits 1 through 9 exactly once, producing the unique valid solution.",
+    examples: [{"input":"board = [[\"5\",\"3\",\".\",\".\",\"7\",\".\",\".\",\".\",\".\"],[\"6\",\".\",\".\",\"1\",\"9\",\"5\",\".\",\".\",\".\"],[\".\",\"9\",\"8\",\".\",\".\",\".\",\".\",\"6\",\".\"],[\"8\",\".\",\".\",\".\",\"6\",\".\",\".\",\".\",\"3\"],[\"4\",\".\",\".\",\"8\",\".\",\"3\",\".\",\".\",\"1\"],[\"7\",\".\",\".\",\".\",\"2\",\".\",\".\",\".\",\"6\"],[\".\",\"6\",\".\",\".\",\".\",\".\",\"2\",\"8\",\".\"],[\".\",\".\",\".\",\"4\",\"1\",\"9\",\".\",\".\",\"5\"],[\".\",\".\",\".\",\".\",\"8\",\".\",\".\",\"7\",\"9\"]]","output":"[[\"5\",\"3\",\"4\",\"6\",\"7\",\"8\",\"9\",\"1\",\"2\"],[\"6\",\"7\",\"2\",\"1\",\"9\",\"5\",\"3\",\"4\",\"8\"],[\"1\",\"9\",\"8\",\"3\",\"4\",\"2\",\"5\",\"6\",\"7\"],[\"8\",\"5\",\"9\",\"7\",\"6\",\"1\",\"4\",\"2\",\"3\"],[\"4\",\"2\",\"6\",\"8\",\"5\",\"3\",\"7\",\"9\",\"1\"],[\"7\",\"1\",\"3\",\"9\",\"2\",\"4\",\"8\",\"5\",\"6\"],[\"9\",\"6\",\"1\",\"5\",\"3\",\"7\",\"2\",\"8\",\"4\"],[\"2\",\"8\",\"7\",\"4\",\"1\",\"9\",\"6\",\"3\",\"5\"],[\"3\",\"4\",\"5\",\"2\",\"8\",\"6\",\"1\",\"7\",\"9\"]]","explanation":"Each row, column, and 3x3 box now contains 1-9 exactly once."}],
+    constraints: ["board.length == 9, board[i].length == 9","board[i][j] is a digit '1'-'9' or '.'","It is guaranteed that the input board has exactly one solution"],
     intuition:
       "Backtracking with constraint propagation. Try digits 1-9 at each empty cell. Prune immediately if digit violates row, column, or 3×3 box constraint. Backtrack when no digit works.",
     approach: [
@@ -6652,6 +7231,9 @@ public:
   },
 
   "critical-connections": {
+    statement: "There are n servers numbered 0 to n-1 connected by a list of undirected connections, forming a network that may contain redundant links. A connection is called critical if removing it would split the network into two or more disconnected pieces. Return all critical connections in any order.",
+    examples: [{"input":"n = 4, connections = [[0,1],[1,2],[2,0],[1,3]]","output":"[[1,3]]","explanation":"Nodes 0,1,2 form a cycle so none of those edges are critical, but [1,3] is the only link to node 3."},{"input":"n = 2, connections = [[0,1]]","output":"[[0,1]]","explanation":"The single edge is the only connection, so removing it disconnects the network."},{"input":"n = 5, connections = [[0,1],[1,2],[2,0],[1,3],[3,4]]","output":"[[1,3],[3,4]]"}],
+    constraints: ["1 <= n <= 10^5","n - 1 <= connections.length <= 10^5","0 <= connections[i][0], connections[i][1] <= n - 1","there are no self-loops or repeated connections","the network is guaranteed to be connected"],
     intuition:
       "Find all bridges (edges whose removal disconnects the graph). Use Tarjan's bridge-finding algorithm: DFS with discovery time and low-link values. An edge (u,v) is a bridge if low[v] > disc[u] — meaning v can't reach back to u or earlier without using the edge (u,v).",
     approach: [
@@ -6696,6 +7278,9 @@ public:
   },
 
   "candy": {
+    statement: "There are children standing in a line, each with a given rating value. You must give each child at least one candy, and any child with a higher rating than an immediate neighbor must receive more candy than that neighbor. Return the minimum total number of candies required.",
+    examples: [{"input":"ratings = [1,0,2]","output":"5","explanation":"One optimal distribution is candies = [2,1,2]."},{"input":"ratings = [1,2,2]","output":"4","explanation":"One optimal distribution is candies = [1,2,1]; the two equal ratings need not differ in candy count."}],
+    constraints: ["1 <= ratings.length <= 2 * 10^4","0 <= ratings[i] <= 2 * 10^4"],
     intuition:
       "Each child must get at least 1 candy. Children with higher ratings than their neighbors get more. Two-pass greedy: left-to-right ensures left neighbor constraint, right-to-left ensures right neighbor constraint. Take the max of both passes.",
     approach: [
@@ -6730,6 +7315,9 @@ public:
   },
 
   "employee-free-time": {
+    statement: "You are given the working schedules of several employees, where each employee's schedule is a list of non-overlapping intervals sorted by start time. Return a sorted list of finite intervals representing the common free time shared by all employees, excluding any unbounded gaps before the first or after the last interval.",
+    examples: [{"input":"schedule = [[[1,2],[5,6]],[[1,3]],[[4,10]]]","output":"[[3,4]]","explanation":"Merging every employee's busy intervals gives [1,3] and [4,10]; the only gap between them is [3,4]."},{"input":"schedule = [[[1,3],[6,7]],[[2,4]],[[2,5],[9,12]]]","output":"[[5,6],[7,9]]","explanation":"Merging all busy intervals gives [1,5], [6,7], [9,12], leaving gaps [5,6] and [7,9]."}],
+    constraints: ["1 <= schedule.length <= 50","0 <= schedule[i].length <= 50","0 <= starti < endi <= 10^8","Each employee's own intervals are sorted and non-overlapping"],
     intuition:
       "Given schedules of all employees (list of lists of intervals), find all time intervals when no employee is working. Flatten all intervals, sort by start, merge overlapping intervals, then gaps between merged intervals are free time.",
     approach: [
@@ -6765,6 +7353,9 @@ public:
   },
 
   "basic-calculator": {
+    statement: "Given a string containing an arithmetic expression with non-negative integers, plus signs, minus signs, parentheses, and spaces, evaluate and return its integer result without using a built-in expression evaluator.",
+    examples: [{"input":"s = \"1 + 1\"","output":"2"},{"input":"s = \" 2-1 + 2 \"","output":"3"},{"input":"s = \"(1+(4+5+2)-3)+(6+8)\"","output":"23"}],
+    constraints: ["1 <= s.length <= 3 * 10^5","s consists of digits, '+', '-', '(', ')', and ' '","s represents a valid expression","'+' is never used as a unary operator","'-' may be used as a unary operator, only in front of a number or a parenthesized expression"],
     intuition:
       "Evaluate a string expression with +, -, and parentheses. Use a stack to save context (running result and sign) when entering parentheses. Process character by character.",
     approach: [
@@ -6813,6 +7404,9 @@ public:
   },
 
   "maximum-students-exam": {
+    statement: "You are given an m x n classroom represented by a grid of seats, where each cell is either a usable seat ('.') or a broken seat ('#') that cannot be assigned. Seat as many students as possible in usable seats so that no student can cheat: a student can see the answers of another student sitting immediately to their left, immediately to their right, or diagonally in front-left or front-right (the row directly above or below). Return the maximum number of students that can take the exam simultaneously under these constraints.",
+    examples: [{"input":"seats = [[\"#\",\".\",\"#\",\"#\",\".\",\"#\"],[\".\",\"#\",\"#\",\"#\",\"#\",\".\"],[\"#\",\".\",\"#\",\"#\",\".\",\"#\"]]","output":"4","explanation":"One valid arrangement seats students at (0,1), (1,0), (1,5), and (2,4) with no two able to see each other."},{"input":"seats = [[\".\",\"#\"],[\"#\",\".\"]]","output":"2","explanation":"Neither seat can see the other since diagonal seats are staggered by the broken cells, so both usable seats can be filled."},{"input":"seats = [[\".\",\".\"],[\".\",\".\"]]","output":"2","explanation":"Placing two students diagonally, e.g. (0,0) and (1,1), avoids any line of sight."}],
+    constraints: ["1 <= m <= 8","1 <= n <= 8","seats[i][j] is '.' or '#'"],
     intuition:
       "Place maximum students in seats without cheating (no two adjacent in same row or diagonally adjacent between rows). Use bitmask DP: each row's valid placement is a bitmask. Enumerate valid row configurations satisfying intra-row and inter-row constraints.",
     approach: [
@@ -6863,6 +7457,9 @@ public:
   },
 
   "design-search-autocomplete": {
+    statement: "Design an autocomplete system that is initialized with a set of historical sentences and how many times each was typed before. The system receives one character at a time; for each character except a special end-of-input symbol '#', it should return the top 3 historical sentences that start with everything typed so far, ranked by typing frequency (most frequent first, ties broken lexicographically). When '#' is typed, the current input is treated as a completed new sentence, added to (or having its frequency incremented in) the historical set, and the input buffer resets for the next query.",
+    examples: [{"input":"sentences = [\"i love you\",\"island\",\"iroman\",\"i love leetcode\"], times = [5,3,2,2]; then type 'i'","output":"[\"i love you\",\"island\",\"i love leetcode\"]","explanation":"These are the sentences starting with \"i\" ranked by recorded frequency (5, 3, 2), with \"i love leetcode\" and \"iroman\" tied at 2 and \"i love leetcode\" preferred lexicographically for the third slot."},{"input":"after 'i' type ' ' then 'a'","output":"[]","explanation":"No historical sentence starts with \"i a\", so no suggestions are returned."}],
+    constraints: ["1 <= sentences.length <= 100","1 <= sentences[i].length <= 100","1 <= times[i] <= 50","Total characters typed across all input calls is at most 5000","Characters are lowercase English letters, spaces, or the terminating '#'"],
     intuition:
       "Design a search autocomplete system. On each character input, return top 3 historical queries by (frequency desc, lexicographic asc). Use a trie where each node stores a list of (sentence, count). On '#', save completed query.",
     approach: [
@@ -6922,6 +7519,9 @@ public:
   },
 
   "shortest-path-obstacle": {
+    statement: "Given an m x n grid of 0s (open cells) and 1s (obstacles), and an integer k representing how many obstacles you are allowed to remove along your route, find the minimum number of moves needed to travel from the top-left cell to the bottom-right cell, moving only up, down, left, or right between adjacent cells. Return -1 if reaching the destination is not possible even after eliminating up to k obstacles.",
+    examples: [{"input":"grid = [[0,0,0],[1,1,0],[0,0,0],[0,1,1],[0,0,0]], k = 1","output":"6","explanation":"The shortest route requires passing through exactly one obstacle, which is allowed since k = 1."},{"input":"grid = [[0,1,1],[1,1,1],[1,0,0]], k = 1","output":"-1","explanation":"Reaching the bottom-right cell would require eliminating more than 1 obstacle."}],
+    constraints: ["1 <= m, n <= 40","1 <= k <= m * n","grid[i][j] is 0 or 1","grid[0][0] == 0 and grid[m-1][n-1] == 0"],
     intuition:
       "Find shortest path from top-left to bottom-right in grid, allowed to eliminate at most k obstacles. BFS with state (row, col, remaining_k). A 3D visited array prevents revisiting same (position, k_remaining) state.",
     approach: [
@@ -6970,6 +7570,9 @@ public:
   // ── Prefix Sum Pattern ─────────────────────────────────────────────────────
 
   "running-sum-1d": {
+    statement: "Given an array of integers, return a new array of the same length where each element is the sum of itself and all preceding elements in the original array (the running/prefix sum).",
+    examples: [{"input":"nums = [1,2,3,4]","output":"[1,3,6,10]"},{"input":"nums = [1,1,1,1,1]","output":"[1,2,3,4,5]"},{"input":"nums = [3,1,2,10,1]","output":"[3,4,6,16,17]"}],
+    constraints: ["1 <= nums.length <= 1000","-10^6 <= nums[i] <= 10^6"],
     intuition: "Build a prefix sum array where each element is the sum of all previous elements plus itself. This is the foundation — every prefix sum technique extends this O(n) precompute + O(1) query idea.",
     approach: [
       "Initialize result[0] = nums[0].",
@@ -6991,6 +7594,9 @@ public:
   },
 
   "find-pivot-index": {
+    statement: "Given an array of integers, find the leftmost index such that the sum of all elements strictly to its left equals the sum of all elements strictly to its right (both sums are 0 if there are no elements on that side). Return that index, or -1 if no such index exists.",
+    examples: [{"input":"nums = [1,7,3,6,5,6]","output":"3","explanation":"Left sum at index 3 is 1+7+3=11 and right sum is 5+6=11."},{"input":"nums = [1,2,3]","output":"-1"},{"input":"nums = [2,1,-1]","output":"0","explanation":"Left sum is 0 (empty) and right sum is 1+(-1)=0."}],
+    constraints: ["1 <= nums.length <= 10^4","-1000 <= nums[i] <= 1000"],
     intuition: "Pivot index: left sum equals right sum. Total sum = leftSum + nums[i] + rightSum. So leftSum == total - leftSum - nums[i]. Scan left to right maintaining running leftSum — O(1) space, O(n) time.",
     approach: [
       "Compute total = sum of all elements.",
@@ -7018,6 +7624,9 @@ public:
   },
 
   "range-sum-query": {
+    statement: "Design a data structure that is initialized with an integer array and can efficiently answer many queries asking for the sum of the elements between two given indices, inclusive. The array itself does not change between queries.",
+    examples: [{"input":"nums = [-2,0,3,-5,2,-1]; sumRange(0,2)","output":"1","explanation":"-2+0+3 = 1."},{"input":"nums = [-2,0,3,-5,2,-1]; sumRange(2,5)","output":"-1","explanation":"3+(-5)+2+(-1) = -1."},{"input":"nums = [-2,0,3,-5,2,-1]; sumRange(0,5)","output":"-3"}],
+    constraints: ["1 <= nums.length <= 10^4","-10^5 <= nums[i] <= 10^5","0 <= i <= j < nums.length","up to 10^4 calls to sumRange"],
     intuition: "Build prefix sum once in O(n). Answer any range query [left, right] in O(1) as prefix[right+1] - prefix[left]. The 1-indexed prefix array with prefix[0]=0 eliminates boundary conditions.",
     approach: [
       "Constructor: build prefix[n+1] where prefix[0]=0, prefix[i] = prefix[i-1] + nums[i-1].",
@@ -7045,6 +7654,9 @@ public:
   },
 
   "subarray-sum-equals-k": {
+    statement: "Given an array of integers and a target integer k, count how many contiguous subarrays have a sum exactly equal to k.",
+    examples: [{"input":"nums = [1,1,1], k = 2","output":"2","explanation":"The subarrays [1,1] (indices 0-1) and [1,1] (indices 1-2) both sum to 2."},{"input":"nums = [1,2,3], k = 3","output":"2","explanation":"[1,2] and [3] both sum to 3."},{"input":"nums = [1,-1,0], k = 0","output":"3"}],
+    constraints: ["1 <= nums.length <= 2 * 10^4","-1000 <= nums[i] <= 1000","-10^7 <= k <= 10^7"],
     intuition: "For every index j, we want to count indices i < j where prefix[j] - prefix[i] = k, i.e., prefix[i] = prefix[j] - k. Maintain a hash map of seen prefix sums and their counts. Check if (currentSum - k) exists in the map before adding currentSum.",
     approach: [
       "Initialize seen = {0: 1} (empty prefix has sum 0 — critical for subarrays starting at index 0).",
@@ -7077,6 +7689,9 @@ public:
   },
 
   "subarray-sums-divisible-k": {
+    statement: "Given an array of integers and a positive integer k, count how many contiguous, non-empty subarrays have a sum that is divisible by k.",
+    examples: [{"input":"nums = [4,5,0,-2,-3,1], k = 5","output":"7","explanation":"The subarrays with sums divisible by 5 are [4,5,0,-2,-3], [5], [5,0], [5,0,-2,-3], [0], [0,-2,-3], and [-2,-3]."},{"input":"nums = [5], k = 9","output":"0"},{"input":"nums = [5,10], k = 5","output":"3"}],
+    constraints: ["1 <= nums.length <= 3 * 10^4","-10^4 <= nums[i] <= 10^4","2 <= k <= 10^4"],
     intuition: "Two prefix sums i and j have (prefix[j] - prefix[i]) % k == 0 iff prefix[j] % k == prefix[i] % k. Group prefixes by their remainder mod k. For each remainder r, if there are c prefixes with that remainder, there are c*(c-1)/2 valid pairs — or just count as you go.",
     approach: [
       "Initialize remainderCount = {0: 1}.",
@@ -7109,6 +7724,9 @@ public:
   },
 
   "continuous-subarray-sum": {
+    statement: "Given an array of non-negative integers and an integer k, determine whether the array has a contiguous subarray of length at least 2 whose sum is a multiple of k. A sum of 0 counts as a multiple of every k, including when k is 0 and both elements involved are 0.",
+    examples: [{"input":"nums = [23,2,4,6,7], k = 6","output":"true","explanation":"The subarray [2,4] sums to 6, which is a multiple of 6."},{"input":"nums = [23,2,6,4,7], k = 6","output":"true","explanation":"The subarray [23,2,6,4,7] sums to 42, a multiple of 6."},{"input":"nums = [23,2,6,4,7], k = 13","output":"false"}],
+    constraints: ["1 <= nums.length <= 10^5","0 <= nums[i] <= 10^9","0 <= sum(nums[i]) <= 2^31 - 1","0 <= k <= 2^31 - 1"],
     intuition: "Find a subarray of length ≥ 2 whose sum is a multiple of k. Equivalent: find two prefix sums with the same remainder mod k, at least 2 apart. Store the FIRST index where each remainder appeared — if same remainder seen again with gap ≥ 2, answer is true.",
     approach: [
       "Initialize seen = {0: -1} (remainder 0 seen before index 0).",
@@ -7144,6 +7762,9 @@ public:
   },
 
   "range-addition": {
+    statement: "You start with an integer array of a given length, all initialized to 0. You are given a list of update operations, each specifying a start index, an end index, and a value to add to every element in that inclusive range. Apply all updates and return the resulting array.",
+    examples: [{"input":"length = 5, updates = [[1,3,2],[2,4,3],[0,2,-2]]","output":"[-2,0,3,5,3]"},{"input":"length = 3, updates = [[0,2,1]]","output":"[1,1,1]"},{"input":"length = 4, updates = []","output":"[0,0,0,0]"}],
+    constraints: ["1 <= length <= 2 * 10^4","0 <= updates.length <= 500","updates[i].length == 3","0 <= startIdx <= endIdx < length","-1000 <= inc <= 1000"],
     intuition: "Difference array: store deltas, not values. For range update [l, r] += val: diff[l] += val, diff[r+1] -= val. Then recover original array by taking prefix sum of diff. Each update is O(1). Final recovery is O(n). Complement to prefix sum — prefix sum answers queries, difference array answers updates.",
     approach: [
       "Initialize diff[n+1] = all zeros.",
@@ -7176,6 +7797,9 @@ public:
   },
 
   "car-pooling": {
+    statement: "A car travels along a straight route and can carry at most a given capacity of passengers at any point in time. You are given a list of planned trips, each specifying the number of passengers to pick up, the pickup location, and the drop-off location along the route. Determine whether it is possible to complete all the trips without ever exceeding the car's capacity.",
+    examples: [{"input":"trips = [[2,1,5],[3,3,7]], capacity = 4","output":"false","explanation":"Between positions 3 and 5 both trips overlap, requiring 2+3=5 seats, which exceeds capacity 4."},{"input":"trips = [[2,1,5],[3,3,7]], capacity = 5","output":"true"},{"input":"trips = [[2,1,5],[3,5,7]], capacity = 3","output":"true","explanation":"The trips do not overlap (the first ends where the second begins), so at most 3 passengers are ever on board."}],
+    constraints: ["1 <= trips.length <= 1000","trips[i].length == 3","1 <= numPassengers <= 100","0 <= fromLoc < toLoc <= 1000","1 <= capacity <= 10^5"],
     intuition: "Difference array on capacity. Each trip adds passengers at from and removes at to. Build capacity timeline, scan for any point exceeding capacity. Classic difference array application on an event-based timeline.",
     approach: [
       "Initialize diff[1001] = all zeros (max location is 1000).",
@@ -7211,6 +7835,9 @@ public:
   // ── Stack — Next Greater Element ────────────────────────────────────────────
 
   "next-greater-element-i": {
+    statement: "You are given two arrays, nums1 and nums2, of distinct integers, where nums1 is a subset of nums2. For each element of nums1, find the first element to its right in nums2 that is strictly greater; if none exists, use -1. Return the results as an array in the order of nums1.",
+    examples: [{"input":"nums1 = [4,1,2], nums2 = [1,3,4,2]","output":"[-1,3,-1]","explanation":"For 4, there is no greater element to its right in nums2. For 1, the next greater element is 3. For 2, there is no element to its right."},{"input":"nums1 = [2,4], nums2 = [1,2,3,4]","output":"[3,-1]"}],
+    constraints: ["1 <= nums1.length <= nums2.length <= 1000","0 <= nums1[i], nums2[i] <= 10^4","All integers in nums1 and nums2 are unique","All elements of nums1 also appear in nums2"],
     intuition: "For each element in nums1, find the next greater element in nums2. Build a hash map from element → next greater element using a monotonic decreasing stack on nums2, then look up each nums1 element. O(n+m) total.",
     approach: [
       "Build nextGreater map for nums2 using monotonic stack.",
@@ -7249,6 +7876,9 @@ public:
   },
 
   "next-greater-element-ii": {
+    statement: "Given a circular integer array nums (where the element after the last one wraps around to the first), find the next greater element for every element, searching forward and wrapping around the array once if needed. Return -1 for positions where no greater element exists even after wrapping.",
+    examples: [{"input":"nums = [1,2,1]","output":"[2,-1,2]","explanation":"For the first 1, the next greater is 2. For 2, no greater element exists anywhere. For the last 1, wrapping around finds 2 at the start."},{"input":"nums = [1,2,3,4,3]","output":"[2,3,4,-1,4]"}],
+    constraints: ["1 <= nums.length <= 10^4","-10^9 <= nums[i] <= 10^9"],
     intuition: "Circular array: elements wrap around. Simulate by iterating 2n times (indices mod n). Use monotonic decreasing stack storing indices. After 2n iterations, any element still in stack has no next greater (-1). Key insight: second pass fills the gaps the first pass couldn't.",
     approach: [
       "Initialize result[n] = all -1. Stack stores indices.",
@@ -7285,6 +7915,9 @@ public:
   // ── DP — Game Theory ────────────────────────────────────────────────────────
 
   "nim-game": {
+    statement: "You and a friend take turns removing stones from a pile that starts with n stones, and you always go first. On each turn a player must remove 1, 2, or 3 stones, and whoever removes the last stone wins the game. Assuming both players play optimally, return true if you can guarantee a win, or false otherwise.",
+    examples: [{"input":"n = 4","output":"false","explanation":"Whatever you take (1, 2, or 3), your friend can take the remaining stones and win."},{"input":"n = 1","output":"true","explanation":"You take the single stone and win immediately."},{"input":"n = 8","output":"true"}],
+    constraints: ["1 <= n <= 2^31 - 1"],
     intuition: "If n % 4 == 0, second player wins (copies your strategy, always leaves you with 0 mod 4). Otherwise first player wins by taking enough to leave opponent at 4k. Pure math insight — no actual DP needed. Gateway to game theory.",
     approach: [
       "If n % 4 == 0: return false (second player always wins).",
@@ -7312,6 +7945,9 @@ public:
   },
 
   "stone-game": {
+    statement: "Alice and Bob play a game with an even number of piles of stones arranged in a row, given as an array piles. Players alternate turns, Alice moving first, and on each turn a player removes the entire pile from either the beginning or the end of the remaining row, adding its stones to their own score. Assuming both players play to maximize their own total and all pile sizes are distinct, return true if Alice can win the game.",
+    examples: [{"input":"piles = [5,3,4,5]","output":"true","explanation":"Alice can pick piles to guarantee a total of at least 13 stones out of 17."},{"input":"piles = [3,7,2,3]","output":"true"}],
+    constraints: ["2 <= piles.length <= 500","piles.length is even","1 <= piles[i] <= 500"],
     intuition: "Alex (first player) always wins when n is even — mathematical proof. But the DP approach generalizes to Stone Game II, III, etc. DP: dp[i][j] = max score advantage (your score - opponent's) for stones[i..j]. On your turn you take either end; opponent plays optimally.",
     approach: [
       "dp[i][j] = best score difference (current player − opponent) over stones[i..j].",
@@ -7354,6 +7990,9 @@ bool stoneGameDP(vector<int>& piles) {
   // ── 4 New Gap-Filling Problems ─────────────────────────────────────────────
 
   "remove-duplicates": {
+    statement: "Given a sorted integer array nums in non-decreasing order, remove the duplicate elements in-place so that each unique value appears only once, keeping their relative order. Return the number k of unique elements, with the first k slots of nums holding those unique values (the content beyond index k does not matter).",
+    examples: [{"input":"nums = [1,1,2]","output":"2, nums = [1,2,_]","explanation":"The function returns k = 2, with the first two elements of nums being 1 and 2."},{"input":"nums = [0,0,1,1,1,2,2,3,3,4]","output":"5, nums = [0,1,2,3,4,_,_,_,_,_]"}],
+    constraints: ["1 <= nums.length <= 3 * 10^4","-100 <= nums[i] <= 100","nums is sorted in non-decreasing order"],
     intuition: "Write pointer technique: maintain a slow pointer (write index) that only advances when a unique element is found. Fast pointer scans everything. In-place, O(1) space. Foundation of all in-place array modification problems.",
     approach: [
       "If array empty, return 0.",
@@ -7395,6 +8034,9 @@ int removeDuplicatesII(vector<int>& nums, int k = 2) {
   },
 
   "sort-colors": {
+    statement: "Given an array nums containing n integers where each value is 0, 1, or 2, representing the colors red, white, and blue respectively, sort the array in-place so that elements of the same color are grouped together in the order red, white, then blue, without using a library sort function.",
+    examples: [{"input":"nums = [2,0,2,1,1,0]","output":"[0,0,1,1,2,2]"},{"input":"nums = [2,0,1]","output":"[0,1,2]"}],
+    constraints: ["1 <= nums.length <= 300","nums[i] is 0, 1, or 2","Follow up: can you solve it in one pass using only constant extra space?"],
     intuition: "Dutch National Flag algorithm (Dijkstra). Three-way partition with three pointers: low, mid, high. All 0s go to [0, low), all 1s in [low, mid), all 2s in (high, n-1]. Process mid until it crosses high. Critical technique used in quicksort's partition and any 3-category sort.",
     approach: [
       "Init low = 0, mid = 0, high = n-1.",
@@ -7431,6 +8073,9 @@ int removeDuplicatesII(vector<int>& nums, int k = 2) {
   },
 
   "find-first-last-position": {
+    statement: "You are given an array of integers nums sorted in non-decreasing order, along with a target value. Return the indices of the first and last occurrence of target in the array as a two-element array. If target does not appear in nums, return [-1, -1]. Your solution should run in O(log n) time.",
+    examples: [{"input":"nums = [5,7,7,8,8,10], target = 8","output":"[3,4]","explanation":"8 first appears at index 3 and last appears at index 4."},{"input":"nums = [5,7,7,8,8,10], target = 6","output":"[-1,-1]","explanation":"6 is not present in nums."},{"input":"nums = [], target = 0","output":"[-1,-1]"}],
+    constraints: ["0 <= nums.length <= 10^5","-10^9 <= nums[i] <= 10^9","nums is sorted in non-decreasing order","-10^9 <= target <= 10^9"],
     intuition: "Two binary searches: one finds the leftmost (first) occurrence, one finds the rightmost (last) occurrence. The left-boundary template and right-boundary template are the two fundamental binary search variants. Mastering this unlocks 20+ problems that require finding a boundary rather than an exact target.",
     approach: [
       "Write findLeft(target): standard binary search but when nums[mid] == target, don't stop — move right = mid - 1 to keep searching left.",
@@ -7477,6 +8122,9 @@ int findBound(vector<int>& nums, int target, bool isLeft) {
   },
 
   "is-graph-bipartite": {
+    statement: "You are given an undirected graph on n nodes described by an adjacency list graph, where graph[u] lists the neighbors of node u. Determine whether the graph's nodes can be split into two groups such that every edge connects a node from one group to a node in the other group, and return true or false accordingly.",
+    examples: [{"input":"graph = [[1,3],[0,2],[1,3],[0,2]]","output":"true","explanation":"Nodes {0,2} and {1,3} form two groups with every edge going between them."},{"input":"graph = [[1,2],[0,2],[0,1]]","output":"false","explanation":"Nodes 0, 1, 2 form an odd cycle (triangle), which cannot be 2-colored."},{"input":"graph = [[1],[0]]","output":"true"}],
+    constraints: ["graph.length == n","1 <= n <= 100","0 <= graph[u].length < n","graph[u] does not contain u itself and has no duplicate entries","the graph is undirected: if v is in graph[u], then u is in graph[v]"],
     intuition: "A graph is bipartite if it can be 2-colored: every edge connects vertices of different colors. Equivalent to: graph has no odd-length cycles. Use BFS/DFS: try to color each vertex, if a neighbor has the same color as current — not bipartite. Handle disconnected graphs by checking each unvisited vertex.",
     approach: [
       "For each unvisited vertex, start BFS.",
@@ -7526,6 +8174,9 @@ int findBound(vector<int>& nums, int target, bool isLeft) {
   },
 
   "remove-duplicates-ii": {
+    statement: "Given an integer array sorted in non-decreasing order, remove elements in place so that each unique value appears at most twice, preserving the relative order of the remaining elements. Return the new length of the array; the first that many positions of the array must hold the resulting elements (the values beyond that length are irrelevant).",
+    examples: [{"input":"nums = [1,1,1,2,2,3]","output":"5, nums = [1,1,2,2,3,_]","explanation":"Each value appears at most twice in the first 5 positions."},{"input":"nums = [0,0,1,1,1,1,2,3,3]","output":"7, nums = [0,0,1,1,2,3,3,_,_]"},{"input":"nums = [1,1,1,1]","output":"2, nums = [1,1,_,_]"}],
+    constraints: ["1 <= nums.length <= 3 * 10^4","-10^4 <= nums[i] <= 10^4","nums is sorted in non-decreasing order"],
     intuition:
       "Same write-pointer trick as removing all duplicates, but now each value is allowed to appear up to twice. Compare the candidate to the element TWO positions back in the write region — if it's different (or write index < 2), the value hasn't appeared twice yet, so it's safe to keep.",
     approach: [
@@ -7561,6 +8212,9 @@ public:
   },
 
   "merge-sorted-array": {
+    statement: "You are given two sorted integer arrays nums1 and nums2, along with integers m and n indicating the number of valid elements in each. nums1 has a total length of m + n, where the first m elements hold its actual values and the last n elements are placeholders set to 0; merge nums2 into nums1 in-place so that nums1 becomes a single sorted array.",
+    examples: [{"input":"nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6], n = 3","output":"[1,2,2,3,5,6]"},{"input":"nums1 = [1], m = 1, nums2 = [], n = 0","output":"[1]","explanation":"Nothing needs to be merged since nums2 is empty."},{"input":"nums1 = [0], m = 0, nums2 = [1], n = 1","output":"[1]","explanation":"nums1 has no valid elements, so the result is just nums2."}],
+    constraints: ["nums1.length == m + n","nums2.length == n","0 <= m, n <= 200","1 <= m + n <= 200","-10^9 <= nums1[i], nums2[j] <= 10^9"],
     intuition:
       "Merging from the front requires shifting elements in nums1 to make room — O(n) per insert. Instead, merge from the BACK: the largest elements from both arrays land in the last empty slots first, so no shifting is ever needed.",
     approach: [
@@ -7591,6 +8245,9 @@ public:
   },
 
   "next-permutation": {
+    statement: "Given an array of integers representing a permutation, rearrange it in place into the lexicographically next greater permutation of its elements. If no such permutation exists (the array is the highest possible permutation), rearrange it into the lowest possible order (sorted ascending). The rearrangement must be done in place using only constant extra memory.",
+    examples: [{"input":"nums = [1,2,3]","output":"[1,3,2]"},{"input":"nums = [3,2,1]","output":"[1,2,3]","explanation":"3,2,1 is the largest permutation, so it wraps around to the smallest."},{"input":"nums = [1,1,5]","output":"[1,5,1]"}],
+    constraints: ["1 <= nums.length <= 100","0 <= nums[i] <= 100"],
     intuition:
       "The next lexicographic permutation is found by: (1) finding the rightmost position where the sequence stops increasing (scanning from the end), (2) swapping it with the smallest element to its right that's still bigger than it, (3) reversing everything after that position to get the smallest possible suffix.",
     approach: [
@@ -7625,6 +8282,9 @@ public:
   },
 
   "fruit-into-baskets": {
+    statement: "You are given an array representing a row of fruit trees, where each value denotes the type of fruit at that position. You have exactly two baskets, and each basket can hold only a single type of fruit with no limit on quantity. Starting from any tree, collect fruit by moving strictly to the right, stopping as soon as you'd need a third fruit type. Return the maximum number of fruits you can collect this way.",
+    examples: [{"input":"fruits = [1,2,1]","output":"3","explanation":"All three fruits can be collected using two baskets."},{"input":"fruits = [0,1,2,2]","output":"3","explanation":"Collecting [1,2,2] uses only two fruit types."},{"input":"fruits = [1,2,3,2,2]","output":"4","explanation":"Collecting [2,3,2,2] uses only two fruit types."}],
+    constraints: ["1 <= fruits.length <= 10^5","0 <= fruits[i] <= 10^5"],
     intuition:
       "This is 'longest substring with at most 2 distinct characters' wearing a fruit costume. Maintain a sliding window with a frequency map; when the map exceeds 2 distinct fruit types, shrink from the left until it's back to 2.",
     approach: [
@@ -7663,6 +8323,9 @@ public:
   },
 
   "max-consecutive-ones-iii": {
+    statement: "Given a binary array and an integer k, you may flip at most k of the 0s in the array to 1s. Return the length of the longest contiguous run of 1s achievable after performing at most k such flips.",
+    examples: [{"input":"nums = [1,1,1,0,0,0,1,1,1,1,0], k = 2","output":"6","explanation":"Flip the two 0s at indices 5 and 10 (or similar) to get a run of six consecutive 1s starting at index 5."},{"input":"nums = [0,0,1,1,1,0,0], k = 0","output":"3"},{"input":"nums = [1,1,1,0,0,0,1,1,1,1,0], k = 0","output":"4"}],
+    constraints: ["1 <= nums.length <= 10^5","nums[i] is either 0 or 1","0 <= k <= nums.length"],
     intuition:
       "We're allowed to flip at most K zeros to ones. That's equivalent to: find the longest window containing at most K zeros. Sliding window: expand right always; shrink left only when the zero count inside the window exceeds K.",
     approach: [
@@ -7699,6 +8362,9 @@ public:
   },
 
   "subarray-product-less-k": {
+    statement: "Given an array of positive integers nums and an integer k, count the number of contiguous subarrays whose product of all elements is strictly less than k. Return that count.",
+    examples: [{"input":"nums = [10,5,2,6], k = 100","output":"8","explanation":"The 8 subarrays with product < 100 are [10], [5], [2], [6], [10,5], [5,2], [2,6], and [5,2,6]."},{"input":"nums = [1,2,3], k = 0","output":"0","explanation":"No product can be less than 0 since all elements are positive."},{"input":"nums = [1,1,1], k = 2","output":"6","explanation":"Every possible subarray has a product of 1, which is less than 2."}],
+    constraints: ["1 <= nums.length <= 3 * 10^4","1 <= nums[i] <= 1000","0 <= k <= 10^6"],
     intuition:
       "For a sliding window with product < k: every time the window is valid (product < k), ALL subarrays ending at 'right' and starting anywhere from left to right are valid too — that's (right - left + 1) new subarrays to count. Shrink from the left whenever product >= k.",
     approach: [
@@ -7737,6 +8403,9 @@ public:
   },
 
   "find-peak-element": {
+    statement: "A peak element in an array is one that is strictly greater than both of its neighbors, where elements outside the array bounds are considered to be negative infinity. Given an array nums where no two adjacent elements are equal, return the index of any one peak element. Your algorithm should run in O(log n) time.",
+    examples: [{"input":"nums = [1,2,3,1]","output":"2","explanation":"3 is a peak element and its index is 2."},{"input":"nums = [1,2,1,3,5,6,4]","output":"5","explanation":"Index 1 (value 2) or index 5 (value 6) are both valid peak indices."}],
+    constraints: ["1 <= nums.length <= 1000","-2^31 <= nums[i] <= 2^31 - 1","nums[i] != nums[i + 1] for all valid i"],
     intuition:
       "A peak is any element strictly greater than its neighbors — the array isn't necessarily sorted, but binary search still works because you can always move toward a peak: if mid's right neighbor is bigger, a peak must exist somewhere to the right (values only increase or you hit a peak); symmetric logic for the left.",
     approach: [
@@ -7771,6 +8440,9 @@ public:
   },
 
   "capacity-ship-packages": {
+    statement: "A conveyor belt has packages, given as an array weights, that must be shipped from port A to port B in the given order over exactly days days. Each day the ship loads consecutive packages (without reordering) whose total weight does not exceed the ship's capacity. Return the least weight capacity of the ship that still allows all packages to be shipped within days days.",
+    examples: [{"input":"weights = [1,2,3,4,5,6,7,8,9,10], days = 5","output":"15"},{"input":"weights = [3,2,2,4,1,4], days = 3","output":"6"},{"input":"weights = [1,2,3,1,1], days = 4","output":"3"}],
+    constraints: ["1 <= days <= weights.length <= 5 * 10^4","1 <= weights[i] <= 500"],
     intuition:
       "'Minimize the maximum' problems are binary search on the ANSWER, not the input. Guess a capacity; check if it's feasible to ship everything within D days using a greedy simulation. If feasible, try a smaller capacity; if not, try bigger.",
     approach: [
@@ -7810,6 +8482,9 @@ public:
   },
 
   "split-array-largest-sum": {
+    statement: "Given an integer array nums and an integer k, split nums into k non-empty contiguous subarrays so as to minimize the largest sum among these k subarrays. Return that minimized largest sum.",
+    examples: [{"input":"nums = [7,2,5,10,8], k = 2","output":"18","explanation":"Splitting into [7,2,5] and [10,8] gives sums 14 and 18; 18 is the smallest possible largest sum."},{"input":"nums = [1,2,3,4,5], k = 2","output":"9","explanation":"Splitting into [1,2,3] and [4,5] gives sums 6 and 9, the minimum possible largest sum."},{"input":"nums = [1,4,4], k = 3","output":"4"}],
+    constraints: ["1 <= nums.length <= 1000","0 <= nums[i] <= 10^6","1 <= k <= min(50, nums.length)"],
     intuition:
       "Identical shape to Capacity to Ship Packages — 'split into m subarrays minimizing the largest subarray sum' is 'binary search on the answer + greedy feasibility check', just renamed. Guess a max-sum limit; count how many subarrays are needed to respect it.",
     approach: [
@@ -7848,6 +8523,9 @@ public:
   },
 
   "reverse-linked-list-ii": {
+    statement: "Given the head of a singly linked list and two integers left and right marking a 1-indexed range, reverse the nodes of the list from position left to position right, then return the head of the resulting list. Do this in a single pass without detaching the list into separate pieces conceptually.",
+    examples: [{"input":"head = [1,2,3,4,5], left = 2, right = 4","output":"[1,4,3,2,5]","explanation":"Nodes at positions 2 through 4 (2,3,4) are reversed in place."},{"input":"head = [5], left = 1, right = 1","output":"[5]"},{"input":"head = [3,5], left = 1, right = 2","output":"[5,3]"}],
+    constraints: ["The number of nodes in the list is n","1 <= n <= 500","-500 <= Node.val <= 500","1 <= left <= right <= n"],
     intuition:
       "Reverse only the sublist between positions left and right. Walk to the node just before 'left' (call it 'prev'), then repeatedly move the node right after prev's reversed section to the front of that section — a technique called 'head insertion' — for exactly (right - left) iterations.",
     approach: [
@@ -7886,6 +8564,9 @@ public:
   },
 
   "zigzag-level-order": {
+    statement: "Given the root of a binary tree, return its nodes' values grouped level by level, but alternate the direction of each level: left-to-right, then right-to-left, then left-to-right again, and so on.",
+    examples: [{"input":"root = [3,9,20,null,null,15,7]","output":"[[3],[20,9],[15,7]]","explanation":"Level 0 goes left-to-right, level 1 is reversed to right-to-left, level 2 goes left-to-right again."},{"input":"root = [1]","output":"[[1]]"}],
+    constraints: ["The number of nodes in the tree is in the range [0, 2000]","-100 <= Node.val <= 100"],
     intuition:
       "Standard BFS level-order traversal, but alternate the direction each level is read/stored: left-to-right, then right-to-left, then left-to-right again.",
     approach: [
@@ -7931,6 +8612,9 @@ public:
   },
 
   "path-sum-ii": {
+    statement: "Given the root of a binary tree and a target integer, find all root-to-leaf paths where the sum of the node values along the path equals the target. Return the list of such paths, each represented as a list of node values.",
+    examples: [{"input":"root = [5,4,8,11,null,13,4,7,2,null,null,5,1], targetSum = 22","output":"[[5,4,11,2],[5,8,4,5]]"},{"input":"root = [1,2,3], targetSum = 5","output":"[]"}],
+    constraints: ["The number of nodes in the tree is in the range [0, 5000]","-1000 <= Node.val <= 1000","-1000 <= targetSum <= 1000"],
     intuition:
       "DFS from root to leaf, tracking the running path and remaining sum needed. At a leaf, if the remaining sum equals the leaf's value, the current path is a valid answer — record a COPY of it (backtracking will mutate the path afterward).",
     approach: [
@@ -7974,6 +8658,9 @@ private:
   },
 
   "vertical-order-traversal": {
+    statement: "Given the root of a binary tree, group its nodes by vertical column, where the root is at column 0, a left child is one column to the left of its parent, and a right child is one column to the right. Return the node values ordered from the leftmost column to the rightmost, with each column's values listed top to bottom.",
+    examples: [{"input":"root = [3,9,20,null,null,15,7]","output":"[[9],[3,15],[20],[7]]","explanation":"Column -1 has 9, column 0 has 3 then 15, column 1 has 20, and column 2 has 7."},{"input":"root = [1]","output":"[[1]]"}],
+    constraints: ["The number of nodes in the tree is in the range [1, 1000]","0 <= Node.val <= 1000","When two nodes share the same row and column, order them by ascending value"],
     intuition:
       "Assign each node a (column, row) coordinate: root is (0,0), left child is (col-1, row+1), right child is (col+1, row+1). Group nodes by column; within a column, order by row, and for same row+column, order by value.",
     approach: [
@@ -8016,6 +8703,9 @@ public:
   },
 
   "boundary-traversal-tree": {
+    statement: "Given the root of a binary tree, return its boundary values traced in an anti-clockwise direction starting from the root: the root itself, followed by the left edge of the tree (excluding leaves), then all leaf nodes left to right, then the right edge of the tree traversed bottom-up (excluding leaves). Avoid listing any node more than once.",
+    examples: [{"input":"root = [20,8,22,4,12,null,25,null,null,10,14]","output":"[20,8,4,10,14,25,22]","explanation":"Left boundary contributes 8, the leaves left-to-right are 4,10,14,25, and the right boundary (bottom-up) contributes 22."},{"input":"root = [1,null,2,3,4]","output":"[1,3,4,2]"}],
+    constraints: ["The number of nodes in the tree is in the range [1, 10^4]","-1000 <= Node.val <= 1000","The root is never counted twice even if it is also a leaf"],
     intuition:
       "The boundary = left edge (top to bottom, excluding leaves) + all leaves (left to right) + right edge (bottom to top, excluding leaves). Handle each piece with a separate simple traversal, then concatenate, being careful not to double-count nodes that are both edge and leaf.",
     approach: [
@@ -8074,6 +8764,9 @@ public:
   },
 
   "single-number-ii": {
+    statement: "Given an array of integers in which every element appears exactly three times except for one element that appears only once, find and return that single element. Aim for linear time and constant extra space.",
+    examples: [{"input":"nums = [2,2,3,2]","output":"3"},{"input":"nums = [0,1,0,1,0,1,99]","output":"99"}],
+    constraints: ["1 <= nums.length <= 3 * 10^4","-2^31 <= nums[i] <= 2^31 - 1","Each element in nums appears exactly three times except for one element which appears once"],
     intuition:
       "Every number appears exactly 3 times except one, which appears once. XOR cancels pairs, not triples — instead, track bit counts modulo 3. For each bit position, if the sum of that bit across all numbers isn't divisible by 3, the unique number has that bit set.",
     approach: [
@@ -8106,6 +8799,9 @@ public:
   },
 
   "single-number-iii": {
+    statement: "Given an integer array in which exactly two elements appear only once and every other element appears exactly twice, find the two elements that appear once and return them in any order.",
+    examples: [{"input":"nums = [1,2,1,3,4,2]","output":"[3,4]","explanation":"3 and 4 are the elements that appear only once; 4 and 3 would also be an accepted order."},{"input":"nums = [-1,0]","output":"[-1,0]"}],
+    constraints: ["2 <= nums.length <= 3 * 10^4","-2^31 <= nums[i] <= 2^31 - 1","Each integer in nums will appear twice, only two integers will appear once"],
     intuition:
       "Two numbers appear once, everyone else twice. XOR-ing everything cancels the pairs, leaving XOR of the two unique numbers. Since they're different, that XOR has at least one set bit — use ANY such bit to split all numbers into two groups (bit set / bit not set). Each unique number falls into a different group, and XOR-ing within each group isolates each one.",
     approach: [
@@ -8141,6 +8837,9 @@ public:
   },
 
   "implement-queue-using-stacks": {
+    statement: "Design a first-in-first-out queue using only two stacks as the underlying storage. Implement push (add to back), pop (remove from front), peek (view front), and empty (check if the queue has no elements), using only standard stack push/pop/top/isEmpty operations.",
+    examples: [{"input":"[\"MyQueue\",\"push\",\"push\",\"peek\",\"pop\",\"empty\"]\n[[],[1],[2],[],[],[]]","output":"[null,null,null,1,1,false]","explanation":"After pushing 1 and 2, peek returns 1 (the front), pop removes and returns 1, and the queue still has 2 in it so empty returns false."}],
+    constraints: ["1 <= x <= 9","At most 100 calls will be made to push, pop, peek, and empty","All calls to pop and peek are valid (the queue is non-empty)"],
     intuition:
       "Two stacks simulate a queue: 'in-stack' receives pushes; 'out-stack' serves pops/peeks. When out-stack is empty and a pop/peek is requested, dump all of in-stack into out-stack — this reverses the order, turning stack (LIFO) behavior into queue (FIFO) behavior.",
     approach: [
@@ -8185,6 +8884,9 @@ public:
   },
 
   "01-knapsack": {
+    statement: "You are given n items, each with a weight and a value, and a knapsack with weight capacity W. Each item can either be taken once or left behind (it cannot be split or repeated). Determine the maximum total value that can be packed into the knapsack without exceeding its capacity.",
+    examples: [{"input":"weights = [1,3,4,5], values = [1,4,5,7], capacity = 7","output":"9","explanation":"Taking the items with weight 3 and weight 4 gives value 4 + 5 = 9 using exactly 7 capacity."},{"input":"weights = [2,3,4,5], values = [3,4,5,6], capacity = 5","output":"7"}],
+    constraints: ["1 <= n <= 1000","1 <= weights[i], values[i] <= 1000","1 <= capacity <= 1000"],
     intuition:
       "Classic 0/1 knapsack: for each item, decide include or exclude to maximize value without exceeding weight capacity. dp[i][w] = best value using first i items with capacity w. Either skip item i (dp[i-1][w]) or take it (value[i] + dp[i-1][w-weight[i]], if it fits).",
     approach: [
@@ -8218,6 +8920,9 @@ public:
   },
 
   "matrix-chain-multiplication": {
+    statement: "You are given an array p of n+1 integers describing a chain of n matrices, where the i-th matrix has dimensions p[i-1] x p[i]. Matrix multiplication is associative, so the matrices can be grouped in different orders using parentheses; the number of scalar multiplications needed differs depending on the grouping. Return the minimum total number of scalar multiplications required to compute the full product of the chain.",
+    examples: [{"input":"p = [40,20,30,10,30]","output":"26000","explanation":"The optimal parenthesization is ((A1(A2A3))A4), costing 26000 scalar multiplications."},{"input":"p = [10,20,30]","output":"6000"}],
+    constraints: ["2 <= p.length <= 100","1 <= p[i] <= 500"],
     intuition:
       "Matrix multiplication is associative but the number of scalar multiplications depends heavily on parenthesization. This is interval DP: dp[i][j] = minimum cost to multiply matrices i through j, trying every possible split point k and taking the best.",
     approach: [
@@ -8257,6 +8962,9 @@ public:
   },
 
   "best-time-stock-iii": {
+    statement: "Given an array prices where prices[i] is the stock price on day i, find the maximum profit achievable using at most two buy-sell transactions in total. You must sell a share before buying again, and you may hold at most one share at any time.",
+    examples: [{"input":"prices = [3,3,5,0,0,3,1,4]","output":"6","explanation":"Buy on day 3 (price 0), sell on day 5 (price 3), profit 3; then buy on day 6 (price 1), sell on day 7 (price 4), profit 3; total 6."},{"input":"prices = [1,2,3,4,5]","output":"4"},{"input":"prices = [7,6,4,3,1]","output":"0"}],
+    constraints: ["1 <= prices.length <= 10^5","0 <= prices[i] <= 1000"],
     intuition:
       "At most 2 transactions allowed. Track 4 states across the array: after 1st buy, after 1st sell, after 2nd buy, after 2nd sell — each state greedily maximized so far. Each state can only improve using the previous state's best value plus today's price.",
     approach: [
@@ -8291,6 +8999,9 @@ public:
   },
 
   "best-time-stock-iv": {
+    statement: "Given an integer k and an array prices where prices[i] is the stock price on day i, find the maximum profit achievable using at most k buy-sell transactions in total. You may hold at most one share at any time and must sell before buying again.",
+    examples: [{"input":"k = 2, prices = [2,4,1]","output":"2","explanation":"Buy on day 0 (price 2), sell on day 1 (price 4), profit 2. A second transaction would not help."},{"input":"k = 2, prices = [3,2,6,5,0,3]","output":"7","explanation":"Buy at 2, sell at 6 (profit 4); buy at 0, sell at 3 (profit 3); total 7."}],
+    constraints: ["1 <= k <= 100","1 <= prices.length <= 1000","0 <= prices[i] <= 1000"],
     intuition:
       "Generalizes 'Best Time III' from exactly 2 transactions to at most k. Maintain buy[] and sell[] arrays of size k, where buy[i] and sell[i] represent the best profit after completing the (i+1)-th buy/sell. Same recurrence, just looped k times instead of hardcoded twice.",
     approach: [

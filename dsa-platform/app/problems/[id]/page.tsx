@@ -130,6 +130,40 @@ export default function ProblemPage({ params }: Props) {
 
           {content ? (
             <div className="p-5 space-y-7">
+              {content.statement && (
+                <WorkspaceSection title="Problem">
+                  <p className="text-sm leading-6 whitespace-pre-line" style={{ color: "var(--text-secondary)" }}>{content.statement}</p>
+
+                  {content.examples && content.examples.length > 0 && (
+                    <div className="mt-4 space-y-3">
+                      {content.examples.map((ex, i) => (
+                        <div key={i} className="quiet-panel p-3 text-xs" style={{ fontFamily: "var(--font-mono)" }}>
+                          <div className="mb-1" style={{ color: "var(--text-muted)" }}>Example {i + 1}:</div>
+                          <div><span style={{ color: "var(--text-muted)" }}>Input: </span><span style={{ color: "var(--text-primary)" }}>{ex.input}</span></div>
+                          <div><span style={{ color: "var(--text-muted)" }}>Output: </span><span style={{ color: "var(--text-primary)" }}>{ex.output}</span></div>
+                          {ex.explanation && (
+                            <div className="mt-1" style={{ color: "var(--text-secondary)", fontFamily: "var(--font-sans)" }}>
+                              <span style={{ color: "var(--text-muted)" }}>Explanation: </span>{ex.explanation}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {content.constraints && content.constraints.length > 0 && (
+                    <div className="mt-4">
+                      <div className="mb-2 text-xs font-medium" style={{ color: "var(--text-muted)" }}>Constraints:</div>
+                      <ul className="space-y-1">
+                        {content.constraints.map((c, i) => (
+                          <li key={i} className="text-xs" style={{ color: "var(--text-secondary)", fontFamily: "var(--font-mono)" }}>{c}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </WorkspaceSection>
+              )}
+
               <WorkspaceSection title="Summary">
                 <p className="text-sm leading-6" style={{ color: "var(--text-secondary)" }}>{content.intuition}</p>
               </WorkspaceSection>

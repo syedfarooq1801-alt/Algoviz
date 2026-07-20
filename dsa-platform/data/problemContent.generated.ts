@@ -1,4 +1,14 @@
+export interface ProblemExample {
+  input: string;
+  output: string;
+  explanation?: string;
+}
+
 export interface ProblemContent {
+  // LeetCode-style problem definition, shown above the solution.
+  statement?: string;
+  examples?: ProblemExample[];
+  constraints?: string[];
   intuition: string;
   approach: string[];
   cppSolution: string;
