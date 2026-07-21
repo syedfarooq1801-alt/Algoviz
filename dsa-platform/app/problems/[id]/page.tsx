@@ -261,6 +261,31 @@ export default function ProblemPage({ params }: Props) {
                 <pre className="text-xs"><code>{content.cppSolution}</code></pre>
               </WorkspaceSection>
 
+              {content.lineByLine && content.lineByLine.length > 0 && (
+                <WorkspaceSection title="Code, line by line">
+                  <ul className="space-y-2.5">
+                    {content.lineByLine.map((entry, i) => {
+                      const sepIdx = entry.indexOf(" — ");
+                      const code = sepIdx >= 0 ? entry.slice(0, sepIdx).replace(/`/g, "") : null;
+                      const explain = sepIdx >= 0 ? entry.slice(sepIdx + 3) : entry;
+                      return (
+                        <li key={i} className="text-sm leading-6" style={{ color: "var(--text-secondary)" }}>
+                          {code && (
+                            <code
+                              className="block mb-0.5 text-xs px-1.5 py-0.5 rounded"
+                              style={{ background: "var(--bg-hover)", color: "var(--text-primary)", fontFamily: "var(--font-mono)" }}
+                            >
+                              {code}
+                            </code>
+                          )}
+                          <span>{explain}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </WorkspaceSection>
+              )}
+
               <WorkspaceSection title="Notes">
                 <textarea
                   value={noteText}

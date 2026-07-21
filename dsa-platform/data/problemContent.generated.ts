@@ -16,6 +16,10 @@ export interface ProblemContent {
   approach: string[];
   cppSolution: string;
   pythonSolution?: string;
+  // Line-by-line / statement-group annotation of cppSolution, in source order:
+  // what this chunk of code does and why, so the code itself stops being a
+  // black box once the approach is already understood.
+  lineByLine?: string[];
   timeComplexity: string;
   timeExplanation: string;
   spaceComplexity: string;

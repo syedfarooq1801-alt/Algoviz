@@ -31,6 +31,14 @@ public:
         return {}; // guaranteed to have solution
     }
 };`,
+    lineByLine: [
+      "`unordered_map<int, int> seen; // val -> index` — maps a value we've already visited to the index it was found at, so we can look up a complement in O(1) instead of rescanning the array.",
+      "`for (int i = 0; i < (int)nums.size(); i++)` — walk the array once, considering each number as the 'second' half of a potential pair.",
+      "`int complement = target - nums[i];` — the number that would need to exist earlier in the array to sum with nums[i] to target.",
+      "`if (seen.count(complement)) return {seen[complement], i};` — if that complement was already seen, we've found the pair; return its stored index paired with the current index.",
+      "`seen[nums[i]] = i;` — otherwise record this value and its index so a later element can find it as a complement.",
+      "`return {};` — unreachable given the problem's guarantee of exactly one solution, but required to satisfy the return type.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass through the array. Each hash map lookup is O(1) average.",
     spaceComplexity: "O(n)",
@@ -67,6 +75,13 @@ public:
         return false;
     }
 };`,
+    lineByLine: [
+      "`unordered_set<int> seen;` — a set to remember every value already visited; membership check is O(1) average.",
+      "`for (int x : nums)` — walk each element once.",
+      "`if (seen.count(x)) return true;` — if this value was already recorded, we've hit it a second time — it's a duplicate.",
+      "`seen.insert(x);` — otherwise, record it so a future repeat of this value gets caught.",
+      "`return false;` — loop finished with no repeats found, so all elements are distinct.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "One pass through array, each set operation O(1) amortized.",
     spaceComplexity: "O(n)",
@@ -105,6 +120,14 @@ public:
         return true;
     }
 };`,
+    lineByLine: [
+      "`if (s.size() != t.size()) return false;` — anagrams must have equal length; different lengths can never rearrange into each other, so bail out immediately.",
+      "`int count[26] = {};` — one counter per lowercase letter, all zero-initialized; this represents the net character balance between s and t.",
+      "`for (int i = 0; i < (int)s.size(); i++)` — walk both strings in lockstep at the same index.",
+      "`count[s[i] - 'a']++; count[t[i] - 'a']--;` — add a character from s, remove one from t. If s and t are true anagrams, every increment from s is eventually cancelled by a decrement from t.",
+      "`for (int c : count) if (c != 0) return false;` — any nonzero counter means some letter appears a different number of times in s versus t, so they aren't anagrams.",
+      "`return true;` — every counter balanced to zero, so s and t contain exactly the same letters with the same frequencies.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Two linear passes through the strings.",
     spaceComplexity: "O(1)",
@@ -144,6 +167,14 @@ public:
         return result;
     }
 };`,
+    lineByLine: [
+      "`unordered_map<string, vector<string>> groups;` — maps a canonical key (sorted characters) to the list of original strings that share that key; all true anagrams sort to the identical key.",
+      "`for (const string& s : strs)` — process each input string once.",
+      "`string key = s; sort(key.begin(), key.end());` — copy the string and sort its characters, producing a 'fingerprint' that is identical for any anagram of s.",
+      "`groups[key].push_back(s);` — file the original (unsorted) string under its fingerprint's bucket.",
+      "`for (auto& [key, group] : groups) result.push_back(group);` — after all strings are bucketed, collect every bucket's list as one group in the output.",
+      "`return result;` — the final grouping of anagrams.",
+    ],
     timeComplexity: "O(n · k log k)",
     timeExplanation: "n strings, each sorted in O(k log k) where k = max string length.",
     spaceComplexity: "O(n · k)",
@@ -184,6 +215,16 @@ public:
         return result;
     }
 };`,
+    lineByLine: [
+      "`unordered_map<char, int> lastSeen;` — records the most recent index at which each character appeared, so we can detect when the current character re-enters the active window.",
+      "`int result = 0, left = 0;` — result tracks the best window length found so far; left is the start of the current no-repeat window.",
+      "`for (int right = 0; right < (int)s.size(); right++)` — grow the window one character at a time via right.",
+      "`char c = s[right];` — the character just added to the window.",
+      "`if (lastSeen.count(c) && lastSeen[c] >= left) left = lastSeen[c] + 1;` — if c was last seen inside the current window (not before it), the window now contains a duplicate; jump left to just past that earlier occurrence to restore uniqueness.",
+      "`lastSeen[c] = right;` — update c's last-seen index to the current position.",
+      "`result = max(result, right - left + 1);` — the window [left, right] is guaranteed duplicate-free at this point, so check if it's the longest one yet.",
+      "`return result;` — the longest duplicate-free window length found across the whole scan.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each character processed once. Hash map O(1) operations.",
     spaceComplexity: "O(min(n, charset))",
@@ -220,6 +261,13 @@ public:
         return maxProfit;
     }
 };`,
+    lineByLine: [
+      "`int minPrice = INT_MAX, maxProfit = 0;` — minPrice tracks the cheapest buy price seen so far; maxProfit starts at 0 since 'do nothing' is always a valid (zero-profit) option.",
+      "`for (int price : prices)` — scan prices left to right, i.e. in chronological order.",
+      "`minPrice = min(minPrice, price);` — if today's price is a new low, it becomes the best day to have bought so far.",
+      "`maxProfit = max(maxProfit, price - minPrice);` — check the profit from selling today after buying at the lowest price seen up to now (which is always <= today, preserving buy-before-sell order), and keep the best.",
+      "`return maxProfit;` — the best single buy-then-sell profit found across the whole scan, or 0 if prices only ever fell.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass through prices array.",
     spaceComplexity: "O(1)",
@@ -263,6 +311,14 @@ public:
         return st.empty();
     }
 };`,
+    lineByLine: [
+      "`stack<char> st;` — a stack naturally models 'most recently opened bracket must be closed first' (LIFO), which is exactly the nesting rule brackets follow.",
+      "`unordered_map<char, char> match = {{')', '('}, {']', '['}, {'}', '{'}};` — lookup table from each closing bracket to the opening bracket it's supposed to pair with.",
+      "`if (c == '(' || c == '[' || c == '{') st.push(c);` — every opening bracket is pushed, becoming the 'most recent unclosed bracket' until something closes it.",
+      "`if (st.empty() || st.top() != match[c]) return false;` — a closing bracket with nothing on the stack means there's no open bracket left to close (extra closer); a closing bracket whose match doesn't equal the stack's top means the most recently opened bracket is the WRONG type or the brackets are interleaved out of order (like '([)]') — both are invalid.",
+      "`st.pop();` — the closing bracket successfully matched the top of the stack, so that opening bracket is now resolved and removed.",
+      "`return st.empty();` — if any opening brackets are left unmatched at the end, the stack is non-empty and the string is invalid; only a fully-drained stack means everything opened was properly closed.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass, each character processed once.",
     spaceComplexity: "O(n)",
@@ -304,6 +360,15 @@ public:
         return -1;
     }
 };`,
+    lineByLine: [
+      "`int left = 0, right = (int)nums.size() - 1;` — the search window starts as the entire array; left and right are the current bounds of where target could still be.",
+      "`while (left <= right)` — keep narrowing as long as the window contains at least one element; once left > right, the window is empty and target isn't present.",
+      "`int mid = left + (right - left) / 2;` — computed this way instead of `(left+right)/2` to avoid integer overflow when left and right are both large; picks the midpoint of the current window.",
+      "`if (nums[mid] == target) return mid;` — found it directly.",
+      "`else if (nums[mid] < target) left = mid + 1;` — since the array is sorted ascending, if the middle value is too small, target (if present) must be somewhere to the right, so discard the entire left half including mid.",
+      "`else right = mid - 1;` — symmetric case: middle value too large means target must be to the left, discard the right half including mid.",
+      "`return -1;` — the window shrank to empty without finding target, so it isn't in the array.",
+    ],
     timeComplexity: "O(log n)",
     timeExplanation: "Search space halves each iteration. At most log₂(n) iterations.",
     spaceComplexity: "O(1)",
@@ -352,6 +417,14 @@ public:
         return prev;
     }
 };`,
+    lineByLine: [
+      "`ListNode* prev = nullptr; ListNode* curr = head;` — two pointers: prev trails behind the node we're rewiring, curr is the node currently being processed. prev starts at null because the new tail (old head) must point to nothing.",
+      "`while (curr)` — loop until curr falls off the end of the list (becomes null after processing the last node).",
+      "`ListNode* next = curr->next;` — save the next node BEFORE overwriting curr's pointer, otherwise the rest of the list is lost the moment curr->next is reassigned.",
+      "`curr->next = prev;` — the actual reversal: point curr backward at prev instead of forward.",
+      "`prev = curr; curr = next;` — advance both pointers one step: prev catches up to where curr was, curr moves to the node we saved a step earlier.",
+      "`return prev;` — after the loop, curr is null and prev sits on the last node processed (the old tail), which is now the new head.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Visit each node exactly once.",
     spaceComplexity: "O(1)",
@@ -388,6 +461,14 @@ public:
         return prev1;
     }
 };`,
+    lineByLine: [
+      "`if (n <= 2) return n;` — base cases handled directly: with 1 step there's only 1 way, with 2 steps there are 2 ways (1+1 or 2), matching n itself so no loop is needed.",
+      "`int prev2 = 1, prev1 = 2;` — prev2 holds ways(1)=1 and prev1 holds ways(2)=2; these seed the recurrence before the loop starts at i=3.",
+      "`for (int i = 3; i <= n; i++)` — build up from the known base cases toward n, since ways(i) depends only on the two values before it.",
+      "`int curr = prev1 + prev2;` — the recurrence ways(i) = ways(i-1) + ways(i-2): to land on step i you either took a final 1-step from i-1 or a final 2-step from i-2.",
+      "`prev2 = prev1; prev1 = curr;` — slide the window forward one step so the next iteration again has ways(i-1) and ways(i-2) ready without storing a full array.",
+      "`return prev1;` — after the loop prev1 holds ways(n), computed in O(1) space instead of an O(n) dp array.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single loop from 3 to n.",
     spaceComplexity: "O(1)",
@@ -424,6 +505,13 @@ public:
         return prev1;
     }
 };`,
+    lineByLine: [
+      "`int prev2 = 0, prev1 = 0;` — prev2 tracks the best total considering houses up through i-2, prev1 through i-1; both start at 0 since there's nothing to rob before the first house.",
+      "`for (int amount : nums)` — process houses left to right, updating the running best as each new house becomes available to rob.",
+      "`int curr = max(prev2 + amount, prev1);` — the core decision for this house: either rob it (its amount plus the best total that skipped the immediately preceding house, prev2) or skip it (keep prev1, the best total without this house).",
+      "`prev2 = prev1; prev1 = curr;` — shift the window forward so prev2/prev1 represent 'up to i-1' and 'up to i' for the next iteration, avoiding an O(n) dp array.",
+      "`return prev1;` — after processing all houses, prev1 holds the best achievable total over the whole row.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass through nums.",
     spaceComplexity: "O(1)",
@@ -477,6 +565,16 @@ public:
         return count;
     }
 };`,
+    lineByLine: [
+      "`int m = grid.size(), n = grid[0].size();` — cache the grid dimensions so every call can bounds-check neighbors.",
+      "`if (i < 0 || i >= m || j < 0 || j >= n || grid[i][j] != '1') return;` — the base case: stop recursing once we fall off the grid or land on water/already-visited land, so the flood-fill naturally terminates at the island's border.",
+      "`grid[i][j] = '0'; // mark visited` — mutate the grid in place as the visited-set: turning this land cell to water means later DFS calls (and the outer loop) will never re-count it.",
+      "`dfs(grid, i+1, j); dfs(grid, i-1, j); dfs(grid, i, j+1); dfs(grid, i, j-1);` — recurse into all 4 orthogonal neighbors so every cell connected to this one (directly or transitively) gets swallowed by the same flood-fill.",
+      "`int count = 0;` — tracks how many separate islands we've started a flood-fill from.",
+      "`for (int i ...) for (int j ...)` — scan every cell in the grid exactly once as the entry point search.",
+      "`if (grid[i][j] == '1') { count++; dfs(grid, i, j); }` — finding an unvisited '1' means we've discovered a new island: count it, then flood-fill the whole thing to '0' so none of its other cells get double-counted later in the scan.",
+      "`return count;` — after the full scan, every land cell has been absorbed into exactly one flood-fill, so count equals the number of distinct islands.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "Each cell visited at most once.",
     spaceComplexity: "O(m × n)",
@@ -515,6 +613,15 @@ public:
         return dp[amount] > amount ? -1 : dp[amount];
     }
 };`,
+    lineByLine: [
+      "`vector<int> dp(amount + 1, amount + 1);` — dp[i] will hold the minimum coins to make amount i; seeding every slot with amount+1 acts as a safe 'impossible' sentinel, since no valid answer can ever need more than amount coins (using all 1s, if 1 were a denomination).",
+      "`dp[0] = 0;` — base case: making amount 0 needs 0 coins, and every other dp[i] is built from this anchor.",
+      "`for (int i = 1; i <= amount; i++)` — compute the answer for every amount from 1 up to the target, smallest first, since dp[i] depends only on smaller sub-amounts.",
+      "`for (int coin : coins)` — try every denomination as the 'last coin used' to reach amount i.",
+      "`if (coin <= i)` — only consider a coin if it actually fits within the remaining amount (can't use a 5-coin to help make 3).",
+      "`dp[i] = min(dp[i], dp[i - coin] + 1);` — if using this coin last, the rest (i - coin) needs dp[i-coin] coins, plus this one; keep whichever coin choice gives the smallest total.",
+      "`return dp[amount] > amount ? -1 : dp[amount];` — since dp[amount] can never legitimately exceed 'amount' coins, still sitting above that value means it was never updated from the impossible sentinel, so the amount is unreachable.",
+    ],
     timeComplexity: "O(amount × coins)",
     timeExplanation: "Two nested loops.",
     spaceComplexity: "O(amount)",
@@ -556,6 +663,12 @@ public:
         return root;
     }
 };`,
+    lineByLine: [
+      "`if (!root) return nullptr;` — base case: an empty subtree has nothing to mirror, so just hand back null.",
+      "`swap(root->left, root->right);` — the actual inversion at this node: exchange the two child pointers so what was on the left is now on the right and vice versa.",
+      "`invertTree(root->left); invertTree(root->right);` — after swapping, root->left now points to the OLD right subtree and root->right to the OLD left subtree; recursing into both mirrors them too, so the swap propagates all the way down.",
+      "`return root;` — hand back this (now-mirrored) node so the parent's swap call links it in correctly.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Visit every node exactly once.",
     spaceComplexity: "O(h)",
@@ -592,6 +705,13 @@ public:
         return best;
     }
 };`,
+    lineByLine: [
+      "`int curr = nums[0], best = nums[0];` — both trackers start at the first element: curr is the best sum of a subarray ENDING at the current index, best is the best sum seen anywhere so far.",
+      "`for (int i = 1; i < (int)nums.size(); i++)` — extend the scan one element at a time; curr and best are recomputed at each step from the previous state only.",
+      "`curr = max(nums[i], curr + nums[i]);` — the greedy choice: either the running subarray is still helping (curr + nums[i] is bigger) so extend it, or it's dragging the sum down (curr is negative) so abandon it and restart fresh at nums[i]. This choice is safe because a negative running sum can never help any future subarray.",
+      "`best = max(best, curr);` — record the best ending-here sum against the global best, since the maximum subarray could end at any index.",
+      "`return best;` — after scanning every possible ending index, best holds the maximum sum over all contiguous subarrays.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass through the array.",
     spaceComplexity: "O(1)",
@@ -623,6 +743,11 @@ public:
         return result;
     }
 };`,
+    lineByLine: [
+      "`int result = 0;` — start with the XOR identity element; XORing 0 with any value returns that value unchanged.",
+      "`for (int x : nums) result ^= x;` — XOR every element into result. Since a ^ a = 0, every number that appears exactly twice cancels itself out over the course of the loop, regardless of order.",
+      "`return result;` — after all pairs have cancelled, only the single unpaired number survives in result.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass, XOR is O(1).",
     spaceComplexity: "O(1)",
@@ -667,6 +792,14 @@ public:
         return false;
     }
 };`,
+    lineByLine: [
+      "`ListNode* slow = head; ListNode* fast = head;` — both pointers start at the same place; the gap between them will grow by one node each iteration, which is what lets fast lap slow if a cycle exists.",
+      "`while (fast && fast->next)` — guard against dereferencing null: fast moves two steps at a time, so both it and its immediate next must exist before advancing.",
+      "`slow = slow->next;` — the tortoise advances one node per iteration.",
+      "`fast = fast->next->next;` — the hare advances two nodes per iteration, so it closes the gap to slow by exactly one node each loop when they're both inside a cycle.",
+      "`if (slow == fast) return true;` — if there's a cycle, the hare eventually re-enters it behind (or at) the tortoise and the gap shrinks to zero, meaning they land on the identical node — that can only happen if a loop exists.",
+      "`return false;` — if fast (or fast->next) hits null instead, the list has a definite end, so no cycle is possible.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Fast pointer traverses at most 2n steps before meeting or exiting.",
     spaceComplexity: "O(1)",
@@ -730,6 +863,14 @@ public:
         return true;
     }
 };`,
+    lineByLine: [
+      "`unordered_map<char, TrieNode*> children; bool isEnd = false;` — each node maps its outgoing letters to child nodes and flags whether a complete word ends exactly here (needed to tell 'app' as a full word apart from 'app' as just a prefix of 'apple').",
+      "`Trie() : root(new TrieNode()) {}` — the root represents the empty prefix; every inserted word is a path starting from it.",
+      "`for (char c : word) { if (!curr->children.count(c)) curr->children[c] = new TrieNode(); curr = curr->children[c]; }` — walk the word letter by letter, creating a new node only when that branch doesn't exist yet, then descend into it — this is how words sharing a prefix share the same path.",
+      "`curr->isEnd = true;` — after placing every letter, mark the final node so search() can distinguish 'this exact word was inserted' from 'this is just a prefix of something longer'.",
+      "`for (char c : word) { if (!curr->children.count(c)) return false; curr = curr->children[c]; } return curr->isEnd;` — search walks the same path; if any letter's branch is missing the word was never inserted, and even if the whole path exists, isEnd must be true or it's only a prefix.",
+      "`... return true;` (startsWith) — identical walk to search, but returns true as soon as every letter's branch exists, deliberately ignoring isEnd since a prefix doesn't need to be a complete word itself.",
+    ],
     timeComplexity: "O(L) per operation",
     timeExplanation: "L = length of word/prefix. Each character processed once.",
     spaceComplexity: "O(total characters × 26)",
@@ -769,6 +910,13 @@ public:
         return result;
     }
 };`,
+    lineByLine: [
+      "`vector<vector<int>> result = {{}};` — start with just the empty subset; every other subset will be built by extending copies of what's already in result.",
+      "`for (int num : nums)` — process one input number at a time, doubling the result set at each step.",
+      "`int n = result.size();` — snapshot the current size BEFORE the loop below appends new subsets, so the loop iterates only over the subsets that existed prior to considering num (not the new ones being added).",
+      "`result.push_back(result[i]); result.back().push_back(num);` — for every existing subset, create a copy that also includes num; this doubles the number of subsets, covering the 'num is in this subset' branch for every subset built so far.",
+      "`return result;` — after processing all n numbers, result contains every combination of include/exclude decisions — all 2^n subsets.",
+    ],
     timeComplexity: "O(n × 2^n)",
     timeExplanation: "2^n subsets, each up to n elements.",
     spaceComplexity: "O(n × 2^n)",
@@ -814,6 +962,14 @@ public:
         return maxArea;
     }
 };`,
+    lineByLine: [
+      "`if (i < 0 || i >= m || j < 0 || j >= n || grid[i][j] != 1) return 0;` — base case: out-of-bounds or water/already-visited cells contribute nothing to the area, so the recursion stops and adds 0.",
+      "`grid[i][j] = 0;` — mark this land cell visited by flipping it to water, so it's never counted twice by a sibling call or the outer scan.",
+      "`return 1 + dfs(grid, i+1, j) + dfs(grid, i-1, j) + dfs(grid, i, j+1) + dfs(grid, i, j-1);` — this cell counts as 1 towards the island's area, plus whatever area each of its 4 neighbors' recursive flood-fills report — the return value IS the total area of the connected component reachable from this cell.",
+      "`int maxArea = 0;` — running maximum island area seen so far.",
+      "`for (int i ...) for (int j ...) maxArea = max(maxArea, dfs(grid, i, j));` — call dfs on every cell; for water or already-visited land it returns 0 (no-op), and for an unvisited land cell it floods the whole island and returns its size, so max tracks the largest island found.",
+      "`return maxArea;` — after scanning every cell, every island has been measured exactly once, so maxArea holds the largest.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "Each cell visited once.",
     spaceComplexity: "O(m × n)",
@@ -851,6 +1007,13 @@ public:
         return true;
     }
 };`,
+    lineByLine: [
+      "`vector<int> cnt(26, 0);` — one counter per lowercase letter, tracking how many of each letter the magazine has 'in stock' minus how many the note has 'spent'.",
+      "`for (char c : magazine) cnt[c - 'a']++;` — tally up every letter the magazine supplies.",
+      "`for (char c : ransomNote) { cnt[c - 'a']--; ... }` — for each letter the note needs, spend one from the magazine's supply.",
+      "`if (cnt[c - 'a'] < 0) return false;` — going negative means the note demanded more copies of that letter than the magazine had left, so construction is impossible.",
+      "`return true;` — every letter the note needed was covered by the magazine's supply.",
+    ],
     timeComplexity: "O(m + n)",
     timeExplanation: "One pass through magazine (length m) and one pass through ransomNote (length n).",
     spaceComplexity: "O(1)",
@@ -888,6 +1051,13 @@ public:
         return best;
     }
 };`,
+    lineByLine: [
+      "`int l = 0, r = (int)height.size() - 1, best = 0;` — start pointers at the widest possible container (both ends) since width only shrinks from here, so we must check the extremes first.",
+      "`while (l < r)` — shrink the window until the two pointers meet, evaluating exactly one container per iteration.",
+      "`best = max(best, min(height[l], height[r]) * (r - l));` — the container's water level is capped by the SHORTER of the two walls (water spills over the shorter side), so area = shorter height times width.",
+      "`if (height[l] < height[r]) l++; else r--;` — always move the pointer at the shorter wall: keeping the taller wall can never help (it was never the bottleneck), but moving the shorter one is the only way to possibly find a taller wall that increases the limiting height, even though width decreases.",
+      "`return best;` — the largest area seen across all checked pairs.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass, two pointers meet in middle.",
     spaceComplexity: "O(1)",
@@ -922,6 +1092,14 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`vector<int> res(n, 1);` — initialize output to all 1s so multiplying by 'nothing yet' is a no-op.",
+      "`int left = 1;` — running product of every element strictly to the left of the current index.",
+      "`for (int i = 0; i < n; i++) { res[i] = left; left *= nums[i]; }` — before including nums[i], stamp res[i] with the product of everything before it, then fold nums[i] into the running left-product for the next iteration.",
+      "`int right = 1;` — running product of every element strictly to the right of the current index, built by scanning backward.",
+      "`for (int i = n - 1; i >= 0; i--) { res[i] *= right; right *= nums[i]; }` — multiply in the suffix product (everything after i) on top of the prefix product already stored, giving the product of all elements except nums[i]; then fold nums[i] into the running right-product.",
+      "`return res;` — each res[i] now equals the product of the whole array excluding nums[i], computed without any division.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Two passes through array.",
     spaceComplexity: "O(1)",
@@ -968,6 +1146,17 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`sort(nums.begin(), nums.end());` — sorting enables both the two-pointer squeeze (like two-sum-ii) and easy duplicate-skipping, since equal values end up adjacent.",
+      "`for (int i = 0; i < (int)nums.size() - 2; i++)` — fix the smallest element of each triplet in turn; stopping two short of the end leaves room for the two pointers after it.",
+      "`if (i > 0 && nums[i] == nums[i-1]) continue;` — if this value is identical to the previous one already tried as the 'fixed' element, every triplet it could form was already found in that earlier iteration, so skip it to avoid duplicate triplets.",
+      "`int l = i + 1, r = (int)nums.size() - 1;` — search for the other two numbers using two pointers spanning everything after i, exactly like two-sum-ii on the remaining sorted subarray.",
+      "`while (l < r) { int s = nums[i] + nums[l] + nums[r];` — evaluate the current triplet's sum.",
+      "`if (s == 0) { res.push_back(...); while (l<r && nums[l]==nums[l+1]) l++; while (l<r && nums[r]==nums[r-1]) r--; l++; r--; }` — found a valid triplet; before moving on, skip past any duplicate values at both pointers so the same triplet isn't recorded twice, then advance both pointers to look for a new pair.",
+      "`else if (s < 0) l++;` — sum too small means the left value is too small (array is sorted ascending), so move left pointer up to increase the sum.",
+      "`else r--;` — sum too large means the right value is too big, so move right pointer down to decrease the sum.",
+      "`return res;` — every unique zero-sum triplet found across all fixed first elements.",
+    ],
     timeComplexity: "O(n²)",
     timeExplanation: "Outer loop O(n), inner two-pointer O(n) each = O(n²).",
     spaceComplexity: "O(1)",
@@ -1003,6 +1192,14 @@ public:
         return {};
     }
 };`,
+    lineByLine: [
+      "`int l = 0, r = (int)numbers.size() - 1;` — since the array is already sorted, starting at both extremes lets each comparison decisively rule out one pointer's direction to move.",
+      "`while (l < r) { int s = numbers[l] + numbers[r];` — check the current pair's sum.",
+      "`if (s == target) return {l + 1, r + 1};` — found it; convert to 1-indexed as the problem requires.",
+      "`else if (s < target) l++;` — sum too small: since the array is sorted ascending, increasing the smaller (left) value is the only way to raise the sum, so move left inward.",
+      "`else r--;` — sum too big: decreasing the larger (right) value is the only way to lower the sum, so move right inward.",
+      "`return {};` — unreachable given the problem guarantees exactly one solution, but present for type-safety.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass, pointers meet in middle.",
     spaceComplexity: "O(1)",
@@ -1039,6 +1236,15 @@ public:
         return true;
     }
 };`,
+    lineByLine: [
+      "`int l = 0, r = (int)s.size() - 1;` — pointers start at both ends, moving inward as characters are confirmed to match.",
+      "`while (l < r)` — stop once the pointers meet or cross; there's nothing left to compare.",
+      "`while (l < r && !isalnum(s[l])) l++;` — skip past punctuation, spaces, and other non-alphanumeric characters from the left, since they're ignored entirely for the palindrome check.",
+      "`while (l < r && !isalnum(s[r])) r--;` — same skipping from the right.",
+      "`if (tolower(s[l]) != tolower(s[r])) return false;` — compare the two surviving characters case-insensitively; any mismatch immediately proves it's not a palindrome.",
+      "`l++; r--;` — both characters matched, so move both pointers inward to check the next pair.",
+      "`return true;` — every alphanumeric character (ignoring case) matched its mirror position, so the string is a palindrome.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each character visited at most once.",
     spaceComplexity: "O(1)",
@@ -1077,6 +1283,15 @@ public:
         return best;
     }
 };`,
+    lineByLine: [
+      "`unordered_set<int> s(nums.begin(), nums.end());` — dedupe all numbers into a set so membership tests (\"is x present?\") are O(1), and duplicates don't distort streak counting.",
+      "`for (int n : s)` — consider every distinct value as a potential start of a run.",
+      "`if (s.count(n - 1)) continue;` — if n-1 exists, n is the MIDDLE or end of some run, not its start; skip it so each run is only ever counted once, from its true start.",
+      "`int streak = 1;` — n itself counts as the first element of its run (since we know n-1 is absent).",
+      "`while (s.count(n + streak)) streak++;` — keep extending the run forward as long as the next consecutive integer is present in the set.",
+      "`best = max(best, streak);` — track the longest run found across all starting points.",
+      "`return best;` — length of the longest consecutive run; because every element is visited by the inner while-loop at most once total (across all outer iterations), the whole algorithm is O(n) despite the nested loop.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each number is counted in exactly one streak.",
     spaceComplexity: "O(n)",
@@ -1107,6 +1322,11 @@ public:
             if (nums[i] != 0) swap(nums[insert++], nums[i]);
     }
 };`,
+    lineByLine: [
+      "`int insert = 0;` — insert tracks the next position where a non-zero value belongs; everything before it is already the compacted, in-order run of non-zero values seen so far.",
+      "`for (int i = 0; i < (int)nums.size(); i++)` — scan the whole array once, i always sitting at or ahead of insert.",
+      "`if (nums[i] != 0) swap(nums[insert++], nums[i]);` — when a non-zero is found, swap it into the next open slot at insert; since everything between insert and i (exclusive) was already skipped zeros, this swap either moves a zero back to where nums[i] was (harmless) or is a no-op when insert==i, and preserves the relative order of non-zero elements because they're placed in the order encountered.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass.",
     spaceComplexity: "O(1)",
@@ -1141,6 +1361,14 @@ public:
         return ans;
     }
 };`,
+    lineByLine: [
+      "`int cnt[26] = {}, maxCnt = 0, left = 0, ans = 0;` — cnt tracks letter frequencies in the current window; maxCnt is the highest frequency seen in ANY window state so far (a slight simplification that still works, since it never decreases below the true max needed).",
+      "`for (int r = 0; r < (int)s.size(); r++)` — expand the window by one character every iteration.",
+      "`maxCnt = max(maxCnt, ++cnt[s[r] - 'A']);` — add s[r] to the window's frequency count, and update the running best 'most frequent letter count' — this represents the largest block of identical letters we could keep unchanged.",
+      "`while ((r - left + 1) - maxCnt > k) cnt[s[left++] - 'A']--;` — window size minus the count of its most common letter is exactly how many characters would need replacing to make the whole window uniform; if that exceeds k, shrink from the left until it's affordable again.",
+      "`ans = max(ans, r - left + 1);` — the current window size is always achievable with at most k replacements (by the invariant just enforced), so it's a valid candidate for the answer.",
+      "`return ans;` — the longest window ever achieved during the scan.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each character added and removed at most once.",
     spaceComplexity: "O(1)",
@@ -1178,6 +1406,17 @@ public:
         return false;
     }
 };`,
+    lineByLine: [
+      "`if (s1.size() > s2.size()) return false;` — s2 can't possibly contain a same-length window matching a longer s1.",
+      "`int need[26] = {}, have[26] = {};` — need is s1's fixed letter-frequency signature; have is the frequency signature of the current fixed-size window sliding across s2.",
+      "`for (char c : s1) need[c - 'a']++;` — build the target frequency profile once, up front.",
+      "`int k = s1.size();` — the window size never changes — it's always exactly s1's length, since a permutation must use all of s1's letters.",
+      "`for (int i = 0; i < (int)s2.size(); i++)` — slide the window across s2 one character at a time.",
+      "`have[s2[i] - 'a']++;` — bring the new right-edge character into the window's frequency count.",
+      "`if (i >= k) have[s2[i - k] - 'a']--;` — once the window has grown past size k, evict the character that just fell off the left edge, keeping the window fixed at size k.",
+      "`if (memcmp(need, have, sizeof(need)) == 0) return true;` — if the window's frequency profile exactly matches s1's, the window is a permutation of s1 (a permutation is precisely 'same multiset of letters').",
+      "`return false;` — no window ever matched, so s2 has no substring that permutes s1.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass, each comparison O(26) = O(1).",
     spaceComplexity: "O(1)",
@@ -1219,6 +1458,18 @@ public:
         return best == INT_MAX ? "" : s.substr(bl, best);
     }
 };`,
+    lineByLine: [
+      "`unordered_map<char,int> need, have;` — need is the fixed required-frequency profile of t; have is the running frequency count of characters currently inside the window.",
+      "`for (char c : t) need[c]++;` — build t's requirement once up front.",
+      "`int formed = 0, req = need.size(), l = 0, best = INT_MAX, bl = 0;` — formed counts how many distinct characters currently meet their required count in the window; the window is fully valid exactly when formed == req (every distinct char in t is satisfied).",
+      "`for (int r = 0; r < (int)s.size(); r++)` — grow the window by moving the right edge forward.",
+      "`have[s[r]]++; if (need.count(s[r]) && have[s[r]] == need[s[r]]) formed++;` — count the new character, and if it's one t needs and its count just reached exactly the required amount, one more requirement is now satisfied.",
+      "`while (formed == req)` — once every required character is satisfied, the window is a valid (but possibly not minimal) candidate — try shrinking it from the left to find the smallest valid window ending at r.",
+      "`if (r - l + 1 < best) { best = r - l + 1; bl = l; }` — record this window if it's the smallest valid one found so far.",
+      "`if (need.count(s[l]) && --have[s[l]] < need[s[l]]) formed--;` — before removing s[l] from the window, check whether doing so would drop it below its required count; if so, the window becomes invalid (formed decreases), which will stop the while loop.",
+      "`have[s[l++]]--; if (!have.count(s[l-1]) || have[s[l-1]] == 0) have.erase(s[l-1]);` — actually evict s[l] from the window and advance l; clean up zero-count entries to keep the map tidy (not strictly required for correctness).",
+      "`return best == INT_MAX ? \"\" : s.substr(bl, best);` — if no valid window was ever found, return empty string; otherwise return the smallest window recorded.",
+    ],
     timeComplexity: "O(|s| + |t|)",
     timeExplanation: "Each char in s added and removed at most once.",
     spaceComplexity: "O(|s| + |t|)",
@@ -1257,6 +1508,15 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`deque<int> dq;` — stores indices of nums in decreasing order of their values; the front is always the index of the current window's maximum.",
+      "`for (int i = 0; i < (int)nums.size(); i++)` — advance the right edge of the window one element at a time.",
+      "`if (!dq.empty() && dq.front() < i - k + 1) dq.pop_front();` — if the index at the front has fallen out of the current k-sized window, remove it — it's no longer a candidate for the max.",
+      "`while (!dq.empty() && nums[dq.back()] <= nums[i]) dq.pop_back();` — any index at the back whose value is <= nums[i] can never be the max again (nums[i] is later in the window and at least as large), so discard it — this is what keeps the deque monotonically decreasing.",
+      "`dq.push_back(i);` — add the current index; it survives at the back because everything smaller or equal was just evicted.",
+      "`if (i >= k - 1) res.push_back(nums[dq.front()]);` — once the window has grown to full size k, the front of the deque holds the index of the window's maximum — record it.",
+      "`return res;` — the max of every window position, computed with each element entering and leaving the deque at most once (amortized O(1) per step).",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each element added and removed from deque at most once.",
     spaceComplexity: "O(k)",
@@ -1294,6 +1554,14 @@ public:
         return total - minWindow;
     }
 };`,
+    lineByLine: [
+      "`int n = cardPoints.size(), windowSize = n - k;` — reframe the problem: instead of directly picking k cards from the two ends, think about the (n-k) cards left behind in the middle — those form a contiguous subarray.",
+      "`for (int i = 0; i < windowSize; i++) windowSum += cardPoints[i];` — compute the sum of the initial 'leftover' window, i.e. the first n-k cards (equivalent to taking all k cards from the right end).",
+      "`int minWindow = windowSum;` — start tracking the minimum-sum leftover window; minimizing what's left behind maximizes what's taken.",
+      "`for (int i = windowSize; i < n; i++) { windowSum += cardPoints[i] - cardPoints[i - windowSize]; minWindow = min(minWindow, windowSum); }` — slide the fixed-size window one step at a time (add the new right element, drop the leftmost element of the old window), which corresponds to taking one fewer card from the right end and one more from the left; track the smallest sum seen.",
+      "`int total = 0; for (int x : cardPoints) total += x;` — the total value of all cards, needed to convert 'minimize the leftover' into 'maximize what's taken'.",
+      "`return total - minWindow;` — total points minus the smallest possible leftover middle segment equals the largest possible sum of k cards taken from the two ends.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Two passes.",
     spaceComplexity: "O(1)",
@@ -1334,6 +1602,16 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`string encode(vector<string>& strs)` — build one string that unambiguously packs the whole list, no matter what characters the strings contain.",
+      "`for (auto& s : strs) res += to_string(s.size()) + '#' + s;` — prefix each string with its length and a '#' separator; since the length is read as a number (not scanned char-by-char), any '#' or other special character inside s can never be mistaken for the delimiter.",
+      "`vector<string> decode(string s)` — reverse the process by repeatedly reading a length-prefixed chunk.",
+      "`int j = i; while (s[j] != '#') j++;` — scan forward from the current position to find the '#' that ends the length prefix (this is safe because the prefix itself is only digits, never '#').",
+      "`int len = stoi(s.substr(i, j - i));` — parse the digits between i and j as the length of the next original string.",
+      "`res.push_back(s.substr(j + 1, len));` — extract exactly `len` characters right after the '#', regardless of what they contain — this is what makes embedded delimiters harmless.",
+      "`i = j + 1 + len;` — advance past the '#' and the just-read string to the start of the next length prefix.",
+      "`return res;` — the reconstructed list of original strings, identical to what was encoded.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each character processed once in both encode and decode.",
     spaceComplexity: "O(n)",
@@ -1374,6 +1652,15 @@ public:
         return true;
     }
 };`,
+    lineByLine: [
+      "`unordered_set<char> rows[9], cols[9], boxes[9];` — one 'seen digits' set per row, per column, and per 3x3 box — the three independent constraints Sudoku imposes.",
+      "`for (int i = 0; i < 9; i++) for (int j = 0; j < 9; j++)` — visit every cell exactly once.",
+      "`char c = board[i][j]; if (c == '.') continue;` — empty cells impose no constraint, so skip them.",
+      "`int box = (i / 3) * 3 + j / 3;` — maps a (row, col) pair to one of the nine 3x3 boxes: dividing by 3 gives which 'super-row'/'super-col' of boxes the cell falls in, and combining them linearizes that 3x3 grid of boxes into indices 0-8.",
+      "`if (rows[i].count(c) || cols[j].count(c) || boxes[box].count(c)) return false;` — if this digit was already placed in the same row, column, or box, the board violates Sudoku's no-repeat rule.",
+      "`rows[i].insert(c); cols[j].insert(c); boxes[box].insert(c);` — otherwise record the digit as now 'seen' in all three of its constraint groups.",
+      "`return true;` — every filled cell passed all three checks, so the board is valid.",
+    ],
     timeComplexity: "O(1)",
     timeExplanation: "Board is always 9×9 = 81 cells — fixed size.",
     spaceComplexity: "O(1)",
@@ -1405,6 +1692,10 @@ public:
             reverse(row.begin(), row.end());
     }
 };`,
+    lineByLine: [
+      "`for (int i = 0; i < n; i++) for (int j = i + 1; j < n; j++) swap(matrix[i][j], matrix[j][i]);` — transpose the matrix (flip across the main diagonal) by swapping each element above the diagonal with its mirror below it; starting j at i+1 avoids swapping a cell with itself and avoids undoing the swap by revisiting pairs.",
+      "`for (auto& row : matrix) reverse(row.begin(), row.end());` — reverse every row left-to-right; transpose followed by a horizontal flip is exactly equivalent to a 90-degree clockwise rotation, done entirely in place with no extra matrix.",
+    ],
     timeComplexity: "O(n²)",
     timeExplanation: "Every cell visited twice.",
     spaceComplexity: "O(1)",
@@ -1443,6 +1734,15 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`int top = 0, bot = matrix.size()-1, l = 0, r = matrix[0].size()-1;` — four boundaries marking the unvisited rectangle still left to traverse.",
+      "`while (top <= bot && l <= r)` — keep spiraling as long as an unvisited rectangle remains.",
+      "`for (int i = l; i <= r; i++) res.push_back(matrix[top][i]); top++;` — sweep left-to-right across the current top row, then shrink the rectangle by retiring that row.",
+      "`for (int i = top; i <= bot; i++) res.push_back(matrix[i][r]); r--;` — sweep top-to-bottom down the current right column (now excluding the row just consumed), then retire that column.",
+      "`if (top <= bot) { for (int i = r; i >= l; i--) res.push_back(matrix[bot][i]); bot--; }` — sweep right-to-left across the bottom row, guarded because after the first two sweeps a single-row matrix could make this row already consumed.",
+      "`if (l <= r) { for (int i = bot; i >= top; i--) res.push_back(matrix[i][l]); l++; }` — sweep bottom-to-top up the left column, guarded for the same reason (single-column matrices).",
+      "`return res;` — all elements collected in clockwise spiral order.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "Each cell visited exactly once.",
     spaceComplexity: "O(1)",
@@ -1481,6 +1781,14 @@ public:
         if (firstCol) for (int i = 0; i < m; i++) matrix[i][0] = 0;
     }
 };`,
+    lineByLine: [
+      "`bool firstRow = false, firstCol = false;` — since row 0 and column 0 will be repurposed as marker storage, we must separately remember whether they themselves originally contained a zero.",
+      "`for (int j = 0; j < n; j++) if (matrix[0][j] == 0) firstRow = true;` and the analogous firstCol loop — record the original zero-state of row 0 / column 0 before they get overwritten as markers.",
+      "`for (int i = 1; ...) for (int j = 1; ...) if (matrix[i][j] == 0) { matrix[i][0] = matrix[0][j] = 0; }` — for the interior of the matrix (excluding row 0/col 0), use the first cell of each row and column as a flag: if any interior cell in row i or column j is zero, mark matrix[i][0] and matrix[0][j] as zero.",
+      "`for (int i = 1; ...) for (int j = 1; ...) if (!matrix[i][0] || !matrix[0][j]) matrix[i][j] = 0;` — a second interior pass reads those markers: if row i or column j was flagged, zero out this cell. This must run only after ALL markers are set, otherwise zeroing early would corrupt markers still needed for later cells.",
+      "`if (firstRow) for (int j = 0; j < n; j++) matrix[0][j] = 0;` — apply the originally-saved state of row 0 last, since row 0 itself was used as scratch space during the interior pass.",
+      "`if (firstCol) for (int i = 0; i < m; i++) matrix[i][0] = 0;` — same idea for column 0, applied last so it isn't clobbered before its original state is needed.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "Two passes through the matrix.",
     spaceComplexity: "O(1)",
@@ -1513,6 +1821,13 @@ public:
         return i == (int)s.size();
     }
 };`,
+    lineByLine: [
+      "`int i = 0, j = 0;` — i tracks progress through s (how many characters of s have been matched so far in order), j scans through t.",
+      "`while (i < (int)s.size() && j < (int)t.size())` — stop once either s is fully matched (success) or t runs out (no more characters to try matching against).",
+      "`if (s[i] == t[j]) i++;` — a match means the next needed character of s has been found in t, in the correct relative order, so advance the s pointer to look for the character after it.",
+      "`j++;` — always advance j regardless of whether this position matched, since each character of t can be either used to match s or skipped/deleted, and we only care about their order, not any 1:1 alignment.",
+      "`return i == (int)s.size();` — if i reached the end of s, every character of s was found in t in order, meaning s is a valid subsequence.",
+    ],
     timeComplexity: "O(|t|)",
     timeExplanation: "Walk t once.",
     spaceComplexity: "O(1)",
@@ -1552,6 +1867,14 @@ public:
         return st.top();
     }
 };`,
+    lineByLine: [
+      "`stack<long long> st;` — a stack holds pending operands; long long avoids overflow on intermediate products. Postfix notation is exactly what a stack machine evaluates naturally: operands accumulate until an operator consumes the most recent ones.",
+      "`if (t == \"+\" || t == \"-\" || t == \"*\" || t == \"/\")` — check whether this token is an operator rather than a number.",
+      "`long long b = st.top(); st.pop(); long long a = st.top(); st.pop();` — pop in this specific order: the operand pushed most recently (b) is the SECOND operand, and the one before it (a) is the FIRST — this ordering matters for non-commutative operators like subtraction and division (e.g. tokens \"4 13 5 / +\" needs 13/5, not 5/13).",
+      "`if (t == \"+\") st.push(a + b); ... else st.push(a / b);` — apply the operator to a and b in the mathematically correct order, then push the result back as a new operand for future operators to consume.",
+      "`else st.push(stoll(t));` — a plain number token is just pushed as a new operand.",
+      "`return st.top();` — a valid RPN expression always reduces to exactly one final value left on the stack.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each token processed once.",
     spaceComplexity: "O(n)",
@@ -1585,6 +1908,14 @@ public:
     int top() { return st.top(); }
     int getMin() { return minSt.top(); }
 };`,
+    lineByLine: [
+      "`stack<int> st, minSt;` — two stacks kept perfectly in sync: st holds the actual values, minSt holds, at each position, the minimum of everything at or below that level — so the current minimum is always sitting right at minSt's top.",
+      "`st.push(val);` — normal stack push of the actual value.",
+      "`minSt.push(minSt.empty() ? val : min(val, minSt.top()));` — push the running minimum INCLUDING this new value: if val is smaller than everything so far, it becomes the new minimum; otherwise the previous minimum still holds. This means popping later can just discard the top of minSt without recomputation.",
+      "`void pop() { st.pop(); minSt.pop(); }` — pop both stacks together so minSt's top always reflects the minimum of exactly what remains in st.",
+      "`int top() { return st.top(); }` — the actual top element, unrelated to the minimum tracking.",
+      "`int getMin() { return minSt.top(); }` — O(1) because the minimum for the current stack state was already computed and cached when each element was pushed, rather than scanned for on demand.",
+    ],
     timeComplexity: "O(1)",
     timeExplanation: "All operations constant time.",
     spaceComplexity: "O(n)",
@@ -1622,6 +1953,15 @@ public:
         return ans;
     }
 };`,
+    lineByLine: [
+      "`vector<int> ans(n, 0);` — defaults to 0, which is already the correct answer for any day that never finds a warmer future day (it simply never gets overwritten).",
+      "`stack<int> st;` — holds indices of days still 'waiting' for a warmer day; kept in increasing-temperature order from bottom to top is NOT maintained — rather, it stays such that temperatures at stacked indices are non-increasing as you go from bottom to top, i.e. a monotonic decreasing stack.",
+      "`for (int i = 0; i < n; i++)` — process days left to right, each new day potentially resolving multiple waiting days at once.",
+      "`while (!st.empty() && temperatures[st.top()] < temperatures[i])` — as long as today is warmer than the day on top of the stack, that waiting day has just found its answer — today.",
+      "`int j = st.top(); st.pop(); ans[j] = i - j;` — resolve day j: the number of days it waited is simply the gap between today's index and j's index.",
+      "`st.push(i);` — today itself now waits on the stack for some future warmer day (or never gets resolved, staying 0).",
+      "`return ans;` — each day resolved exactly once (when its next warmer day appears), giving amortized O(1) per element overall.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each index pushed and popped at most once.",
     spaceComplexity: "O(n)",
@@ -1665,6 +2005,14 @@ public:
         return curr;
     }
 };`,
+    lineByLine: [
+      "`stack<pair<string,int>> st; string curr; int k = 0;` — curr accumulates the string being built at the CURRENT nesting level; the stack remembers, for each level we've entered, what curr and the repeat count looked like just before entering it, so we can resume building the outer context after closing a bracket.",
+      "`if (isdigit(c)) k = k * 10 + (c - '0');` — accumulate multi-digit repeat counts one digit at a time (e.g. '1' then '0' builds k=10).",
+      "`else if (c == '[') { st.push({curr, k}); curr = \"\"; k = 0; }` — entering a new nested level: save the string-so-far and the count that applies to whatever comes inside these brackets, then start building the inner string fresh.",
+      "`else if (c == ']') { auto [prev, cnt] = st.top(); st.pop(); string rep; for (int i = 0; i < cnt; i++) rep += curr; curr = prev + rep; }` — closing a bracket: repeat the just-finished inner string cnt times, then glue it onto whatever the outer string was before this bracket opened — this is what correctly handles nesting, since inner brackets are always fully resolved before the outer ones that contain them.",
+      "`else curr += c;` — an ordinary letter is just appended to the string being built at the current level.",
+      "`return curr;` — after the whole string is processed, all brackets have been resolved and curr holds the fully decoded result.",
+    ],
     timeComplexity: "O(n × max_k)",
     timeExplanation: "Total output length can be exponential in k values.",
     spaceComplexity: "O(n)",
@@ -1700,6 +2048,14 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`function<void(string,int,int)> bt = [&](string s, int open, int close) {` — a backtracking closure that builds a candidate string s while tracking how many '(' and ')' have been placed so far; open and close counts are enough to know at every point whether adding either bracket keeps the sequence well-formed.",
+      "`if ((int)s.size() == 2 * n) { res.push_back(s); return; }` — a complete sequence has exactly 2n characters; since the two rules below only ever allow valid partial sequences, reaching this length guarantees a fully well-formed result.",
+      "`if (open < n) bt(s + \"(\", open + 1, close);` — an opening bracket can be added as long as we haven't used all n of them yet.",
+      "`if (close < open) bt(s + \")\", open, close + 1);` — a closing bracket can only be added if there's a currently-unmatched '(' to close, i.e. fewer closes than opens so far; this is exactly what prevents ever generating something like ')(' or an unbalanced prefix.",
+      "`bt(\"\", 0, 0);` — start the recursion from an empty string with no brackets placed.",
+      "`return res;` — every path through the recursion that reached length 2n obeyed both rules at every step, so res contains exactly the valid combinations, with no invalid ones ever generated (no post-filtering needed).",
+    ],
     timeComplexity: "O(4ⁿ / √n)",
     timeExplanation: "Catalan number of valid combinations.",
     spaceComplexity: "O(n)",
@@ -1737,6 +2093,15 @@ public:
         return st.size();
     }
 };`,
+    lineByLine: [
+      "`for (int i = 0; i < n; i++) cars[i] = {position[i], speed[i]};` — pair each car's position with its speed so they can be sorted together.",
+      "`sort(cars.rbegin(), cars.rend());` — sort descending by position (pair comparison sorts by position first), processing the car closest to the target first — this matters because a fleet's speed is determined by the SLOWEST (frontmost) car in it, so we need to know each fleet's leader before considering cars behind it.",
+      "`stack<double> st;` — the stack holds the arrival TIME of each currently-known distinct fleet, in order from closest-to-target (bottom, processed first) to farthest (top, most recently processed).",
+      "`double t = (double)(target - p) / s;` — time for this car to reach target if nothing blocks it, computed independently for each car.",
+      "`if (st.empty() || t > st.top())` — if this car would arrive STRICTLY later than the fleet ahead of it (the most recently pushed, which is the fleet immediately in front on the road), it can never catch up — so it forms its own new, slower fleet.",
+      "`st.push(t);` — record this car's arrival time as a new fleet's time (the implicit else, when t <= st.top(), skips pushing: this car catches up to the fleet ahead before reaching the target and merges into it, inheriting that fleet's slower arrival time, so it contributes no new fleet).",
+      "`return st.size();` — one entry on the stack per distinct fleet that never merged into a faster one ahead of it.",
+    ],
     timeComplexity: "O(n log n)",
     timeExplanation: "Sorting dominates.",
     spaceComplexity: "O(n)",
@@ -1779,6 +2144,17 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`stack<int> st;` — holds asteroids currently moving right (or already at rest), since only a right-mover on the stack can ever collide with a later left-mover.",
+      "`bool alive = true;` — tracks whether the CURRENT incoming asteroid `a` survives its collisions this iteration.",
+      "`while (alive && a < 0 && !st.empty() && st.top() > 0)` — a collision can only happen when the incoming asteroid moves left (a < 0) and there's a right-moving asteroid ahead of it on the stack (st.top() > 0) — any other combination means they're moving apart or already resolved, so no collision.",
+      "`if (st.top() < -a) st.pop();` — the asteroid on the stack is smaller than the incoming one, so it explodes; pop it and keep checking against whatever's now on top (the incoming asteroid might smash through multiple smaller ones).",
+      "`else if (st.top() == -a) { st.pop(); alive = false; }` — exactly equal sizes: both destroy each other, so pop the stack's asteroid AND mark the incoming one as not alive (it isn't pushed later).",
+      "`else alive = false;` — the stack's asteroid is bigger, so the incoming one is the one that explodes; it dies without affecting the stack.",
+      "`if (alive) st.push(a);` — only push the incoming asteroid if it survived every collision this round (either no collision happened, or it destroyed everything in its path).",
+      "`vector<int> res; while (!st.empty()) { res.push_back(st.top()); st.pop(); } reverse(res.begin(), res.end());` — the stack holds survivors in reverse order of position (most recent/rightmost on top), so popping into res and reversing restores the original left-to-right order.",
+      "`return res;` — the final surviving asteroids, left to right, after all collisions resolve.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each asteroid pushed and popped at most once.",
     spaceComplexity: "O(n)",
@@ -1826,6 +2202,17 @@ public:
         return dummy.next;
     }
 };`,
+    lineByLine: [
+      "`ListNode dummy(0); ListNode* cur = &dummy;` — a dummy head sidesteps the special case of creating the very first result node differently from the rest; cur tracks the tail of the result being built.",
+      "`int carry = 0;` — holds the overflow digit from adding the previous column, exactly like carrying a 1 in grade-school addition.",
+      "`while (l1 || l2 || carry)` — keep going as long as either list still has digits OR there's a leftover carry that needs its own new digit.",
+      "`int sum = carry;` — start this column's sum with whatever carried in from the last column.",
+      "`if (l1) { sum += l1->val; l1 = l1->next; }` / `if (l2) { ... }` — add this list's current digit if it still has one, treating an exhausted list as contributing 0, then advance it.",
+      "`carry = sum / 10;` — anything at or above 10 spills into the next column.",
+      "`cur->next = new ListNode(sum % 10);` — the ones digit of this column's sum becomes the next node in the result (digits are stored least-significant-first, matching the input format).",
+      "`cur = cur->next;` — advance the result's tail pointer so the next iteration appends after this node.",
+      "`return dummy.next;` — skip past the dummy placeholder to return the real head of the sum list.",
+    ],
     timeComplexity: "O(max(m, n))",
     timeExplanation: "Walk longer list length.",
     spaceComplexity: "O(max(m, n))",
@@ -1868,6 +2255,15 @@ public:
         return dummy.next;
     }
 };`,
+    lineByLine: [
+      "`ListNode dummy(0); ListNode* cur = &dummy;` — dummy node avoids special-casing which list contributes the very first node of the merged result.",
+      "`while (l1 && l2)` — only need to compare while both lists still have candidates; once one runs out, the rest of the other is already sorted and can just be appended wholesale.",
+      "`if (l1->val <= l2->val) { cur->next = l1; l1 = l1->next; }` — splice in the smaller-or-equal front node directly (reusing the existing node, not copying its value) and advance that list's pointer.",
+      "`else { cur->next = l2; l2 = l2->next; }` — symmetric case when list2's front is smaller.",
+      "`cur = cur->next;` — move the result tail forward to the node just attached.",
+      "`cur->next = l1 ? l1 : l2;` — once the loop ends, exactly one list is exhausted; whichever one still has nodes is already sorted, so it can be attached as-is without further comparisons.",
+      "`return dummy.next;` — return the real head, skipping the dummy placeholder.",
+    ],
     timeComplexity: "O(m + n)",
     timeExplanation: "Each node visited once.",
     spaceComplexity: "O(1)",
@@ -1909,6 +2305,13 @@ public:
         return dummy.next;
     }
 };`,
+    lineByLine: [
+      "`ListNode dummy(0, head); ListNode* fast = &dummy, *slow = &dummy;` — starting both pointers at a dummy node before head means slow can end up pointing at the dummy itself when the node to remove is the actual head, avoiding a null-check special case.",
+      "`for (int i = 0; i <= n; i++) fast = fast->next;` — push fast exactly n+1 steps ahead of slow, so once fast reaches the true end, slow sits one node before the target (the (n+1)-gap is what makes 'n from the end' work in a single pass).",
+      "`while (fast) { fast = fast->next; slow = slow->next; }` — advance both pointers in lockstep; since the gap between them stays fixed at n+1, when fast falls off the list (becomes null) slow is exactly at the node just before the one to remove.",
+      "`slow->next = slow->next->next;` — unlink the target node by pointing slow directly at the node after it.",
+      "`return dummy.next;` — return the (possibly new) head, correctly handling the case where the removed node was the original head.",
+    ],
     timeComplexity: "O(L)",
     timeExplanation: "Single pass through list.",
     spaceComplexity: "O(1)",
@@ -1955,6 +2358,13 @@ public:
         }
     }
 };`,
+    lineByLine: [
+      "`ListNode* slow = head, *fast = head;` then `while (fast->next && fast->next->next) { slow = slow->next; fast = fast->next->next; }` — standard slow/fast middle-finding: fast covers two nodes per step of slow's one, so when fast can't advance by two anymore, slow sits at the middle.",
+      "`ListNode* prev = nullptr, *cur = slow->next; slow->next = nullptr;` — cut the list into two halves right here (severing at slow) and set up the standard reverse-linked-list pointers on the second half.",
+      "`while (cur) { ListNode* nx = cur->next; cur->next = prev; prev = cur; cur = nx; }` — the same reversal loop as reverse-linked-list, flipping every link in the second half so it now runs from Ln back toward the middle.",
+      "`ListNode* l1 = head, *l2 = prev;` — l1 walks the untouched first half front-to-back, l2 walks the now-reversed second half, which effectively walks the original list back-to-front.",
+      "`while (l2) { ListNode* n1 = l1->next, *n2 = l2->next; l1->next = l2; l2->next = n1; l1 = n1; l2 = n2; }` — the interleave: save both 'next' pointers before rewiring (otherwise they'd be lost), splice l2's node right after l1, then reconnect l2 onward to what used to be l1's next, producing L0, Ln, L1, Ln-1, ... in place.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Three linear passes.",
     spaceComplexity: "O(1)",
@@ -2000,6 +2410,15 @@ public:
         return ok;
     }
 };`,
+    lineByLine: [
+      "`ListNode* prev = nullptr; while (head) { auto nx = head->next; head->next = prev; prev = head; head = nx; } return prev;` — the familiar in-place reverse helper: save next, flip the pointer backward, advance both prev and head; reused here to physically reverse the second half so it can be compared against the first.",
+      "`ListNode* slow = head, *fast = head; while (fast && fast->next) { slow = slow->next; fast = fast->next->next; }` — slow/fast finds the midpoint of the list in one pass, positioning slow at (or just before) the second half's start.",
+      "`ListNode* right = reverse(slow);` — reverse everything from the middle onward, so 'right' now walks the back half of the list in front-to-back order that mirrors the front half's tail-to-middle order.",
+      "`ListNode* left = head, *tmp = right; bool ok = true;` — left walks the untouched first half, tmp walks the reversed second half; comparing them pairwise checks the palindrome property without ever indexing from the end.",
+      "`while (tmp) { if (left->val != tmp->val) { ok = false; break; } left = left->next; tmp = tmp->next; }` — stepping tmp only as far as the (shorter or equal) second half naturally stops comparing at the right point for both even and odd length lists.",
+      "`reverse(right);` — restore the list to its original order before returning, since the problem only asks a yes/no question but shouldn't leave the input list mutated for the caller.",
+      "`return ok;` — true only if every paired comparison matched.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Three linear passes.",
     spaceComplexity: "O(1)",
@@ -2052,6 +2471,18 @@ public:
         return dummy.next;
     }
 };`,
+    lineByLine: [
+      "`while (cur && k-- > 0) cur = cur->next; return cur;` — walk k nodes forward from cur; if the list runs out before k steps complete, cur becomes null, which the caller uses as the signal that fewer than k nodes remain (leave that group untouched).",
+      "`ListNode dummy(0, head); ListNode* groupPrev = &dummy;` — groupPrev tracks the node right before the current group being processed, starting with the dummy so the very first group can be relinked the same way as any other.",
+      "`ListNode* kth = getKth(groupPrev, k); if (!kth) break;` — check whether a full group of k nodes exists starting after groupPrev; if not, stop and leave the remaining short group in original order.",
+      "`ListNode* groupNext = kth->next;` — remember the node right after this group so the reversal loop knows where to stop, and so the group can be reattached to whatever comes next.",
+      "`ListNode* prev = groupNext, *cur = groupPrev->next;` — seed the reversal exactly like the standard reverse-linked-list, except prev starts at groupNext (not nullptr) so the reversed group's new tail links forward into the rest of the list instead of to null.",
+      "`while (cur != groupNext) { auto nx = cur->next; cur->next = prev; prev = cur; cur = nx; }` — reverse just this group's k nodes in place, stopping exactly at the group boundary.",
+      "`ListNode* tmp = groupPrev->next;` — before overwriting groupPrev->next, save the group's original head, which is now the group's tail after reversal and becomes the next group's groupPrev.",
+      "`groupPrev->next = kth;` — kth was the old last node of the group and is now its new head after reversal; link the previous group's tail to it.",
+      "`groupPrev = tmp;` — advance groupPrev to the just-reversed group's new tail, ready to process the next group.",
+      "`return dummy.next;` — return the true head, accounting for the first group possibly having been reversed.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each node reversed once.",
     spaceComplexity: "O(1)",
@@ -2100,6 +2531,16 @@ public:
         return dummy.next;
     }
 };`,
+    lineByLine: [
+      "`for (Node* cur = head; cur; cur = cur->next->next)` — walk only the original nodes, skipping over each newly-inserted clone (which is why the step is next->next, not next).",
+      "`Node* clone = new Node(cur->val); clone->next = cur->next; cur->next = clone;` — insert a clone directly after its original: A -> A' -> B -> B' -> ...; this interleaving is what lets pass 2 find any node's clone in O(1) without a hash map, since 'clone of X' is always just X->next.",
+      "`for (Node* cur = head; cur; cur = cur->next->next) if (cur->random) cur->next->random = cur->random->next;` — for each original node, if it has a random pointer to some node X, the clone's random pointer should point to X's clone — and because of the interleaving, X's clone is exactly X->next.",
+      "`Node dummy(0); Node* res = &dummy, *cur = head;` — prepare to peel the clones back out into their own separate list.",
+      "`res->next = cur->next;` — attach the clone (which sits right after cur) to the result list being built.",
+      "`cur->next = cur->next->next;` — restore the original list's next pointer to skip over the clone, unweaving it and repairing the original list at the same time.",
+      "`res = res->next; cur = cur->next;` — advance both the result-list tail and the original-list walker to their respective next nodes.",
+      "`return dummy.next;` — return the head of the fully separated, deep-copied list.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Three passes, each O(n).",
     spaceComplexity: "O(1)",
@@ -2139,6 +2580,13 @@ public:
         return second;
     }
 };`,
+    lineByLine: [
+      "`if (!head || !head->next) return head;` — base case: zero or one remaining node has no partner to swap with, so return it unchanged.",
+      "`ListNode* second = head->next;` — grab the node that will become the front of this swapped pair.",
+      "`head->next = swapPairs(second->next);` — recursively swap the rest of the list (everything after this pair) first, then attach that result as head's next; head is about to become the second element of this pair, so its next should point to whatever follows the pair.",
+      "`second->next = head;` — complete the swap: second (now first) points to head (now second), physically exchanging the two nodes' positions rather than just their values.",
+      "`return second;` — second is the new head of this pair (and, at the top call, the new head of the whole list), which the caller one level up uses to link into its own head->next.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each node visited once.",
     spaceComplexity: "O(n)",
@@ -2188,6 +2636,19 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`if (!root) return {};` — an empty tree has no levels at all, so hand back an empty result immediately.",
+      "`queue<TreeNode*> q; q.push(root);` — BFS needs a FIFO queue (not a stack) so nodes come out in the same left-to-right, top-to-bottom order they're discovered; seed it with the root as level 0.",
+      "`while (!q.empty())` — keep processing as long as there are unprocessed levels left.",
+      "`int sz = q.size();` — snapshot how many nodes are currently queued BEFORE adding any children: that count is exactly the size of the current level, since children haven't been pushed yet.",
+      "`vector<int> level;` — collects this level's values before appending them to the result as one group.",
+      "`for (int i = 0; i < sz; i++)` — process exactly the nodes that were in the queue at the snapshot — not the children being pushed during this same loop — so we don't bleed into the next level.",
+      "`auto node = q.front(); q.pop();` — dequeue the next node in left-to-right order for this level.",
+      "`level.push_back(node->val);` — record its value as part of the current level's output.",
+      "`if (node->left) q.push(node->left); if (node->right) q.push(node->right);` — enqueue this node's children; they'll only be counted once sz is recomputed on the next while-iteration, so they belong strictly to the next level.",
+      "`res.push_back(level);` — the current level is complete once its sz nodes are all dequeued, so append it as one group in the final result.",
+      "`return res;` — a list of levels, each itself a list of values in left-to-right order.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each node visited once.",
     spaceComplexity: "O(n)",
@@ -2233,6 +2694,16 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`if (!root) return {};` — no tree means nothing is visible from any side.",
+      "`queue<TreeNode*> q; q.push(root);` — standard level-order BFS setup, root is the first (and only) node at depth 0.",
+      "`int sz = q.size();` — snapshot the current level's width before any children get pushed, so the loop below processes exactly one level.",
+      "`for (int i = 0; i < sz; i++)` — walk this level left to right, i counting position within the level.",
+      "`auto node = q.front(); q.pop();` — dequeue nodes in left-to-right order.",
+      "`if (i == sz - 1) res.push_back(node->val);` — since nodes are dequeued left to right, the node at position sz-1 (the last one processed this level) is the rightmost node at this depth — exactly what's visible standing on the right side.",
+      "`if (node->left) q.push(node->left); if (node->right) q.push(node->right);` — enqueue children left-then-right so the next level is also processed in left-to-right order, keeping the 'last = rightmost' invariant true at every depth.",
+      "`return res;` — one value per level, top to bottom, each being the rightmost node visible from that depth.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "BFS visits every node once.",
     spaceComplexity: "O(n)",
@@ -2266,6 +2737,10 @@ public:
         return 1 + max(maxDepth(root->left), maxDepth(root->right));
     }
 };`,
+    lineByLine: [
+      "`if (!root) return 0;` — base case: an empty subtree contributes 0 to the depth count, since there's no node there to count.",
+      "`return 1 + max(maxDepth(root->left), maxDepth(root->right));` — maxDepth(node) MEANS 'the number of nodes on the longest root-to-leaf path starting at this node'; whichever child subtree is deeper determines the longest path through this node, and the +1 counts this node itself.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Visit every node.",
     spaceComplexity: "O(h)",
@@ -2304,6 +2779,12 @@ public:
         return 1 + min(minDepth(root->left), minDepth(root->right));
     }
 };`,
+    lineByLine: [
+      "`if (!root) return 0;` — base case: an empty subtree has depth 0.",
+      "`if (!root->left) return 1 + minDepth(root->right);` — minDepth(node) MEANS 'shortest path from this node to a leaf'; if there's no left child, this node is NOT a leaf (unless right is also null, handled by minDepth(null)==0 making this 1), so the only valid path to a real leaf goes through the right side — never take the missing left branch as a shortcut.",
+      "`if (!root->right) return 1 + minDepth(root->left);` — symmetric case: no right child means the shortest leaf path must go left, for the same reason.",
+      "`return 1 + min(minDepth(root->left), minDepth(root->right));` — both children exist, so it's safe to take whichever side reaches a leaf sooner, same logic as maxDepth but with min instead of max.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Visit every node in worst case.",
     spaceComplexity: "O(h)",
@@ -2345,6 +2826,14 @@ public:
         return ans;
     }
 };`,
+    lineByLine: [
+      "`int ans = 0;` — a member variable holding the best diameter found so far; a member is used (instead of returning it) because height() already needs its return value to report height up the call stack — we need a SECOND channel to also record a global max as a side effect.",
+      "`if (!node) return 0;` — an empty subtree has height 0.",
+      "`int l = height(node->left), r = height(node->right);` — height(node) MEANS 'the number of edges from this node down to its farthest leaf'; compute both children's heights first since the diameter through this node depends on both.",
+      "`ans = max(ans, l + r);` — the longest path that bends AT this node goes down the left side (l edges) then down the right side (r edges), for l + r edges total; update the global best if this node's 'V' beats what's been seen so far. This is why the answer doesn't have to pass through the root.",
+      "`return 1 + max(l, r);` — but the value handed to this node's PARENT must be a single straight height (not a bend), so only the deeper child's height plus 1 for this node is returned — bends are recorded in ans, not propagated.",
+      "`height(root); return ans;` — running height() on the whole tree as a side effect visits every node and updates ans at each one; by the time it returns, ans holds the true global maximum.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each node visited once.",
     spaceComplexity: "O(h)",
@@ -2385,6 +2874,13 @@ public:
 public:
     bool isBalanced(TreeNode* root) { return check(root) != -1; }
 };`,
+    lineByLine: [
+      "`if (!node) return 0;` — an empty subtree has height 0 and is trivially balanced.",
+      "`int l = check(node->left), r = check(node->right);` — check(node) MEANS 'the height of this subtree if balanced, or -1 if this subtree (or anything inside it) is already unbalanced' — a single return value overloaded to carry both pieces of information.",
+      "`if (l == -1 || r == -1 || abs(l - r) > 1) return -1;` — propagate failure up as soon as it's detected: either a child already failed (l or r is -1), or this node itself violates the height-difference-at-most-1 rule — either way this whole subtree is now unbalanced, so short-circuit with -1 instead of computing a meaningless height.",
+      "`return 1 + max(l, r);` — only reached when both children are balanced and within 1 of each other, so it's safe to report a real height (1 + the taller child) up to the parent.",
+      "`return check(root) != -1;` — the caller doesn't care about height at all, only whether the sentinel ever fired anywhere in the tree.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each node visited once (bottom-up short-circuit).",
     spaceComplexity: "O(h)",
@@ -2420,6 +2916,11 @@ public:
         return isSameTree(p->left, q->left) && isSameTree(p->right, q->right);
     }
 };`,
+    lineByLine: [
+      "`if (!p && !q) return true;` — both sides ran out of tree at the same point, meaning the structures match here (this is the successful base case, not a failure).",
+      "`if (!p || !q || p->val != q->val) return false;` — mismatch: one side has a node and the other doesn't (structural difference), or both have nodes but with different values — either way, not identical, short-circuit immediately.",
+      "`return isSameTree(p->left, q->left) && isSameTree(p->right, q->right);` — only reached when both current nodes exist and match in value; the trees are identical overall only if BOTH the left subtrees match each other AND the right subtrees match each other.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Visit all nodes in worst case.",
     spaceComplexity: "O(h)",
@@ -2458,6 +2959,12 @@ public:
         return mirror(root->left, root->right);
     }
 };`,
+    lineByLine: [
+      "`if (!l && !r) return true;` — both pointers ran off the tree at mirrored positions simultaneously, meaning the shapes matched all the way down this branch.",
+      "`if (!l || !r || l->val != r->val) return false;` — one side has a node where the other doesn't (asymmetric shape), or both exist but hold different values — not a mirror.",
+      "`return mirror(l->left, r->right) && mirror(l->right, r->left);` — the crossed comparison IS the mirror check: for the tree to be symmetric, the left node's left child must mirror the right node's RIGHT child (both are the 'outer' edges), and the left node's right child must mirror the right node's LEFT child (both are the 'inner' edges).",
+      "`return mirror(root->left, root->right);` — kicks off the comparison between the two halves of the tree that must be reflections of each other; the root itself has nothing to compare against, so it isn't part of the check.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each node visited once.",
     spaceComplexity: "O(h)",
@@ -2498,6 +3005,12 @@ public:
         return isSubtree(root->left, subRoot) || isSubtree(root->right, subRoot);
     }
 };`,
+    lineByLine: [
+      "`bool same(TreeNode* a, TreeNode* b)` — identical helper logic to same-tree: both null → match, one null or differing values → no match, otherwise recurse on both children.",
+      "`if (!root) return false;` — ran out of tree without finding a match anywhere along this path, so subRoot isn't rooted here or below.",
+      "`if (same(root, subRoot)) return true;` — check whether subRoot matches EXACTLY starting at this node (full structural + value equality, not just 'contains the values') — this is what catches the extra-node case correctly rejecting a false match.",
+      "`return isSubtree(root->left, subRoot) || isSubtree(root->right, subRoot);` — if this node isn't the match, subRoot might still be rooted somewhere deeper — try both subtrees, and succeed if either one finds it.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "For each of m nodes in s, potentially O(n) same-tree check.",
     spaceComplexity: "O(max(h_s, h_t))",
@@ -2533,6 +3046,14 @@ public:
         return nums[l];
     }
 };`,
+    lineByLine: [
+      "`int l = 0, r = (int)nums.size() - 1;` — search window over the whole array; the minimum is somewhere in here, and each step will discard the half guaranteed NOT to contain it.",
+      "`while (l < r)` — narrow until the window collapses to a single index, which must be the minimum.",
+      "`int mid = l + (r - l) / 2;` — overflow-safe midpoint of the current window.",
+      "`if (nums[mid] > nums[r]) l = mid + 1;` — if the middle element is bigger than the rightmost element, the 'rotation point' (where values drop) must lie somewhere between mid and r, meaning the minimum is strictly to the right of mid — safe to discard everything up to and including mid.",
+      "`else r = mid;` — otherwise nums[mid] <= nums[r] means the right portion from mid to r is itself in sorted (non-decreasing) order with no drop, so the minimum is either mid itself or further left — keep mid in the window (don't do mid-1) since it could BE the answer.",
+      "`return nums[l];` — once l==r, that single remaining index is the array's minimum.",
+    ],
     timeComplexity: "O(log n)",
     timeExplanation: "Halve search space each step.",
     spaceComplexity: "O(1)",
@@ -2573,6 +3094,16 @@ public:
         return -1;
     }
 };`,
+    lineByLine: [
+      "`int l = 0, r = (int)nums.size() - 1;` — standard binary search bounds over the full (rotated) array.",
+      "`while (l <= r)` — continue while a valid window remains.",
+      "`if (nums[mid] == target) return mid;` — direct hit.",
+      "`if (nums[l] <= nums[mid])` — a rotated sorted array always has at least one half that is genuinely sorted; this checks whether that's the LEFT half (from l to mid) — if the leftmost element isn't bigger than the middle, nothing 'wrapped around' in that range.",
+      "`if (nums[l] <= target && target < nums[mid]) r = mid - 1;` — since the left half is sorted, we can directly tell whether target would fall inside its range; if so, search only there.",
+      "`else l = mid + 1;` — otherwise target isn't in the sorted left half, so (whether or not the right half is sorted) it must be somewhere in the right half.",
+      "`else { if (nums[mid] < target && target <= nums[r]) l = mid + 1; else r = mid - 1; }` — symmetric case: the right half (mid to r) must be the sorted one instead; check whether target falls in ITS range and search there, otherwise fall back to the left half.",
+      "`return -1;` — the window shrank to nothing without a match, so target isn't present.",
+    ],
     timeComplexity: "O(log n)",
     timeExplanation: "Binary search.",
     spaceComplexity: "O(1)",
@@ -2609,6 +3140,15 @@ public:
         return false;
     }
 };`,
+    lineByLine: [
+      "`int m = matrix.size(), n = matrix[0].size();` — dimensions needed to translate a flat index back into row/column coordinates.",
+      "`int lo = 0, hi = m * n - 1;` — treat the entire matrix as one conceptual sorted array of m*n elements, since each row is sorted and every row starts after the previous row's last element ends.",
+      "`int mid = lo + (hi - lo) / 2; int val = matrix[mid / n][mid % n];` — mid is a position in the imagined flattened array; dividing by n (row width) gives the row, and the remainder gives the column — exactly how a 1D index maps onto a 2D grid stored row-major.",
+      "`if (val == target) return true;` — direct hit.",
+      "`else if (val < target) lo = mid + 1;` — since the whole matrix behaves as one sorted sequence, a too-small value means target is further along (later rows/columns).",
+      "`else hi = mid - 1;` — a too-large value means target is earlier in the sequence.",
+      "`return false;` — window exhausted without a match, so target isn't anywhere in the matrix.",
+    ],
     timeComplexity: "O(log(m×n))",
     timeExplanation: "Flatten and binary search.",
     spaceComplexity: "O(1)",
@@ -2645,6 +3185,15 @@ public:
         return lo;
     }
 };`,
+    lineByLine: [
+      "`int lo = 1, hi = *max_element(piles.begin(), piles.end());` — binary search over the ANSWER (eating speed) rather than over array indices; speed 1 is the slowest possible, and eating the largest pile in one hour is the fastest speed that could ever be necessary.",
+      "`while (lo < hi)` — narrow the range of candidate speeds until only one remains.",
+      "`int mid = lo + (hi - lo) / 2;` — a candidate eating speed to test for feasibility.",
+      "`long long hours = 0; for (int p : piles) hours += (p + mid - 1) / mid;` — for each pile, ceil(p / mid) gives the hours needed to finish that pile at speed mid (computed via integer arithmetic as (p+mid-1)/mid to avoid floating point); summing across piles gives the total hours needed at this speed.",
+      "`if (hours <= h) hi = mid;` — this speed is fast enough to finish within h hours, so it's a valid candidate; since faster speeds only need equal-or-fewer hours (feasibility is monotonic in speed), try to find an even slower speed that still works by keeping mid in the search window.",
+      "`else lo = mid + 1;` — this speed is too slow (takes more than h hours), so search only among faster speeds.",
+      "`return lo;` — the smallest eating speed for which the total hours stays within the limit, exploiting that 'is this speed fast enough' is a monotonic yes/no predicate — the hallmark of binary-search-on-the-answer.",
+    ],
     timeComplexity: "O(n log m)",
     timeExplanation: "Binary search on [1, max_pile], check O(n) each.",
     spaceComplexity: "O(1)",
@@ -2679,6 +3228,14 @@ public:
         return lo;
     }
 };`,
+    lineByLine: [
+      "`int lo = 1, hi = n;` — the answer (first bad version) is somewhere in [1, n]; the window will shrink until it pins down exactly that boundary.",
+      "`while (lo < hi)` — keep narrowing until the window is a single version.",
+      "`int mid = lo + (hi - lo) / 2;` — candidate version to test.",
+      "`if (isBadVersion(mid)) hi = mid;` — if mid is bad, the FIRST bad version is at mid or somewhere before it (since once bad, everything after stays bad) — keep mid in the window since it could itself be the first bad one.",
+      "`else lo = mid + 1;` — if mid is good, the first bad version must be strictly after mid, so discard mid and everything before it.",
+      "`return lo;` — this is the classic 'left boundary' binary search template: the window collapses exactly onto the first version where the predicate (isBadVersion) flips from false to true.",
+    ],
     timeComplexity: "O(log n)",
     timeExplanation: "Halve each step.",
     spaceComplexity: "O(1)",
@@ -2713,6 +3270,13 @@ public:
         return lo;
     }
 };`,
+    lineByLine: [
+      "`int lo = 0, hi = nums.size();` — hi is set to n (one past the last valid index), not n-1, because target might need to be inserted after every existing element.",
+      "`while (lo < hi)` — this is the standard lower_bound template, narrowing to the first position where the predicate becomes true.",
+      "`if (nums[mid] < target) lo = mid + 1;` — mid's value is too small to be the insertion point, so the target belongs somewhere after mid.",
+      "`else hi = mid;` — nums[mid] >= target means mid is a candidate insertion point (or exactly where target is), so keep it in the window.",
+      "`return lo;` — the window collapses to the first index where nums[i] >= target — if target exists in the array, this is exactly its index; if not, it's precisely where target should be inserted to keep the array sorted.",
+    ],
     timeComplexity: "O(log n)",
     timeExplanation: "Binary search.",
     spaceComplexity: "O(1)",
@@ -2752,6 +3316,16 @@ public:
         return ans == -1 ? "" : v[ans].second;
     }
 };`,
+    lineByLine: [
+      "`unordered_map<string, vector<pair<int,string>>> data;` — each key maps to its history of (timestamp, value) pairs; since the problem guarantees timestamps for a given key arrive in strictly increasing order via set(), this vector is always naturally sorted by timestamp with no extra work.",
+      "`void set(string key, string value, int timestamp) { data[key].push_back({timestamp, value}); }` — appending is O(1) and preserves the sorted invariant precisely because set() is only ever called with increasing timestamps for a given key.",
+      "`if (!data.count(key)) return \"\";` — no history exists for this key at all, so there's nothing to return.",
+      "`int lo = 0, hi = (int)v.size() - 1, ans = -1;` — binary search over the sorted timestamp list; ans tracks the best (largest) timestamp found so far that's still <= the query.",
+      "`while (lo <= hi)` — standard binary search bounds.",
+      "`if (v[mid].first <= timestamp) { ans = mid; lo = mid + 1; }` — this entry qualifies (its timestamp doesn't exceed the query); record it as a candidate answer, then keep searching to the RIGHT for an even larger timestamp that might still qualify (since we want the LARGEST valid one, not just any).",
+      "`else hi = mid - 1;` — this entry's timestamp is too large (in the future relative to the query), so discard it and everything after it, searching only to the left.",
+      "`return ans == -1 ? \"\" : v[ans].second;` — if no entry ever qualified (query timestamp is before every recorded set), return empty string; otherwise return the value at the latest qualifying timestamp.",
+    ],
     timeComplexity: "O(log n) get, O(1) set",
     timeExplanation: "Set appends. Get binary searches sorted timestamp list.",
     spaceComplexity: "O(n)",
@@ -2799,6 +3373,16 @@ public:
         return true;
     }
 };`,
+    lineByLine: [
+      "`bool hasCycle(int u, vector<vector<int>>& adj, vector<int>& state)` — state[u] MEANS 0=never visited, 1=currently being explored (on the active DFS call stack / current path), 2=fully finished (already proven cycle-free).",
+      "`if (state[u] == 1) return true;` — if we reach a node that's still on the current path (state 1), we've looped back onto ourselves — that back-edge IS the cycle, so report true.",
+      "`if (state[u] == 2) return false;` — this node was already fully explored in a previous DFS and found to be safe; no need to re-explore it (this is what keeps the algorithm O(V+E) instead of exponential).",
+      "`state[u] = 1;` — mark this node as 'currently in progress' before recursing into its neighbors, so if any neighbor path loops back here, it's detected as a cycle.",
+      "`for (int v : adj[u]) if (hasCycle(v, adj, state)) return true;` — course u depends on course v being done first (edge u→v after building adj[e[1]].push_back(e[0]) — wait, actually adj[prereq].push_back(course) means edges point FROM prerequisite TO the course that needs it); if exploring any neighbor finds a cycle, propagate that failure immediately.",
+      "`state[u] = 2; return false;` — every neighbor was explored without finding a cycle, so this node and everything reachable from it is safe; mark done and report no cycle from here.",
+      "`for (auto& e : prereqs) adj[e[1]].push_back(e[0]);` — e = [a, b] means b must come before a, so the edge is drawn b → a (finishing b lets you take a); this makes adj[u] the list of courses that become available once u is done.",
+      "`for (int i = 0; i < n; i++) if (hasCycle(i, adj, state)) return false;` — the graph may be disconnected, so every node must be tried as a DFS starting point (already-visited ones short-circuit instantly via state==2); any cycle anywhere makes finishing all courses impossible.",
+    ],
     timeComplexity: "O(V + E)",
     timeExplanation: "DFS each node and edge once.",
     spaceComplexity: "O(V + E)",
@@ -2847,6 +3431,16 @@ public:
         return order;
     }
 };`,
+    lineByLine: [
+      "`bool dfs(int u, ...)` — same 3-state machine as course-schedule (0=unvisited, 1=in-progress, 2=done), but this version returns true/false for 'is this node cycle-free' instead of 'does this node have a cycle' (inverted sense), and additionally builds up `order`.",
+      "`if (state[u] == 1) return false;` — looping back to a node still in progress means a cycle exists, so this path is invalid (false = 'not okay').",
+      "`if (state[u] == 2) return true;` — already fully processed and known safe, skip re-exploring.",
+      "`state[u] = 1; for (int v : adj[u]) if (!dfs(v, adj, state, order)) return false;` — mark in-progress, then require EVERY neighbor to resolve without a cycle; if any neighbor reports a cycle, this whole path fails immediately.",
+      "`state[u] = 2; order.push_back(u);` — the key difference from course-schedule: only AFTER all of u's dependencies (neighbors) have been fully processed do we push u itself onto order — this is post-order, meaning a node is recorded only once everything it enables has already been recorded, i.e. u ends up appearing before all the courses it unlocks... but in reverse.",
+      "`for (int i = 0; i < n; i++) if (!state[i] && !dfs(i, adj, state, order)) return {};` — try every node as a start (handles disconnected components); any detected cycle means no valid order exists at all, so return empty immediately.",
+      "`reverse(order.begin(), order.end());` — because nodes were recorded in post-order (a node only after its dependents), the raw order lists 'things that must come last' first — reversing it turns 'last-finished-first' into the actual valid teaching order, prerequisites before the courses they unlock.",
+      "`return order;` — the fully reversed post-order is a valid topological sort (one of possibly many).",
+    ],
     timeComplexity: "O(V + E)",
     timeExplanation: "DFS on all nodes and edges.",
     spaceComplexity: "O(V + E)",
@@ -2890,6 +3484,14 @@ public:
 public:
     Node* cloneGraph(Node* node) { return dfs(node); }
 };`,
+    lineByLine: [
+      "`unordered_map<Node*, Node*> visited;` — maps each ORIGINAL node pointer to its already-created CLONE pointer; this is what lets us detect 'we've already started cloning this node' and reuse that clone instead of infinitely recursing on a cycle.",
+      "`if (!node) return nullptr;` — nothing to clone for a null neighbor slot.",
+      "`if (visited.count(node)) return visited[node];` — critical cycle-breaker: if this original node's clone already exists (even if we're still in the middle of building its neighbor list), return that same clone pointer instead of creating a duplicate or recursing again.",
+      "`Node* clone = new Node(node->val); visited[node] = clone;` — create the clone and register it in the map BEFORE recursing into neighbors — this ordering is what makes cycles safe: if a neighbor's DFS eventually loops back to this node, the visited-check above will find it already registered.",
+      "`for (Node* nb : node->neighbors) clone->neighbors.push_back(dfs(nb));` — recursively clone each neighbor (or fetch its existing clone if already made) and wire it into this clone's neighbor list, rebuilding the graph's structure with all-new node objects.",
+      "`return clone;` — hand back this node's clone so whichever caller (parent DFS call, or the top-level call) can link it in.",
+    ],
     timeComplexity: "O(V + E)",
     timeExplanation: "Visit each node and edge once.",
     spaceComplexity: "O(V)",
@@ -2943,6 +3545,15 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`void bfs(vector<vector<int>>& h, queue<pair<int,int>> q, vector<vector<bool>>& vis)` — takes the queue BY VALUE (a copy) since it's already pre-seeded with all the border cells for one ocean before being passed in; vis is the reachability matrix for that specific ocean, passed by reference so it accumulates results.",
+      "`if (nx<0||ny<0||nx>=m||ny>=n||vis[nx][ny]||h[nx][ny]<h[x][y]) continue;` — skip out-of-bounds, already-visited cells, AND any neighbor that's LOWER than the current cell — this is the reversed flow condition: water flows downhill from a cell to a neighbor of equal-or-lower height, so walking backward from the ocean inward requires the neighbor to be equal-or-HIGHER, which is what water could have flowed down FROM.",
+      "`vis[nx][ny]=true; q.push({nx,ny});` — mark reachable-from-this-ocean and continue expanding from there.",
+      "`for (int i=0;i<m;i++){pac[i][0]=atl[i][n-1]=true;pq.push({i,0});aq.push({i,n-1});}` — seed the Pacific search from the entire left column (pac touches top+left) and the Atlantic search from the entire right column (atl touches bottom+right) — multiple simultaneous starting points, all marked reachable immediately.",
+      "`for (int j=0;j<n;j++){pac[0][j]=atl[m-1][j]=true;pq.push({0,j});aq.push({m-1,j});}` — likewise seed the top row for Pacific and the bottom row for Atlantic, completing each ocean's full border.",
+      "`bfs(h,pq,pac); bfs(h,aq,atl);` — run each ocean's reachability search independently; pac[i][j] ends up true iff water starting at (i,j) could reach the Pacific, and atl[i][j] likewise for the Atlantic.",
+      "`if (pac[i][j]&&atl[i][j]) res.push_back({i,j});` — a cell qualifies only if BOTH searches marked it reachable — meaning water from that cell can actually flow all the way to both oceans.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "Each cell visited at most twice.",
     spaceComplexity: "O(m × n)",
@@ -2994,6 +3605,14 @@ public:
         return fresh==0?mins:-1;
     }
 };`,
+    lineByLine: [
+      "`if (grid[i][j]==2) q.push({i,j}); else if (grid[i][j]==1) fresh++;` — seed the BFS queue with EVERY rotten orange at once (multi-source), since they all spread simultaneously each minute; separately count fresh oranges so we can later check whether any got left behind.",
+      "`while (!q.empty()&&fresh>0) { mins++; ... }` — each iteration of this outer loop processes one entire 'wave' of rot spreading — incrementing mins once per wave is exactly incrementing time by one minute; stopping early once fresh hits 0 avoids wasting a minute count after everything's already rotten.",
+      "`for (int sz=q.size();sz>0;sz--) { auto [x,y]=q.front();q.pop(); ... }` — snapshot the queue size to process exactly the oranges that were rotten at the START of this minute — this is the same level-by-level BFS trick as level-order-traversal, but here 'level' literally means 'minute'.",
+      "`if (nx<0||ny<0||nx>=m||ny>=n||grid[nx][ny]!=1) continue;` — only spread to neighbors that are actually fresh (1); walls (0) block nothing here since they're just not fresh, and already-rotten (2) cells don't need re-rotting.",
+      "`grid[nx][ny]=2; fresh--; q.push({nx,ny});` — rot this neighbor now, decrement the fresh counter (marking it handled, doubling as the visited marker so it's never processed twice), and enqueue it so IT spreads rot next minute.",
+      "`return fresh==0?mins:-1;` — if every fresh orange eventually got rotted, mins holds the total minutes elapsed; if some fresh oranges remain (BFS ran out of reachable cells before fresh hit 0), they're permanently isolated, so return -1.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "Each cell visited once.",
     spaceComplexity: "O(m × n)",
@@ -3039,6 +3658,12 @@ public:
         }
     }
 };`,
+    lineByLine: [
+      "`for (int i=0;i<m;i++) for (int j=0;j<n;j++) if (rooms[i][j]==0) q.push({i,j});` — seed the BFS with every gate simultaneously (multi-source), since distance must be measured to the NEAREST gate, and starting all of them at once naturally makes the first BFS wave to reach any room be the shortest path from whichever gate is closest.",
+      "`while (!q.empty()) { auto [x,y]=q.front();q.pop(); ... }` — plain BFS expansion, no need for level-snapshotting here since we're not counting levels directly — the distance is stored per-cell instead.",
+      "`if (nx<0||ny<0||nx>=m||ny>=n||rooms[nx][ny]!=INT_MAX) continue;` — skip out-of-bounds neighbors, walls (-1, which is never INT_MAX so naturally skipped), and rooms that already have a computed distance (also not INT_MAX anymore) — this reuses the grid's own values as the visited-set, avoiding a separate visited array.",
+      "`rooms[nx][ny]=rooms[x][y]+1; q.push({nx,ny});` — the first time a room is reached is guaranteed to be via the shortest path (BFS property: distances are discovered in non-decreasing order), so writing distance = current cell's distance + 1 the moment it's first visited locks in the correct shortest distance permanently.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "Each cell visited once.",
     spaceComplexity: "O(m × n)",
@@ -3075,6 +3700,14 @@ public:
         bt(0,target); return res;
     }
 };`,
+    lineByLine: [
+      "`function<void(int,int)> bt=[&](int i,int rem){` — backtracking helper closing over res/cur by reference; i is the earliest candidate index still eligible, rem is how much sum is still needed.",
+      "`if (rem==0){res.push_back(cur);return;}` — hit the target exactly: cur is a valid combination, save a copy of it.",
+      "`if (rem<0||i>=(int)candidates.size()) return;` — dead end: overshot the target, or ran out of candidates to try — abandon this branch.",
+      "`cur.push_back(candidates[i]); bt(i,rem-candidates[i]); cur.pop_back();` — the 'reuse' branch: include candidates[i] again and recurse at the SAME index i (since repeats are allowed), then undo the push so the next branch starts from a clean cur.",
+      "`bt(i+1,rem);` — the 'move on' branch: try building a combination without any more copies of candidates[i], advancing to index i+1 — this is what guarantees each combination of values is only produced once (in non-decreasing index order) rather than as separate permutations.",
+      "`bt(0,target); return res;` — kick off the search with the full target and every candidate available, then return everything collected.",
+    ],
     timeComplexity: "O(n^(t/m))",
     timeExplanation: "t=target, m=min candidate.",
     spaceComplexity: "O(t/m)",
@@ -3112,6 +3745,15 @@ public:
         bt(0,target); return res;
     }
 };`,
+    lineByLine: [
+      "`sort(c.begin(),c.end());` — sorting groups duplicate values next to each other, which is what makes the same-level duplicate skip below possible, and lets the loop break early once c[j] exceeds rem.",
+      "`function<void(int,int)> bt=[&](int start,int rem){` — start is the earliest index this call may pick from (each element usable at most once, so recursion always moves forward), rem is the remaining sum needed.",
+      "`if (rem==0){res.push_back(cur);return;}` — exact match found, record this combination.",
+      "`for (int j=start;j<(int)c.size()&&c[j]<=rem;j++){` — try each candidate from start onward, stopping as soon as c[j] exceeds rem — since the array is sorted, every later candidate would only overshoot further too.",
+      "`if (j>start&&c[j]==c[j-1]) continue;` — this is the duplicate-combination guard: only skip a repeated value when it's not the FIRST choice at this recursion level (j>start) — that restriction allows a duplicate value to still be picked as the first element of a nested combination, it just can't be picked twice as alternative first choices at the same level, which is exactly what would produce identical combinations.",
+      "`cur.push_back(c[j]); bt(j+1,rem-c[j]); cur.pop_back();` — include c[j], recurse starting at j+1 (never revisit this exact element since each may be used once), then undo before trying the next j.",
+      "`bt(0,target); return res;` — start the search using the whole sorted array and the full target.",
+    ],
     timeComplexity: "O(2^n)",
     timeExplanation: "Each element included or excluded.",
     spaceComplexity: "O(n)",
@@ -3147,6 +3789,14 @@ public:
         bt(); return res;
     }
 };`,
+    lineByLine: [
+      "`vector<bool> used(n,false);` — tracks which indices are already placed in the current permutation, since (unlike combinations) an element can't be reused but ANY unused index — not just later ones — can come next.",
+      "`if ((int)cur.size()==n){res.push_back(cur);return;}` — once the partial permutation holds all n elements, it's a complete ordering — save it.",
+      "`for (int i=0;i<n;i++){ if (used[i]) continue;` — scan every index from the start each call (not from some 'start' pointer), because permutations care about position, not just which subset is chosen — this is the key structural difference from subsets/combinations.",
+      "`used[i]=true; cur.push_back(nums[i]); bt();` — mark nums[i] as placed, append it to the current ordering, and recurse to fill the remaining positions.",
+      "`cur.pop_back(); used[i]=false;` — backtrack: remove nums[i] from this ordering and mark it available again so the next iteration's choice of i can place it in a different position instead.",
+      "`bt(); return res;` — start with an empty ordering and no elements used; res accumulates all n! complete orderings.",
+    ],
     timeComplexity: "O(n × n!)",
     timeExplanation: "n! permutations each O(n) to copy.",
     spaceComplexity: "O(n)",
@@ -3181,6 +3831,14 @@ public:
         bt(0,""); return res;
     }
 };`,
+    lineByLine: [
+      "`if (digits.empty()) return {};` — the problem defines no combinations for an empty input, so handle it explicitly rather than letting the recursion produce a spurious single empty string.",
+      "`vector<string> phone={\"\",\"\",\"abc\",\"def\",\"ghi\",\"jkl\",\"mno\",\"pqrs\",\"tuv\",\"wxyz\"};` — index this array directly by digit value ('2'-'0'=2, etc.), with the unused 0/1 slots left empty since those digits map to no letters on a keypad.",
+      "`function<void(int,string)> bt=[&](int i,string s){` — i is which digit we're currently expanding, s is the partial letter combination built from digits before it.",
+      "`if (i==(int)digits.size()){res.push_back(s);return;}` — once every digit has contributed a letter, s is one complete combination.",
+      "`for (char c:phone[digits[i]-'0']) bt(i+1,s+c);` — branch once per letter this digit could represent, appending that letter and recursing on the next digit — passing s+c by value (not a shared mutable buffer) means no manual undo/backtrack step is needed since each branch gets its own copy.",
+      "`bt(0,\"\"); return res;` — start expanding from digit 0 with nothing chosen yet.",
+    ],
     timeComplexity: "O(4^n × n)",
     timeExplanation: "n=digits length, up to 4 letters per digit.",
     spaceComplexity: "O(n)",
@@ -3220,6 +3878,14 @@ public:
         bt(0); return res;
     }
 };`,
+    lineByLine: [
+      "`unordered_set<int> cols,diag,anti;` — three sets track which columns and which of the two diagonal directions are already under attack; a diagonal (top-left to bottom-right) is uniquely identified by row-col, an anti-diagonal by row+col, both constant along that line.",
+      "`if (row==n){res.push_back(board);return;}` — a queen has been safely placed in every row, so the board is a complete, valid solution.",
+      "`for (int col=0;col<n;col++){ if (cols.count(col)||diag.count(row-col)||anti.count(row+col)) continue;` — since exactly one queen goes per row, only try columns not already attacked by a previously placed queen via column, diagonal, or anti-diagonal.",
+      "`board[row][col]='Q'; cols.insert(col);diag.insert(row-col);anti.insert(row+col); bt(row+1);` — place the queen, register the three lines it now occupies, and recurse to fill the next row under this new constraint.",
+      "`board[row][col]='.'; cols.erase(col);diag.erase(row-col);anti.erase(row+col);` — backtrack: remove the queen and its three attack lines so sibling branches (other columns tried for this row) don't see stale constraints from this abandoned placement.",
+      "`bt(0); return res;` — start placing queens from row 0 with no constraints yet active.",
+    ],
     timeComplexity: "O(n!)",
     timeExplanation: "Decreasing choices each row.",
     spaceComplexity: "O(n)",
@@ -3257,6 +3923,14 @@ public:
         return false;
     }
 };`,
+    lineByLine: [
+      "`if (k==(int)w.size()) return true;` — every character of the word has already been matched by earlier calls, so the path so far already spells the full word — success, checked before the bounds check since k could equal w.size() with (i,j) off-grid from the last step.",
+      "`if (i<0||j<0||i>=(int)b.size()||j>=(int)b[0].size()||b[i][j]!=w[k]) return false;` — fail this branch if we've walked off the board, OR the current cell's letter doesn't match the next required character w[k].",
+      "`char tmp=b[i][j]; b[i][j]='#';` — temporarily overwrite this cell so the 4 recursive calls below can't walk back onto it — a path can't reuse a cell, and '#' can never equal a real letter so it naturally fails the match check if revisited.",
+      "`bool ok=dfs(b,w,i+1,j,k+1)||dfs(b,w,i-1,j,k+1)||dfs(b,w,i,j+1,k+1)||dfs(b,w,i,j-1,k+1);` — try extending the path in all 4 directions for the next character; `||` short-circuits, so as soon as one direction finds a full match, the rest aren't explored.",
+      "`b[i][j]=tmp; return ok;` — backtrack: restore the original letter (this cell must be available again for OTHER starting positions or other branches that don't pass through it), then report whether this branch succeeded.",
+      "`for (int i...) for (int j...) if (dfs(board,word,i,j,0)) return true;` — the word could start anywhere on the board, so try every cell as a potential starting point until one succeeds.",
+    ],
     timeComplexity: "O(m×n×4^L)",
     timeExplanation: "L=word length, 4 branches each step.",
     spaceComplexity: "O(L)",
@@ -3298,6 +3972,14 @@ public:
         bt(0); return res;
     }
 };`,
+    lineByLine: [
+      "`for (int i=n-1;i>=0;i--) for (int j=i;j<n;j++) dp[i][j]=s[i]==s[j]&&(j-i<=2||dp[i+1][j-1]);` — fills the palindrome table bottom-up: s[i..j] is a palindrome exactly when its outer characters match AND the inner substring (dp[i+1][j-1]) is also a palindrome — the j-i<=2 short-circuit covers the base cases of length 1 and 2 (and length 3 where the middle character doesn't matter), avoiding an out-of-bounds dp[i+1][j-1] lookup when i+1>j-1.",
+      "`function<void(int)> bt=[&](int start){` — start marks how much of the string has already been partitioned into palindromic pieces; everything before it is fixed.",
+      "`if (start==n){res.push_back(cur);return;}` — the whole string has been consumed by palindromic pieces, so cur is one valid partitioning.",
+      "`for (int end=start;end<n;end++){ if (!dp[start][end]) continue;` — try every possible next piece s[start..end]; the precomputed table turns the palindrome check into O(1) instead of re-scanning characters.",
+      "`cur.push_back(s.substr(start,end-start+1)); bt(end+1); cur.pop_back();` — commit to using s[start..end] as the next piece, recurse to partition the remainder starting right after it, then undo so the next candidate `end` can be tried as an alternative piece.",
+      "`bt(0); return res;` — start with nothing partitioned yet.",
+    ],
     timeComplexity: "O(n × 2^n)",
     timeExplanation: "2^n partitions, DP precompute O(n²).",
     spaceComplexity: "O(n²)",
@@ -3335,6 +4017,13 @@ public:
         return max(rob(nums, 0, n-2), rob(nums, 1, n-1));
     }
 };`,
+    lineByLine: [
+      "`int rob(vector<int>& nums, int l, int r)` — a private helper implementing plain House Robber I over just the index range [l, r], reused for both circular cases below.",
+      "`int prev2 = 0, prev1 = 0; for (int i = l; i <= r; i++)` — same two-variable rolling DP as linear House Robber, just scoped to start at l instead of always 0.",
+      "`int curr = max(prev2 + nums[i], prev1); prev2 = prev1; prev1 = curr;` — rob this house (prev2 + nums[i]) or skip it (prev1), then slide the window forward.",
+      "`if (n == 1) return nums[0];` — with only one house there's no 'adjacent' first/last to worry about, so just take it.",
+      "`return max(rob(nums, 0, n-2), rob(nums, 1, n-1));` — because the houses form a circle, house 0 and house n-1 can't both be robbed; splitting into 'exclude the last house' (range 0..n-2) and 'exclude the first house' (range 1..n-1) covers both valid scenarios, and the true answer is whichever range yields more.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Two linear passes.",
     spaceComplexity: "O(1)",
@@ -3368,6 +4057,13 @@ public:
         return true;
     }
 };`,
+    lineByLine: [
+      "`int maxReach = 0;` — the farthest index reachable using only jump decisions made so far; this is the greedy state that replaces trying every possible sequence of jumps.",
+      "`for (int i = 0; i < (int)nums.size(); i++) {` — walk forward one index at a time, treating i as 'the position we're currently standing on, having arrived legitimately.'",
+      "`if (i > maxReach) return false;` — if the current index is beyond anything reachable from earlier positions, there's no sequence of jumps that could have gotten here — the array is unreachable past this point.",
+      "`maxReach = max(maxReach, i + nums[i]);` — standing at i (which we know is reachable), update the horizon with how far a jump from here could go — this greedy update is always safe because reaching i by ANY path is equally good; only the furthest resulting reach matters, not which path got here.",
+      "`return true;` — the loop finished without ever finding an unreachable index, so maxReach must have covered the last index at some point.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass.",
     spaceComplexity: "O(1)",
@@ -3401,6 +4097,13 @@ public:
         return jumps;
     }
 };`,
+    lineByLine: [
+      "`int jumps = 0, curEnd = 0, farthest = 0;` — curEnd is the last index reachable using the jumps taken so far (the boundary of the current 'BFS level'), farthest is the best reach achievable from anywhere within that level, jumps counts how many jumps have been committed to.",
+      "`for (int i = 0; i < (int)nums.size() - 1; i++) {` — stop one short of the last index — once we can jump to reach the end, no further jump needs to be counted.",
+      "`farthest = max(farthest, i + nums[i]);` — while still walking through the current jump's range, keep track of the best possible next-level reach achievable from any position in it.",
+      "`if (i == curEnd) { jumps++; curEnd = farthest; }` — reaching the boundary of the current jump's range means we must commit to a jump now to make further progress; committing to it advances the boundary to the best reach seen across the whole range just finished — this is why it finds the MINIMUM jumps: it always takes the jump that maximizes the next range, deferred to the last possible moment within the current one.",
+      "`return jumps;` — jumps now equals the number of times we were forced to advance the range in order to cover the whole array.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass.",
     spaceComplexity: "O(1)",
@@ -3435,6 +4138,12 @@ public:
         return total >= 0 ? start : -1;
     }
 };`,
+    lineByLine: [
+      "`int total = 0, tank = 0, start = 0;` — total tracks whether a circuit is possible AT ALL (sum of gas minus cost over the whole loop); tank tracks the running fuel balance for the CURRENT candidate start; start is the best candidate found so far.",
+      "`int diff = gas[i] - cost[i]; total += diff; tank += diff;` — at each station, the net gas gained/lost is the same quantity whether judging global feasibility (total) or the current attempt (tank).",
+      "`if (tank < 0) { start = i + 1; tank = 0; }` — if the tank goes negative before reaching station i, then NO station between the current `start` and i could have been a valid starting point either — starting from any of them only means arriving at some later station with less or equal fuel than starting from `start` did, since all the intermediate deficits are shared. So the entire range up to i is provably invalid, and the next candidate must be i+1, with a fresh tank.",
+      "`return total >= 0 ? start : -1;` — if the total gas across the whole trip is enough to cover the total cost, a solution must exist, and the greedy scan above found the unique valid starting point in `start`; if total is negative, no starting point can ever work, regardless of tank's final value.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass.",
     spaceComplexity: "O(1)",
@@ -3474,6 +4183,15 @@ public:
         return true;
     }
 };`,
+    lineByLine: [
+      "`int five = 0, ten = 0;` — only the counts of $5 and $10 bills on hand matter for making change; $20 bills are never usable as change so they don't need tracking.",
+      "`if (b == 5) five++;` — a $5 payment requires no change, it just adds to the till.",
+      "`else if (b == 10) { if (!five) return false; five--; ten++; }` — a $10 payment needs exactly one $5 back; if none is available, change is impossible and the whole sequence fails right here.",
+      "`if (ten && five) { ten--; five--; }` — for a $20 payment, prefer giving one $10 + one $5 as change over three $5s — this is the greedy insight: $5 bills are the only bill flexible enough to make change for BOTH $10 and $20 payments, so they must be conserved whenever an equally valid alternative (a $10) exists.",
+      "`else if (five >= 3) five -= 3;` — only fall back to spending three $5 bills when no $10 is available, since that's the more expensive option in terms of $5 supply.",
+      "`else return false;` — neither change combination is available, so this customer cannot be served correctly.",
+      "`return true;` — every customer received exact change using only currently held bills.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass.",
     spaceComplexity: "O(1)",
@@ -3504,6 +4222,11 @@ public:
         return profit;
     }
 };`,
+    lineByLine: [
+      "`int profit = 0;` — accumulates every profitable single-day trade found along the way.",
+      "`for (int i = 1; i < (int)prices.size(); i++) if (prices[i] > prices[i-1]) profit += prices[i] - prices[i-1];` — greedily capture every upward price move as its own tiny buy-yesterday-sell-today transaction; since transactions can be unlimited and don't need to be held overnight in aggregate, summing all consecutive positive differences is mathematically equivalent to the best possible set of non-overlapping buy/sell trades (any longer hold's profit decomposes exactly into the sum of its daily upward steps).",
+      "`return profit;` — the total of all upward steps is the maximum achievable profit.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass.",
     spaceComplexity: "O(1)",
@@ -3542,6 +4265,13 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`while (i < n && intervals[i][1] < newInterval[0]) res.push_back(intervals[i++]);` — copy over every interval that ends strictly before newInterval starts; these can't possibly overlap it, so they're finalized as-is.",
+      "`while (i < n && intervals[i][0] <= newInterval[1])` — an interval overlaps (or touches) newInterval as long as it starts at or before newInterval's current end; keep absorbing intervals while that holds.",
+      "`newInterval[0] = min(newInterval[0], intervals[i][0]); newInterval[1] = max(newInterval[1], intervals[i][1]); i++;` — grow newInterval to fully cover the overlapping interval on both ends, since merging means the combined interval must span everything absorbed so far.",
+      "`res.push_back(newInterval);` — once no more intervals overlap it, newInterval has reached its final merged bounds, so commit it to the result in its correct sorted position.",
+      "`while (i < n) res.push_back(intervals[i++]);` — every remaining interval starts after newInterval's final end (the merge loop above only stops when that's true), so they're appended untouched.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass.",
     spaceComplexity: "O(n)",
@@ -3572,6 +4302,12 @@ public:
         return true;
     }
 };`,
+    lineByLine: [
+      "`sort(intervals.begin(), intervals.end());` — sorting by start time means any overlap must occur between two intervals that end up adjacent in this order, so only consecutive pairs need checking instead of all O(n^2) pairs.",
+      "`for (int i = 1; i < (int)intervals.size(); i++)` — walk through the sorted intervals comparing each one to the one right before it.",
+      "`if (intervals[i][0] < intervals[i-1][1]) return false;` — if the current meeting starts before the previous one has ended, the two overlap and one person can't attend both.",
+      "`return true;` — if no consecutive pair overlapped, then (because of the sort) no pair anywhere in the list overlaps, so all meetings are attendable.",
+    ],
     timeComplexity: "O(n log n)",
     timeExplanation: "Sorting dominates.",
     spaceComplexity: "O(1)",
@@ -3607,6 +4343,13 @@ public:
         return minHeap.size();
     }
 };`,
+    lineByLine: [
+      "`sort(intervals.begin(), intervals.end());` — process meetings in order of start time so each new meeting only needs to be checked against rooms already in use, never a later one.",
+      "`priority_queue<int, vector<int>, greater<int>> minHeap;` — a min-heap of the end times of currently-occupied rooms, ordered smallest-first so the room freeing up soonest is always on top.",
+      "`if (!minHeap.empty() && minHeap.top() <= iv[0]) minHeap.pop();` — if the room that frees up earliest is already done by the time this meeting starts, that room can be reused, so remove its stale end time before assigning it to the new meeting.",
+      "`minHeap.push(iv[1]);` — assign this meeting to a room (either the just-freed one or a brand new one) by pushing its end time; the heap's size at any point equals the number of rooms simultaneously in use.",
+      "`return minHeap.size();` — the heap only grows when no room could be reused, so its final size is the peak number of overlapping meetings — the minimum rooms required.",
+    ],
     timeComplexity: "O(n log n)",
     timeExplanation: "Sort + heap ops each O(log n).",
     spaceComplexity: "O(n)",
@@ -3646,6 +4389,13 @@ public:
         return true;
     }
 };`,
+    lineByLine: [
+      "`if (hand.size() % groupSize != 0) return false;` — the cards must split evenly into groups of exactly groupSize, so an uneven total makes it impossible before any real work is done.",
+      "`map<int,int> cnt; for (int c : hand) cnt[c]++;` — an ordered map (sorted by key) keeps card values in ascending order, letting the algorithm always process the smallest remaining card next.",
+      "`for (auto& [start, _] : cnt) { int freq = cnt[start]; if (!freq) continue;` — walk cards from smallest to largest; a count of 0 means this value was already fully consumed by an earlier group, so skip it.",
+      "`for (int i = 0; i < groupSize; i++) { if (cnt[start+i] < freq) return false; cnt[start+i] -= freq; }` — this is the greedy commitment: the smallest remaining card MUST start `freq` runs of length groupSize (there's no valid alternative — any other card that could 'absorb' it would have to be smaller, but none remain), so consume `freq` copies of start, start+1, ..., start+groupSize-1; if any of those values doesn't have enough copies left, no valid grouping exists.",
+      "`return true;` — every card was successfully assigned into some consecutive run of the required size.",
+    ],
     timeComplexity: "O(n log n)",
     timeExplanation: "Sorted map iteration.",
     spaceComplexity: "O(n)",
@@ -3682,6 +4432,13 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`int last[26] = {}; for (int i = 0; i < (int)s.size(); i++) last[s[i]-'a'] = i;` — precompute the LAST index at which each letter appears anywhere in the string; a partition can't end before every letter it contains has had its final appearance.",
+      "`int start = 0, end = 0;` — start marks where the current partition begins, end is the furthest index the current partition must extend to (based on every letter seen in it so far).",
+      "`for (int i = 0; i < (int)s.size(); i++) { end = max(end, last[s[i]-'a']);` — as each new character is folded into the current partition, extend `end` to cover that character's own last occurrence — the partition can't close before that point or the letter would end up split across two parts.",
+      "`if (i == end) { res.push_back(end-start+1); start = end+1; }` — if the scan has caught up to `end` without `end` having grown further, every letter seen in this partition has had its last occurrence accounted for, so it's safe to close the partition here (this is why it's the maximal split: closing any earlier would separate a letter's occurrences).",
+      "`return res;` — res collected the length of each maximal partition in left-to-right order.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Two passes.",
     spaceComplexity: "O(1)",
@@ -3710,6 +4467,12 @@ public:
         return n*(n+1)/2 - accumulate(nums.begin(), nums.end(), 0);
     }
 };`,
+    lineByLine: [
+      "`int n = nums.size();` — since the array holds n distinct numbers from the range [0, n], exactly one value in that (n+1)-sized range is missing.",
+      "`n*(n+1)/2` — the closed-form sum of every integer from 0 to n, i.e. what the total would be if nothing were missing.",
+      "`accumulate(nums.begin(), nums.end(), 0)` — the actual sum of the numbers present in the array.",
+      "`return n*(n+1)/2 - accumulate(...);` — since the array is 'complete sum minus exactly one missing value', subtracting the actual sum from the expected sum isolates precisely that missing value.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "One pass for sum.",
     spaceComplexity: "O(1)",
@@ -3739,6 +4502,11 @@ public:
         return dp;
     }
 };`,
+    lineByLine: [
+      "`vector<int> dp(n+1, 0);` — dp[i] will hold the popcount (number of 1 bits) of i; dp[0] = 0 is correct as-is since 0 has no set bits.",
+      "`for (int i = 1; i <= n; i++) dp[i] = dp[i>>1] + (i&1);` — right-shifting i by 1 (i>>1) drops its last bit, which is a smaller number whose bit count was already computed; adding back (i&1) — the bit that got dropped — recovers i's true bit count. This reuses previously computed answers instead of recounting bits from scratch for every i.",
+      "`return dp;` — the bit-count for every integer from 0 to n, built in O(n) total instead of O(n log n) (which naive per-number counting would take).",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass.",
     spaceComplexity: "O(n)",
@@ -3767,6 +4535,11 @@ public:
         return cnt;
     }
 };`,
+    lineByLine: [
+      "`int cnt = 0;` — tallies how many 1 bits get cleared, which equals the total number of 1 bits in n.",
+      "`while (n) { n &= n-1; cnt++; }` — n-1 flips the lowest set bit of n to 0 and turns every bit below it into 1; ANDing with n then clears exactly that lowest set bit while leaving all higher bits untouched. Each iteration removes exactly one 1 bit, so the loop runs exactly as many times as there are set bits — faster than checking all 32 bit positions individually.",
+      "`return cnt;` — the total count of 1 bits removed, i.e. the Hamming weight of the original n.",
+    ],
     timeComplexity: "O(k)",
     timeExplanation: "k = number of set bits.",
     spaceComplexity: "O(1)",
@@ -3799,6 +4572,13 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`uint32_t res = 0;` — will accumulate the bits of n in reverse order.",
+      "`for (int i = 0; i < 32; i++)` — a fixed-width integer always has exactly 32 bits to reverse.",
+      "`res = (res << 1) | (n & 1);` — shift everything already placed in res one position to the left (making room at the bottom), then insert n's current lowest bit there; since we always insert at the bottom and previously-inserted bits keep shifting up, the very first bit we read from n (its original LSB) ends up at res's highest position by the end — i.e. reversed.",
+      "`n >>= 1;` — discard the bit we just consumed from n so the next iteration reads the next bit up.",
+      "`return res;` — after 32 iterations, every bit of n has been read once and placed in mirrored position, yielding the bit-reversed integer.",
+    ],
     timeComplexity: "O(1)",
     timeExplanation: "Always 32 iterations.",
     spaceComplexity: "O(1)",
@@ -3824,6 +4604,10 @@ public:
         return n > 0 && (n & (n-1)) == 0;
     }
 };`,
+    lineByLine: [
+      "`n > 0` — powers of two are always positive; this also excludes n=0, which would otherwise pass the bit trick below vacuously (0 & -1 == 0).",
+      "`(n & (n-1)) == 0` — a power of two has exactly one bit set (e.g. 16 = 10000). Subtracting 1 flips that single set bit to 0 and all lower bits to 1 (e.g. 15 = 01111), so ANDing the two leaves nothing in common — the result is 0 only when n had exactly one set bit to begin with.",
+    ],
     timeComplexity: "O(1)",
     timeExplanation: "Single bitwise operation.",
     spaceComplexity: "O(1)",
@@ -3856,6 +4640,13 @@ public:
         return a;
     }
 };`,
+    lineByLine: [
+      "`while (b)` — keep repeating the add-without-carry-then-add-carry cycle until there's no carry left to add, i.e. until b (representing the pending carry) becomes 0.",
+      "`int carry = (a & b) << 1;` — a bit position produces a carry into the next higher position exactly where both a and b have a 1 bit there (that's what AND computes); shifting left by 1 moves each carry bit to the position it needs to be added into.",
+      "`a = a ^ b;` — XOR adds a and b at each bit position ignoring carries (1+0=1, 0+1=1, 1+1=0 with the carry dropped) — this is 'addition without carry propagation'.",
+      "`b = carry;` — the carries computed this round become the new 'b' to add in on the next iteration, since they still need to be folded into the sum.",
+      "`return a;` — once b (the pending carry) reaches 0, a holds the fully carried-through sum of the original a and b.",
+    ],
     timeComplexity: "O(1)",
     timeExplanation: "At most 32 iterations for 32-bit integers.",
     spaceComplexity: "O(1)",
@@ -3895,6 +4686,15 @@ public:
         return dp[n];
     }
 };`,
+    lineByLine: [
+      "`vector<int> dp(n+1, 0); dp[0] = 1;` — dp[i] counts decodings of the first i characters; dp[0]=1 represents the empty prefix, which has exactly one (trivial) way to decode — nothing.",
+      "`dp[1] = s[0] != '0' ? 1 : 0;` — the first character alone is decodable only if it's not '0' (there's no letter mapped to 0), seeding the recurrence.",
+      "`for (int i = 2; i <= n; i++)` — build up dp for longer prefixes using the two preceding values, since any decoding of the first i chars ends by decoding either 1 or 2 digits.",
+      "`int one = s[i-1] - '0'; int two = stoi(s.substr(i-2, 2));` — extract the last single digit and the last two digits as candidate final 'letters' to peel off.",
+      "`if (one >= 1) dp[i] += dp[i-1];` — if the last digit alone is a valid letter (1-9), every decoding of the first i-1 chars extends by treating s[i-1] as its own letter.",
+      "`if (two >= 10 && two <= 26) dp[i] += dp[i-2];` — if the last two digits form a valid letter code (10-26), every decoding of the first i-2 chars extends by treating the last two digits as one letter; both cases are added because they're independent valid decodings, not alternatives to pick between.",
+      "`return dp[n];` — dp[n] is the total decodings of the whole string, having accumulated both single- and double-digit splits at every position.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single DP pass.",
     spaceComplexity: "O(n)",
@@ -3927,6 +4727,12 @@ public:
         return dp[m-1][n-1];
     }
 };`,
+    lineByLine: [
+      "`vector<vector<int>> dp(m, vector<int>(n, 1));` — initializing every cell to 1 automatically handles the first row and first column: a robot restricted to that edge has exactly one way to reach any cell on it (keep going straight).",
+      "`for (int i = 1; i < m; i++) for (int j = 1; j < n; j++)` — only interior cells (row >= 1 and col >= 1) need real computation, since the edges are already correctly seeded at 1.",
+      "`dp[i][j] = dp[i-1][j] + dp[i][j-1];` — the robot can only arrive at (i,j) from directly above or directly left, so the number of distinct paths to (i,j) is the sum of the paths to each of those two predecessors.",
+      "`return dp[m-1][n-1];` — the bottom-right corner's count has accumulated every distinct right/down path from the start.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "Fill entire grid.",
     spaceComplexity: "O(m × n)",
@@ -3963,6 +4769,12 @@ public:
         return grid[m-1][n-1];
     }
 };`,
+    lineByLine: [
+      "`if (!i && !j) continue;` — skip the starting cell (0,0) entirely; it already holds its own value and has no predecessor to add from.",
+      "`int up = i ? grid[i-1][j] : INT_MAX; int left = j ? grid[i][j-1] : INT_MAX;` — a cell on the top row has no 'up' neighbor and a cell on the left column has no 'left' neighbor, so those missing directions are forced to INT_MAX so min() never mistakenly picks a nonexistent path.",
+      "`grid[i][j] += min(up, left);` — reusing the input grid as the dp table in place: each cell's own cost gets added to whichever cheaper predecessor (from above or from the left) reaches it, turning grid[i][j] into 'cheapest path cost from (0,0) to (i,j)'.",
+      "`return grid[m-1][n-1];` — by the time the loops finish, the bottom-right cell holds the accumulated minimum path sum for the entire grid.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "Fill entire grid.",
     spaceComplexity: "O(1)",
@@ -3997,6 +4809,13 @@ public:
         return dp[m][n];
     }
 };`,
+    lineByLine: [
+      "`vector<vector<int>> dp(m+1, vector<int>(n+1, 0));` — dp[i][j] means 'LCS length between the first i chars of s1 and first j chars of s2'; row/col 0 represent an empty string, whose LCS with anything is 0, so the 0-initialization is already the correct base case.",
+      "`for (int i = 1; i <= m; i++) for (int j = 1; j <= n; j++)` — fill the table in increasing order of i and j since each cell depends only on cells with smaller indices.",
+      "`s1[i-1]==s2[j-1] ? dp[i-1][j-1]+1` — if the current characters match, they can both be the same position in a common subsequence, so extend the best subsequence found without either of these two characters by 1.",
+      "`: max(dp[i-1][j],dp[i][j-1]);` — if they don't match, this pair of characters can't jointly extend the LCS, so the best is whichever is better: dropping the current char of s1, or dropping the current char of s2.",
+      "`return dp[m][n];` — the bottom-right cell represents the full text1 vs full text2 comparison, i.e. the answer.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "Fill entire DP table.",
     spaceComplexity: "O(m × n)",
@@ -4030,6 +4849,13 @@ public:
         return tails.size();
     }
 };`,
+    lineByLine: [
+      "`vector<int> tails;` — tails[k] will hold the smallest possible ending value among all increasing subsequences of length k+1 seen so far; keeping this value as small as possible maximizes the chance future numbers can extend that subsequence.",
+      "`auto it = lower_bound(tails.begin(), tails.end(), n);` — binary search for the first tail that is >= n; tails is always kept sorted, which is what makes this search valid.",
+      "`if (it == tails.end()) tails.push_back(n);` — if n is bigger than every existing tail, it can extend the longest subsequence found so far, so it becomes a brand-new, longer tail.",
+      "`else *it = n;` — otherwise n replaces the first tail >= n: this doesn't change how many subsequence-lengths exist, but it lowers that length's ending value to n, giving future numbers a better (smaller) threshold to beat — the trick that makes O(n log n) work without tracking the actual subsequence.",
+      "`return tails.size();` — tails only grows when a genuinely longer increasing subsequence is found, so its final size is the LIS length.",
+    ],
     timeComplexity: "O(n log n)",
     timeExplanation: "Binary search per element.",
     spaceComplexity: "O(n)",
@@ -4063,6 +4889,14 @@ public:
         return s.substr(start, maxLen);
     }
 };`,
+    lineByLine: [
+      "`int n = s.size(), start = 0, maxLen = 1;` — track the best palindrome found as a (start index, length) pair; maxLen starts at 1 since any single character is trivially a palindrome.",
+      "`auto expand = [&](int l, int r)` — a helper that grows outward from a candidate center (l, r), capturing start/maxLen by reference so it can update the running best directly.",
+      "`while (l >= 0 && r < n && s[l] == s[r]) { l--; r++; }` — keep expanding outward as long as both sides stay in bounds and mirror each other; the moment they mismatch (or run off the string), the palindrome centered here has stopped growing.",
+      "`if (r - l - 1 > maxLen) { maxLen = r-l-1; start = l+1; }` — after the loop exits, l and r have both moved one step past the actual palindrome boundaries, so the true palindrome spans (l+1) to (r-1), giving length r-l-1; record it if it beats the current best.",
+      "`for (int i = 0; i < n; i++) { expand(i,i); expand(i,i+1); }` — every palindrome is centered either on a single character (odd length, center (i,i)) or on the gap between two characters (even length, center (i,i+1)), so both must be tried at each index to cover all possible palindromes.",
+      "`return s.substr(start, maxLen);` — start and maxLen were only updated when a strictly longer palindrome was found, so they describe the overall longest one.",
+    ],
     timeComplexity: "O(n²)",
     timeExplanation: "n centers, O(n) expansion each.",
     spaceComplexity: "O(1)",
@@ -4094,6 +4928,12 @@ public:
         return cnt;
     }
 };`,
+    lineByLine: [
+      "`int n = s.size(), cnt = 0;` — cnt accumulates the total count of palindromic substrings found across all centers.",
+      "`while (l >= 0 && r < n && s[l] == s[r]) { l--; r++; cnt++; }` — every time the expansion successfully matches a mirrored pair (or the single starting character), the substring between the current l and r is a valid palindrome, so it's counted immediately as part of the expansion itself — no separate length check is needed since each successful iteration IS one palindrome.",
+      "`for (int i = 0; i < n; i++) { expand(i,i); expand(i,i+1); }` — as with longest-palindromic-substr, every palindrome has either a single-character center (i,i) or a between-character center (i,i+1), so trying both at each index covers every palindrome in the string exactly once.",
+      "`return cnt;` — the running total from all center expansions is the count of all palindromic substrings (with repeats at different positions counted separately, since each expansion is tied to a specific center).",
+    ],
     timeComplexity: "O(n²)",
     timeExplanation: "n centers, O(n) each.",
     spaceComplexity: "O(1)",
@@ -4130,6 +4970,13 @@ public:
         return dp[m][n];
     }
 };`,
+    lineByLine: [
+      "`for (int i=0;i<=m;i++) dp[i][0]=i; for (int j=0;j<=n;j++) dp[0][j]=j;` — dp[i][0] means transforming the first i chars of word1 into an empty word2, which takes exactly i deletions; symmetrically dp[0][j] takes j insertions. These base cases seed every other computation.",
+      "`for (int i=1;i<=m;i++) for (int j=1;j<=n;j++)` — fill the table so every cell's dependencies (i-1,j), (i,j-1), (i-1,j-1) are already computed.",
+      "`w1[i-1]==w2[j-1] ? dp[i-1][j-1]` — if the current characters already match, no operation is needed for this pair — the cost is just whatever it took to convert the strings without these two matching characters.",
+      "`: 1+min({dp[i-1][j],dp[i][j-1],dp[i-1][j-1]});` — otherwise one operation is spent here, and it should be whichever of the three edits is cheapest overall: dp[i-1][j] (delete from word1), dp[i][j-1] (insert into word1 to match word2's next char), or dp[i-1][j-1] (replace word1's char with word2's char).",
+      "`return dp[m][n];` — the full word1-to-word2 transformation cost, built up from all smaller subproblems.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "Fill entire DP table.",
     spaceComplexity: "O(m × n)",
@@ -4162,6 +5009,12 @@ public:
         return dp[amount];
     }
 };`,
+    lineByLine: [
+      "`vector<int> dp(amount+1, 0); dp[0] = 1;` — dp[i] counts the number of combinations (order-independent) of coins summing to i; dp[0]=1 because there's exactly one way to make 0 — use no coins.",
+      "`for (int coin : coins)` — the outer loop is over coins, not amounts — this is deliberate: processing one whole coin denomination at a time before moving to the next ensures each combination is only counted once (as an unordered multiset of coins), instead of counting every ordering of the same coins separately.",
+      "`for (int i = coin; i <= amount; i++) dp[i] += dp[i-coin];` — for each amount i reachable using this coin, add in all the ways to make (i - coin) using coins processed so far (including this one, since it can repeat) — the forward direction (increasing i) is what allows unlimited reuse of the same coin within one combination.",
+      "`return dp[amount];` — after every coin denomination has contributed, dp[amount] holds the total distinct combinations summing to amount.",
+    ],
     timeComplexity: "O(amount × coins)",
     timeExplanation: "Outer loop coins, inner loop amount.",
     spaceComplexity: "O(amount)",
@@ -4199,6 +5052,13 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`int maxP=nums[0], minP=nums[0], res=nums[0];` — track both the max AND min product ending at the current index, because a large negative number (very small/min product) can flip into the new maximum if multiplied by another negative.",
+      "`if (nums[i]<0) swap(maxP,minP);` — when the current number is negative, multiplying flips sign: what was the largest product so far becomes the smallest (most negative) once multiplied, and vice versa — swapping before computing lets the same two lines below handle positive and negative uniformly.",
+      "`maxP=max(nums[i],maxP*nums[i]);` — the best product ending here is either just this number alone (restarting, e.g. if the running product was a net negative or zero) or extending the previous best max product by this number.",
+      "`minP=min(nums[i],minP*nums[i]);` — symmetrically track the smallest running product, since it's a candidate to become the largest once a future negative number is multiplied in.",
+      "`res=max(res,maxP);` — the global answer only ever needs to compare against maxP (the min is only useful as a stepping stone via future sign flips), so update the overall best after every position.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass.",
     spaceComplexity: "O(1)",
@@ -4235,6 +5095,13 @@ public:
         return dp[n];
     }
 };`,
+    lineByLine: [
+      "`unordered_set<string> dict(wordDict.begin(), wordDict.end());` — convert the word list to a hash set so checking whether any given substring is a dictionary word is O(L) instead of scanning the whole list.",
+      "`vector<bool> dp(n+1, false); dp[0] = true;` — dp[i] means 'the first i characters of s can be fully segmented into dictionary words'; dp[0] is true because an empty prefix trivially needs zero words.",
+      "`for (int i = 1; i <= n; i++) for (int j = 0; j < i; j++)` — to determine if the first i characters are segmentable, try every possible position j where the LAST word in the segmentation could start.",
+      "`if (dp[j] && dict.count(s.substr(j, i-j))) { dp[i]=true; break; }` — this split point works only if everything before j is already segmentable (dp[j]) AND the remaining chunk s[j..i-1] is itself a whole dictionary word; the moment one valid split is found, dp[i] is settled true and further j values are unnecessary (break).",
+      "`return dp[n];` — dp[n] answers the question for the entire string s.",
+    ],
     timeComplexity: "O(n² × L)",
     timeExplanation: "n² substrings, each lookup O(L) in hash set.",
     spaceComplexity: "O(n + W)",
@@ -4272,6 +5139,12 @@ public:
         return dp[target];
     }
 };`,
+    lineByLine: [
+      "`int sum = accumulate(nums.begin(), nums.end(), 0); if (sum & 1) return false;` — splitting into two equal-sum subsets requires the total to be even (each half would need sum/2); an odd total makes it mathematically impossible before any DP is needed.",
+      "`int target = sum / 2; vector<bool> dp(target+1, false); dp[0] = true;` — reframe the problem as 0/1 knapsack: can some subset of nums sum to exactly target? dp[0]=true because the empty subset always sums to 0.",
+      "`for (int n : nums) for (int j = target; j >= n; j--) dp[j] = dp[j] || dp[j-n];` — for each number, walking j DOWNWARD from target is essential: it guarantees each number is only used once per combination (0/1 knapsack), since dp[j-n] being read still reflects the state from before this number was considered; iterating upward would let the same number be reused multiple times, turning it into unbounded knapsack.",
+      "`return dp[target];` — true means some subset sums to exactly half the total, so the remaining elements automatically sum to the other half — a valid equal partition exists.",
+    ],
     timeComplexity: "O(n × target)",
     timeExplanation: "n items × target capacity.",
     spaceComplexity: "O(target)",
@@ -4309,6 +5182,13 @@ public:
         return dp[cap];
     }
 };`,
+    lineByLine: [
+      "`int total = accumulate(nums.begin(), nums.end(), 0); int S = total + target;` — let P be the sum of numbers assigned '+' and N the sum assigned '-'. We know P + N = total and P - N = target; adding these gives 2P = total + target, so P = (total+target)/2 — this reframes the sign-assignment problem as 'how many subsets sum to P'.",
+      "`if (S < 0 || S & 1) return 0;` — P must be a non-negative integer: if total+target is odd, P isn't a whole number (no valid split of signs achieves exactly target); if S is negative, target is too low to reach even by making everything negative — either way, 0 ways exist.",
+      "`int cap = S / 2; vector<int> dp(cap+1, 0); dp[0] = 1;` — cap = P is now the subset-sum target; dp[j] counts the number of subsets summing to j, with dp[0]=1 for the single empty-subset way to sum to 0.",
+      "`for (int n : nums) for (int j = cap; j >= n; j--) dp[j] += dp[j-n];` — same 0/1 knapsack pattern as partition-equal-subset: iterating j downward ensures each number is used at most once per subset (matching that each nums[i] gets exactly one sign, not reused).",
+      "`return dp[cap];` — the number of subsets summing to P equals the number of ways to choose which numbers get '+' (the rest get '-') that make the expression equal target.",
+    ],
     timeComplexity: "O(n × (sum+target))",
     timeExplanation: "DP table of size (sum+target)/2.",
     spaceComplexity: "O(sum+target)",
@@ -4345,6 +5225,14 @@ public:
         return max(sold, cool);
     }
 };`,
+    lineByLine: [
+      "`int hold = INT_MIN, sold = 0, cool = 0;` — three running best-profits, one per state: hold (currently own a share), sold (just sold today, must cooldown tomorrow), cool (free to buy, either resting or past cooldown). hold starts at -infinity since you can't be 'holding' before ever buying; sold/cool start at 0 profit.",
+      "`int prevSold = sold;` — save today's incoming sold value before it gets overwritten, since the new hold and cool both need the OLD (yesterday's) sold value, not today's just-computed one — this ordering bug is exactly what this temp variable avoids.",
+      "`sold = hold + p;` — transitioning into 'sold' today means we were holding a share and sell it now at price p, banking the previous hold profit plus this sale.",
+      "`hold = max(hold, cool - p);` — staying in 'hold' (do nothing) keeps the previous hold value, or entering 'hold' fresh means buying today at price p while coming from the cool (available-to-buy) state — note this deliberately does NOT use prevSold, since selling and buying on the same day would violate the one-day cooldown.",
+      "`cool = max(cool, prevSold);` — staying rested keeps the previous cool value, or transitioning into cool happens automatically the day after a sale (using prevSold, yesterday's sold value, enforcing the mandatory one-day wait before the next buy).",
+      "`return max(sold, cool);` — the best final profit can't end while still holding a share (that would mean an incomplete, unsold position), so only the sold and cool end states are valid candidates.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass.",
     spaceComplexity: "O(1)",
@@ -4381,6 +5269,12 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`priority_queue<pair<int,int>> pq;` — a max-heap (default C++ priority_queue) keyed by squared distance; storing squared distance avoids an unnecessary sqrt while still preserving distance ordering, and the paired index lets us recover the original point later.",
+      "`int d = points[i][0]*points[i][0] + points[i][1]*points[i][1];` — Euclidean distance squared to the origin, used instead of the true distance since sqrt is monotonic and comparisons give the same result without the extra cost.",
+      "`pq.push({d, i}); if ((int)pq.size() > k) pq.pop();` — keep the heap capped at size k by always evicting the CURRENT FARTHEST point (max-heap top) whenever it overflows; this way only the k closest points survive by the time every point has been considered.",
+      "`while (!pq.empty()) { res.push_back(points[pq.top().second]); pq.pop(); }` — drain whatever remains in the heap — exactly the k points that were never evicted, i.e. the k closest to the origin.",
+    ],
     timeComplexity: "O(n log k)",
     timeExplanation: "n insertions into heap of size k.",
     spaceComplexity: "O(k)",
@@ -4413,6 +5307,11 @@ public:
         return minHeap.top();
     }
 };`,
+    lineByLine: [
+      "`priority_queue<int, vector<int>, greater<int>> minHeap;` — a min-heap this time (note greater<int>), used to hold the k LARGEST numbers seen — the smallest of that group (the heap's top) is exactly the k-th largest overall.",
+      "`minHeap.push(n); if ((int)minHeap.size() > k) minHeap.pop();` — insert every number, but whenever the heap exceeds k elements, evict its smallest — that discarded value can't be among the top k largest, so this keeps the heap containing precisely the k largest numbers seen so far.",
+      "`return minHeap.top();` — once every number has been processed, the heap holds exactly the k largest values, and since it's a min-heap, its top is the smallest of those k — which is, by definition, the k-th largest element overall.",
+    ],
     timeComplexity: "O(n log k)",
     timeExplanation: "n insertions, heap size k.",
     spaceComplexity: "O(k)",
@@ -4446,6 +5345,12 @@ public:
         return pq.top();
     }
 };`,
+    lineByLine: [
+      "`priority_queue<int,vector<int>,greater<int>> pq; int K;` — same min-heap-of-k-largest trick as findKthLargest, but kept as persistent state across calls so it doesn't need rebuilding each time add() runs.",
+      "`KthLargest(int k, vector<int>& nums) : K(k) { for (int n : nums) { pq.push(n); if ((int)pq.size()>k) pq.pop(); } }` — seed the heap with the initial numbers using the exact same 'push then trim if oversized' logic, leaving pq holding the k largest of the initial array.",
+      "`pq.push(val); if ((int)pq.size()>K) pq.pop();` — each new stream value is added the same way: push it in, and if that makes the heap bigger than K, evict the current smallest (it can no longer be in the top K).",
+      "`return pq.top();` — the heap always contains exactly the K largest values seen across the whole stream so far, so its top (the smallest of that group) is the current K-th largest.",
+    ],
     timeComplexity: "O(log k) per add",
     timeExplanation: "Heap push/pop.",
     spaceComplexity: "O(k)",
@@ -4480,6 +5385,13 @@ public:
         return pq.empty() ? 0 : pq.top();
     }
 };`,
+    lineByLine: [
+      "`priority_queue<int> pq(stones.begin(), stones.end());` — a max-heap built directly from the stones array, giving O(log n) access to the current heaviest stone at every step, which is exactly what the smashing process repeatedly needs.",
+      "`while (pq.size() > 1)` — keep smashing as long as there are at least two stones to pick; a single remaining stone can't be smashed further.",
+      "`int x = pq.top(); pq.pop(); int y = pq.top(); pq.pop();` — pull out the two currently heaviest stones (x >= y by heap ordering) — these are the ones the problem says get smashed together each round.",
+      "`if (x != y) pq.push(x - y);` — if the stones aren't equal, the heavier one survives with its weight reduced by the lighter one's weight, so push the difference back in to compete in future rounds; if they were equal, both are destroyed and nothing goes back in.",
+      "`return pq.empty() ? 0 : pq.top();` — after the loop, either no stone is left (they canceled out exactly), or one stone remains as the final answer.",
+    ],
     timeComplexity: "O(n log n)",
     timeExplanation: "n stones, log n per heap op.",
     spaceComplexity: "O(n)",
@@ -4513,6 +5425,12 @@ public:
         return max((int)tasks.size(), (maxFreq-1)*(n+1)+maxCount);
     }
 };`,
+    lineByLine: [
+      "`int cnt[26] = {}; for (char c : tasks) cnt[c-'A']++;` — tally how many times each of the 26 uppercase letters appears, since scheduling is entirely driven by task frequency, not task identity or order.",
+      "`int maxFreq = *max_element(cnt, cnt+26);` — the most frequent task is the bottleneck: it forces (maxFreq - 1) full cooldown gaps between its occurrences, which is the minimum skeleton the whole schedule must be built around.",
+      "`int maxCount = count(cnt, cnt+26, maxFreq);` — if multiple tasks tie for the highest frequency, each of them can slot into one idle-cooldown slot per round of the most-frequent task, filling gaps that would otherwise sit idle — so ties matter to the final count.",
+      "`return max((int)tasks.size(), (maxFreq-1)*(n+1)+maxCount);` — (maxFreq-1)*(n+1) builds maxFreq-1 'frames' of length (n+1) (one slot for the top task + n cooldown slots), and +maxCount appends the final round's worth of max-frequency tasks. This formula only accounts for idle time correctly when the top tasks are scarce enough to force gaps; if there are enough OTHER distinct tasks to fill every gap, the schedule is just tasks.size() long (no idling needed at all) — hence taking the max of the two.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Count pass + find max.",
     spaceComplexity: "O(1)",
@@ -4546,6 +5464,12 @@ public:
         return lo.size() > hi.size() ? lo.top() : (lo.top()+hi.top())/2.0;
     }
 };`,
+    lineByLine: [
+      "`priority_queue<int> lo; priority_queue<int,vector<int>,greater<int>> hi;` — split all numbers into two heaps: lo (max-heap) holds the smaller half of the data with its largest value on top, hi (min-heap) holds the larger half with its smallest on top — together their two tops are the two values straddling the median.",
+      "`lo.push(num); hi.push(lo.top()); lo.pop();` — always insert into lo first, then immediately move lo's new max over to hi; routing every insertion through lo like this guarantees hi never receives a number smaller than something in lo, keeping the two-halves partition correct regardless of where num actually belonged.",
+      "`if (hi.size() > lo.size()) { lo.push(hi.top()); hi.pop(); }` — the previous step can make hi one element larger than lo; if so, shift hi's smallest back to lo, restoring the invariant that the two heaps differ in size by at most one (which is what lets the median be read directly off their tops).",
+      "`return lo.size() > hi.size() ? lo.top() : (lo.top()+hi.top())/2.0;` — with an odd total count, lo (by construction) holds the extra element, so its top alone is the median; with an even count both heaps are equal size and the median is the average of the two middle values, i.e. the average of both tops.",
+    ],
     timeComplexity: "O(log n) add, O(1) find",
     timeExplanation: "Heap operations.",
     spaceComplexity: "O(n)",
@@ -4589,6 +5513,16 @@ public:
         return dummy.next;
     }
 };`,
+    lineByLine: [
+      "`using T = pair<int, ListNode*>; priority_queue<T, vector<T>, greater<T>> pq;` — a min-heap keyed by node value, so the smallest available head across ALL k lists can be found in O(log k) instead of scanning all k candidates each time.",
+      "`for (auto l : lists) if (l) pq.push({l->val, l});` — seed the heap with one candidate per list (skipping empty lists): the current head of each, since that's the only value from that list we know is safe to consider next.",
+      "`ListNode dummy(0), *cur = &dummy;` — dummy head to simplify building the merged result without a special case for the first node.",
+      "`while (!pq.empty())` — keep merging until every list has been fully drained into the heap and back out.",
+      "`auto [v, node] = pq.top(); pq.pop();` — the true global minimum across all lists is always at the top of the heap, guaranteed sorted output at each step.",
+      "`cur->next = node; cur = cur->next;` — attach the extracted node to the result and advance the tail pointer.",
+      "`if (node->next) pq.push({node->next->val, node->next});` — now that this list's head has been consumed, its next node becomes the new candidate from that list — pushing it keeps every list represented in the heap so the true minimum is never missed.",
+      "`return dummy.next;` — return the real head of the fully merged, sorted list.",
+    ],
     timeComplexity: "O(N log k)",
     timeExplanation: "N = total nodes, k = number of lists.",
     spaceComplexity: "O(k)",
@@ -4638,6 +5572,18 @@ public:
         if ((int)mp.size()>cap){mp.erase(tail->prev->k);remove(tail->prev);}
     }
 };`,
+    lineByLine: [
+      "`struct Node { int k,v; Node *prev,*next; };` — each node stores its own key alongside the value so that, when it's evicted from the tail, its key can be removed from the hashmap too.",
+      "`unordered_map<int,Node*> mp;` — maps key to its node in the list, giving O(1) lookup so get/put never has to walk the list to find a key.",
+      "`Node *head, *tail;` — sentinel (dummy) nodes bookending the list; head->next is always the most-recently-used real node, tail->prev is always the least-recently-used, and using sentinels avoids null-checks when the list is empty or has one node.",
+      "`void remove(Node* n) { n->prev->next=n->next; n->next->prev=n->prev; }` — standard doubly-linked-list unlink: stitch n's neighbors together, bypassing n, in O(1) since we already hold a direct pointer to n from the map.",
+      "`void addFront(Node* n) { n->next=head->next; n->prev=head; head->next->prev=n; head->next=n; }` — insert n immediately after the head sentinel, i.e. at the most-recently-used position.",
+      "`LRUCache(int cap):cap(cap){ head=new Node(); tail=new Node(); head->next=tail; tail->prev=head; }` — initialize an empty list where the two sentinels point directly at each other.",
+      "`int get(int k){ if (!mp.count(k)) return -1; remove(mp[k]); addFront(mp[k]); return mp[k]->v; }` — a hit both returns the value AND counts as a 'use', so the node is unlinked from its current spot and reinserted at the front (most-recently-used).",
+      "`if (mp.count(k)){mp[k]->v=v;remove(mp[k]);addFront(mp[k]);return;}` — updating an existing key also counts as recent use: update the value, then move it to the front the same way get does.",
+      "`Node* n=new Node{k,v};mp[k]=n;addFront(n);` — a brand-new key is inserted at the front (freshest) and registered in the map.",
+      "`if ((int)mp.size()>cap){mp.erase(tail->prev->k);remove(tail->prev);}` — if capacity was just exceeded, tail->prev is by construction the least-recently-used node (nothing has touched it more recently than everything else in the list), so evict exactly that one: drop it from the map and unlink it.",
+    ],
     timeComplexity: "O(1) both operations",
     timeExplanation: "Hashmap O(1), linked list O(1) with pointers.",
     spaceComplexity: "O(capacity)",
@@ -4678,6 +5624,15 @@ public:
         return ans;
     }
 };`,
+    lineByLine: [
+      "`int ans;` — member variable to store the answer once found, since the recursion needs to short-circuit rather than combine return values.",
+      "`void inorder(TreeNode* node, int& k)` — k is passed BY REFERENCE so every recursive call (across the whole tree, not just one branch) shares and decrements the same counter, tracking how many nodes remain until we hit the k-th visit.",
+      "`if (!node || k == 0) return;` — stop recursing once we run off the tree, or once k has already hit 0 elsewhere (the answer was already found, so don't do extra work).",
+      "`inorder(node->left, k);` — visit the entire left subtree first — in a BST, everything smaller than this node lives there, so inorder must exhaust it before considering this node, guaranteeing sorted-order visitation.",
+      "`if (--k == 0) { ans = node->val; return; }` — decrement k as we 'visit' this node; k reaching exactly 0 means this is the k-th smallest value in sorted order, so record it and stop.",
+      "`inorder(node->right, k);` — only reached if the answer wasn't found yet; explore the right subtree (larger values) next, continuing the sorted-order walk.",
+      "`inorder(root, k); return ans;` — kick off the traversal from the root; by the time it returns (either naturally or via early exits), ans holds the k-th smallest value.",
+    ],
     timeComplexity: "O(H + k)",
     timeExplanation: "H = height to get to leftmost, then k steps.",
     spaceComplexity: "O(H)",
@@ -4717,6 +5672,13 @@ public:
         return validate(root, LONG_MIN, LONG_MAX);
     }
 };`,
+    lineByLine: [
+      "`bool validate(TreeNode* node, long lo, long hi)` — lo/hi are the OPEN interval this node's value must fall in, given every ancestor's constraint so far — using `long` (not int) avoids overflow issues when node values sit at INT_MIN/INT_MAX and bounds get compared against them.",
+      "`if (!node) return true;` — an empty subtree trivially satisfies any range constraint.",
+      "`if (node->val <= lo || node->val >= hi) return false;` — strict inequality enforces both 'no duplicates' and 'must respect every ancestor's bound', not just the immediate parent's.",
+      "`return validate(node->left, lo, node->val) && validate(node->right, node->val, hi);` — descending left, everything must still be less than this node's value, so hi tightens to node->val while lo is inherited unchanged; descending right, lo tightens to node->val instead. This is how a distant ancestor's constraint (like the 5 in [5,1,4,null,null,3,6]) keeps getting passed down instead of forgotten.",
+      "`return validate(root, LONG_MIN, LONG_MAX);` — the root has no constraints yet, so start with the widest possible open range.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Visit every node.",
     spaceComplexity: "O(h)",
@@ -4756,6 +5718,12 @@ public:
         return nullptr;
     }
 };`,
+    lineByLine: [
+      "`while (root)` — walk down from the root instead of recursing, since a BST's ordering lets us decide direction with simple comparisons.",
+      "`if (p->val < root->val && q->val < root->val) root = root->left;` — both targets are smaller than this node, so their common ancestor must live entirely in the left subtree — move down without ever needing to search the right side.",
+      "`else if (p->val > root->val && q->val > root->val) root = root->right;` — symmetric case: both are larger, so the LCA is in the right subtree.",
+      "`else return root;` — neither of the above holds, meaning p and q split across this node (one smaller, one larger), or this node IS p or q itself — either way, this is exactly the deepest point where both paths still share an ancestor, so it's the LCA.",
+    ],
     timeComplexity: "O(h)",
     timeExplanation: "h = tree height.",
     spaceComplexity: "O(1)",
@@ -4797,6 +5765,14 @@ public:
         return dfs(root,INT_MIN);
     }
 };`,
+    lineByLine: [
+      "`function<int(TreeNode*,int)> dfs=[&](TreeNode* n,int mx)->int{` — a lambda so mx (the running max value along the path from root to n) can be threaded downward as a parameter, capturing itself by reference (`[&]`) so it can call itself recursively.",
+      "`if (!n) return 0;` — an empty subtree contributes 0 good nodes.",
+      "`int good=(n->val>=mx)?1:0;` — this node is 'good' exactly when no ancestor on its root-to-node path exceeded its value, which is precisely what mx (max seen so far, not including this node) tracks.",
+      "`int nm=max(mx,n->val);` — update the running max to pass down to children: whichever is bigger, the inherited max or this node's own value, becomes the bar children must clear.",
+      "`return good+dfs(n->left,nm)+dfs(n->right,nm);` — the total good-node count for this subtree is this node's own good/not-good status plus however many good nodes each child subtree finds (each starting from the updated max).",
+      "`return dfs(root,INT_MIN);` — the root has no ancestors, so seed maxSoFar with the smallest possible value, guaranteeing the root itself always counts as good.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Visit every node.",
     spaceComplexity: "O(h)",
@@ -4836,6 +5812,14 @@ public:
 public:
     int maxPathSum(TreeNode* root) { dfs(root); return ans; }
 };`,
+    lineByLine: [
+      "`int ans = INT_MIN;` — a member (not a return value) holds the global best, because dfs's return value is reserved for a different, more restricted quantity (see below); INT_MIN handles the all-negative case correctly.",
+      "`if (!node) return 0;` — an empty subtree contributes nothing, and 0 is safe here specifically because it will be clamped anyway (see next line) — it means 'don't extend through this side'.",
+      "`int l = max(0, dfs(node->left)), r = max(0, dfs(node->right));` — dfs(child) MEANS 'the best sum of a path that starts at child and extends downward'; clamping negatives to 0 means 'if this branch would only hurt the sum, don't take it at all' rather than being forced to include it.",
+      "`ans = max(ans, node->val + l + r);` — the best path that BENDS at this node (using both children) has sum node->val + l + r; this is recorded in the global answer because such a bent path can never be extended further up (a path can't fork twice), so it must be captured here or never.",
+      "`return node->val + max(l, r);` — but what gets returned to the parent is only a STRAIGHT extension — this node plus whichever single side (left or right) is more beneficial — since the parent might want to extend the path further upward through only one branch.",
+      "`dfs(root); return ans;` — running dfs over the whole tree updates ans at every node as a side effect (via the bend calculation), so after the full traversal ans holds the true global maximum, whether or not the best path passes through the root.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Visit every node once.",
     spaceComplexity: "O(h)",
@@ -4878,6 +5862,15 @@ public:
         istringstream ss(data); return des(ss);
     }
 };`,
+    lineByLine: [
+      "`if (!root) return \"#\";` — a null child must be explicitly encoded (not just omitted) so deserialization can tell 'no node here' apart from 'ran out of input', preserving exact shape.",
+      "`return to_string(root->val)+\",\"+serialize(root->left)+\",\"+serialize(root->right);` — preorder order (root, then left subtree, then right subtree) is chosen deliberately: it means the very first unread token during deserialization is always the root of whatever subtree is currently being rebuilt.",
+      "`TreeNode* des(istringstream& ss)` — takes the stream by reference so the read position advances across all recursive calls, letting each call pick up exactly where the previous one left off.",
+      "`string t; getline(ss, t, ',');` — pull the next comma-delimited token, which is either a value or the '#' null marker.",
+      "`if (t==\"#\") return nullptr;` — hit a null marker, so this position in the tree is empty; nothing more to read for this branch.",
+      "`TreeNode* n=new TreeNode(stoi(t)); n->left=des(ss); n->right=des(ss); return n;` — otherwise this token is a real node's value; because serialization wrote left before right in preorder, calling des(ss) again immediately consumes exactly the left subtree's tokens first, then the next call consumes the right subtree's tokens — the stream position naturally aligns with the original recursive structure.",
+      "`istringstream ss(data); return des(ss);` — wrap the string in a stream so tokens can be pulled one at a time, then kick off reconstruction from the first token (the original root).",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Visit each node once.",
     spaceComplexity: "O(n)",
@@ -4922,6 +5915,12 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`if (root) q.push(root);` — guard against a null root so the queue starts empty (and the while loop below never runs) rather than crashing on a null push.",
+      "`int sz=q.size(); double sum=0;` — snapshot this level's width (same trick as level-order-traversal) and reset a running sum for just this level.",
+      "`for (int i=0;i<sz;i++){ auto n=q.front();q.pop(); sum+=n->val; ... }` — process exactly this level's sz nodes, accumulating their values into sum, while enqueueing children for the next level.",
+      "`res.push_back(sum/sz);` — dividing the level's total by its exact node count (captured before any children were added) gives that level's average; `double sum` ensures the division isn't truncated to an integer.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Visit every node.",
     spaceComplexity: "O(n)",
@@ -4962,6 +5961,14 @@ public:
         dfs(root,""); return res;
     }
 };`,
+    lineByLine: [
+      "`function<void(TreeNode*,string)> dfs=[&](TreeNode* n,string p){` — p (the path built so far) is passed BY VALUE, not by reference — that's deliberate: each recursive call gets its own independent copy, so when we recurse into the left subtree and then the right subtree, changes made in one branch never leak into the other (automatic backtracking, no manual undo needed).",
+      "`if (!n) return;` — nothing to add for a null node.",
+      "`p += (p.empty()?\"->\":\"\")... (n->val);` — actually appends the arrow separator only if the path already has content (so the root doesn't get a leading '->'), then appends this node's value.",
+      "`if (!n->left&&!n->right) res.push_back(p);` — a node with no children is a leaf, meaning p (built up from root to here) is a complete root-to-leaf path — record it.",
+      "`dfs(n->left,p); dfs(n->right,p);` — recurse into both children with the CURRENT path copy; since p is pass-by-value, each call explores independently from this exact point without needing to manually strip back added segments afterward.",
+      "`dfs(root,\"\"); return res;` — start with an empty path (root has no prefix yet) and collect every leaf's path along the way.",
+    ],
     timeComplexity: "O(n²)",
     timeExplanation: "n nodes, string copy O(n) each.",
     spaceComplexity: "O(n)",
@@ -4999,6 +6006,12 @@ public:
         return hasPathSum(root->left, targetSum) || hasPathSum(root->right, targetSum);
     }
 };`,
+    lineByLine: [
+      "`if (!root) return false;` — ran off the tree without hitting a leaf that matched, so this path (or non-existent path) fails.",
+      "`targetSum -= root->val;` — subtract this node's contribution from the remaining target, so by the time we reach a leaf, targetSum represents exactly what that leaf's value would need to be to complete the sum.",
+      "`if (!root->left && !root->right) return targetSum == 0;` — this is a leaf (both children null), so the path from root to here is complete; it's a valid answer only if subtracting every node along the way (including this leaf, already done above) landed exactly on 0.",
+      "`return hasPathSum(root->left, targetSum) || hasPathSum(root->right, targetSum);` — not a leaf yet, so keep extending the path down whichever side eventually finds a matching leaf; succeed if either branch does.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Visit each node.",
     spaceComplexity: "O(h)",
@@ -5045,6 +6058,16 @@ public:
         return build(0,pre.size()-1,0,in.size()-1);
     }
 };`,
+    lineByLine: [
+      "`for (int i=0;i<(int)in.size();i++) inIdx[in[i]]=i;` — precompute value → index in the inorder array so the root's split point can be found in O(1) instead of scanning, since all values are guaranteed unique.",
+      "`function<TreeNode*(int,int,int,int)> build=[&](int ps,int pe,int is,int ie)->TreeNode*{` — build(preStart, preEnd, inStart, inEnd) MEANS 'construct and return the subtree whose preorder slice is pre[ps..pe] and whose inorder slice is in[is..ie]'.",
+      "`if (ps>pe) return nullptr;` — an empty index range means there's no subtree here.",
+      "`TreeNode* root=new TreeNode(pre[ps]);` — preorder's first element in the current slice is always this subtree's root, by definition of preorder traversal.",
+      "`int mid=inIdx[pre[ps]], leftSz=mid-is;` — locate that same root value in the inorder slice; everything to its LEFT in inorder is the left subtree's values (since inorder visits left, root, right), so leftSz tells us exactly how many preorder elements (right after pre[ps]) belong to the left subtree.",
+      "`root->left=build(ps+1,ps+leftSz,is,mid-1);` — the left subtree's preorder slice is the next leftSz elements after the root, and its inorder slice is everything before mid.",
+      "`root->right=build(ps+leftSz+1,pe,mid+1,ie);` — whatever preorder elements remain (after the root and the left subtree's chunk) belong to the right subtree, paired with the inorder slice after mid.",
+      "`return build(0,pre.size()-1,0,in.size()-1);` — kick off reconstruction using the full preorder and inorder arrays as the initial ranges.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each node created once, O(1) lookup.",
     spaceComplexity: "O(n)",
@@ -5076,6 +6099,13 @@ public:
         return res + m[s.back()];
     }
 };`,
+    lineByLine: [
+      "`unordered_map<char,int> m={{'I',1},...,{'M',1000}};` — the standard value of each Roman numeral symbol.",
+      "`int res=0;` — accumulates the total value as we scan.",
+      "`for (int i=0;i<(int)s.size()-1;i++)` — process every character except the last, since each needs to look ahead at its neighbor to decide add vs. subtract.",
+      "`res += m[s[i]] < m[s[i+1]] ? -m[s[i]] : m[s[i]];` — if the current symbol's value is smaller than the next one's, we're in a subtractive pair (like I before V meaning 4), so subtract it; otherwise it's a normal additive symbol, so add it.",
+      "`return res + m[s.back()];` — the last character is never part of a look-ahead subtractive pair from its own position (any subtraction involving it was already handled when the PREVIOUS character checked ahead at it), so it's always added at face value.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass.",
     spaceComplexity: "O(1)",
@@ -5106,6 +6136,12 @@ public:
         return slow==1;
     }
 };`,
+    lineByLine: [
+      "`int sq(int n){int s=0;while(n){int d=n%10;s+=d*d;n/=10;}return s;}` — computes the next term in the sequence: peel off each digit and add its square; this is the 'step function' whose repeated application either converges to 1 or falls into a cycle.",
+      "`int slow=n, fast=sq(n);` — treat the sequence of repeated sq() calls as an implicit linked list where each number points to sq(itself); slow starts one step behind fast, mirroring Floyd's tortoise-and-hare setup.",
+      "`while (slow!=fast){slow=sq(slow);fast=sq(sq(fast));}` — slow advances one step at a time, fast advances two steps at a time; if the sequence ever cycles (n is not happy), the faster pointer will eventually lap the slower one and they'll meet, without needing a hash set to track visited values.",
+      "`return slow==1;` — if the two pointers met at 1, the sequence reached 1 (happy); if they met at any other cycling value, it's not happy — either way, meeting means the sequence is periodic, and only meeting AT 1 counts as happy.",
+    ],
     timeComplexity: "O(log n)",
     timeExplanation: "Digits reduce quickly; cycle detection O(cycle length).",
     spaceComplexity: "O(1)",
@@ -5139,6 +6175,13 @@ public:
         return digits;
     }
 };`,
+    lineByLine: [
+      "`for (int i=digits.size()-1;i>=0;i--)` — process digits from least significant (rightmost) to most significant, mirroring how carrying works in addition.",
+      "`if (digits[i]<9){digits[i]++;return digits;}` — if this digit isn't 9, adding 1 doesn't overflow it — increment it and we're done immediately, since there's no carry to propagate further left.",
+      "`digits[i]=0;` — this digit was 9, so adding 1 rolls it over to 0 and produces a carry that must be applied to the next digit to the left (the next loop iteration).",
+      "`digits.insert(digits.begin(),1);` — the loop finished without an early return only if every digit was 9 (e.g. 999 -> 000 with carry still pending) — that carry needs one more digit than the original array had, so prepend a leading 1.",
+      "`return digits;` — the incremented digit array, either returned early (common case) or after the all-9s special case.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "One pass worst case.",
     spaceComplexity: "O(1)",
@@ -5174,6 +6217,13 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`long long N = n;` — widen to 64-bit before negating, because negating INT_MIN (n = -2^31) as a 32-bit int would overflow; long long safely holds -N.",
+      "`if (N < 0) { x = 1/x; N = -N; }` — x^(-n) equals (1/x)^n, so flip x to its reciprocal and make the exponent positive, reducing negative-exponent cases to the same positive-exponent loop below.",
+      "`double res = 1;` — identity value for multiplication, representing x^0 before any work is done.",
+      "`while (N) { if (N & 1) res *= x; x *= x; N >>= 1; }` — this is binary/fast exponentiation: at each step, check the lowest bit of N (is the current power-of-two component included in n's binary representation?) and if so fold the current x (which represents x^(2^k) for the current bit position) into the result; then square x for the next higher bit and shift N right to move to that bit. This computes x^n in O(log n) multiplications instead of O(n).",
+      "`return res;` — x raised to the (possibly reciprocal) power n.",
+    ],
     timeComplexity: "O(log n)",
     timeExplanation: "Halve exponent each step.",
     spaceComplexity: "O(1)",
@@ -5210,6 +6260,14 @@ public:
         return rev;
     }
 };`,
+    lineByLine: [
+      "`int rev=0;` — accumulates the reversed number, built up one digit at a time from x's least significant digit onward.",
+      "`while (x){ int d=x%10; x/=10; ...}` — peel off x's last digit (this becomes the next digit to append to rev, since reversing puts the last digit first) and shrink x for the next iteration; in C++, %  and / on a negative x preserve the sign, so this correctly handles negative inputs without special-casing.",
+      "`if (rev>INT_MAX/10||(rev==INT_MAX/10&&d>7)) return 0;` — check for positive overflow BEFORE computing rev*10+d (which would itself overflow and produce undefined behavior); INT_MAX is ...647, so if rev already exceeds INT_MAX/10, or equals it but the next digit would exceed 7, appending d would overflow past INT_MAX.",
+      "`if (rev<INT_MIN/10||(rev==INT_MIN/10&&d<-8)) return 0;` — the symmetric overflow check for negative results, using INT_MIN's last digit (-8) as the threshold.",
+      "`rev=rev*10+d;` — shift the accumulated digits left by one place and append the newly extracted digit.",
+      "`return rev;` — the fully reversed number, or 0 was already returned early if it would have overflowed 32-bit range.",
+    ],
     timeComplexity: "O(log x)",
     timeExplanation: "Number of digits.",
     spaceComplexity: "O(1)",
@@ -5246,6 +6304,14 @@ public:
         return water;
     }
 };`,
+    lineByLine: [
+      "`int l=0,r=height.size()-1,maxL=0,maxR=0,water=0;` — maxL/maxR track the tallest wall seen so far from each side as the pointers close in; water accumulates the trapped total.",
+      "`while(l<r)` — process until the pointers meet, having covered every index exactly once.",
+      "`if(height[l]<=height[r])` — decide which side to process next: whichever side is currently shorter, because a shorter current bar guarantees the OTHER side already has a wall at least this tall, so maxL (not the unknown true right max) safely bounds the water at l.",
+      "`maxL=max(maxL,height[l]); water+=maxL-height[l++];` — update the running left max (this bar might be the new tallest-so-far on the left), then the water sitting above this bar is exactly maxL minus its own height (it can't be negative because maxL only grows, and it's correctly bounded since height[r] is known to be >= height[l] >= any future maxL contribution from the right).",
+      "`else { maxR=max(maxR,height[r]); water+=maxR-height[r--]; }` — symmetric case when the right side is shorter or equal, processing from the right instead.",
+      "`return water;` — total water trapped across the entire elevation map.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass.",
     spaceComplexity: "O(1)",
@@ -5285,6 +6351,16 @@ public:
         return maxA;
     }
 };`,
+    lineByLine: [
+      "`heights.push_back(0);` — append a sentinel bar of height 0 so that, at the end of the scan, every remaining bar on the stack gets forced to pop and be measured (nothing is left unprocessed).",
+      "`stack<int> st;` — holds indices of bars in strictly increasing height order (bottom to top); each index on the stack is still 'waiting' to find the bar that finally ends its potential rectangle on the right.",
+      "`while (!st.empty() && heights[i] < heights[st.top()])` — the current bar is shorter than the one on top of the stack, meaning that stacked bar can't extend any further right — this is the moment its maximal rectangle (using its own height) can finally be computed.",
+      "`int h = heights[st.top()]; st.pop();` — h is the height of the rectangle being closed off — the height of the bar that just lost its right boundary.",
+      "`int w = st.empty()?i:i-st.top()-1;` — width spans from just after the NEW top of stack (the nearest remaining bar still shorter than h, i.e. the left boundary) to just before i (the right boundary); if the stack is empty, this bar was the shortest seen so far and the rectangle extends all the way from index 0 to i.",
+      "`maxA = max(maxA, h*w);` — this bar's maximal rectangle (using it as the limiting height) is fully determined now; compare against the best found so far.",
+      "`st.push(i);` — push the current bar; it becomes a new 'waiting' candidate for a future shorter bar to close it off.",
+      "`return maxA;` — the largest rectangle area found across all bars, each of which was measured exactly once as the limiting (shortest) height of its own maximal extent.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each index pushed/popped once.",
     spaceComplexity: "O(n)",
@@ -5322,6 +6398,15 @@ public:
         return lo==0;
     }
 };`,
+    lineByLine: [
+      "`int lo=0,hi=0;` — instead of tracking one exact count of open parens (impossible since '*' is ambiguous), track the RANGE of open-paren counts still consistent with every possible interpretation of the '*'s seen so far: lo is the minimum possible count, hi the maximum.",
+      "`if(c=='('){lo++;hi++;}` — an actual '(' unambiguously raises both the minimum and maximum open count by one.",
+      "`else if(c==')'){lo--;hi--;}` — an actual ')' unambiguously lowers both bounds by one.",
+      "`else{lo--;hi++;}` — a '*' could act as ')' (lowering the count, hence lo--), as '(' (raising it, hence hi++), or as empty (no change) — since empty is already between those two extremes, only the two endpoints need updating to keep [lo,hi] the exact reachable range.",
+      "`if(hi<0) return false;` — if even the most generous interpretation (treating every '*' as '(') can't keep the open count non-negative, some ')' has definitely closed a paren that was never opened — unrecoverable, fail immediately.",
+      "`lo=max(lo,0);` — lo can't be allowed to go negative: a negative lo would wrongly claim 'even the least generous interpretation went negative,' but any interpretation that would have gone negative could instead treat an earlier '*' as '(' instead of ')' to stay at 0 — so clamping models that better choice.",
+      "`return lo==0;` — valid overall only if 0 (perfectly balanced) is achievable as SOME value within the final [lo,hi] range, and since lo is the range's minimum, lo==0 confirms 0 is reachable (hi>=lo always holds by construction).",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass.",
     spaceComplexity: "O(1)",
@@ -5363,6 +6448,14 @@ public:
             board[i][j]=(board[i][j]=='S')?'O':'X';
     }
 };`,
+    lineByLine: [
+      "`if(r<0||r>=(int)b.size()||c<0||c>=(int)b[0].size()||b[r][c]!='O') return;` — stop at out-of-bounds cells or anything that isn't an unmarked 'O' (already marked 'S', or already 'X') — the flood-fill only spreads through connected 'O' cells.",
+      "`b[r][c]='S';` — mark this cell as 'safe' (border-connected) using a THIRD state distinct from both 'O' and 'X', so the final pass can tell 'untouched O' (capturable) apart from 'border-connected O' (safe) apart from original 'X' walls.",
+      "`dfs(b,r+1,c);dfs(b,r-1,c);dfs(b,r,c+1);dfs(b,r,c-1);` — spread the 'safe' marking to all 4-directionally connected 'O' cells, since anything connected to a border 'O' (even indirectly through a chain of O's) is itself not fully surrounded.",
+      "`for(int i=0;i<m;i++){dfs(board,i,0);dfs(board,i,n-1);}` — start a flood-fill from every cell in the leftmost and rightmost COLUMNS (border-connected via row).",
+      "`for(int j=0;j<n;j++){dfs(board,0,j);dfs(board,m-1,j);}` — likewise start from every cell in the top and bottom ROWS, covering the entire border.",
+      "`board[i][j]=(board[i][j]=='S')?'O':'X';` — the final sweep: anything marked safe ('S') gets restored to 'O' (it wasn't actually surrounded), while everything else — both original 'X' and untouched 'O' (which must be enclosed, since it wasn't reached from any border) — becomes 'X'.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "Visit every cell.",
     spaceComplexity: "O(m × n)",
@@ -5418,6 +6511,15 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`g[eq[i][0]][eq[i][1]]=vals[i]; g[eq[i][1]][eq[i][0]]=1.0/vals[i];` — each equation a/b=val gives TWO directed edges for free: a→b weighted val (multiply by val to convert a units to b units), and b→a weighted 1/val (the reciprocal conversion back) — building both directions up front is what lets BFS travel either way through the constraint graph.",
+      "`auto bfs=[&](string s,string t)->double{ if(!g.count(s)||!g.count(t)) return -1; ... }` — if either variable never appeared in any equation, it has no edges at all, so no chain can possibly connect it to anything — immediate -1.",
+      "`if(s==t) return 1;` — dividing any known variable by itself is always 1, even without needing a graph lookup.",
+      "`q.push({s,1.0}); vis.insert(s);` — BFS state is (current variable, accumulated product of edge weights along the path so far) — starting with product 1.0 since no edges have been traversed yet.",
+      "`for(auto& [nb,w]:g[node]){ if(nb==t) return prod*w; if(!vis.count(nb)){vis.insert(nb);q.push({nb,prod*w});} }` — for each neighbor reachable by one more division step, multiplying the running product by that edge's weight extends the chain (e.g. a/b * b/c = a/c); if the neighbor IS the target, the answer is complete — return immediately without exploring further.",
+      "`return -1;` — the BFS exhausted every variable reachable from s without ever encountering t, meaning no chain of equations connects them.",
+      "`for(auto& query:queries) res.push_back(bfs(query[0],query[1]));` — answer each query independently with its own BFS from scratch.",
+    ],
     timeComplexity: "O((V+E) × Q)",
     timeExplanation: "BFS per query.",
     spaceComplexity: "O(V+E)",
@@ -5463,6 +6565,15 @@ public:
         return ans==INT_MAX?-1:ans;
     }
 };`,
+    lineByLine: [
+      "`for(auto& t:times) g[t[0]].push_back({t[1],t[2]});` — build a directed weighted adjacency list: edge from u to v with travel time w, matching the directed signal-propagation described.",
+      "`vector<int> dist(n+1,INT_MAX); dist[k]=0;` — dist[v] MEANS 'shortest time for the signal to reach node v from source k'; source itself takes 0 time, everything else starts unreachable.",
+      "`priority_queue<...,greater<>> pq; pq.push({0,k});` — a MIN-heap (via greater<>) ordered by current known distance, so the next node popped is always the closest unprocessed node — the core of Dijkstra's greedy guarantee.",
+      "`auto [d,u]=pq.top();pq.pop(); if(d>dist[u]) continue;` — this pair might be a stale queue entry from before dist[u] was improved by a better path found later; skip it rather than reprocessing with outdated info.",
+      "`for(auto [v,w]:g[u]) if(dist[u]+w<dist[v]){dist[v]=dist[u]+w;pq.push({dist[v],v});}` — relax each outgoing edge: if reaching v via u is cheaper than any previously known route, update and re-queue v with its improved distance.",
+      "`int ans=*max_element(dist.begin()+1,dist.end());` — 'time for the signal to reach EVERY node' is bottlenecked by whichever node takes the LONGEST to hear the signal, so the answer is the maximum shortest-distance across all nodes (skipping index 0, since nodes are labeled 1..n).",
+      "`return ans==INT_MAX?-1:ans;` — if even one node's distance never got updated from INT_MAX, that node is unreachable from k, so the whole signal can never reach everyone — report -1 instead of a bogus max value.",
+    ],
     timeComplexity: "O((V+E) log V)",
     timeExplanation: "Dijkstra with binary heap.",
     spaceComplexity: "O(V+E)",
@@ -5509,6 +6620,13 @@ public:
         return {};
     }
 };`,
+    lineByLine: [
+      "`int find(int x){return parent[x]==x?x:parent[x]=find(parent[x]);}` — find the representative/root of x's connected component, with path compression (`parent[x]=find(...)`) so future lookups from x jump straight to the root instead of walking the whole chain again.",
+      "`bool unite(int a,int b){ a=find(a);b=find(b); if(a==b) return false; ... }` — first resolve both nodes to their component roots; if they're ALREADY in the same component, adding this edge would connect two already-connected nodes, which is precisely what creates a cycle — return false to signal that.",
+      "`if(rnk[a]<rnk[b]) swap(a,b); parent[b]=a; if(rnk[a]==rnk[b]) rnk[a]++;` — union by rank: attach the shorter tree under the taller one's root to keep future find() calls fast, incrementing rank only when merging two equally-tall trees.",
+      "`iota(parent.begin(),parent.end(),0);` — initialize every node as its own separate component (parent[i] = i) before processing any edges.",
+      "`for(auto& e:edges) if(!unite(e[0],e[1])) return e;` — process edges in the exact input order; the moment unite() fails (endpoints already connected), that edge is the one completing the cycle — return it immediately without looking at later edges, which naturally gives the LAST such edge in input order since earlier edges are all processed first.",
+    ],
     timeComplexity: "O(n α(n))",
     timeExplanation: "n edges, near-O(1) per union-find op.",
     spaceComplexity: "O(n)",
@@ -5554,6 +6672,14 @@ public:
         return total;
     }
 };`,
+    lineByLine: [
+      "`vector<int> cost(n,INT_MAX); cost[0]=0;` — cost[i] MEANS 'the cheapest edge connecting node i to the MST built so far'; start node 0 already 'in' the tree with cost 0, everything else unreachable so far.",
+      "`for(int i=0;i<n;i++){ ... }` — the MST needs exactly n nodes added one at a time (n iterations), each iteration folding in one new point.",
+      "`int u=-1; for(int j=0;j<n;j++) if(!vis[j]&&(u==-1||cost[j]<cost[u])) u=j;` — scan every unvisited node to find the one that's CHEAPEST to attach to the current tree — this O(n) linear scan (instead of a heap) is what makes sense on a dense/complete graph where there'd otherwise be O(n^2) edges to manage in a heap.",
+      "`vis[u]=true; total+=cost[u];` — commit to adding u to the tree; its recorded cost is the cheapest possible edge connecting it in, so add that to the running total.",
+      "`for(int v=0;v<n;v++) if(!vis[v]){ int d=abs(pts[u][0]-pts[v][0])+abs(pts[u][1]-pts[v][1]); cost[v]=min(cost[v],d); }` — now that u just joined the tree, check whether connecting each remaining unvisited point directly to u is cheaper than whatever best option it had before — this is Prim's growing-frontier update, done implicitly since there's no real edge list, just computed Manhattan distances on the fly.",
+      "`return total;` — after all n points are folded in, total holds the sum of the cheapest edge used to attach each one — exactly the minimum spanning tree's total cost.",
+    ],
     timeComplexity: "O(n²)",
     timeExplanation: "Prim's without heap on dense graph.",
     spaceComplexity: "O(n)",
@@ -5605,6 +6731,15 @@ public:
         return -1;
     }
 };`,
+    lineByLine: [
+      "`vector<vector<int>> dist(n,vector<int>(n,INT_MAX)); dist[0][0]=grid[0][0];` — dist[r][c] MEANS 'the minimum possible bottleneck (highest single elevation you must wait for) along the best path to reach (r,c)'; starting cell's bottleneck is just its own elevation, since that's the water level needed before you can even stand there.",
+      "`pq.push({grid[0][0],0,0});` — a min-heap ordered by bottleneck value, so we always expand the currently-cheapest-to-reach cell next, just like Dijkstra.",
+      "`auto [t,r,c]=pq.top();pq.pop(); if(r==n-1&&c==n-1) return t;` — the moment the bottom-right cell is popped from a min-heap, its bottleneck t is guaranteed minimal (Dijkstra's greedy correctness), so return immediately.",
+      "`if(t>dist[r][c]) continue;` — a stale heap entry: this cell's dist has already been improved since this entry was pushed, so skip re-processing it.",
+      "`int nt=max(t,grid[nr][nc]);` — this is the key modification from normal Dijkstra: instead of ADDING an edge weight to accumulate a sum, the new path's bottleneck is the MAX of the current path's bottleneck and the next cell's own elevation — you're not paying a cumulative cost, you're waiting for the single highest point you must cross.",
+      "`if(nt<dist[nr][nc]){dist[nr][nc]=nt;pq.push({nt,nr,nc});}` — only update and re-explore through this neighbor if it offers a strictly better (lower) bottleneck than previously known.",
+      "`return -1;` — unreachable in a full n×n grid with 4-directional movement, so this line is really just a defensive fallback.",
+    ],
     timeComplexity: "O(n² log n)",
     timeExplanation: "Dijkstra on n² nodes.",
     spaceComplexity: "O(n²)",
@@ -5646,6 +6781,13 @@ public:
         return dist[dst]==INT_MAX?-1:dist[dst];
     }
 };`,
+    lineByLine: [
+      "`vector<int> dist(n,INT_MAX); dist[src]=0;` — dist[i] MEANS 'cheapest known price to reach city i using the edges relaxed so far'; src starts at 0 cost since we're already there.",
+      "`for(int i=0;i<=k;i++){ vector<int> tmp=dist; ... dist=tmp; }` — exactly k+1 rounds of relaxation, since k stops means at most k+1 flight legs; capping the round count is precisely what caps the number of edges used in any path.",
+      "`vector<int> tmp=dist;` — snapshot dist BEFORE this round's updates: reading from the old `dist` while writing into `tmp` ensures every edge relaxed in this round uses only prices known from PREVIOUS rounds, not ones just updated earlier in the same round — that's what prevents a single round from silently chaining multiple hops together and exceeding the stop limit.",
+      "`if(dist[f[0]]!=INT_MAX&&dist[f[0]]+f[2]<tmp[f[1]]) tmp[f[1]]=dist[f[0]]+f[2];` — only relax an edge if its source city was reachable in a PRIOR round, and doing so would beat the destination's current best price; this uses last round's dist[f[0]] (not tmp[f[0]]), enforcing the one-hop-per-round rule.",
+      "`return dist[dst]==INT_MAX?-1:dist[dst];` — after exactly k+1 rounds of controlled relaxation, dist[dst] holds the cheapest price reachable within the stop budget, or remains INT_MAX (unreachable within that budget) if no such route exists.",
+    ],
     timeComplexity: "O(k × E)",
     timeExplanation: "k+1 rounds, E edges each.",
     spaceComplexity: "O(V)",
@@ -5687,6 +6829,15 @@ public:
     }
     bool search(string w){ return dfs(root,w,0); }
 };`,
+    lineByLine: [
+      "`struct Node { Node* ch[26]={}; bool end=false; };` — a standard trie node, but using a fixed 26-slot array instead of a map for O(1) child lookup by letter.",
+      "`bool dfs(Node* n, const string& w, int i)` — recursive search that mirrors a normal trie walk, but branches for the wildcard case instead of a single deterministic step.",
+      "`if(!n) return false;` — fell off the trie (this path doesn't exist), so no word here can match.",
+      "`if(i==(int)w.size()) return n->end;` — consumed every character of the query; it's a match only if some added word actually ends at this exact node.",
+      "`if(w[i]=='.') { for(auto c:n->ch) if(dfs(c,w,i+1)) return true; return false; }` — a wildcard can stand for any letter, so try recursing into EVERY existing child (nulls short-circuit via the base case) and succeed if any of those 26 branches eventually matches.",
+      "`return dfs(n->ch[w[i]-'a'],w,i+1);` — for a normal letter there's only one branch that could possibly match, so descend directly into it (which may be null, handled by the base case).",
+      "`void addWord(string w){ ... cur->end=true; }` — standard trie insertion: walk/create a node per character, then flag the final node as a real word ending.",
+    ],
     timeComplexity: "O(M) add, O(26^M) worst search",
     timeExplanation: "All wildcards = DFS all 26 branches at each level.",
     spaceComplexity: "O(total chars)",
@@ -5730,6 +6881,15 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`struct T{T*ch[26]={};string word;};` — each trie node stores the complete word if one ends here (instead of just a boolean), so a DFS that lands on a word-ending node can immediately report which word it found.",
+      "`void ins(const string& w)` — standard trie insertion of every word in the dictionary, run once up front so the DFS below can prune paths that no word's prefix matches.",
+      "`if(r<0||r>=(int)b.size()||c<0||c>=(int)b[0].size()||b[r][c]=='#') return;` — stop if we've walked off the board or back onto a cell already used earlier in this same path (marked '#'), since words can't reuse a cell.",
+      "`char ch=b[r][c]; T* nx=n->ch[ch-'a']; if(!nx) return;` — the key pruning step: only continue if the trie actually has a branch for this cell's letter — if no dictionary word's prefix matches the path so far, stop immediately instead of exploring further.",
+      "`if(!nx->word.empty()){res.push_back(nx->word);nx->word=\"\";}` — reaching a node that marks a complete word means this path spells that word; record it, then clear the stored word so the same dictionary word is never added twice even if found again via a different path.",
+      "`b[r][c]='#'; dfs(...4 directions...); b[r][c]=ch;` — classic backtracking: mark the cell used before recursing into neighbors (so the word can't loop back through itself), then restore it afterward so other DFS paths starting elsewhere can still use this cell.",
+      "`for(auto& w:words) ins(w); ... for(...) for(...) dfs(board,i,j,root,res);` — build the trie once, then launch a DFS from every single board cell as a possible starting letter of some word.",
+    ],
     timeComplexity: "O(M × 4 × 3^(L-1))",
     timeExplanation: "M = board cells, L = word length.",
     spaceComplexity: "O(W × L)",
@@ -5762,6 +6922,12 @@ public:
         return best==target;
     }
 };`,
+    lineByLine: [
+      "`vector<int> best(3,0);` — tracks the best elementwise-max achievable so far using only triplets that are safe to merge.",
+      "`if(t[0]>target[0]||t[1]>target[1]||t[2]>target[2]) continue;` — a triplet with any coordinate exceeding the target can NEVER be merged in, because merging only takes elementwise maximums — it never decreases a value. Including such a triplet would push that coordinate's max past target permanently, making the target unreachable. So it's always safe (and necessary) to discard it outright.",
+      "`for(int i=0;i<3;i++) best[i]=max(best[i],t[i]);` — for every triplet that's safe to use, folding it in via elementwise max can only help (or do nothing) — there's no downside to using every valid triplet's contribution, since max is monotonic and never hurts getting closer to target.",
+      "`return best==target;` — achieving target is possible exactly when combining every usable triplet still reaches target exactly in every coordinate; if the achievable max falls short anywhere, no valid combination of merges could have done better.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass.",
     spaceComplexity: "O(1)",
@@ -5803,6 +6969,14 @@ public:
         return ans;
     }
 };`,
+    lineByLine: [
+      "`sort(intervals.begin(),intervals.end());` — sorting by start lets intervals be added to the active set in increasing order of start, so a single forward pointer can sweep through them without backtracking.",
+      "`vector<int> idx(n);iota(idx.begin(),idx.end(),0); sort(idx.begin(),idx.end(),...);` — queries must also be processed in increasing order for the same sweep-line trick to work, but the ORIGINAL query index must be remembered so the answer can be written back to the right slot in ans — hence sorting an index array by query value instead of sorting queries directly.",
+      "`priority_queue<pair<int,int>,vector<pair<int,int>>,greater<>> pq;` — a min-heap of (size, end) for all intervals that have started but might still be active; ordering by size first means the top is always the smallest currently-valid interval.",
+      "`while(i<(int)intervals.size()&&intervals[i][0]<=q) { pq.push(...); i++; }` — as the query sweeps forward, add every interval whose start has now been reached (start <= q) — once added it stays a heap candidate until it expires.",
+      "`while(!pq.empty()&&pq.top().second<q) pq.pop();` — lazy deletion: remove intervals from the top of the heap whose end has already passed before this query — they're stale and can never be the answer for this or any later (larger) query.",
+      "`ans[qi]=pq.empty()?-1:pq.top().first;` — after adding new intervals and purging expired ones, whatever sits on top of the heap is the smallest interval that both started by now and hasn't ended yet — exactly the smallest containing interval, or -1 if none remain.",
+    ],
     timeComplexity: "O((n+q) log n)",
     timeExplanation: "Sort + heap ops.",
     spaceComplexity: "O(n+q)",
@@ -5836,6 +7010,12 @@ public:
         return dp[m][n];
     }
 };`,
+    lineByLine: [
+      "`vector<vector<long>> dp(m+1,vector<long>(n+1,0));` — dp[i][j] counts distinct ways to form t[0..j-1] as a subsequence of s[0..i-1]; using long avoids overflow since the count of subsequence-embeddings can grow combinatorially large.",
+      "`for(int i=0;i<=m;i++) dp[i][0]=1;` — there's exactly one way to form an empty target string from any prefix of s: delete everything, so every dp[i][0] is seeded to 1 (this is the base case that lets 'skip this s character' always be a valid option).",
+      "`dp[i][j]=dp[i-1][j]+(s[i-1]==t[j-1]?dp[i-1][j-1]:0);` — dp[i-1][j] always counts the ways that ignore s[i-1] entirely (it isn't required to appear in this particular embedding); additionally, if s[i-1] matches t[j-1], every way of embedding t[0..j-2] in s[0..i-2] (dp[i-1][j-1]) extends by using s[i-1] as the match for t[j-1] — both possibilities are summed because they represent genuinely different subsequence choices, not alternatives to pick between.",
+      "`return dp[m][n];` — the full count of distinct subsequences of s that equal the full string t.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "Fill DP table.",
     spaceComplexity: "O(m × n)",
@@ -5871,6 +7051,14 @@ public:
         return dp[m][n];
     }
 };`,
+    lineByLine: [
+      "`if(m+n!=(int)s3.size()) return false;` — a necessary length check up front: an interleaving must use every character of both s1 and s2 exactly once, so if their combined length doesn't match s3's length, no interleaving can possibly work.",
+      "`vector<vector<bool>> dp(m+1,vector<bool>(n+1,false)); dp[0][0]=true;` — dp[i][j] means 's3's first (i+j) characters can be formed by interleaving s1's first i chars with s2's first j chars'; the empty-empty case trivially matches the empty prefix of s3.",
+      "`for(int i=1;i<=m;i++) dp[i][0]=dp[i-1][0]&&s1[i-1]==s3[i-1];` — with zero characters taken from s2, the only way to match s3's prefix is if s1's prefix matches it character-for-character, checked incrementally against the previous row's result.",
+      "`for(int j=1;j<=n;j++) dp[0][j]=dp[0][j-1]&&s2[j-1]==s3[j-1];` — symmetric base case using only s2 when zero characters are taken from s1.",
+      "`dp[i][j]=(dp[i-1][j]&&s1[i-1]==s3[i+j-1])||(dp[i][j-1]&&s2[j-1]==s3[i+j-1]);` — the character at s3[i+j-1] (the next character to place) must have come from either s1 or s2: it's reachable via s1 if s1[i-1] equals it AND the state before taking that s1 character (dp[i-1][j]) was already valid, or via s2 under the analogous condition — either path succeeding makes dp[i][j] true, since only one interleaving choice needs to work.",
+      "`return dp[m][n];` — whether the full s1 and full s2 can interleave to reconstruct the full s3.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "Fill DP table.",
     spaceComplexity: "O(m × n)",
@@ -5907,6 +7095,13 @@ public:
         return dp[1][n-2];
     }
 };`,
+    lineByLine: [
+      "`nums.insert(nums.begin(),1); nums.push_back(1);` — pad both ends with a virtual balloon of value 1, so a real balloon at either edge of the original array can still use the 'neighbor product' formula uniformly, treating the boundary as if an always-present 1-valued balloon sits there.",
+      "`for(int len=1;len<=n-2;len++) for(int l=1;l+len-1<=n-2;l++)` — classic interval DP ordering: process every subrange [l, r] of increasing length, since the answer for a range depends only on answers for its strictly smaller sub-ranges.",
+      "`for(int k=l;k<=r;k++)` — the key trick: instead of asking 'which balloon do I burst FIRST', ask 'which balloon k is the LAST one burst within [l, r]' — once k is fixed as last, everything else in [l, k-1] and [k+1, r] must have already been fully burst (independently, since bursting order within each side doesn't affect the other), and k's own neighbors at burst time are guaranteed to be the range's original boundary balloons nums[l-1] and nums[r+1] (since everything between k and each boundary has already burst away).",
+      "`dp[l][r]=max(dp[l][r],nums[l-1]*nums[k]*nums[r+1]+dp[l][k-1]+dp[k+1][r]);` — total coins = (coins from bursting k last, using the boundary balloons as its neighbors) + (best coins from fully clearing the left sub-range) + (best coins from fully clearing the right sub-range); maximize over every choice of which balloon k plays the 'last' role.",
+      "`return dp[1][n-2];` — after padding, indices 1..n-2 are exactly the original balloons, so this cell holds the max coins for bursting all of them.",
+    ],
     timeComplexity: "O(n³)",
     timeExplanation: "Three nested loops.",
     spaceComplexity: "O(n²)",
@@ -5944,6 +7139,15 @@ public:
         return dp[m][n];
     }
 };`,
+    lineByLine: [
+      "`bool match(char s,char p){return p=='.'||s==p;}` — a tiny helper: a pattern char matches a string char if they're literally equal, or if the pattern char is the '.' wildcard which matches anything.",
+      "`vector<vector<bool>> dp(m+1,vector<bool>(n+1,false)); dp[0][0]=true;` — dp[i][j] means 's's first i chars match p's first j chars'; matching two empty strings is trivially true.",
+      "`for(int j=2;j<=n;j++) if(p[j-1]=='*') dp[0][j]=dp[0][j-2];` — an empty string s can only match a pattern prefix ending in '*' if that star is used for ZERO occurrences, which is valid exactly when the pattern without 'char*' (two chars shorter) already matched the empty string.",
+      "`if(p[j-1]=='*')` — special-case handling since '*' doesn't represent its own literal character but modifies the character before it.",
+      "`dp[i][j]=dp[i][j-2]||(j>=2&&dp[i-1][j]&&match(s[i-1],p[j-2]));` — '*' gives two independent ways to satisfy this position: use it for ZERO occurrences of the preceding char (fall back to dp[i][j-2], as if 'char*' weren't there at all), OR use ONE MORE occurrence (only valid if the preceding pattern char actually matches s[i-1], and dp[i-1][j] confirms the rest of s before this char was already fine with the same pattern suffix, since '*' can keep repeating).",
+      "`else dp[i][j]=dp[i-1][j-1]&&match(s[i-1],p[j-1]);` — for an ordinary character (or '.'), it's a straightforward one-to-one consumption: the current chars must match AND everything before them must already have matched.",
+      "`return dp[m][n];` — whether the entire s matches the entire p, which is why this problem requires full-string matching rather than substring matching.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "Fill DP table.",
     spaceComplexity: "O(m × n)",
@@ -5991,6 +7195,14 @@ public:
     void follow(int u,int f){follows[u].insert(f);}
     void unfollow(int u,int f){follows[u].erase(f);}
 };`,
+    lineByLine: [
+      "`unordered_map<int,vector<pair<int,int>>> tweets;` — each user's tweets are stored in posting order, along with a global monotonically increasing timestamp so tweets can be compared for recency across different users.",
+      "`void postTweet(int u,int t){tweets[u].push_back({time++,t});}` — record the tweet with the current global counter as its timestamp, then advance the counter, so later tweets always compare as more recent regardless of which user posted them.",
+      "`follows[u].insert(u);` — temporarily add the user to their own follow-set so the merge step below can treat 'my own tweets' and 'my followees' tweets' uniformly, without special-casing the caller's own feed.",
+      "`for(int f:follows[u]) { auto& v=tweets[f]; if(!v.empty()) pq.push({v.back().first,v.back().second,f,(int)v.size()-1}); }` — this is the merge-k-sorted-lists pattern: seed a max-heap with just the MOST RECENT tweet from each followed user (v.back(), since each user's own tweet list is already chronologically sorted), keyed by timestamp so the globally most recent tweet across all followees surfaces first.",
+      "`while(!pq.empty()&&(int)res.size()<10) { auto [t,tw,f,i]=pq.top();pq.pop(); res.push_back(tw); if(i>0) pq.push({tweets[f][i-1].first,tweets[f][i-1].second,f,i-1}); }` — repeatedly pop the globally most recent remaining tweet, add it to the feed, then push that same user's NEXT most recent tweet (index i-1) back into the heap so it can compete fairly against everyone else's remaining tweets; stop once 10 tweets are collected.",
+      "`follows[u].erase(u);` — undo the temporary self-follow so it doesn't leak into the user's actual persistent follow relationships.",
+    ],
     timeComplexity: "O(k log k) feed",
     timeExplanation: "k = followees, heap of size k, pull 10.",
     spaceComplexity: "O(tweets + follows)",
@@ -6028,6 +7240,13 @@ public:
         return slow;
     }
 };`,
+    lineByLine: [
+      "`int slow=nums[0],fast=nums[nums[0]];` — treat the array as an implicit linked list where index i points to index nums[i]; since some value repeats, at least two indices point to the same next index, guaranteeing a cycle. slow takes one hop, fast takes two.",
+      "`while(slow!=fast){slow=nums[slow];fast=nums[nums[fast]];}` — same Floyd's phase-1 loop as linked-list-cycle: fast gains on slow by one step per iteration, so they're guaranteed to meet somewhere inside the cycle.",
+      "`slow=0;` — phase 2 of Floyd's algorithm: reset one pointer to the start; the distance from the start to the cycle entrance equals the distance from the meeting point to the cycle entrance (a property of cycle detection), which is what makes the next loop find the entry point exactly.",
+      "`while(slow!=fast){slow=nums[slow];fast=nums[fast];}` — now advance both pointers one step at a time; they meet precisely at the cycle's entry — which corresponds to the duplicate value, since that's the only index with two incoming 'pointers'.",
+      "`return slow;` — the meeting point in phase 2 is the duplicate number itself.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Two passes, Floyd's cycle.",
     spaceComplexity: "O(1)",
@@ -6059,6 +7278,12 @@ public:
         return c;
     }
 };`,
+    lineByLine: [
+      "`if(n==0) return 0; if(n<=2) return 1;` — handle the given base cases directly (T0=0, T1=T2=1), since the loop below assumes a,b,c already hold T0,T1,T2 and only need to start rolling forward from index 3.",
+      "`int a=0,b=1,c=1;` — seed the three most recent values as T(0), T(1), T(2) respectively, matching the problem's stated base cases.",
+      "`for(int i=3;i<=n;i++){int t=a+b+c;a=b;b=c;c=t;}` — the recurrence T(i) = T(i-1)+T(i-2)+T(i-3) needs exactly the three previous terms, so compute the new term from a,b,c, then slide the three-variable window forward one position for the next iteration.",
+      "`return c;` — after the loop, c holds T(n) (or the seeded base case if the loop never ran).",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single loop.",
     spaceComplexity: "O(1)",
@@ -6084,6 +7309,10 @@ public:
         return min(cost[n-1],cost[n-2]);
     }
 };`,
+    lineByLine: [
+      "`for(int i=2;i<n;i++) cost[i]+=min(cost[i-1],cost[i-2]);` — reusing the cost array itself as the dp table: after this line, cost[i] no longer means 'the price of stepping on stair i' but 'the minimum total cost to reach stair i', computed by taking the cheaper of arriving via a 1-step hop from i-1 or a 2-step hop from i-2 and adding this stair's own price.",
+      "`return min(cost[n-1],cost[n-2]);` — the goal is a position PAST the last stair, which can be reached either from the last stair (index n-1, a 1-step hop) or the second-to-last (index n-2, a 2-step hop that skips the last one entirely); since both are valid ways to finish, take whichever accumulated cost is smaller.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass.",
     spaceComplexity: "O(1)",
@@ -6125,6 +7354,13 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`unordered_map<string,multiset<string>> g; for(auto& t:tickets) g[t[0]].insert(t[1]);` — a multiset per airport (not a set) since duplicate tickets between the same pair are allowed, and multiset keeps destinations sorted so the SMALLEST unused destination is always found first — that's how lexicographic-smallest gets enforced.",
+      "`stack<string> st; st.push(\"JFK\");` — Hierholzer's algorithm walks the graph using an explicit stack rather than plain recursion, so it can naturally backtrack from dead ends without needing separate 'undo' logic.",
+      "`string cur=st.top(); if(g[cur].empty()){res.push_back(cur);st.pop();}` — only record cur into the result once ALL of its outgoing tickets have been used (g[cur] is empty) — this is the post-order trick: a node that still has unused tickets is NOT finished yet, so don't commit it to the answer prematurely; if it were committed too early and later got stuck, the itinerary would be wrong.",
+      "`else{st.push(*g[cur].begin());g[cur].erase(g[cur].begin());}` — otherwise, greedily follow the lexicographically smallest unused destination from cur, consuming that ticket (erase it so it's never reused) and pushing the destination to continue exploring deeper.",
+      "`reverse(res.begin(),res.end());` — because nodes are recorded in post-order (finished/dead-ends first), the raw res lists the itinerary backwards; reversing produces the correct JFK-to-end order — this mirrors exactly why course-schedule-ii also reverses its post-order list.",
+    ],
     timeComplexity: "O(E log E)",
     timeExplanation: "E edges, sorted multiset insertions.",
     spaceComplexity: "O(E)",
@@ -6166,6 +7402,13 @@ public:
         return true;
     }
 };`,
+    lineByLine: [
+      "`if((int)edges.size()!=n-1) return false;` — a cheap arithmetic pre-check: any valid tree on n nodes has EXACTLY n-1 edges — too few means disconnected, too many means at least one cycle — so a mismatch rejects immediately without touching Union-Find.",
+      "`par.resize(n);iota(par.begin(),par.end(),0);` — initialize each node as its own separate component before processing edges.",
+      "`int a=find(e[0]),b=find(e[1]); if(a==b) return false;` — if both endpoints already share a root, this edge connects two nodes that were already reachable from each other through some other path — that's a cycle, which disqualifies the tree property.",
+      "`par[a]=b;` — otherwise merge the two components by attaching one root under the other.",
+      "`return true;` — every edge merged two previously-separate components without ever finding an existing cycle, and the n-1 count already guarantees full connectivity once all merges succeed — together, connected AND acyclic means a valid tree.",
+    ],
     timeComplexity: "O(n α(n))",
     timeExplanation: "n union-find ops.",
     spaceComplexity: "O(n)",
@@ -6207,6 +7450,11 @@ public:
         return comps;
     }
 };`,
+    lineByLine: [
+      "`par.resize(n);iota(par.begin(),par.end(),0); int comps=n;` — start by assuming every node is its own isolated component (n total), which is exactly true when no edges have been processed yet.",
+      "`int a=find(e[0]),b=find(e[1]); if(a!=b){par[a]=b;comps--;}` — resolve both endpoints to their component roots; if they're in DIFFERENT components, this edge merges two previously-separate groups into one, so the total component count drops by exactly 1. If they're already in the same component, the edge is redundant (both nodes already reachable from each other) and comps stays unchanged.",
+      "`return comps;` — after processing every edge, comps holds however many distinct connected groups remain.",
+    ],
     timeComplexity: "O(n + E α(n))",
     timeExplanation: "n init + E union ops.",
     spaceComplexity: "O(n)",
@@ -6246,6 +7494,12 @@ public:
         dfs(0); return res;
     }
 };`,
+    lineByLine: [
+      "`vector<int> path={0};` — the path always starts at node 0 (the fixed source), so it's seeded before any recursion begins.",
+      "`function<void(int)> dfs=[&](int node){ if(node==n-1){res.push_back(path);return;} ... }` — whenever the current node IS the target (n-1), the path built so far (from source to here) is a complete valid answer — record a COPY of it into res.",
+      "`for(int nb:graph[node]){path.push_back(nb);dfs(nb);path.pop_back();}` — standard backtracking: try extending the path through each neighbor, recurse to explore further, then pop it back off so the NEXT sibling neighbor starts from the same path prefix — no visited-set is needed because the graph is guaranteed acyclic (a DAG), so recursion always terminates without looping back on itself.",
+      "`dfs(0); return res;` — kick off the search from node 0; res accumulates every distinct source-to-target path found along the way.",
+    ],
     timeComplexity: "O(2^n × n)",
     timeExplanation: "Up to 2^n paths of length n.",
     spaceComplexity: "O(n)",
@@ -6295,6 +7549,15 @@ public:
         return res.size()==indeg.size()?res:"";
     }
 };`,
+    lineByLine: [
+      "`for(auto& w:words) for(char c:w) indeg[c]=0;` — register every character that appears anywhere as a known node with in-degree 0 initially, even ones that never end up needing an edge — this ensures isolated letters still make it into the final ordering.",
+      "`for(int i=0;i<(int)words.size()-1;i++){ auto& a=words[i]; auto& b=words[i+1]; ... }` — dictionary order only constrains ADJACENT word pairs directly; comparing consecutive pairs is enough to derive every ordering rule (transitivity across the whole list is handled later by the topological sort itself).",
+      "`for(int j=0;j<(int)l;j++) if(a[j]!=b[j]){ if(!adj[a[j]].count(b[j])){adj[a[j]].insert(b[j]);indeg[b[j]]++;} found=true;break; }` — find the FIRST position where the two words differ — that single character comparison is the only valid signal about letter order (everything before it was identical, so it tells us nothing); add a directed edge a[j]→b[j] (meaning a[j] must come before b[j] in the alphabet) exactly once, breaking out immediately since only the first difference is meaningful.",
+      "`if(!found&&a.size()>b.size()) return \"\";` — if the words matched completely up to the length of the shorter one (no difference found) AND the earlier word is LONGER, that's invalid — a longer word can never dictionary-precede its own prefix (like 'abc' before 'ab'), so no valid alphabet exists.",
+      "`for(auto& [c,d]:indeg) if(!d) q.push(c);` — Kahn's algorithm: start the topological sort from every letter with no unresolved 'must come before me' constraints — these are the first letters that could safely appear in the output.",
+      "`while(!q.empty()){char c=q.front();q.pop();res+=c;for(char nb:adj[c]) if(!--indeg[nb]) q.push(nb);}` — repeatedly output a free letter, then decrement the in-degree of everything it was constraining; once a letter's in-degree hits 0 (all its prerequisites have now been placed), it becomes free to output too.",
+      "`return res.size()==indeg.size()?res:\"\";` — if every registered character made it into res, the topological sort fully succeeded; if some are missing, they were stuck in a cycle (mutual 'must come before' constraints that can never resolve), meaning no valid ordering exists.",
+    ],
     timeComplexity: "O(C)",
     timeExplanation: "C = total chars across all words.",
     spaceComplexity: "O(U²)",
@@ -6338,6 +7601,13 @@ public:
         return ans;
     }
 };`,
+    lineByLine: [
+      "`if(memo[r][c]) return memo[r][c];` — memoization guard: if the longest increasing path starting at (r,c) has already been computed, reuse it instantly instead of re-exploring; this is what turns an otherwise exponential DFS into O(m×n).",
+      "`int dirs[]={0,1,0,-1,0};` — a compact trick to generate the 4 (dr, dc) direction pairs by reading consecutive elements: (dirs[0],dirs[1])=(0,1) right, (dirs[1],dirs[2])=(1,0) down, (dirs[2],dirs[3])=(0,-1) left, (dirs[3],dirs[4])=(-1,0) up.",
+      "`if(nr>=0&&nr<(int)g.size()&&nc>=0&&nc<(int)g[0].size()&&g[nr][nc]>g[r][c]) best=max(best,1+dfs(g,nr,nc));` — only recurse into a neighbor if it's in bounds AND strictly greater than the current cell; this strict-increase requirement is exactly why no separate visited-tracking is needed — a path can never revisit a cell since values would have to both increase and later come back down, which is impossible.",
+      "`return memo[r][c]=best;` — best starts at 1 (the cell counts itself even with no valid neighbors) and grows by exploring every increasing neighbor; store it in memo before returning so future calls to this cell are O(1).",
+      "`for(int i=0;i<m;i++) for(int j=0;j<n;j++) ans=max(ans,dfs(matrix,i,j));` — the longest increasing path in the whole matrix could start at any cell, so try every cell as a starting point and keep the best result seen.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "Each cell computed once via memo.",
     spaceComplexity: "O(m × n)",
@@ -6388,6 +7658,15 @@ public:
         return 0;
     }
 };`,
+    lineByLine: [
+      "`unordered_set<string> ws(wordList.begin(),wordList.end());` — O(1) membership checks are essential since we'll be testing up to 26×wordLength candidate words per BFS step.",
+      "`if(!ws.count(end)) return 0;` — the problem guarantees endWord must be in wordList; if it's missing, no transformation sequence can possibly end there, so fail immediately.",
+      "`queue<pair<string,int>> q; q.push({begin,1});` — BFS state is (current word, path length so far); beginWord itself counts as step 1 (the first word in the sequence).",
+      "`for(int i=0;i<(int)w.size();i++){ char orig=w[i]; for(char c='a';c<='z';c++){ ... } w[i]=orig; }` — since there's no explicit adjacency list, generate every 'one letter changed' neighbor on the fly: for each position, try substituting every letter a-z (skipping the check when c happens to equal orig doesn't matter since ws won't contain w itself as a 'new' word incorrectly — actually it would still match unchanged w, but that's already visited/removed or is begin itself), restoring the original character afterward so the next position starts clean.",
+      "`if(w==end) return step+1;` — found the target word one edit away from the current word — since BFS explores in order of increasing step count, the FIRST time end is reached is guaranteed to be via the shortest sequence.",
+      "`if(ws.count(w)){ws.erase(w);q.push({w,step+1});}` — a valid dictionary word one edit away becomes a new BFS frontier node; erasing it from the set immediately marks it visited, preventing it from being enqueued again via a different (longer or equal) path later.",
+      "`return 0;` — the queue emptied without ever reaching endWord, meaning no valid transformation sequence exists.",
+    ],
     timeComplexity: "O(M² × N)",
     timeExplanation: "N words, M length, 26 variations per position.",
     spaceComplexity: "O(M × N)",
@@ -6418,6 +7697,12 @@ public:
         return triangle[0][0];
     }
 };`,
+    lineByLine: [
+      "`for(int i=n-2;i>=0;i--)` — work bottom-up starting from the second-to-last row, since the last row's values are already 'final' (there's nothing below them to add), and going upward lets each row reuse the row directly below it, which is already fully resolved.",
+      "`for(int j=0;j<=i;j++)` — process every valid position in row i (there are i+1 of them, matching the triangle's shape).",
+      "`triangle[i][j]+=min(triangle[i+1][j],triangle[i+1][j+1]);` — from position j in row i, the path can only continue to position j or j+1 in row i+1; since that row has already been converted (in-place) to hold the best possible sum from itself down to the bottom, adding the cheaper of those two options gives the best sum from (i,j) down to the bottom.",
+      "`return triangle[0][0];` — by the time the loop reaches the apex (row 0), it has absorbed the best possible path sum from the top all the way to the bottom.",
+    ],
     timeComplexity: "O(n²)",
     timeExplanation: "Fill every cell.",
     spaceComplexity: "O(1)",
@@ -6449,6 +7734,13 @@ public:
         return count(sieve.begin(),sieve.end(),true);
     }
 };`,
+    lineByLine: [
+      "`if(n<2) return 0;` — there are no primes less than 2 (0 and 1 aren't prime).",
+      "`vector<bool> sieve(n,true); sieve[0]=sieve[1]=false;` — assume every index is prime until proven otherwise (the sieve), then explicitly rule out 0 and 1, which are never prime.",
+      "`for(int i=2;(long long)i*i<n;i++)` — only need to sieve with potential prime factors up to sqrt(n), since any composite number less than n must have a factor <= sqrt(n); (long long) cast avoids i*i overflowing int for large n.",
+      "`if(sieve[i]) for(int j=i*i;j<n;j+=i) sieve[j]=false;` — if i is still marked prime (wasn't crossed off by a smaller prime), cross off all of its multiples starting from i*i — smaller multiples like 2i, 3i, ... (i-1)*i were already crossed off by smaller prime factors, so starting at i*i avoids redundant work.",
+      "`return count(sieve.begin(),sieve.end(),true);` — every index still marked true survived all the sieving, meaning it has no factors other than 1 and itself — count them as the primes below n.",
+    ],
     timeComplexity: "O(n log log n)",
     timeExplanation: "Sieve complexity.",
     spaceComplexity: "O(n)",
@@ -6486,6 +7778,15 @@ public:
         return s.empty()?"0":s;
     }
 };`,
+    lineByLine: [
+      "`int m=num1.size(),n=num2.size(); vector<int> res(m+n,0);` — the product of an m-digit and n-digit number has at most m+n digits, so a result array of that size can always hold every digit position (plus carries) before final conversion.",
+      "`for(int i=m-1;i>=0;i--) for(int j=n-1;j>=0;j--)` — multiply every pair of digits, one from each number, mimicking grade-school long multiplication.",
+      "`int mul=(num1[i]-'0')*(num2[j]-'0');` — the raw product of these two digits.",
+      "`int p1=i+j,p2=i+j+1,sum=mul+res[p2];` — digit i (from the right, num1 has index i counted from the left but represents a power-of-ten position) times digit j lands across two result positions: p2 is the 'ones' position for this partial product, p1 is the 'tens' position it carries into; sum also absorbs whatever was already accumulated at res[p2] from earlier digit pairs.",
+      "`res[p2]=sum%10; res[p1]+=sum/10;` — the ones digit of sum stays at p2; the carry (tens and above) is added into p1 — note it's `+=` because p1 may already hold contributions from other digit pairs, and more carries may still arrive there later.",
+      "`for(int d:res) if(!(s.empty()&&!d)) s+=to_string(d);` — build the final digit string left to right, skipping leading zeros (a zero digit is only skipped while the output string is still empty, i.e. before any real digit has been written).",
+      "`return s.empty()?\"0\":s;` — if every digit turned out to be a skipped leading zero (e.g. one input was \"0\"), the true product is 0.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "Every pair of digits multiplied.",
     spaceComplexity: "O(m + n)",
@@ -6535,6 +7836,15 @@ public:
         return 0;
     }
 };`,
+    lineByLine: [
+      "`g[edges[i][0]].push_back({edges[i][1],prob[i]}); g[edges[i][1]].push_back({edges[i][0],prob[i]});` — the graph is undirected, so each edge is added to BOTH endpoints' adjacency lists with the same probability, since traversal works either direction.",
+      "`vector<double> dist(n,0); dist[s]=1.0;` — dist[v] MEANS 'the best (maximum) success probability of any path found so far from s to v'; unreached nodes default to 0 (impossible), and the start reaches itself with certainty (1.0).",
+      "`priority_queue<pair<double,int>> pq; pq.push({1.0,s});` — a plain priority_queue in C++ is a MAX-heap by default, which is exactly what's needed here — always expand the highest-probability frontier node next, mirroring how normal Dijkstra always expands the lowest-cost node.",
+      "`auto [p,u]=pq.top();pq.pop(); if(u==e) return p;` — the moment the end node is popped off a max-heap, its probability p is guaranteed to be the best possible (Dijkstra's greedy correctness, just flipped to maximize) — return immediately.",
+      "`if(p<dist[u]) continue;` — a stale heap entry whose probability has since been beaten by a better path; skip it.",
+      "`for(auto [v,w]:g[u]) if(dist[u]*w>dist[v]){dist[v]=dist[u]*w;pq.push({dist[v],v});}` — the relaxation rule is MULTIPLICATION instead of addition: extending the path from u to v multiplies the current best probability by this edge's success chance; since every probability is <= 1, multiplying can only shrink or maintain the value, which is exactly the property that makes greedy extract-max still valid here (mirrors 'edge weights are non-negative' for normal Dijkstra).",
+      "`return 0;` — the max-heap emptied without ever reaching e, meaning no path connects s to e at all.",
+    ],
     timeComplexity: "O((V+E) log V)",
     timeExplanation: "Dijkstra with max-heap.",
     spaceComplexity: "O(V+E)",
@@ -6579,6 +7889,13 @@ public:
         return false;
     }
 };`,
+    lineByLine: [
+      "`if(s==d) return true;` — 'zero or more edges' explicitly means a node trivially has a path to itself, so this special case is handled before doing any real work.",
+      "`for(auto& e:edges){g[e[0]].push_back(e[1]);g[e[1]].push_back(e[0]);}` — edges are bidirectional, so each pair adds an entry to BOTH endpoints' adjacency lists — traveling either direction is valid.",
+      "`vector<bool> vis(n,false); queue<int> q; q.push(s); vis[s]=true;` — standard BFS setup starting from the source, marking it visited immediately to avoid re-processing it.",
+      "`for(int v:g[u]){ if(v==d) return true; if(!vis[v]){vis[v]=true;q.push(v);} }` — check each neighbor: if it's the destination, we've confirmed a path exists and can stop immediately without finishing the whole search; otherwise, if unvisited, mark and enqueue it to expand from later.",
+      "`return false;` — the BFS exhausted every node reachable from source without ever encountering destination, meaning no path connects them.",
+    ],
     timeComplexity: "O(V+E)",
     timeExplanation: "BFS traversal.",
     spaceComplexity: "O(V+E)",
@@ -6621,6 +7938,14 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`void ins(const string& w)` — insert every dictionary root into the trie once up front, exactly like a standard trie build.",
+      "`string rep(const string& w)` — for one sentence word, walk the trie character by character following w's own letters.",
+      "`int c=w[i]-'a';if(!n->ch[c]) break;` — the moment the trie has no branch for the next needed letter, no root can match beyond this point, so stop walking (the loop exits and the original word is returned unchanged below).",
+      "`n=n->ch[c];if(n->end) return w.substr(0,i+1);` — advance into the matching child, and if that node marks the end of some root word, return IMMEDIATELY with the substring built so far — this is what guarantees the SHORTEST matching root is used even if a longer root would also match, since the walk naturally encounters shorter roots first.",
+      "`return w;` — reached only if no root was ever a complete prefix match, meaning the word keeps its original form.",
+      "`for(auto& r:dict) ins(r);` then `while(ss>>word){...res+=rep(word);}` — build the trie from every root, then process the sentence word by word (istringstream>> naturally splits on whitespace), replacing each word independently and rejoining with single spaces.",
+    ],
     timeComplexity: "O(D×L + S)",
     timeExplanation: "D roots of avg length L inserted; S = total sentence chars.",
     spaceComplexity: "O(D×L)",
@@ -6657,6 +7982,14 @@ public:
         return reach[n-1];
     }
 };`,
+    lineByLine: [
+      "`vector<bool> reach(n,false); reach[0]=true;` — reach[i] means index i can be landed on by some valid sequence of jumps; index 0 is the guaranteed starting point.",
+      "`int pre=0; // count of reachable positions in window` — instead of checking every j in [i-maxJ, i-minJ] individually for each i (which would be O(n·(maxJ-minJ))), maintain a running count of how many reachable positions currently fall inside that sliding window — turning each check into O(1).",
+      "`if(i>=minJ&&reach[i-minJ]) pre++;` — as i advances, the window [i-maxJ, i-minJ] slides forward too; position (i-minJ) is the new position entering the window's near edge, so add it to the count if it's reachable.",
+      "`if(i>maxJ&&reach[i-maxJ-1]) pre--;` — position (i-maxJ-1) is the position falling OUT of the window's far edge as i advances, so remove its contribution if it had been counted.",
+      "`if(pre>0&&s[i]=='0') reach[i]=true;` — index i is reachable exactly when at least one already-reachable position lies within a valid jump distance behind it (pre>0) AND landing on i is legal (s[i]=='0', not a blocked '1' cell).",
+      "`return reach[n-1];` — whether the very last index ended up marked reachable.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass with sliding window prefix count.",
     spaceComplexity: "O(n)",
@@ -6686,6 +8019,11 @@ public:
         return m<<shift;
     }
 };`,
+    lineByLine: [
+      "`int shift=0;` — will count how many low-order bits differ between m and n across the whole range, i.e. how many trailing bits get wiped out by the AND of every number in between.",
+      "`while(m!=n){m>>=1;n>>=1;shift++;}` — key insight: ANDing every integer from m to n together only preserves bits that are IDENTICAL across the entire range — any bit position where numbers in the range flip between 0 and 1 gets zeroed out. Right-shifting both m and n together strips off their differing low bits one at a time until they become equal, meaning what remains (m == n at that point) is exactly their shared, unchanging binary prefix.",
+      "`return m<<shift;` — shift the common prefix back to its original bit position (padding the stripped bits with 0s, since those positions are guaranteed to vary somewhere in the range and thus AND to 0), giving the bitwise AND of the entire [left, right] range.",
+    ],
     timeComplexity: "O(log n)",
     timeExplanation: "At most 32 shifts.",
     spaceComplexity: "O(1)",
@@ -6722,6 +8060,13 @@ public:
         return dp[0][0];
     }
 };`,
+    lineByLine: [
+      "`vector<vector<int>> dp(m+1,vector<int>(m+1,0));` — dp[i][left] means 'starting from step i, having already taken `left` picks from the left end so far, the max additional score achievable'; only `left` needs to be tracked explicitly because the number of right-picks is always derivable as i - left (every operation is either a left-pick or a right-pick, so their counts plus the step index are linked).",
+      "`for(int i=m-1;i>=0;i--) for(int left=i;left>=0;left--)` — fill backward from the last operation toward the first, since the score from step i depends on the (already-computed) score from step i+1.",
+      "`int right=i-left;` — recovers how many elements have been taken from the right end so far, purely from the step count and left-count — this is why the dp table can be 2D (indexed by step and left-count) instead of 3D.",
+      "`dp[i][left]=max(mults[i]*nums[left]+dp[i+1][left+1], mults[i]*nums[n-1-right]+dp[i+1][left]);` — at step i there are only two choices: take nums[left] (the current leftmost remaining element, since `left` elements have already been removed from the left) and move to state (i+1, left+1), or take nums[n-1-right] (the current rightmost remaining element) and move to state (i+1, left) since right-count effectively increases but left stays the same; each choice's immediate reward is multipliers[i] times the chosen element, plus whatever the best continuation from there was.",
+      "`return dp[0][0];` — the answer starts at step 0 with zero picks made from either end yet.",
+    ],
     timeComplexity: "O(m²)",
     timeExplanation: "m steps, up to m left choices each.",
     spaceComplexity: "O(m²)",
@@ -6760,6 +8105,18 @@ public:
         return ans;
     }
 };`,
+    lineByLine: [
+      "`unordered_map<int,unordered_map<int,int>> cnt;` — cnt[x][y] stores how many times the point (x,y) has been added, so repeated identical points correctly multiply the number of squares they can form.",
+      "`unordered_map<int,vector<int>> xToY;` — for a given x-coordinate, the list of all y-values ever added there; this lets count() quickly find candidate points sharing the query's x-coordinate without scanning every point.",
+      "`void add(vector<int> p){ cnt[p[0]][p[1]]++; xToY[p[0]].push_back(p[1]); }` — record the new point in both structures.",
+      "`int px=p[0],py=p[1],ans=0;` — the query point's coordinates; ans accumulates the count of valid squares.",
+      "`for(int py2:xToY[px])` — an axis-aligned square with the query point at one corner needs another corner directly above or below it (same x, different y) — so only points sharing x=px can anchor a square with the query point.",
+      "`if(py2==py) continue;` — a square needs positive area, so the second corner can't be the exact same point as the query.",
+      "`int side=abs(py2-py);` — the vertical distance between the query point and (px, py2) fixes the square's side length, since it must be axis-aligned.",
+      "`for(int px2:{px+side,px-side})` — the square could extend either to the right or the left of the shared x-coordinate, giving two candidate positions for the remaining two corners.",
+      "`ans+=cnt[px][py2]*cnt[px2][py]*cnt[px2][py2];` — the three OTHER corners needed to complete the square are (px,py2), (px2,py), and (px2,py2); multiplying their stored counts together counts every combination of duplicate points that could form this particular square (if any corner has count 0, that combination contributes nothing).",
+      "`return ans;` — total number of squares (including duplicate-point combinations) completable using the query point.",
+    ],
     timeComplexity: "O(n) add, O(n) count",
     timeExplanation: "count iterates all y's for given x.",
     spaceComplexity: "O(n)",
@@ -6798,6 +8155,13 @@ public:
         return ans;
     }
 };`,
+    lineByLine: [
+      "`sort(words.begin(),words.end(),[](...){ return a.size()!=b.size()?a.size()<b.size():a<b; });` — sorting by length first (then lexicographically as a tiebreak) guarantees that by the time any word w is processed, every possible prefix of w that's shorter has already had its chance to be marked as 'built' — and among equal-length candidates, the lexicographically smaller one is naturally considered/kept first.",
+      "`unordered_set<string> built={\"\"};` — seed the set with the empty string, representing the trivial base case that every single-character word can always extend from (a one-letter word's only 'missing last letter' prefix is empty).",
+      "`if(built.count(w.substr(0,w.size()-1))){` — a word can be built one letter at a time only if the word itself minus its last character is ALREADY a confirmed buildable word — checking this rather than checking against the whole original word list is what enforces the full prefix chain, not just single-step existence.",
+      "`built.insert(w); if(w.size()>ans.size()) ans=w;` — once confirmed buildable, add it to the set (so longer words can build on top of it) and update the answer if it's strictly longer than the current best; ties in length are resolved implicitly because the length-then-lex sort visits the lexicographically smaller word of equal length first, and `>` (strict) means a later equal-length word never overwrites it.",
+      "`return ans;` — the longest (and, on ties, lexicographically smallest, thanks to processing order) fully-buildable word, or an empty string if none qualified.",
+    ],
     timeComplexity: "O(n × L log n)",
     timeExplanation: "Sort + hash set lookups with substr.",
     spaceComplexity: "O(n × L)",
@@ -6835,6 +8199,14 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`for(auto& w:words){T*n=root;for(char c:w){...}n->end=true;}` — insert every dictionary word into a shared trie exactly once, up front, so all words can be checked simultaneously during the scan below.",
+      "`for(int i=0;i<(int)text.size();i++)` — try every position in text as a possible START of a matching word, since matches can begin anywhere and can overlap each other.",
+      "`for(int j=i;j<(int)text.size();j++)` — from that start, extend the substring one character at a time, walking the trie in lockstep — this explores every possible END position for a word beginning at i.",
+      "`int c=text[j]-'a'; if(!n->ch[c]) break;` — the moment the trie has no branch matching the next character, no dictionary word can possibly extend this substring further, so stop extending from this start index (break out of the inner loop) — this is the pruning that keeps the search efficient.",
+      "`n=n->ch[c]; if(n->end) res.push_back({i,j});` — advance into the matching child; if that node marks a complete dictionary word, record the pair [i, j] — multiple such records can happen for the same start i since a word can be a prefix of another (overlap is expected and fully captured).",
+      "`return res;` — all recorded [start, end] pairs, which end up naturally sorted by start (outer loop) then end (inner loop) simply because of the loop order.",
+    ],
     timeComplexity: "O(W×L + T²)",
     timeExplanation: "W words of length L in trie; T² worst case scan.",
     spaceComplexity: "O(W×L)",
@@ -6872,6 +8244,14 @@ public:
         return true;
     }
 };`,
+    lineByLine: [
+      "`unordered_map<char, char> st, ts;` — st records the forward mapping s-char to t-char; ts records the reverse mapping t-char to s-char. Both are needed because isomorphism requires a true bijection, not just a consistent one-way function.",
+      "`for (int i = 0; i < (int)s.size(); i++)` — walk both strings together, position by position.",
+      "`if (st.count(s[i]) && st[s[i]] != t[i]) return false;` — if this s-character was already assigned a mapping and it disagrees with t[i], the mapping isn't consistent (e.g. 'o' can't map to both 'a' and 'r').",
+      "`if (ts.count(t[i]) && ts[t[i]] != s[i]) return false;` — symmetrically, if this t-character already has a source and it disagrees with s[i], two different s-characters are trying to map to the same t-character, which breaks the one-to-one requirement (catches cases like 'ab' -> 'aa').",
+      "`st[s[i]] = t[i]; ts[t[i]] = s[i];` — record both directions of the mapping for this position.",
+      "`return true;` — no contradiction was found in either direction across the whole string, so a valid bijective mapping exists.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass through both strings of length n.",
     spaceComplexity: "O(1)",
@@ -6919,6 +8299,14 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`void bt(int start, int k, int rem, vector<int>& path) {` — start is the smallest digit still eligible (enforces strictly increasing choices, which is what prevents duplicate combinations like [1,2] and [2,1]), k is how many more digits still need picking, rem is the sum still needed.",
+      "`if (k == 0 && rem == 0) { res.push_back(path); return; }` — exactly k digits chosen and they sum to n — a valid combination.",
+      "`if (k == 0 || rem <= 0) return;` — either ran out of picks with sum left over, or the sum went to zero/negative before using up all k picks — either way this branch can't succeed.",
+      "`for (int i = start; i <= 9; i++) { if (i > rem) break;` — digits only increase from here, so once i alone exceeds the remaining sum needed, every larger i would overshoot too — break out entirely rather than just skipping this one (a prune that's only valid because the loop is already increasing).",
+      "`path.push_back(i); bt(i + 1, k - 1, rem - i, path); path.pop_back();` — commit to using digit i, recurse requiring one fewer pick and less remaining sum, starting the next choice at i+1 (never reusing i and never revisiting a smaller digit) so combinations stay strictly increasing, then undo before trying the next i.",
+      "`bt(1, k, n, path);` — start the search from digit 1 (the smallest allowed), needing k digits summing to n.",
+    ],
     timeComplexity: "O(C(9,k))",
     timeExplanation: "At most C(9,k) valid subsets of size k from digits 1-9. Pruning makes it much faster in practice.",
     spaceComplexity: "O(k)",
@@ -6963,6 +8351,13 @@ public:
         return count;
     }
 };`,
+    lineByLine: [
+      "`sort(intervals.begin(), intervals.end(), [](const auto& a, const auto& b){ return a[1] < b[1]; });` — sorting by END time (not start) is the crucial greedy choice: whichever interval ends soonest leaves the most room for everything after it, so it should always be the one kept when a conflict forces a choice.",
+      "`int prevEnd = intervals[0][1];` — after sorting by end, the very first interval is guaranteed to have the earliest end time among all of them, making it the obvious first interval to keep.",
+      "`if (intervals[i][0] < prevEnd) { count++; }` — this interval starts before the previously kept interval has ended, so they overlap; since intervals are sorted by end time, the current one ends at least as late as prevEnd, meaning the previously kept interval is provably the better one to keep — so this one is discarded (counted for removal) and prevEnd is deliberately left unchanged.",
+      "`else { prevEnd = intervals[i][1]; }` — no overlap with the last kept interval, so this one can be kept too; update prevEnd to this interval's end time since it's now the most recently kept interval.",
+      "`return count;` — the running tally of discarded (overlapping) intervals is exactly the minimum number that must be removed.",
+    ],
     timeComplexity: "O(n log n)",
     timeExplanation: "Sorting dominates. Linear scan after is O(n).",
     spaceComplexity: "O(1)",
@@ -7010,6 +8405,13 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`sort(nums.begin(), nums.end());` — sorting groups equal values adjacently, which is what makes the same-recursion-level duplicate check below correct — without sorting, equal values could be far apart and impossible to compare cheaply.",
+      "`res.push_back(path);` — every partial `path`, at the moment this call starts, is itself already a complete valid subset — so it's recorded immediately rather than only at some 'end' condition (subsets, unlike combinations/permutations, don't have a fixed target length).",
+      "`for (int i = start; i < (int)nums.size(); i++) { if (i > start && nums[i] == nums[i-1]) continue;` — this is the duplicate-subset guard: skip a value that's identical to the previous one, but ONLY when it's not the first choice at this recursion level (i>start) — picking the first copy of a duplicate value is always allowed (it explores subsets containing that value), but picking a later copy AS AN ALTERNATIVE first choice at the same level would just re-derive a subset already produced by the earlier copy.",
+      "`path.push_back(nums[i]); bt(nums, i + 1, path); path.pop_back();` — include nums[i], recurse only on later indices (each element used at most once), then remove it so the loop's next iteration explores skipping it in favor of a different (later, non-duplicate) element.",
+      "`bt(nums, 0, path);` — start with an empty subset and every index available.",
+    ],
     timeComplexity: "O(n · 2^n)",
     timeExplanation: "Up to 2^n subsets, each taking O(n) to copy. Duplicate skipping reduces actual work but doesn't change worst-case bound.",
     spaceComplexity: "O(n)",
@@ -7054,6 +8456,14 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`sort(intervals.begin(), intervals.end());` — sorting by start time (the default vector<int> comparison compares start first) means any two intervals that should merge will always be adjacent to each other in this order, so a single left-to-right pass suffices.",
+      "`res.push_back(intervals[0]);` — seed the result with the first (earliest-starting) interval as the initial 'in-progress merged interval'.",
+      "`if (intervals[i][0] <= last[1])` — the current interval overlaps (or just touches) the last interval in the result if its start is at or before the last one's end; using <= (not <) deliberately merges touching intervals like [1,4] and [4,5], since they share the boundary point 4.",
+      "`last[1] = max(last[1], intervals[i][1]);` — extend the in-progress merged interval's end to cover the current interval too, taking max because the current interval's end might actually be smaller than the one already being merged (nested inside it).",
+      "`else { res.push_back(intervals[i]); }` — no overlap with the last merged interval means the current interval starts a fresh, separate merged group.",
+      "`return res;` — the final list of merged, non-overlapping intervals covering everything from the input.",
+    ],
     timeComplexity: "O(n log n)",
     timeExplanation: "Sorting dominates. The merge pass is O(n).",
     spaceComplexity: "O(n)",
@@ -7100,6 +8510,14 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`unordered_map<int, int> freq; for (int n : nums) freq[n]++;` — count how many times each distinct value occurs in nums.",
+      "`vector<vector<int>> bucket(nums.size() + 1);` — index the bucket array BY FREQUENCY (not by value); since frequency can range from 1 to n, n+1 slots covers every possible frequency, including index 0 (unused).",
+      "`for (auto& [val, cnt] : freq) bucket[cnt].push_back(val);` — drop each value into the bucket matching its frequency; values with the same frequency land in the same bucket.",
+      "`for (int i = (int)bucket.size() - 1; i >= 0 && (int)res.size() < k; i--)` — walk buckets from highest frequency down to lowest, since the most frequent values must appear first in the result; stop as soon as k elements are collected.",
+      "`for (int v : bucket[i]) res.push_back(v);` — collect every value sharing that frequency level.",
+      "`return res;` — the k most frequent elements, found without ever fully sorting all n elements by frequency (bucket indexing does the ordering implicitly in O(n)).",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Frequency count O(n), bucket fill O(n), bucket scan O(n). Beats heap's O(n log k).",
     spaceComplexity: "O(n)",
@@ -7153,6 +8571,19 @@ public:
         }
     }
 };`,
+    lineByLine: [
+      "`if (A.size() > B.size()) return findMedianSortedArrays(B, A);` — always binary search on the smaller array; this bounds the search space (and thus the iteration count) by min(m,n) instead of an arbitrary one, guaranteeing O(log(min(m,n))).",
+      "`int m = A.size(), n = B.size(), half = (m + n) / 2;` — half is how many elements belong in the combined 'left half' of the merged array; once a valid partition is found, the boundary elements around this cut directly give the median.",
+      "`int L = 0, R = m;` — binary search over how many elements of A go into the left half (i ranges from 0 to m); j is then forced to be half-i, since together i+j must equal half.",
+      "`int i = L + (R - L) / 2; int j = half - i;` — pick a candidate cut i in A, and derive the matching cut j in B so the two together always contain exactly `half` elements — this is what keeps the combined 'left partition' size fixed while searching.",
+      "`int Aleft = i > 0 ? A[i-1] : INT_MIN; int Aright = i < m ? A[i] : INT_MAX;` — the last element kept on A's left side (or -infinity if i=0, meaning nothing from A is on the left) and the first element on A's right side (or +infinity if i=m, meaning all of A is on the left); the sentinels let boundary cuts (i=0 or i=m) be compared without special-casing.",
+      "`int Bleft = j > 0 ? B[j-1] : INT_MIN; int Bright = j < n ? B[j] : INT_MAX;` — the same boundary values for B's cut.",
+      "`if (Aleft <= Bright && Bleft <= Aright)` — this is the correctness condition for a valid partition: everything in the combined left half (Aleft and Bleft) must be <= everything in the combined right half (Aright and Bright) — once true, the merged array is properly split at this cut without ever actually merging.",
+      "`if ((m + n) % 2 == 1) return min(Aright, Bright);` — for an odd total count, the left half has one extra element and the median IS that extra element — which is the smallest of the two 'first elements of the right side'.",
+      "`return (max(Aleft, Bleft) + min(Aright, Bright)) / 2.0;` — for an even total, the median is the average of the largest element on the left side and the smallest element on the right side.",
+      "`} else if (Aleft > Bright) { R = i - 1; }` — A's left boundary is too big (bigger than something that should be on the right), meaning too many elements were taken from A — shrink i by narrowing the search to the left.",
+      "`else { L = i + 1; }` — the opposite imbalance (Bleft > Aright) means too few elements were taken from A — grow i by narrowing the search to the right.",
+    ],
     timeComplexity: "O(log(min(m, n)))",
     timeExplanation: "Binary search on the smaller array of size min(m,n).",
     spaceComplexity: "O(1)",
@@ -7192,6 +8623,13 @@ public:
         return n + 1;
     }
 };`,
+    lineByLine: [
+      "`int n = nums.size();` — the answer is guaranteed to be in [1, n+1]: if all of 1..n were present, n+1 is missing; otherwise some value in that range is missing.",
+      "`for (int i = 0; i < n; i++)` — visit every index, trying to place the value that belongs there.",
+      "`while (nums[i] > 0 && nums[i] <= n && nums[nums[i]-1] != nums[i]) swap(nums[i], nums[nums[i]-1]);` — as long as the current cell holds an in-range positive value x that isn't already sitting at its 'home' index x-1, swap it there; repeat because the value swapped IN might itself need relocating. Values outside [1,n] are ignored — they can never be 'the smallest missing positive' since that answer is bounded by n+1.",
+      "`for (int i = 0; i < n; i++) if (nums[i] != i + 1) return i + 1;` — after placement, index i should hold value i+1 if that value was present in the array; the first index that fails this check reveals the smallest missing positive integer.",
+      "`return n + 1;` — every index held its expected value, meaning 1..n are all present, so the smallest missing positive is n+1.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each element is swapped at most once to its correct position. Total swaps ≤ n.",
     spaceComplexity: "O(1)",
@@ -7249,6 +8687,19 @@ public:
         return counts;
     }
 };`,
+    lineByLine: [
+      "`vector<int> counts;` — counts[originalIndex] accumulates, across all merge steps, how many smaller elements ended up to that element's right; it's built incrementally as pairs get merged.",
+      "`if (r - l <= 1) return;` — base case of merge sort: a range of 0 or 1 elements is already 'sorted' and has nothing to merge.",
+      "`int mid = (l + r) / 2; mergeSort(arr, l, mid); mergeSort(arr, mid, r);` — recursively sort (and count within) each half first, so by the time this level merges, both halves are individually sorted by value.",
+      "`int i = l, j = mid, rightCount = 0;` — i walks the sorted left half, j walks the sorted right half; rightCount tallies how many right-half elements have already been merged in ahead of the current left element (i.e., how many are both smaller in value AND to the left element's original right, since they came from the same array range that was originally to its right).",
+      "`if (arr[j].first < arr[i].first) { tmp.push_back(arr[j++]); rightCount++; }` — the right element is smaller, so pull it into the merged output now and bump rightCount, since this right-half element will end up to the left of every left-half element not yet placed.",
+      "`else { counts[arr[i].first] += rightCount; tmp.push_back(arr[i++]); }` — the left element is placed instead; at this moment exactly rightCount right-half elements (all smaller in value) have already been merged ahead of it, meaning that many elements originally to its right are strictly smaller than it — the intended increment is by this left element's ORIGINAL index (arr[i].second), so the counts array lines up with the original array positions.",
+      "`while (i < mid) { counts[arr[i].second] += rightCount; tmp.push_back(arr[i++]); }` — once the right half is exhausted, every remaining left element has ALL of rightCount's right-half elements already accounted as smaller-and-to-its-right, so add rightCount to each (here indexed correctly by original index).",
+      "`while (j < r) tmp.push_back(arr[j++]);` — any leftover right-half elements are simply copied over; they don't add to any left element's count since the left half is already exhausted.",
+      "`copy(tmp.begin(), tmp.end(), arr.begin() + l);` — write the merged, sorted-by-value range back into arr so higher levels of the recursion see a properly sorted subrange.",
+      "`for (int i = 0; i < n; i++) arr[i] = {nums[i], i};` — pair every value with its original index before sorting, since sorting will reorder values but counts must map back to original positions.",
+      "`return counts;` — the final tally, one entry per original array position.",
+    ],
     timeComplexity: "O(n log n)",
     timeExplanation: "Merge sort with O(log n) levels, O(n) work per level.",
     spaceComplexity: "O(n)",
@@ -7298,6 +8749,16 @@ public:
         return best == INT_MAX ? "" : s.substr(bStart, best);
     }
 };`,
+    lineByLine: [
+      "`int si = 0, best = INT_MAX, bStart = 0;` — si scans forward through s; best/bStart track the shortest valid window found so far.",
+      "`while (si < (int)s.size())` — keep searching for new windows until s is exhausted.",
+      "`int ti = 0; while (si < (int)s.size() && ti < (int)t.size()) { if (s[si] == t[ti]) ti++; si++; }` — forward pass: greedily match t as a subsequence while advancing through s; si stops right after the position where the last character of t was matched, giving SOME valid window ending, not necessarily the tightest one.",
+      "`if (ti < (int)t.size()) break;` — if t couldn't be fully matched before s ran out, no more windows exist — stop.",
+      "`int end = si; ti = (int)t.size() - 1; while (ti >= 0) { if (s[--si] == t[ti]) ti--; }` — backward pass: walk si backward from the window's end, matching t in reverse; this finds the LATEST possible start for a window ending at `end` that still contains t as a subsequence, which is what makes the window minimal for this particular ending point.",
+      "`if (end - si < best) { best = end - si; bStart = si; }` — compare this window's length ([si, end)) against the best found so far.",
+      "`si++;` — move past the current window's start by one position before searching for the next candidate window, since a shorter window can't start any earlier and still be different from this one.",
+      "`return best == INT_MAX ? \"\" : s.substr(bStart, best);` — if no window was ever completed, return empty string; otherwise return the shortest one found across all forward/backward passes.",
+    ],
     timeComplexity: "O(|S| × |T|)",
     timeExplanation: "Each position in S can trigger a backward scan of up to |T| steps.",
     spaceComplexity: "O(1)",
@@ -7351,6 +8812,16 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`int largestRect(vector<int>& h)` — this is exactly the largest-rectangle-in-histogram algorithm (monotonic increasing stack, sentinel 0 appended, pop-and-measure on a shorter bar), reused unchanged as a subroutine.",
+      "`h.push_back(0); ... h.pop_back();` — temporarily append the 0-sentinel to force all bars to resolve by the end of this call, then remove it afterward so the caller's heights array isn't left mutated with an extra element.",
+      "`while (!st.empty() && h[st.top()] > h[i]) { ... }` — identical logic to the histogram problem: whenever the current bar is shorter than the one on top of the stack, that stacked bar's maximal rectangle can now be finalized using it as the limiting height.",
+      "`int m = matrix.size(), n = matrix[0].size(), res = 0;` — dimensions of the grid and the running best area across all rows.",
+      "`vector<int> heights(n, 0);` — heights[j] will represent, for the row currently being processed, how many consecutive '1's stack up directly above (and including) row i in column j — i.e. treating everything above as a 'building' in a histogram.",
+      "`heights[j] = matrix[i][j] == '1' ? heights[j] + 1 : 0;` — a '1' extends the running vertical run from the previous row by one; a '0' breaks the run entirely, resetting that column's height to 0 (a rectangle of all 1s can never include a 0 cell).",
+      "`res = max(res, largestRect(heights));` — treating this row's heights array as a histogram, the largest all-1s rectangle whose BOTTOM edge is this row is exactly the largest rectangle in that histogram — because histogram bars naturally represent contiguous vertical runs of 1s, and the histogram algorithm finds the best width×height combination among them.",
+      "`return res;` — since every possible rectangle's bottom edge is some row, checking every row's histogram covers every possible maximal all-1s rectangle in the matrix.",
+    ],
     timeComplexity: "O(m × n)",
     timeExplanation: "m rows × (n to build heights + n for histogram) = O(m × n).",
     spaceComplexity: "O(n)",
@@ -7416,6 +8887,19 @@ public:
         minFreq = 1;
     }
 };`,
+    lineByLine: [
+      "`unordered_map<int, pair<int,int>> key2vf;` — key to {value, frequency}, giving O(1) lookup of both a key's current value and how many times it's been used.",
+      "`unordered_map<int, list<int>> freq2keys;` — buckets keys by their use-count; within each bucket the list is kept in LRU order (front = most recent) so a tie in frequency can be broken by recency just by looking at the back of the list.",
+      "`unordered_map<int, list<int>::iterator> key2it;` — stores each key's position (iterator) inside its current freq2keys list, so it can be erased from that list in O(1) instead of searching for it.",
+      "`int f = key2vf[key].second; freq2keys[f].erase(key2it[key]);` — every access bumps a key's frequency, so first remove it from its current (now-stale) frequency bucket in O(1) using the saved iterator.",
+      "`if (freq2keys[f].empty()) { freq2keys.erase(f); if (minFreq == f) minFreq++; }` — if that bucket is now empty, this frequency no longer exists among any key; if it was also the global minimum frequency, the minimum must rise by exactly 1 (frequencies only ever increase by 1 per touch, so f+1 is guaranteed to be non-empty since key was just moved there).",
+      "`key2vf[key].second++; freq2keys[f+1].push_front(key); key2it[key] = freq2keys[f+1].begin();` — record the bumped frequency, reinsert the key at the FRONT of the next bucket (marking it most-recently-used within that new frequency), and save the new iterator.",
+      "`int get(int key) { if (!key2vf.count(key)) return -1; touch(key); return key2vf[key].first; }` — a hit both returns the value and counts as a use, so touch() runs to bump frequency and reorder.",
+      "`if (!cap) return;` — capacity 0 means the cache can never hold anything, so every put is a no-op.",
+      "`if (key2vf.count(key)) { key2vf[key].first = value; touch(key); return; }` — updating an existing key's value also counts as a use: update it, then bump frequency the same way get does.",
+      "`if ((int)key2vf.size() == cap) { int evict = freq2keys[minFreq].back(); freq2keys[minFreq].pop_back(); key2vf.erase(evict); key2it.erase(evict); }` — at capacity, the eviction victim must have the lowest frequency (minFreq is tracked precisely for this) and, among ties, be the least recently used — which is exactly the back of that bucket's LRU-ordered list.",
+      "`key2vf[key] = {value, 1}; freq2keys[1].push_front(key); key2it[key] = freq2keys[1].begin(); minFreq = 1;` — a brand-new key always starts at frequency 1, so it goes to the front of bucket 1, and since a freq-1 bucket now definitely has an entry, minFreq resets to 1 (the smallest possible frequency).",
+    ],
     timeComplexity: "O(1)",
     timeExplanation: "All hash map and linked list operations are O(1). No linear scans.",
     spaceComplexity: "O(capacity)",
@@ -7467,6 +8951,17 @@ public:
         return ans;
     }
 };`,
+    lineByLine: [
+      "`int ans = 0;` — global best sum found so far; starts at 0 since the problem says to treat 'no valid positive-sum BST subtree' as 0.",
+      "`array<int,4> dfs(TreeNode* node)` — returns a 4-tuple {isBST, minVal, maxVal, sum} meaning 'is this subtree a valid BST, and if so what are its min value, max value, and total sum' — all four are needed by the PARENT to decide its own validity.",
+      "`if (!node) return {1, INT_MAX, INT_MIN, 0};` — an empty subtree is vacuously a valid BST; INT_MAX/INT_MIN as its min/max are sentinel values chosen so they never accidentally constrain a real parent comparison (any real value is < INT_MAX and > INT_MIN).",
+      "`auto [lv, lmin, lmax, lsum] = dfs(node->left); auto [rv, rmin, rmax, rsum] = dfs(node->right);` — post-order: fully resolve both children's BST status/range/sum before deciding anything about the current node, since that's exactly the information needed.",
+      "`if (lv && rv && lmax < node->val && node->val < rmin)` — this node's subtree is a valid BST only if both children were already valid BSTs AND this node's value is strictly greater than everything in the left subtree AND strictly less than everything in the right subtree — checking against the actual max/min (not just the immediate children) is what correctly rejects a deep violation like the 8's subtree in the example.",
+      "`int sum = lsum + rsum + node->val; ans = max(ans, sum);` — if valid, this subtree is a candidate answer: compute its total sum and update the global max if it's the best valid BST subtree seen so far.",
+      "`return {1, min(lmin, node->val), max(rmax, node->val), sum};` — report this subtree's own range up to the parent: the overall min is either the left subtree's min or this node itself (whichever came from further left), and the overall max is symmetric on the right side.",
+      "`return {0, 0, 0, 0};` — if the validity check failed, mark this subtree as NOT a valid BST; the min/max/sum values here are irrelevant garbage because the parent will see isBST=0 and immediately fail its own check without looking at them.",
+      "`dfs(root); return ans;` — run the traversal for its side effect of populating ans at every valid BST subtree, then return the global maximum.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each node visited exactly once in post-order traversal.",
     spaceComplexity: "O(h)",
@@ -7515,6 +9010,14 @@ public:
         return {rL, rR};
     }
 };`,
+    lineByLine: [
+      "`priority_queue<T, vector<T>, greater<T>> pq;` — a min-heap keyed by value, seeded with one element (the first) from every list, so the heap always exposes the current smallest candidate across all k lists.",
+      "`int curMax = INT_MIN; for (...) { pq.push(...); curMax = max(curMax, nums[i][0]); }` — track the current largest value among all elements currently represented in the heap, since the range must stretch from the heap's minimum all the way up to this maximum to cover every list.",
+      "`while ((int)pq.size() == (int)nums.size())` — the loop only continues while there's still at least one representative from EVERY list in the heap; the moment any single list runs out of elements, no future range can possibly include that list anymore, so the search must stop.",
+      "`if (curMax - val < rR - rL) { rL = val; rR = curMax; }` — heap.top() (val) is the current minimum and curMax is the current maximum, so [val, curMax] is a valid range covering all k lists right now; keep it as the new best if it's narrower than the best found so far.",
+      "`if (ei + 1 < (int)nums[li].size()) { pq.push(...); curMax = max(curMax, nums[li][ei+1]); }` — after removing the minimum, the only way to possibly shrink the range further is to replace that list's smallest contribution with its NEXT (larger) element — advancing the list that was holding the range back (the minimum) is always the right move, since advancing any other list would only grow curMax without raising the floor.",
+      "`return {rL, rR};` — the narrowest range found across every iteration where all k lists were simultaneously represented.",
+    ],
     timeComplexity: "O(n log k)",
     timeExplanation: "n = total elements across all lists. Each element pushed/popped once. Each heap op is O(log k).",
     spaceComplexity: "O(k)",
@@ -7566,6 +9069,14 @@ public:
 public:
     void solveSudoku(vector<vector<char>>& board) { solve(board); }
 };`,
+    lineByLine: [
+      "`if (b[r][i] == d) return false; if (b[i][c] == d) return false;` — digit d can't be placed if it already appears anywhere in row r or column c, since Sudoku requires each digit exactly once per row and per column.",
+      "`if (b[3*(r/3)+i/3][3*(c/3)+i%3] == d) return false;` — this walks the 9 cells of the 3x3 box containing (r,c): `3*(r/3)` and `3*(c/3)` snap to the box's top-left corner, then `i/3` and `i%3` (as i runs 0-8) sweep through the 3 rows and 3 columns of that box — a single formula that avoids writing nested loops for the box check.",
+      "`for (int r...) for (int c...) if (b[r][c] == '.') {` — scan in row-major order for the first still-empty cell to fill next; the scan restarts from (0,0) on every call, but any earlier cells are already filled so it quickly reaches the real next blank.",
+      "`for (char d = '1'; d <= '9'; d++) { if (isValid(b, r, c, d)) { b[r][c] = d; if (solve(b)) return true; b[r][c] = '.'; } }` — try every digit in order; place it and recurse only if it's currently legal, and if the recursive call reports the WHOLE rest of the board got solved, propagate success immediately without undoing this placement. Otherwise, this digit led to a dead end elsewhere on the board, so erase it and let the loop try the next candidate digit.",
+      "`return false;` — reached only if every digit 1-9 failed at this cell (all led to unsolvable board states downstream) — this cell (and its parent call) must backtrack further.",
+      "`return true;` — reached when the scan finds no '.' cell left at all, meaning the board is completely and validly filled.",
+    ],
     timeComplexity: "O(9^m)",
     timeExplanation: "m = number of empty cells. Each cell tries up to 9 digits. With constraint pruning, practical runtime is much faster.",
     spaceComplexity: "O(m)",
@@ -7619,6 +9130,15 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`int timer = 0;` — a global counter used to assign each node a unique 'discovery time' — the order in which DFS first visits it.",
+      "`disc[u] = low[u] = timer++;` — disc[u] MEANS 'when this node was first discovered'; low[u] MEANS 'the earliest discovery time reachable from u's DFS subtree, including via one back-edge to an ancestor' — both start equal to u's own discovery time before any neighbors are explored.",
+      "`if (disc[v] == -1) { dfs(v, u, adj, disc, low, res); low[u] = min(low[u], low[v]); if (low[v] > disc[u]) res.push_back({u, v}); }` — v is unvisited (a tree edge in the DFS): recurse into it first, then after it returns, u's low value can improve using whatever v's subtree could reach back to; the actual bridge test is `low[v] > disc[u]` — it MEANS v's entire subtree has NO way back to u or anything discovered before u except through this exact edge, so removing (u,v) would strand that whole subtree.",
+      "`else if (v != parent) { low[u] = min(low[u], disc[v]); }` — v is already visited and isn't the edge we just came from, so this is a BACK EDGE to an ancestor — it proves u's subtree has an alternate route back up to v, so u's low value can be pulled down to disc[v] (note: using disc[v], not low[v], is the standard Tarjan detail for back edges).",
+      "`for (auto& e : connections) { adj[e[0]].push_back(e[1]); adj[e[1]].push_back(e[0]); }` — undirected connections need edges added to both endpoints' adjacency lists.",
+      "`vector<int> disc(n, -1), low(n, 0); dfs(0, -1, adj, disc, low, res);` — disc initialized to -1 (unvisited sentinel); start the single DFS from node 0 with no parent (-1), since the graph is guaranteed connected so one traversal covers everything.",
+      "`return res;` — res accumulated every edge flagged as a bridge during the traversal — those are exactly the critical connections.",
+    ],
     timeComplexity: "O(V + E)",
     timeExplanation: "Standard DFS visits each vertex and edge once.",
     spaceComplexity: "O(V + E)",
@@ -7655,6 +9175,12 @@ public:
         return accumulate(candy.begin(), candy.end(), 0);
     }
 };`,
+    lineByLine: [
+      "`vector<int> candy(n, 1);` — every child must receive at least 1 candy regardless of rating, so that's the baseline before any neighbor comparisons.",
+      "`for (int i = 1; i < n; i++) if (ratings[i] > ratings[i-1]) candy[i] = candy[i-1] + 1;` — left-to-right pass enforces the LEFT-neighbor constraint only: if a child rates higher than the child just before them, they must get strictly more candy than that left neighbor got.",
+      "`for (int i = n-2; i >= 0; i--) if (ratings[i] > ratings[i+1]) candy[i] = max(candy[i], candy[i+1] + 1);` — right-to-left pass enforces the RIGHT-neighbor constraint: if a child rates higher than the child just after them, they need strictly more candy than that right neighbor. Taking `max` with the value from the first pass is essential — this pass must never accidentally LOWER a count that the left pass already required to satisfy the left-neighbor rule; it only raises the count further if the right-neighbor rule demands more.",
+      "`return accumulate(candy.begin(), candy.end(), 0);` — since both passes independently guarantee their respective neighbor constraint and the max() combination preserves both, summing the final per-child amounts gives the minimum valid total.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Two linear passes through the array.",
     spaceComplexity: "O(n)",
@@ -7694,6 +9220,14 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`for (auto& emp : schedule) for (auto& iv : emp) all.push_back(iv);` — flatten every employee's separate schedule into one combined list, since free time requires knowing when ANY employee is busy — the notion of 'which employee' no longer matters once we just need the union of all busy periods.",
+      "`sort(all.begin(), all.end(), ...);` — sort all busy intervals from every employee by start time, so overlapping/touching intervals become adjacent and mergeable in a single left-to-right pass (identical setup to merge-intervals).",
+      "`Interval cur = all[0];` — start tracking a running 'currently merged busy block' with the earliest interval.",
+      "`if (all[i].start <= cur.end) cur.end = max(cur.end, all[i].end);` — if the next busy interval starts before (or exactly when) the current merged block ends, someone is busy continuously through that point, so extend the merged block rather than treating it as a gap.",
+      "`else { res.push_back({cur.end, all[i].start}); cur = all[i]; }` — a genuine gap exists between when the current merged busy block ends and the next interval starts — nobody scheduled between those two points, so record that gap as free time, then start a new merged block from this interval.",
+      "`return res;` — every gap found between merged busy blocks is a period when no employee is working, and gaps before the first interval or after the last are naturally excluded since the loop only ever looks BETWEEN consecutive intervals.",
+    ],
     timeComplexity: "O(n log n)",
     timeExplanation: "Sorting n total intervals dominates.",
     spaceComplexity: "O(n)",
@@ -7744,6 +9278,16 @@ public:
         return result + sign * num;
     }
 };`,
+    lineByLine: [
+      "`stack<int> stk; int result = 0, sign = 1, num = 0;` — result accumulates the value of the current (possibly parenthesized) sub-expression; sign is the sign to apply to the NEXT number; num builds up a multi-digit number one character at a time; the stack saves outer context whenever we descend into parentheses.",
+      "`if (isdigit(c)) num = num * 10 + (c - '0');` — build a (potentially multi-digit) number by shifting previously read digits left and appending the new one.",
+      "`else if (c == '+' || c == '-') { result += sign * num; num = 0; sign = (c == '+') ? 1 : -1; }` — a new operator means the previously accumulated number is complete: fold it into result using the PENDING sign (from before this operator), reset num, then remember this operator's sign for whatever number comes next.",
+      "`else if (c == '(') { stk.push(result); stk.push(sign); result = 0; sign = 1; }` — entering a parenthesized sub-expression: save the outer result and outer sign on the stack so they can be restored later, then start fresh as if evaluating a brand-new expression (result=0, sign=+1) for the inner content.",
+      "`else if (c == ')') { result += sign * num; num = 0;` — closing a sub-expression: first finalize any pending number into the inner result, exactly as the +/- branch would.",
+      "`result *= stk.top(); stk.pop();  // outer sign` — multiply the just-finished inner result by the sign that was in effect right before the '(' — this applies something like the minus in `-(2+3)` to the whole parenthesized value.",
+      "`result += stk.top(); stk.pop();  // outer result` — add back the outer expression's result that was accumulated before the parenthesis, resuming exactly where the outer expression left off.",
+      "`return result + sign * num;` — after the full scan, one last number may still be pending (never followed by another operator or a closing paren) — fold it in with its pending sign to get the final answer.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass through the string, each character processed once.",
     spaceComplexity: "O(n)",
@@ -7798,6 +9342,19 @@ public:
         return *max_element(dp[m-1].begin(), dp[m-1].end());
     }
 };`,
+    lineByLine: [
+      "`vector<int> rowMask(m); for ... if (seats[i][j] == '.') rowMask[i] |= (1 << j);` — encode each row of usable seats as a bitmask, where bit j is set if seat (i,j) is usable; this lets 'is this a legal seating pattern' become a handful of fast bitwise checks instead of scanning cell by cell.",
+      "`vector<vector<int>> dp(m, vector<int>(1 << n, -1));` — dp[row][mask] = max students seatable in rows 0..row given that row `row` uses seating pattern `mask`; -1 marks a mask that's unreachable/invalid for that row.",
+      "`if ((mask & rowMask[0]) != mask) continue;` — mask must only place students on usable seats; if mask has a bit set where rowMask[0] doesn't, that student would sit on a broken seat, so this pattern is invalid.",
+      "`if (mask & (mask >> 1)) continue;` — shifting mask right by 1 and AND-ing with itself detects two adjacent set bits (a student directly next to another), which is illegal (they could cheat sideways).",
+      "`dp[0][mask] = __builtin_popcount(mask);` — for the first row, any pattern that survives both checks is valid on its own, and seats exactly as many students as it has set bits.",
+      "`for (int i = 1; i < m; i++)` — build up row by row, since a row's validity also depends on the row directly above it.",
+      "`if ((mask & rowMask[i]) != mask || (mask & (mask >> 1))) continue;` — same two intra-row checks as before, now for row i.",
+      "`for (int prev = 0; prev < (1 << n); prev++) { if (dp[i-1][prev] < 0) continue;` — try combining this row's pattern with every previously-valid pattern from row i-1.",
+      "`if (mask & (prev << 1)) continue; if (mask & (prev >> 1)) continue;` — shifting prev left/right by 1 and checking overlap with mask detects diagonal front-left/front-right cheating lines: a student in this row at column j can see the row above at column j-1 or j+1, so those bit positions must not both be set across the two masks.",
+      "`dp[i][mask] = max(dp[i][mask], dp[i-1][prev] + __builtin_popcount(mask));` — if this (prev, mask) combination is diagonal-safe, it's a candidate transition: total students is whatever was achievable through row i-1 with pattern prev, plus however many new students mask seats in row i.",
+      "`return *max_element(dp[m-1].begin(), dp[m-1].end());` — after processing every row, the best achievable total is the maximum over all valid final-row patterns.",
+    ],
     timeComplexity: "O(m × 4^n)",
     timeExplanation: "m rows, 2^n masks per row, 2^n prev masks to check = O(m × 4^n). n ≤ 8 so 4^8 = 65536 is manageable.",
     spaceComplexity: "O(m × 2^n)",
@@ -7860,6 +9417,15 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`unordered_map<char, TrieNode*> children; unordered_map<string, int> counts;` — each trie node caches the full set of complete sentences that pass through it (with their frequencies), not just a boolean end-flag — this trades extra memory for O(1) access to 'every sentence sharing this prefix' at query time, instead of re-DFS-ing the subtree on every keystroke.",
+      "`void insert(TrieNode* node, const string& s, int c)` — walk the sentence character by character, and at EVERY node along the path (not just the final one), record that sentence s contributed c to that node's counts — this is what makes every prefix node aware of all sentences beginning with it.",
+      "`AutocompleteSystem(...) { for (...) insert(root, sentences[i], times[i]); }` — seed the trie with the initial historical sentences and their given frequencies.",
+      "`if (c == '#') { insert(root, prefix, 1); prefix = \"\"; cur = root; return {}; }` — '#' means the current typed sentence is complete: insert it (adding 1 to its frequency, or creating it fresh with frequency 1 if new), then reset the input buffer and trie pointer for the next query.",
+      "`prefix += c; if (cur && cur->children.count(c)) cur = cur->children[c]; else { cur = nullptr; return {}; }` — track the input so far, and advance the current trie pointer one level if that path exists; if it doesn't (no historical sentence ever had this prefix), remember that with cur=nullptr so subsequent calls know immediately there's nothing to suggest, without re-walking a dead path.",
+      "`for (auto& [s, cnt] : cur->counts) cands.push_back({cnt, s});` then sort by `a.first != b.first ? a.first > b.first : a.second < b.second` — gather every sentence sharing the current prefix (already cached at this node) and sort by frequency descending, breaking ties lexicographically ascending, exactly matching the ranking rule in the problem.",
+      "`for (int i = 0; i < min(3,(int)cands.size()); i++) res.push_back(cands[i].second);` — return only the top 3 (or fewer if not enough candidates exist).",
+    ],
     timeComplexity: "O(p × n) per query",
     timeExplanation: "p = prefix length, n = sentences at that node. Sorting n candidates is O(n log n).",
     spaceComplexity: "O(total characters × avg sentences per node)",
@@ -7914,6 +9480,16 @@ public:
         return -1;
     }
 };`,
+    lineByLine: [
+      "`if (m == 1 && n == 1) return 0;` — already at the destination with zero moves needed, a trivial base case.",
+      "`vector<vector<vector<bool>>> vis(m, vector<vector<bool>>(n, vector<bool>(k+1, false)));` — visited is 3-DIMENSIONAL (row, col, obstacles remaining) instead of the usual 2D grid — this is the key twist: arriving at the same cell with a DIFFERENT amount of remaining removal budget is a genuinely different, independently useful state, since more budget remaining might unlock a shorter path later that less budget couldn't.",
+      "`q.push({0, 0, k, 0}); vis[0][0][k] = true;` — BFS state is (row, col, obstacles_remaining, steps_taken); start at the origin with the full budget k and 0 steps.",
+      "`int nk = rem - grid[nr][nc];` — grid[nr][nc] is 0 (open) or 1 (obstacle); subtracting it from the remaining budget naturally costs 1 unit of budget only when stepping onto an obstacle, and 0 when stepping onto open ground — a compact way to encode both cases in one line.",
+      "`if (nk < 0) continue;` — stepping here would require removing more obstacles than allowed, so this move is illegal.",
+      "`if (nr == m-1 && nc == n-1) return steps + 1;` — because BFS explores in strictly increasing order of steps, the FIRST time the destination is reached (regardless of which state/budget got us there) is guaranteed to be via the minimum possible number of moves — return immediately.",
+      "`if (!vis[nr][nc][nk]) { vis[nr][nc][nk] = true; q.push({nr, nc, nk, steps+1}); }` — only enqueue this exact (position, remaining-budget) combination if it hasn't been reached before; since BFS reaches any given state in non-decreasing step order, the first arrival at a given (row, col, budget) triple is already optimal for that specific state, so later arrivals at the same state (with equal or more steps) are redundant.",
+      "`return -1;` — the BFS exhausted every reachable (position, budget) state without ever reaching the destination, meaning even with k removals available, it's unreachable.",
+    ],
     timeComplexity: "O(m × n × k)",
     timeExplanation: "State space is m × n × (k+1). Each state visited at most once.",
     spaceComplexity: "O(m × n × k)",
@@ -7945,6 +9521,11 @@ public:
         nums[i] += nums[i-1];
     return nums;
 }`,
+    lineByLine: [
+      "`for (int i = 1; i < nums.size(); i++)` — start at index 1 since nums[0]'s running sum is just itself — nothing to add.",
+      "`nums[i] += nums[i-1];` — the running sum at i is the running sum at i-1 (which already equals the sum of everything up to i-1) plus the current element — each position turns into 'sum of everything up to and including here' using only the previous slot's already-updated value, which is exactly the definition of a prefix sum.",
+      "`return nums;` — the array now holds the running/prefix sum, computed in place with no extra storage.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass.",
     spaceComplexity: "O(1)",
@@ -7975,6 +9556,13 @@ public:
     }
     return -1;
 }`,
+    lineByLine: [
+      "`int total = accumulate(nums.begin(), nums.end(), 0);` — precompute the whole array's sum once, so leftSum + nums[i] + rightSum = total lets rightSum be derived without ever storing a separate suffix-sum array.",
+      "`int leftSum = 0;` — running sum of everything strictly to the left of the current index, updated incrementally as the scan advances.",
+      "`for (int i = 0; i < nums.size(); i++) { if (leftSum == total - leftSum - nums[i]) return i;` — rearranging total = leftSum + nums[i] + rightSum gives rightSum = total - leftSum - nums[i]; comparing that to leftSum directly checks the pivot condition in O(1) using only values already known, no need to recompute a right-side sum from scratch.",
+      "`leftSum += nums[i];` — only update leftSum to include nums[i] AFTER checking the pivot condition for i, since leftSum must represent the sum strictly to the left of the current index, not including it.",
+      "`return -1;` — no index satisfied the pivot condition.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Two passes: one for total, one for scan.",
     spaceComplexity: "O(1)",
@@ -8005,6 +9593,11 @@ public:
         return prefix[right+1] - prefix[left];
     }
 };`,
+    lineByLine: [
+      "`prefix.resize(nums.size() + 1, 0);` — using size n+1 with prefix[0] fixed at 0 means prefix[i] always means 'sum of the first i elements' with no off-by-one special-casing needed for ranges starting at index 0.",
+      "`for (int i = 0; i < nums.size(); i++) prefix[i+1] = prefix[i] + nums[i];` — prefix[i+1] accumulates prefix[i] (sum of first i elements) plus nums[i] (the i-th element, 0-indexed) — building the running total once so every future query is just a subtraction.",
+      "`return prefix[right+1] - prefix[left];` — sumRange(left,right) = (sum of everything through index right) minus (sum of everything before index left) = prefix[right+1] - prefix[left]; because prefix is 1-indexed relative to nums, this formula works identically whether left is 0 or not, with no boundary check required.",
+    ],
     timeComplexity: "O(n) build, O(1) query",
     timeExplanation: "Precompute once, queries are subtraction.",
     spaceComplexity: "O(n)",
@@ -8036,6 +9629,14 @@ public:
     }
     return count;
 }`,
+    lineByLine: [
+      "`unordered_map<int,int> seen{{0,1}};` — pre-seeding with {0: 1} accounts for the 'empty prefix' (before any elements) having sum 0 — without it, a subarray starting at index 0 whose sum equals k would never be counted, since there'd be no recorded prefix of 0 to subtract against.",
+      "`int running = 0, count = 0;` — running is the prefix sum through the current index; count accumulates how many valid subarrays have been found ending at each index.",
+      "`for (int num : nums) { running += num;` — extend the prefix sum to include the current element.",
+      "`count += seen.count(running - k) ? seen[running - k] : 0;` — a subarray ending here sums to k exactly when some earlier prefix sum equals running - k (since subarraySum = running - earlierPrefix = k implies earlierPrefix = running - k); every previously recorded prefix with that exact value marks a valid earlier start point, so add however many times that value has occurred.",
+      "`seen[running]++;` — record the current prefix sum AFTER using it to count matches, so a subarray never counts itself as its own 'earlier' prefix (i.e., i < j is preserved automatically by checking before inserting).",
+      "`return count;` — total across all ending positions of subarrays summing to exactly k.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass with O(1) hash map operations.",
     spaceComplexity: "O(n)",
@@ -8071,6 +9672,14 @@ public:
     }
     return count;
 }`,
+    lineByLine: [
+      "`unordered_map<int,int> rem{{0,1}};` — pre-seed the empty prefix (sum 0, remainder 0) so a subarray starting at index 0 whose running sum is already divisible by k gets correctly matched against this baseline.",
+      "`int running = 0, count = 0;` — running holds the prefix sum's remainder mod k as we scan; count accumulates the number of divisible subarrays found.",
+      "`running = ((running + num) % k + k) % k;` — two prefix sums with the same remainder mod k differ by a multiple of k, so (prefix[j]-prefix[i]) % k == 0 exactly when prefix[j] % k == prefix[i] % k; the double-mod normalization is needed because C++'s `%` can return a negative result for negative operands, and remainders must stay in [0, k) to index/compare correctly.",
+      "`count += rem[running];` — every prior prefix that shares the current remainder marks a valid earlier start point for a subarray ending here whose sum is divisible by k, so add however many times this remainder has occurred before.",
+      "`rem[running]++;` — record this prefix's remainder AFTER counting matches against it, preserving the i < j ordering needed for a valid subarray.",
+      "`return count;` — total divisible subarrays across all ending positions.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass.",
     spaceComplexity: "O(k)",
@@ -8109,6 +9718,13 @@ public:
     }
     return false;
 }`,
+    lineByLine: [
+      "`unordered_map<int,int> seen{{0,-1}};` — seed remainder 0 as having 'first occurred' at index -1 (the position of the empty prefix, before any real elements) — this lets a subarray starting at real index 0 correctly compute a gap of at least 2 without special-casing the start of the array.",
+      "`int running = 0; for (int i = 0; i < nums.size(); i++) { running = (running + nums[i]) % k;` — running tracks the prefix sum's remainder mod k as the scan advances (inputs are non-negative here, so no negative-mod correction is needed unlike the divisibility-count variant).",
+      "`if (seen.count(running)) { if (i - seen[running] >= 2) return true; }` — the SAME remainder recurring at two indices i and seen[running] means the subarray strictly between them sums to a multiple of k; requiring a gap of at least 2 ensures that subarray has length >= 2, satisfying the problem's minimum-length requirement.",
+      "`} else { seen[running] = i; }` — only store a remainder's FIRST occurrence, never overwrite it — the earliest index for a given remainder maximizes the possible gap to any future occurrence, which is exactly what's needed to satisfy the length >= 2 condition as early as possible.",
+      "`return false;` — no repeated remainder with a large enough gap was ever found, so no valid subarray exists.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass.",
     spaceComplexity: "O(k)",
@@ -8144,6 +9760,13 @@ public:
         result[i] = result[i-1] + diff[i];
     return result;
 }`,
+    lineByLine: [
+      "`vector<int> diff(length + 1, 0);` — the extra +1 slot exists so that a range ending at the very last index can still write its 'cancel' marker at end+1 without going out of bounds.",
+      "`for (auto& u : updates) { diff[u[0]] += u[2]; diff[u[1] + 1] -= u[2]; }` — instead of adding `inc` to every element in [start,end] directly (O(range) per update), record only that the effect of +inc STARTS at `start` and STOPS applying right after `end`; this turns each update into O(1) work regardless of range size.",
+      "`vector<int> result(length); result[0] = diff[0];` — the actual value at index 0 is just whatever deltas start there, since nothing precedes it.",
+      "`for (int i = 1; i < length; i++) result[i] = result[i-1] + diff[i];` — taking a running (prefix) sum of the difference array reconstructs the real values: any +inc recorded at an earlier start index carries forward automatically through addition, and any -inc recorded at an end+1 index cancels it out from that point on — this is precisely why a difference array is the mirror image of a prefix sum.",
+      "`return result;` — the fully reconstructed array after applying every update.",
+    ],
     timeComplexity: "O(n + q)",
     timeExplanation: "q updates each O(1), one O(n) recovery pass.",
     spaceComplexity: "O(n)",
@@ -8180,6 +9803,13 @@ public:
     }
     return true;
 }`,
+    lineByLine: [
+      "`int diff[1001] = {};` — a difference array indexed by location along the route (locations are bounded by 0..1000 per the constraints), fixed-size so no dynamic sizing is needed.",
+      "`diff[t[1]] += t[0]; diff[t[2]] -= t[0];` — passengers board at `from` (t[1]), adding t[0] to the car's occupancy from that point forward, and they exit exactly AT `to` (t[2]) — subtracting there means the passenger count drops starting at that location, so they are correctly NOT counted as occupying the car at their drop-off point itself, only for locations strictly between from and to.",
+      "`int passengers = 0; for (int loc = 0; loc <= 1000; loc++) { passengers += diff[loc];` — sweeping location by location and accumulating the difference array reconstructs the actual passenger count on the car at each point along the route, exactly like recovering values from a difference array via prefix sum.",
+      "`if (passengers > capacity) return false;` — the moment the reconstructed occupancy exceeds capacity at any single location, the plan is infeasible — check as soon as each location's count is known rather than waiting until the whole array is built.",
+      "`return true;` — occupancy never exceeded capacity at any point along the entire route, so all trips can be completed.",
+    ],
     timeComplexity: "O(n + L)",
     timeExplanation: "n trips processed, L=1000 locations scanned.",
     spaceComplexity: "O(L)",
@@ -8223,6 +9853,16 @@ public:
     for (int num : nums1) result.push_back(nextGreater[num]);
     return result;
 }`,
+    lineByLine: [
+      "`unordered_map<int,int> nextGreater;` — final lookup from a value to its next-greater value in nums2, computed once and reused for every nums1 query.",
+      "`stack<int> st;  // monotonic decreasing` — holds values still 'waiting' to find something bigger to their right; strictly decreasing from bottom to top since anything that would break that order gets popped immediately.",
+      "`for (int num : nums2)` — process nums2 left to right, exactly once.",
+      "`while (!st.empty() && st.top() < num) { nextGreater[st.top()] = num; st.pop(); }` — the current num is bigger than whatever's waiting on the stack, so every one of those smaller waiters just found their answer: the first bigger element to their right is num.",
+      "`st.push(num);` — num itself now waits on the stack for some future bigger element (or gets resolved as -1 at the end if none ever comes).",
+      "`while (!st.empty()) { nextGreater[st.top()] = -1; st.pop(); }` — anything still on the stack after scanning all of nums2 never found a bigger element to its right, so its answer is -1.",
+      "`for (int num : nums1) result.push_back(nextGreater[num]);` — since nums1 is a subset of nums2, every lookup here is guaranteed to have been computed already; this reduces each query to O(1).",
+      "`return result;` — answers in nums1's original order, as required.",
+    ],
     timeComplexity: "O(n + m)",
     timeExplanation: "Each element pushed and popped at most once.",
     spaceComplexity: "O(m)",
@@ -8260,6 +9900,15 @@ public:
     }
     return result;
 }`,
+    lineByLine: [
+      "`vector<int> result(n, -1);` — defaults every answer to -1, correct for any element that never finds a greater element even after wrapping once.",
+      "`stack<int> st;  // stores indices` — indices (not values) are stored so results can be written back to the correct original position; the stack stays in decreasing-value order from bottom to top, same invariant as the linear next-greater-element problem.",
+      "`for (int i = 0; i < 2 * n; i++)` — simulating the circular wrap by conceptually going around the array twice: the first n iterations discover most answers, and the extra n iterations let elements near the end 'see' elements near the start without physically duplicating the array.",
+      "`while (!st.empty() && nums[st.top()] < nums[i % n])` — the element at the wrapped index i%n is bigger than whatever's waiting on the stack, so that waiting index just found its next-greater element.",
+      "`result[st.top()] = nums[i % n]; st.pop();` — record the answer for that waiting index and remove it from the stack.",
+      "`if (i < n) st.push(i);` — only push new indices during the FIRST pass through the array; the second pass (i from n to 2n-1) exists purely to resolve leftover waiters using the wrapped-around start of the array, not to introduce new indices that would then need their own second wrap (which the problem doesn't ask for — only one wrap is allowed).",
+      "`return result;` — anything never popped by the time both passes finish truly has no greater element anywhere in the circular array, correctly staying at -1.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each index pushed and popped at most once across 2n iterations.",
     spaceComplexity: "O(n)",
@@ -8292,6 +9941,10 @@ public:
 // dp[0] = false (no moves left, you lose)
 // dp[i] = any move in moves that leads to dp[i - move] == false
 // This generalizes to all combinatorial game problems`,
+    lineByLine: [
+      "`return n % 4 != 0;` — n=4 is a losing position for whoever is about to move: no matter if they take 1, 2, or 3 stones, they leave 3, 2, or 1 respectively, which the opponent can take entirely to win — so being handed a multiple of 4 is always a loss. Whenever n is NOT a multiple of 4, the current player can always remove just enough stones (1, 2, or 3) to leave the opponent exactly at the next-lower multiple of 4, forcing the opponent into that same losing position.",
+      "`// dp[i] = true if current player wins with i stones ... dp[i] = any move in moves that leads to dp[i - move] == false` — the general game-theory template this problem is a special case of: a position is winning if ANY available move leads to a position where dp is false (i.e., leaves the opponent in a losing spot); dp[0] is false because the player facing an empty pile has no move and has already lost (here, that means the OTHER player took the last stone). The n%4 formula is just the closed-form solution to this DP when moves = {1,2,3}.",
+    ],
     timeComplexity: "O(1)",
     timeExplanation: "Single modulo operation.",
     spaceComplexity: "O(1)",
@@ -8335,6 +9988,13 @@ bool stoneGameDP(vector<int>& piles) {
     }
     return dp[0][n-1] > 0;
 }`,
+    lineByLine: [
+      "`return true; // n is always even per problem constraints` — a known mathematical shortcut specific to THIS problem's constraints (distinct pile values, even pile count): the first player can always force a win by always taking either all odd-indexed or all even-indexed piles (whichever sums larger), guaranteeing strictly more total stones. This shortcut does NOT generalize to variants with different rules, hence the DP version below.",
+      "`for (int i = 0; i < n; i++) dp[i][i] = piles[i];` — dp[i][j] represents the best score ADVANTAGE (my total minus opponent's total) achievable over the sub-row piles[i..j] when it's my turn to move first in that sub-row; with only one pile left (i==j), there's no choice — take it, and the advantage is simply its full value.",
+      "`for (int len = 2; len <= n; len++) for (int i = 0; i <= n - len; i++)` — build up from smaller sub-rows to larger ones, since the optimal play over a longer row depends on already knowing the optimal play over every shorter sub-row.",
+      "`dp[i][j] = max(piles[i] - dp[i+1][j], piles[j] - dp[i][j-1]);` — the current player has exactly two choices: take the left pile (gaining piles[i], but now the OPPONENT becomes the 'current player' over the remaining piles[i+1..j], so their advantage there, dp[i+1][j], is subtracted from mine), or take the right pile symmetrically; picking whichever option yields the larger net advantage is optimal play from the current player's perspective.",
+      "`return dp[0][n-1] > 0;` — if the first player's advantage over the entire row is positive, they end up with strictly more stones than the opponent, meaning they win.",
+    ],
     timeComplexity: "O(n²) for DP, O(1) for math",
     timeExplanation: "DP fills n×n table.",
     spaceComplexity: "O(n²) for DP, O(1) for math",
@@ -8380,6 +10040,15 @@ int removeDuplicatesII(vector<int>& nums, int k = 2) {
     }
     return write;
 }`,
+    lineByLine: [
+      "`if (nums.empty()) return 0;` — nothing to remove or count in an empty array.",
+      "`int write = 1;` — since the array is sorted, nums[0] is always kept as the first unique value; write points to where the NEXT unique value should land.",
+      "`for (int read = 1; read < nums.size(); read++)` — read scans every element once, always at or ahead of write.",
+      "`if (nums[read] != nums[read - 1])` — because the array is sorted, a value differs from its immediate predecessor exactly when it's a new, not-yet-seen value (all duplicates of a value are consecutive).",
+      "`nums[write++] = nums[read];` — copy this newly-found unique value into the next open slot at write, then advance write; slots before write hold every unique value seen so far, in order.",
+      "`return write;` — the final write position equals the count of unique values, and doubles as the length of the valid prefix.",
+      "`int removeDuplicatesII(vector<int>& nums, int k = 2) { int write = 0; for (int x : nums) { if (write < k || nums[write - k] != x) nums[write++] = x; } return write; }` — the generalized version: a value is kept as long as it hasn't already appeared k times in the output built so far. Comparing against nums[write-k] (instead of nums[write-1]) checks whether the value k positions back in the WRITTEN prefix matches; if it does, this candidate would be the (k+1)-th copy and gets skipped, otherwise it's still within the allowed quota and gets written.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass through array.",
     spaceComplexity: "O(1)",
@@ -8419,6 +10088,13 @@ int removeDuplicatesII(vector<int>& nums, int k = 2) {
         }
     }
 }`,
+    lineByLine: [
+      "`int low = 0, mid = 0, high = nums.size() - 1;` — three regions being maintained: [0, low) is all confirmed 0s, [low, mid) is all confirmed 1s, (high, n-1] is all confirmed 2s; [mid, high] is the unexamined middle.",
+      "`while (mid <= high)` — keep classifying until the unexamined region shrinks to nothing.",
+      "`if (nums[mid] == 0) { swap(nums[low++], nums[mid++]); }` — swap this 0 into the 0-region's boundary; the element that comes back from nums[low] is guaranteed to be a 1 (everything between low and mid was already classified as 1), so it's now correctly examined and mid can safely advance too.",
+      "`else if (nums[mid] == 1) { mid++; }` — a 1 is already exactly where it belongs (in the middle region), so just move past it.",
+      "`else { swap(nums[mid], nums[high--]); }` — a 2 gets swapped to the high boundary and the 2-region grows; crucially mid does NOT advance here, because the value swapped in from nums[high] is completely unknown (could be 0, 1, or 2) and must still be examined on the next iteration. When the loop ends (mid > high), low marks the end of 0s and mid marks the end of 1s, giving a fully partitioned array in one O(n) pass with no library sort.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each element is touched at most twice (once by mid, possibly swapped by low or high).",
     spaceComplexity: "O(1)",
@@ -8468,6 +10144,16 @@ int findBound(vector<int>& nums, int target, bool isLeft) {
 // lower_bound gives first position >= target
 // upper_bound gives first position > target
 // range = [lower_bound(target), upper_bound(target) - 1]`,
+    lineByLine: [
+      "`return {findBound(nums, target, true), findBound(nums, target, false)};` — the first (leftmost) and last (rightmost) occurrence are each their own independent binary search, just with the tie-breaking direction flipped.",
+      "`int lo = 0, hi = nums.size() - 1, bound = -1;` — bound records the best matching index found so far; -1 means no match has been found yet.",
+      "`while (lo <= hi)` — standard binary search bounds.",
+      "`if (nums[mid] == target) { bound = mid; ... }` — found a match; record it as a candidate, but don't stop yet — there might be an even further-left (or further-right) occurrence still to find.",
+      "`if (isLeft) hi = mid - 1;  // keep searching left` — for the leftmost search, after finding a match, keep narrowing toward the left half to see if an even earlier occurrence exists.",
+      "`else lo = mid + 1;  // keep searching right` — for the rightmost search, keep narrowing toward the right half instead, looking for a later occurrence.",
+      "`} else if (nums[mid] < target) { lo = mid + 1; } else { hi = mid - 1; }` — standard binary search narrowing when there's no match yet: move toward wherever target could be based on the sorted order.",
+      "`return bound;` — after the window closes, bound holds either -1 (never matched) or the most extreme (leftmost/rightmost, depending on isLeft) index where target was found.",
+    ],
     timeComplexity: "O(log n)",
     timeExplanation: "Two separate binary searches, each O(log n).",
     spaceComplexity: "O(1)",
@@ -8525,6 +10211,14 @@ int findBound(vector<int>& nums, int target, bool isLeft) {
     }
     return true;
 }`,
+    lineByLine: [
+      "`vector<int> color(n, -1);` — -1 means unvisited/uncolored; once a node is assigned 0 or 1, it belongs to one of the two groups.",
+      "`for (int start = 0; start < n; start++) { if (color[start] != -1) continue; ... }` — the graph may be disconnected, so every node must be tried as a fresh BFS start; skipping already-colored nodes avoids redoing work on a component already checked.",
+      "`q.push(start); color[start] = 0;` — arbitrarily assign the first node of this component to group 0 — bipartite-ness doesn't care which group is which, only that adjacent nodes differ.",
+      "`if (color[neighbor] == -1) { color[neighbor] = 1 - color[node]; q.push(neighbor); }` — an uncolored neighbor must go in the OPPOSITE group from the current node (since they're connected by an edge, they can't share a group) — `1 - color[node]` flips 0↔1.",
+      "`else if (color[neighbor] == color[node]) { return false; }` — the neighbor was already colored, and it matches the current node's color — but they're directly connected, so they're supposed to be in different groups; this contradiction is exactly what an odd cycle produces (you can't alternate colors evenly around an odd-length loop), so bipartite splitting is impossible.",
+      "`return true;` — every component was fully colored without ever finding two adjacent same-colored nodes, so a valid 2-coloring (bipartition) exists.",
+    ],
     timeComplexity: "O(V + E)",
     timeExplanation: "Standard BFS — each vertex and edge visited once.",
     spaceComplexity: "O(V)",
@@ -8565,6 +10259,14 @@ public:
         return write;
     }
 };`,
+    lineByLine: [
+      "`if ((int)nums.size() <= 2) return nums.size();` — with at most 2 elements total, the 'at most 2 of each value' rule can never be violated, so nothing needs removing.",
+      "`int write = 2;` — the first two elements are always kept unconditionally (even if identical, that's still only 2 copies, which is allowed).",
+      "`for (int read = 2; read < (int)nums.size(); read++)` — start scanning from the third element, since the first two are already settled.",
+      "`if (nums[read] != nums[write - 2])` — compare against the element two positions back in the WRITTEN (compacted) prefix, not read-1; since the array is sorted, if this candidate matches the value from two slots back, it would be the third copy of that value and must be dropped, otherwise it's at most the second copy so far and is safe to keep.",
+      "`nums[write] = nums[read]; write++;` — keep this element by copying it into the next open slot and advancing write.",
+      "`return write;` — the final write position is the new valid length, with every value appearing at most twice in the first `write` slots.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass; each element is read once and written at most once.",
     spaceComplexity: "O(1)",
@@ -8598,6 +10300,12 @@ public:
         }
     }
 };`,
+    lineByLine: [
+      "`int i = m - 1, j = n - 1, k = m + n - 1;` — i and j point at the largest remaining candidate in nums1's and nums2's real elements respectively; k points at the last physical slot of nums1, where the largest overall value belongs.",
+      "`while (j >= 0)` — the loop only needs to place all of nums2's elements; once nums2 is exhausted, whatever real elements remain in nums1 are already sitting in their correct final positions (since we always filled from the largest slot down, never needing to shift anything).",
+      "`if (i >= 0 && nums1[i] > nums2[j]) nums1[k--] = nums1[i--];` — if nums1 still has an unplaced real element and it's larger than nums2's current candidate, it belongs in the current back slot; move it there without disturbing anything, since we're only ever writing into already-consumed (placeholder or already-copied) territory.",
+      "`else nums1[k--] = nums2[j--];` — otherwise nums2's candidate is the larger (or nums1 is exhausted), so place it instead; filling strictly from the back like this guarantees no element is ever overwritten before it's been read, which is exactly why no shifting (and thus no O(n) per insertion) is needed, unlike merging from the front.",
+    ],
     timeComplexity: "O(m + n)",
     timeExplanation: "Each element from both arrays is placed exactly once.",
     spaceComplexity: "O(1)",
@@ -8635,6 +10343,14 @@ public:
         reverse(nums.begin() + i + 1, nums.end());
     }
 };`,
+    lineByLine: [
+      "`int n = nums.size(), i = n - 2;` — start one before the last index, since the suffix starting at the last element alone is trivially non-increasing (length 1).",
+      "`while (i >= 0 && nums[i] >= nums[i + 1]) i--;` — walk left while the sequence is non-increasing; this finds the rightmost 'pivot' position where nums[i] < nums[i+1] — the point where the permutation can still be bumped up, since everything after i is already at its maximum (descending) arrangement.",
+      "`if (i >= 0)` — if i went all the way to -1, the entire array is non-increasing, meaning it's the last permutation (e.g. [3,2,1]) with no next one — it should wrap around to the smallest, which the final reverse (of the whole array) accomplishes.",
+      "`int j = n - 1; while (nums[j] <= nums[i]) j--;` — scan from the right to find the smallest value that's still strictly greater than nums[i]; since the suffix after i is sorted descending, the first (rightmost) value found this way is guaranteed to be the smallest one exceeding nums[i].",
+      "`swap(nums[i], nums[j]);` — placing this smallest-larger value at position i gives the smallest possible increase to the prefix, which is exactly what 'next' permutation requires.",
+      "`reverse(nums.begin() + i + 1, nums.end());` — the suffix after i was descending before the swap and remains descending after it (swapping in a value doesn't change that other elements' relative order), so reversing it turns it into ascending order — the smallest possible arrangement of those remaining elements, minimizing the overall permutation given the new prefix.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Two linear scans plus a linear reversal, all bounded by array length.",
     spaceComplexity: "O(1)",
@@ -8676,6 +10392,14 @@ public:
         return best;
     }
 };`,
+    lineByLine: [
+      "`unordered_map<int,int> count;` — tracks how many of each fruit type is currently inside the window; the number of KEYS in this map is the number of distinct fruit types in the window, which must stay <= 2 (two baskets).",
+      "`for (int right = 0; right < (int)fruits.size(); right++)` — grow the window by including one more tree each step.",
+      "`count[fruits[right]]++;` — add the new tree's fruit type to the window's tally.",
+      "`while (count.size() > 2) { count[fruits[left]]--; if (count[fruits[left]] == 0) count.erase(fruits[left]); left++; }` — if a third distinct fruit type snuck in, shrink from the left, removing a fruit type entirely from the map once its count drops to zero, until only 2 distinct types remain.",
+      "`best = max(best, right - left + 1);` — after the shrink, the window is guaranteed valid (<=2 types), so its length is a candidate answer.",
+      "`return best;` — the longest window ever seen with at most 2 distinct fruit types, i.e. the most fruit collectible with two baskets.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each element enters and leaves the window at most once.",
     spaceComplexity: "O(1)",
@@ -8715,6 +10439,14 @@ public:
         return best;
     }
 };`,
+    lineByLine: [
+      "`int left = 0, zeros = 0, best = 0;` — zeros counts how many 0s are currently inside the window; the window is 'flippable to all 1s' exactly when zeros <= k.",
+      "`for (int right = 0; right < (int)nums.size(); right++)` — grow the window one element at a time.",
+      "`if (nums[right] == 0) zeros++;` — track a new zero entering the window (it would need one of our k flips).",
+      "`while (zeros > k) { if (nums[left] == 0) zeros--; left++; }` — if the window now needs more flips than we're allowed, shrink from the left — only decrement zeros when the element leaving the window was itself a 0.",
+      "`best = max(best, right - left + 1);` — after any needed shrinking, the window always contains at most k zeros (flippable to all-1s), so its length is a valid candidate.",
+      "`return best;` — the longest run of 1s achievable after flipping at most k zeros.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass; left pointer only moves forward, never backtracks.",
     spaceComplexity: "O(1)",
@@ -8756,6 +10488,15 @@ public:
         return count;
     }
 };`,
+    lineByLine: [
+      "`if (k <= 1) return 0;` — since every nums[i] >= 1, no product of one or more positive integers can be strictly less than 1 (or 0), so the answer is trivially 0.",
+      "`long long product = 1;` — running product of the current window; long long avoids overflow since products can grow large before the window shrinks.",
+      "`for (int right = 0; right < (int)nums.size(); right++)` — grow the window by one element each step.",
+      "`product *= nums[right];` — fold the new element into the running product.",
+      "`while (product >= k) { product /= nums[left]; left++; }` — if the window's product is no longer under k, shrink from the left (dividing back out) until it is — safe because all elements are positive, so removing any of them strictly decreases the product.",
+      "`count += right - left + 1;` — key insight: once the window [left, right] has product < k, EVERY subarray ending at right and starting anywhere from left to right also has product < k (since removing elements from the left only shrinks the product further) — that's exactly (right - left + 1) new valid subarrays to add.",
+      "`return count;` — the total count of subarrays with product strictly less than k.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Left pointer moves forward only; amortized O(1) per right step.",
     spaceComplexity: "O(1)",
@@ -8793,6 +10534,14 @@ public:
         return lo;
     }
 };`,
+    lineByLine: [
+      "`int lo = 0, hi = nums.size() - 1;` — the whole array is the initial search window; a peak is guaranteed to exist somewhere in it because the array's boundaries are treated as -infinity.",
+      "`while (lo < hi)` — narrow the window until only one index remains — that index must be a peak.",
+      "`int mid = lo + (hi - lo) / 2;` — candidate index to examine.",
+      "`if (nums[mid] < nums[mid + 1]) lo = mid + 1;` — the slope is going uphill from mid to mid+1; following an uphill slope you must eventually either keep climbing to the array's end (which counts as a peak since past-the-end is -infinity) or hit a point where it turns downhill (a true peak) — either way, a peak is guaranteed to exist strictly to the right of mid, so mid itself can be discarded.",
+      "`else hi = mid;` — nums[mid] >= nums[mid+1] means the slope is flat or downhill going right, so mid is either already a peak or there's a peak somewhere to its left — keep mid in the window since it might BE the answer.",
+      "`return lo;` — the window collapses onto an index that is strictly greater than both neighbors (treating out-of-bounds as -infinity), satisfying the peak definition.",
+    ],
     timeComplexity: "O(log n)",
     timeExplanation: "Binary search halves the search space each iteration.",
     spaceComplexity: "O(1)",
@@ -8835,6 +10584,16 @@ public:
         return lo;
     }
 };`,
+    lineByLine: [
+      "`int lo = *max_element(weights.begin(), weights.end());` — the ship's capacity can never be smaller than the heaviest single package, or that package could never be loaded at all — this is the tightest possible lower bound.",
+      "`int hi = accumulate(weights.begin(), weights.end(), 0);` — shipping everything in a single day (one giant load) is always feasible if capacity equals the total weight — the loosest possible upper bound.",
+      "`while (lo < hi)` — binary search over candidate capacities, narrowing until only one remains.",
+      "`int mid = lo + (hi - lo) / 2;` — a candidate capacity to test for feasibility.",
+      "`int daysNeeded = 1, load = 0; for (int w : weights) { if (load + w > mid) { daysNeeded++; load = 0; } load += w; }` — greedily simulate loading: keep adding packages to today's load as long as it fits; the moment adding one more would overflow capacity, start a fresh day (packages must ship in given order, so this greedy left-to-right packing is always optimal for a fixed capacity).",
+      "`if (daysNeeded <= days) hi = mid;` — this capacity gets everything shipped within the day limit, so it's feasible; try an even smaller capacity to see if it's still enough (since feasibility only improves as capacity grows, this is a monotonic predicate).",
+      "`else lo = mid + 1;` — this capacity isn't enough (needs more days than allowed), so search only larger capacities.",
+      "`return lo;` — the smallest capacity for which the greedy simulation still fits within the day limit.",
+    ],
     timeComplexity: "O(n log(sum - max))",
     timeExplanation: "Binary search over the capacity range, each check is an O(n) greedy simulation.",
     spaceComplexity: "O(1)",
@@ -8876,6 +10635,16 @@ public:
         return lo;
     }
 };`,
+    lineByLine: [
+      "`int lo = *max_element(nums.begin(), nums.end());` — the largest possible subarray sum can never be smaller than the single biggest element, since that element must end up in SOME subarray by itself at minimum.",
+      "`int hi = accumulate(nums.begin(), nums.end(), 0);` — putting the entire array into one subarray (using only 1 partition) always trivially 'works' with this as the max sum, giving a safe upper bound.",
+      "`while (lo < hi)` — binary search over candidate max-sum limits, narrowing to the smallest one that's achievable.",
+      "`int mid = lo + (hi - lo) / 2;` — a candidate cap on each subarray's sum.",
+      "`int parts = 1, sum = 0; for (int x : nums) { if (sum + x > mid) { parts++; sum = 0; } sum += x; }` — greedily pack elements into the current subarray as long as the running sum stays within mid; the moment adding one more would exceed it, start a new subarray — this greedy left-to-right split is the fewest partitions possible for a given max-sum cap, since delaying a split can never help.",
+      "`if (parts <= m) hi = mid;` — this cap can be achieved using m or fewer partitions, so it's feasible; search for an even smaller cap (feasibility only gets easier as the cap grows, making this a monotonic predicate).",
+      "`else lo = mid + 1;` — this cap forces too many partitions (more than m allowed), so it's too restrictive — search only larger caps.",
+      "`return lo;` — the smallest achievable max-subarray-sum using at most m contiguous partitions.",
+    ],
     timeComplexity: "O(n log(sum - max))",
     timeExplanation: "Binary search over possible sums, O(n) greedy check per guess.",
     spaceComplexity: "O(1)",
@@ -8923,6 +10692,16 @@ public:
         return dummy.next;
     }
 };`,
+    lineByLine: [
+      "`ListNode dummy(0); dummy.next = head; ListNode* prev = &dummy;` — a dummy node in front of head means left=1 (reversing starting at the very head) needs no special case: prev can legitimately be the dummy itself.",
+      "`for (int i = 1; i < left; i++) prev = prev->next;` — walk prev forward until it sits exactly one node before position left, the fixed anchor point that the reversed section will keep splicing nodes after.",
+      "`ListNode* curr = prev->next;` — curr is the first node of the section to reverse; it will end up as the TAIL of the reversed section since it never actually moves — everything after it gets pulled in front of it instead.",
+      "`for (int i = 0; i < right - left; i++)` — exactly (right-left) nodes need to move from after curr to right after prev; that's the number of positions being reversed minus the one that stays as curr.",
+      "`ListNode* toMove = curr->next;` — grab the node currently right after curr — this is the next one to relocate to the front of the reversed section.",
+      "`curr->next = toMove->next;` — unlink toMove from its current spot by connecting curr directly to whatever came after toMove.",
+      "`toMove->next = prev->next; prev->next = toMove;` — splice toMove in immediately after prev (i.e., in front of everything reversed so far): this is the 'head insertion' move that builds the reversed section one node at a time without ever touching nodes outside positions left..right.",
+      "`return dummy.next;` — return the real head, correctly handling the case where the reversal started right at the original head.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass to reach 'left', then O(right - left) splice operations.",
     spaceComplexity: "O(1)",
@@ -8977,6 +10756,15 @@ public:
         return result;
     }
 };`,
+    lineByLine: [
+      "`bool leftToRight = true;` — tracks which direction the CURRENT level should be read in; flips after every level.",
+      "`int size = q.size();` — same level-snapshot trick as plain level-order-traversal: this is exactly how many nodes belong to the current level.",
+      "`vector<int> level(size);` — pre-sized (not empty + push_back) because values will be written at computed indices, not necessarily in dequeue order.",
+      "`int idx = leftToRight ? i : size - 1 - i;` — nodes are ALWAYS dequeued left-to-right regardless of direction (children are always enqueued left-then-right); this line is what actually reverses the OUTPUT placement — on a right-to-left level, the first node dequeued (i=0) gets placed at the last slot (size-1), and so on, effectively reversing without a separate reverse() call.",
+      "`level[idx] = node->val;` — place this node's value at its computed position.",
+      "`if (node->left) q.push(node->left); if (node->right) q.push(node->right);` — children are enqueued in the same left-then-right order every time, since the zigzag only affects how a level's OUTPUT is arranged, not how the tree is walked.",
+      "`result.push_back(level); leftToRight = !leftToRight;` — commit this level's (possibly reversed) values, then flip direction for the next level.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Every node visited exactly once during BFS.",
     spaceComplexity: "O(n)",
@@ -9029,6 +10817,15 @@ private:
         path.pop_back(); // backtrack
     }
 };`,
+    lineByLine: [
+      "`vector<int> path;` — a SINGLE shared vector reused across the entire recursion (not a fresh copy per call), which is why it must be explicitly pushed and popped rather than passed by value like binary-tree-paths' string.",
+      "`void dfs(TreeNode* node, long remaining, vector<int>& path, vector<vector<int>>& result)` — remaining tracks target sum minus everything accumulated so far, updated exactly like path-sum; path and result are passed by reference so all branches share and mutate the same containers.",
+      "`if (!node) return;` — nothing to do past the end of a branch.",
+      "`path.push_back(node->val); remaining -= node->val;` — commit this node to the current path and update the running remaining sum before deciding what to do next.",
+      "`if (!node->left && !node->right && remaining == 0) { result.push_back(path); }` — reached a leaf whose cumulative path sum hit the target exactly; `result.push_back(path)` COPIES the current path vector into result — this copy is essential, because path itself will keep changing as the DFS continues into other branches.",
+      "`else { dfs(node->left, remaining, path, result); dfs(node->right, remaining, path, result); }` — not yet a qualifying leaf, so keep extending down both children with the updated remaining target.",
+      "`path.pop_back(); // backtrack` — after fully exploring everything below this node (both children, or having just recorded a leaf), remove this node's value from the shared path so the PARENT's next sibling branch starts from a clean path — without this line, values from one branch would incorrectly bleed into unrelated branches.",
+    ],
     timeComplexity: "O(n²) worst case",
     timeExplanation: "O(n) nodes visited; copying a path of length up to n at each leaf can cost O(n), giving O(n²) in a skewed tree.",
     spaceComplexity: "O(n)",
@@ -9080,6 +10877,17 @@ public:
         return result;
     }
 };`,
+    lineByLine: [
+      "`map<int, vector<pair<int,int>>> cols;` — an ordered map (sorted by key automatically) so columns come out leftmost-to-rightmost for free just by iterating; each bucket holds (row, val) pairs for that column.",
+      "`function<void(TreeNode*,int,int)> dfs = [&](TreeNode* node, int col, int row) {` — assigns each node its (col, row) coordinate as it's discovered: root starts at (0, 0).",
+      "`if (!node) return;` — nothing to record for an empty branch.",
+      "`cols[col].push_back({row, node->val});` — bucket this node's (row, value) under its column; grouping happens naturally as a side effect of the traversal.",
+      "`dfs(node->left, col - 1, row + 1); dfs(node->right, col + 1, row + 1);` — a left child sits one column left and one row deeper; a right child sits one column right and one row deeper — this is the coordinate rule the whole problem is built on.",
+      "`dfs(root, 0, 0);` — kick off coordinate assignment from the root.",
+      "`for (auto& [col, nodes] : cols) { sort(nodes.begin(), nodes.end()); ... }` — within a column, sort by the (row, val) pair: since pair comparison is lexicographic, this sorts by row first (top to bottom) and, for exact ties (same row AND column), by value ascending — precisely the tie-break rule the problem specifies.",
+      "`for (auto& [row, val] : nodes) colVals.push_back(val);` — after sorting, strip out just the values in their now-correct order for this column.",
+      "`result.push_back(colVals);` — because `cols` is a `map` (ordered by column key), iterating it in insertion order already visits columns left to right, so appending in this loop order naturally produces the leftmost-to-rightmost column ordering the problem wants.",
+    ],
     timeComplexity: "O(n log n)",
     timeExplanation: "O(n) to visit all nodes; O(n log n) to sort within columns (map itself keeps columns ordered in O(log n) per insert).",
     spaceComplexity: "O(n)",
@@ -9147,6 +10955,16 @@ public:
         return res;
     }
 };`,
+    lineByLine: [
+      "`bool isLeaf(TreeNode* n) { return !n->left && !n->right; }` — shared helper: a node with no children at all, used to avoid double-counting a node that's both on the edge spine AND a leaf.",
+      "`TreeNode* curr = node->left ? node->left : node->right;` (in addLeftBoundary) — start one step below the root on the left side; falling back to the right child only if there's no left child handles trees that lean right at the very top.",
+      "`while (curr) { if (!isLeaf(curr)) res.push_back(curr->val); curr = curr->left ? curr->left : curr->right; }` — walk down preferring left, only recording nodes that ISN'T a leaf (leaves are handled separately by addLeaves, so recording them here would duplicate them) — this traces the top-down left edge, excluding leaves.",
+      "`void addLeaves(TreeNode* node, ...)` — a plain DFS: recurse left then right, and whenever a node has no children at all, record it — this naturally visits leaves in left-to-right order since it explores left subtrees before right ones.",
+      "`TreeNode* curr = node->right ? node->right : node->left; vector<int> temp; ...` (in addRightBoundary) — mirror of the left boundary walk, but on the right side, collecting into a TEMPORARY vector first because this edge needs to be reported bottom-up, the reverse of how it's naturally discovered (top-down).",
+      "`for (int i = temp.size() - 1; i >= 0; i--) res.push_back(temp[i]);` — since temp was built top-to-bottom but the right boundary must appear bottom-to-top in the final answer, iterate it backwards to reverse the order before appending.",
+      "`if (!isLeaf(root)) res.push_back(root->val);` — the root is always included, but only recorded here if it ISN'T itself a leaf — if the whole tree is a single node, addLeaves will pick it up instead, preventing it from being counted twice.",
+      "`addLeftBoundary(root, res); addLeaves(root, res); addRightBoundary(root, res);` — concatenate the three pieces in the exact anti-clockwise order the problem describes: left edge (top-down, no leaves), then all leaves (left to right), then right edge (bottom-up, no leaves).",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Each of the three passes visits at most all n nodes; leaves pass visits every node once.",
     spaceComplexity: "O(h)",
@@ -9182,6 +11000,12 @@ public:
         return ones;
     }
 };`,
+    lineByLine: [
+      "`int ones = 0, twos = 0;` — per bit position, these two bitmasks together encode a mod-3 counter: state (ones-bit, twos-bit) = (0,0) means seen 0 times mod 3, (1,0) means seen 1 time, (0,1) means seen 2 times — then back to (0,0) on the 3rd occurrence.",
+      "`ones = (ones ^ n) & ~twos;` — XORing n into ones toggles each bit of ones wherever n has a 1 (advancing that bit's counter by one step); ANDing with ~twos forces any bit currently in the 'seen twice' state to stay out of ones, since a bit only cycles through ones on counts 1 and (after reset) not on count 2.",
+      "`twos = (twos ^ n) & ~ones;` — similarly, XOR n into twos to advance the count, then AND with the just-updated ~ones so that a bit which just entered 'seen once' (in ones) doesn't simultaneously register as 'seen twice' here — this ordering (ones updated first, then twos uses the new ones) is what keeps the two masks representing a consistent mod-3 state machine per bit.",
+      "`return ones;` — after processing every number, any bit that's part of a triple has cycled back to (0,0) and dropped out of both masks, while the singly-occurring number's bits are the only ones left sitting in the 'seen once' state — exactly what ones holds.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass through the array with O(1) bit operations per element.",
     spaceComplexity: "O(1)",
@@ -9220,6 +11044,12 @@ public:
         return {a, b};
     }
 };`,
+    lineByLine: [
+      "`int xorAll = 0; for (int n : nums) xorAll ^= n;` — every number that appears exactly twice cancels itself out under XOR, leaving only unique1 XOR unique2 in xorAll.",
+      "`int diffBit = xorAll & (-xorAll);` — since unique1 and unique2 are different numbers, xorAll is nonzero and has at least one set bit — meaning unique1 and unique2 differ at that bit position. In two's complement, -x equals ~x + 1, so x & (-x) isolates just the lowest set bit of x; this gives us ONE concrete bit on which the two unique numbers are guaranteed to differ.",
+      "`int a = 0, b = 0; for (int n : nums) { if (n & diffBit) a ^= n; else b ^= n; }` — split every number into two groups based on whether they have diffBit set. Since unique1 and unique2 differ at diffBit, they land in different groups; every paired number, having two identical copies, always sends both copies to the SAME group (so they still cancel via XOR within that group). Each group's XOR therefore isolates exactly one of the two unique numbers.",
+      "`return {a, b};` — a and b are the two numbers that each appeared only once.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Two linear passes over the array (one to XOR all, one to partition and XOR each group).",
     spaceComplexity: "O(1)",
@@ -9267,6 +11097,14 @@ public:
     }
     bool empty() { return inStack.empty() && outStack.empty(); }
 };`,
+    lineByLine: [
+      "`stack<int> inStack, outStack;` — inStack receives new elements in push order (most recent on top); outStack, whenever it's populated, holds elements in the REVERSE order — meaning its top is the oldest element, which is exactly the queue's front.",
+      "`void transfer() { if (outStack.empty()) { while (!inStack.empty()) { outStack.push(inStack.top()); inStack.pop(); } } }` — moving every element from inStack to outStack reverses their order (since each pop-then-push flips relative positions), turning 'most recently pushed on top' into 'oldest on top' — the transfer only happens when outStack is empty, so elements already in the correct FIFO order in outStack are never needlessly re-shuffled.",
+      "`void push(int x) { inStack.push(x); }` — pushes always go to inStack; this is O(1) and never disturbs whatever's already correctly ordered in outStack.",
+      "`int pop() { transfer(); int val = outStack.top(); outStack.pop(); return val; }` — ensure outStack has the current front-to-back order available (transferring only if it was empty), then pop from its top, which is the true front of the queue.",
+      "`int peek() { transfer(); return outStack.top(); }` — same idea as pop but without removing, just reading the front.",
+      "`bool empty() { return inStack.empty() && outStack.empty(); }` — the queue is empty only when BOTH stacks have nothing left, since elements can be sitting in either one depending on whether a transfer has happened recently.",
+    ],
     timeComplexity: "O(1) amortized",
     timeExplanation: "Each element is pushed and popped from each stack at most once over its lifetime, so total work across n operations is O(n) — amortized O(1) per call.",
     spaceComplexity: "O(n)",
@@ -9303,6 +11141,13 @@ public:
         return dp[W];
     }
 };`,
+    lineByLine: [
+      "`vector<int> dp(W + 1, 0);` — dp[w] holds the best value achievable with capacity exactly w, using whichever items have been processed so far; this 1D array is a space-optimized version of a conceptual 2D dp[item][capacity] table.",
+      "`for (int i = 0; i < n; i++)` — process items one at a time; once an item's contribution is folded into dp, it's never reconsidered for the same capacity slot again this round.",
+      "`for (int w = W; w >= weights[i]; w--)` — the capacity loop runs BACKWARD (high to low) — this is the crucial 0/1 knapsack trick: it guarantees dp[w - weights[i]] still reflects the state from BEFORE item i was considered, so item i can be added at most once per final answer. Looping forward instead (as in unbounded knapsack) would let dp[w] see an already-updated dp[w-weights[i]] that itself included item i, effectively allowing item i to be reused.",
+      "`dp[w] = max(dp[w], values[i] + dp[w - weights[i]]);` — the classic include/exclude decision: either skip item i (keep dp[w] as is) or take it (its value plus whatever the best value achievable was with the remaining capacity before this item was available).",
+      "`return dp[W];` — after every item has been considered, dp[W] holds the best value achievable using the full capacity.",
+    ],
     timeComplexity: "O(n · W)",
     timeExplanation: "n items, each processed across up to W capacity values.",
     spaceComplexity: "O(W)",
@@ -9345,6 +11190,15 @@ public:
         return dp[1][n];
     }
 };`,
+    lineByLine: [
+      "`int n = dims.size() - 1;` — with n+1 dimension entries describing n matrices (matrix i spans dims[i-1] by dims[i]), there are exactly n matrices in the chain.",
+      "`vector<vector<int>> dp(n + 1, vector<int>(n + 1, 0));` — dp[i][j] is the minimum scalar multiplication cost to fully multiply matrices i through j into one; initializing to 0 already handles the base case dp[i][i]=0 (a single matrix needs no multiplication).",
+      "`for (int len = 2; len <= n; len++) for (int i = 1; i <= n - len + 1; i++)` — interval DP ordering: solve every chain of length 2 first, then length 3, and so on, since the cost of a longer chain is built from the costs of its shorter sub-chains.",
+      "`for (int k = i; k < j; k++)` — try every possible position k to split the chain matrices[i..j] into two multiplied groups: matrices[i..k] and matrices[k+1..j] — the final grouping choice at the top level of this sub-chain.",
+      "`int cost = dp[i][k] + dp[k + 1][j] + dims[i - 1] * dims[k] * dims[j];` — the total cost for this particular split is: the cost to reduce the left group to one matrix (dp[i][k]) + the cost to reduce the right group to one matrix (dp[k+1][j]) + the cost of the FINAL multiplication combining those two resulting matrices, whose dimensions are dims[i-1] x dims[k] (left group's combined shape) and dims[k] x dims[j] (right group's combined shape).",
+      "`dp[i][j] = min(dp[i][j], cost);` — try every split point k and keep whichever parenthesization minimizes the total scalar multiplications for this sub-chain.",
+      "`return dp[1][n];` — the minimum cost to multiply the entire chain of n matrices (using 1-indexed matrix numbering).",
+    ],
     timeComplexity: "O(n³)",
     timeExplanation: "O(n²) (i,j) pairs, each trying O(n) split points k.",
     spaceComplexity: "O(n²)",
@@ -9382,6 +11236,14 @@ public:
         return (int)sell2;
     }
 };`,
+    lineByLine: [
+      "`long buy1 = LONG_MIN, sell1 = 0, buy2 = LONG_MIN, sell2 = 0;` — four running best-profits, one per stage of the two-transaction sequence: after the 1st buy, after the 1st sell, after the 2nd buy, after the 2nd sell. Starting the buy states at -infinity reflects that you can't be 'holding a share' before ever buying one.",
+      "`buy1 = max(buy1, -(long)price);` — the best position after a first buy is either unchanged (don't buy today) or buying today, which costs `price` (represented as -price since spending money reduces net profit).",
+      "`sell1 = max(sell1, buy1 + price);` — the best profit after completing a first sell is either the previous best sell1, or selling today's share (whatever we paid via buy1, plus today's price).",
+      "`buy2 = max(buy2, sell1 - price);` — this SAME day's sell1 (just computed above) feeds into buy2: crucially, this allows buying the second share on the very same day the first was sold, which correctly models 'sell then immediately re-buy' as a valid same-day sequence, without violating the one-share-at-a-time rule.",
+      "`sell2 = max(sell2, buy2 + price);` — the best total profit after both transactions, using buy2 the same way sell1 used buy1.",
+      "`return (int)sell2;` — sell2 already accounts for the case of needing FEWER than 2 transactions, because buy2 can always mirror sell1 (buying and selling on the same day nets zero change), so 'skip the second transaction' is implicitly always available as an option within this same recurrence.",
+    ],
     timeComplexity: "O(n)",
     timeExplanation: "Single pass; 4 O(1) updates per price.",
     spaceComplexity: "O(1)",
@@ -9428,6 +11290,14 @@ public:
         return (int)sell[k - 1];
     }
 };`,
+    lineByLine: [
+      "`if (k >= n / 2) { ... }` — if k is at least half the number of days, there are enough allowed transactions to essentially trade on every profitable up-move independently (since each transaction needs at least 2 distinct days), so the transaction limit stops being a real constraint — this collapses to the same unlimited-transaction greedy as best-time-stock-ii (sum every positive day-to-day difference), avoiding a wastefully large O(n·k) DP when k could be up to 100 with a small n.",
+      "`vector<long> buy(k, LONG_MIN), sell(k, 0);` — generalizes the four fixed variables from Best Time III into two arrays of size k: buy[j] and sell[j] track the best profit after completing the (j+1)-th buy and sell respectively.",
+      "`for (int j = 0; j < k; j++) { long prevSell = (j == 0) ? 0 : sell[j - 1]; ... }` — the j-th buy is funded by whatever profit was banked after the (j-1)-th sell (sell[j-1]), except for the very first buy (j==0), which starts fresh from 0 since there's no prior transaction to fund it.",
+      "`buy[j] = max(buy[j], prevSell - price);` — same pattern as Best Time III's buy1/buy2: either keep the existing best for this buy slot, or buy today funded by the profit from the previous completed sell.",
+      "`sell[j] = max(sell[j], buy[j] + price);` — either keep the existing best for this sell slot, or sell today using whatever was invested in buy[j].",
+      "`return (int)sell[k - 1];` — the best profit after completing up to k full buy-sell pairs; as in Best Time III, using FEWER than k transactions is implicitly covered since each buy[j] can mirror the previous sell[j-1] (net zero change) when an extra transaction wouldn't help.",
+    ],
     timeComplexity: "O(n · k)",
     timeExplanation: "n prices, each updating k buy/sell state pairs.",
     spaceComplexity: "O(k)",
