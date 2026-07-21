@@ -588,6 +588,11 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
     dayNum++;
   }
 
+  // The Two-Pointers-day pinned bundle above splices SE/SD/case-study tasks in
+  // AFTER that day's tasks array already ends with the evening recall drill —
+  // re-sort so DSA still renders first and the recall drill stays pinned last.
+  normalizeDayOrder(days);
+
   return { durationDays: targetDays, startDate, days };
 }
 
@@ -790,6 +795,30 @@ function blankStudyDay(): DayPlan {
   };
 }
 
+// Canonical within-day ordering: DSA always first, then SE, SD, LLD, then
+// behavioral. The page renders each day's tasks grouped by time block, and the
+// order inside a block is just this array's order — so carried work spliced in
+// by the rebalancer must be re-sorted to this rank or it shows up ahead of the
+// day's own DSA. Stable (keeps original order within a domain).
+const DOMAIN_ORDER: Record<TaskDomain, number> = { dsa: 0, se: 1, sd: 2, lld: 3, behavioral: 4 };
+
+// The evening "redo today's problems from memory" recall drill is a meta task,
+// not curriculum — it always belongs LAST in its block, after real content,
+// even though its domain is dsa. Rank it below everything else.
+function orderRank(t: PlanTask): number {
+  if (t.id.startsWith("recall-")) return 8;
+  return DOMAIN_ORDER[t.domain] ?? 9;
+}
+
+function normalizeDayOrder(days: DayPlan[]): void {
+  for (const d of days) {
+    d.tasks = d.tasks
+      .map((t, i) => ({ t, i }))
+      .sort((a, b) => orderRank(a.t) - orderRank(b.t) || a.i - b.i)
+      .map((x) => x.t);
+  }
+}
+
 /**
  * Re-date and renumber every day from the start date, then force any day that
  * lands on a Sunday to be a rest day. Tasks displaced off a Sunday are
@@ -874,6 +903,7 @@ export function rebalancePlan(
     d.tasks = keep;
   }
   if (carried.length + carriedReview.length + carriedMock.length === 0) {
+    normalizeDayOrder(days);
     return { plan: { ...plan, days }, info: none };
   }
 
@@ -928,6 +958,7 @@ export function rebalancePlan(
       // the work is at least still visible rather than silently dropped.
       const fallback = days.findIndex((d, i) => i >= todayIdx && d.type !== "rest");
       if (fallback >= 0) days[fallback].tasks.push(...carried);
+      normalizeDayOrder(days);
       return {
         plan: { ...plan, days },
         info: { mode: "compress", carriedCount: totalCarried, daysAdded: 0, overloaded: true },
@@ -941,6 +972,7 @@ export function rebalancePlan(
       const after = totalEffort(days[dayIdx].tasks);
       if (before > 0) worstRatio = Math.max(worstRatio, after / before);
     });
+    normalizeDayOrder(days);
     return {
       plan: { ...plan, days },
       info: {
@@ -1022,6 +1054,7 @@ export function rebalancePlan(
     }
   }
 
+  normalizeDayOrder(days);
   return {
     plan: { ...plan, days },
     info: { mode: "extend", carriedCount: totalCarried, daysAdded, overloaded: false },
