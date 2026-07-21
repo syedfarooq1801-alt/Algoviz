@@ -323,6 +323,12 @@ public:
     constraints: ["the number of nodes is in the range [0, 5000]","-5000 <= Node.val <= 5000"],
     intuition:
       "We need to make each node point backward. Keep track of previous node. For each current node, save its next, point it to prev, advance prev to current, advance current to saved next.",
+    recognize: [
+      "Problem says \"reverse\", \"reorder\", or asks you to change link direction.",
+      "You're given the head of a singly linked list — no random access, no indices.",
+      "O(1) extra space is expected — rules out just dumping into an array and rebuilding.",
+      "→ These clues say: walk once, rewire pointers as you go.",
+    ],
     approach: [
       "Initialize prev = nullptr, curr = head.",
       "While curr is not null:",
@@ -435,6 +441,12 @@ public:
     constraints: ["1 <= grid.length, grid[i].length <= 300","grid[i][j] is '0' or '1'"],
     intuition:
       "Grid has '1' (land) and '0' (water). An island is a group of connected '1's (4-directional). Walk the grid; when we find an unvisited '1', it's a new island — flood-fill (DFS/BFS) to mark all connected land as visited.",
+    recognize: [
+      "Input is a 2D grid with binary cell states ('1' land, '0' water) and connectivity is explicitly 4-directional — that grid + adjacency combo is the classic flood-fill setup.",
+      "You need a COUNT of separate connected groups, not their sizes or any single group's shape.",
+      "No weights, no order dependency — just \"is this cell reachable from that cell through land\", which is what DFS/BFS answers by marking visited cells.",
+      "→ These clues say: scan every cell, and each time you hit an unvisited land cell, flood-fill (DFS or BFS) to mark its whole island, incrementing a counter once per flood-fill.",
+    ],
     approach: [
       "Initialize count = 0.",
       "Iterate every cell (i, j).",
@@ -521,6 +533,12 @@ public:
     constraints: ["The number of nodes in the tree is in the range [0, 100]","-100 <= Node.val <= 100"],
     intuition:
       "Swap left and right children for every node. Recurse down. The key insight: after swapping children, recursively invert each subtree.",
+    recognize: [
+      "\"Mirror image\" / \"swap left and right\" applies to every node, not just the root — a hint the same operation must recurse down the whole tree.",
+      "No ordering property (not a BST) — you just need structural swap, no comparisons.",
+      "Return type is a tree, and the fix is local to each node (swap two pointers) — no value needs to bubble up from children.",
+      "→ These clues say: DFS as a void-ish recursion that swaps left/right at each node, then recurses into both.",
+    ],
     approach: [
       "Base case: if root is null, return null.",
       "Swap root->left and root->right.",
@@ -622,6 +640,12 @@ public:
     constraints: ["the number of nodes is in the range [0, 10^4]","-10^5 <= Node.val <= 10^5","pos is -1 or a valid index representing where the tail connects to"],
     intuition:
       "Floyd's cycle detection: slow pointer moves 1 step, fast pointer moves 2 steps. If there's a cycle, fast will eventually lap slow and they'll meet. If no cycle, fast reaches null.",
+    recognize: [
+      "Asks only whether a cycle exists — a yes/no question, not where it starts or its length.",
+      "Singly linked list with no size given upfront, so you can't just check if you've walked more than n nodes.",
+      "Constant space is the natural expectation here (no set of visited nodes mentioned) — that pushes away from a hash-set-of-visited-nodes approach.",
+      "→ These clues say: slow/fast pointers (Floyd's), since they detect a loop in O(1) space without tracking visited nodes.",
+    ],
     approach: [
       "Initialize slow = head, fast = head.",
       "While fast and fast->next are not null:",
@@ -762,6 +786,12 @@ public:
     constraints: ["1 <= grid.length, grid[i].length <= 50","grid[i][j] is 0 or 1"],
     intuition:
       "Same as number of islands, but instead of counting islands, compute the area of each (by counting cells during DFS). Track the maximum.",
+    recognize: [
+      "Same grid/adjacency setup as number-of-islands, but now you need a SIZE per island, not just a count — the DFS needs a return value instead of just a side effect.",
+      "\"Largest island\" means comparing sums across all islands, so each flood-fill must report how many cells it touched.",
+      "Marking visited cells (e.g., flipping 1 to 0) as you go still applies, since you can't double-count cells within the same island.",
+      "→ These clues say: DFS that returns 1 + the sum of its neighbors' recursive results (island area), tracking a running max across all flood-fills.",
+    ],
     approach: [
       "For each unvisited '1', run DFS and count cells visited — that's the island area.",
       "Mark visited cells to avoid double-counting.",
@@ -1765,6 +1795,12 @@ public:
     examples: [{"input":"l1 = [2,4,3], l2 = [5,6,4]","output":"[7,0,8]","explanation":"342 + 465 = 807, represented in reverse order as [7,0,8]."},{"input":"l1 = [0], l2 = [0]","output":"[0]"},{"input":"l1 = [9,9,9,9,9,9,9], l2 = [9,9,9,9]","output":"[8,9,9,9,0,0,0,1]","explanation":"9999999 + 9999 = 10009998, whose reverse-digit representation is [8,9,9,9,0,0,0,1]."}],
     constraints: ["the number of nodes in each list is in the range [1, 100]","0 <= Node.val <= 9","the numbers do not have leading zeros, except the number 0 itself"],
     intuition: "Simulate column-by-column addition with carry. Walk both lists simultaneously. Sum = l1->val + l2->val + carry. New digit = sum % 10. New carry = sum / 10. Continue until both lists exhausted AND carry is 0.",
+    recognize: [
+      "Numbers are stored as linked lists with digits in reverse order — that's exactly how you'd add on paper, ones digit first.",
+      "Lists can be different lengths and a final carry can create an extra node (9999999 + 9999 needs 8 digits).",
+      "No mention of converting to integers first — and for huge lists that would overflow anyway.",
+      "→ These clues say: simulate grade-school addition digit-by-digit with a carry variable.",
+    ],
     approach: [
       "Dummy head node for easy result construction.",
       "carry = 0, iterate while l1 || l2 || carry.",
@@ -1806,6 +1842,12 @@ public:
     examples: [{"input":"list1 = [1,2,4], list2 = [1,3,4]","output":"[1,1,2,3,4,4]"},{"input":"list1 = [], list2 = []","output":"[]"},{"input":"list1 = [], list2 = [0]","output":"[0]"}],
     constraints: ["the number of nodes in each list is in the range [0, 50]","-100 <= Node.val <= 100","both list1 and list2 are sorted in non-decreasing order"],
     intuition: "Two pointers, one per list. Compare front nodes, attach smaller to result, advance that pointer. Attach remaining list after loop.",
+    recognize: [
+      "Both inputs are already sorted linked lists — sorted input is the tell for a merge-style two-pointer walk.",
+      "You need to splice existing nodes into one list, not just report a merged sequence.",
+      "Expected O(1) extra space beyond the output rules out copying into an array, sorting, and rebuilding.",
+      "→ These clues say: two pointers, always attach the smaller front node, walk both lists once.",
+    ],
     approach: [
       "Dummy head for easy construction.",
       "While both l1 and l2 non-null: attach smaller, advance that pointer.",
@@ -1842,6 +1884,12 @@ public:
     examples: [{"input":"head = [1,2,3,4,5], n = 2","output":"[1,2,3,5]"},{"input":"head = [1], n = 1","output":"[]"},{"input":"head = [1,2], n = 1","output":"[1]"}],
     constraints: ["the number of nodes in the list is sz","1 <= sz <= 30","0 <= Node.val <= 100","1 <= n <= sz"],
     intuition: "Two-pointer gap trick. Advance fast pointer n+1 steps ahead of slow. When fast reaches null, slow is right before the node to remove.",
+    recognize: [
+      "\"nth from the end\" on a singly linked list — you can't count backward or index directly.",
+      "Explicitly asks for a single pass, ruling out \"count length first, then walk again\".",
+      "Removing the head itself is a valid case (n equals list length), hinting you need a dummy node to avoid a special case.",
+      "→ These clues say: two pointers with an n+1 gap, walk both together to find the node just before the target.",
+    ],
     approach: [
       "Dummy head pointing to head.",
       "fast = dummy, slow = dummy.",
@@ -1877,6 +1925,12 @@ public:
     examples: [{"input":"head = [1,2,3,4]","output":"[1,4,2,3]"},{"input":"head = [1,2,3,4,5]","output":"[1,5,2,4,3]"}],
     constraints: ["the number of nodes is in the range [1, 5 * 10^4]","1 <= Node.val <= 1000"],
     intuition: "Three-step: 1) Find middle. 2) Reverse second half. 3) Merge two halves alternately.",
+    recognize: [
+      "Target order (L0, Ln, L1, Ln-1, ...) alternates front and back of the list — that back-to-front pairing is the signature of \"reverse the second half and merge\".",
+      "It's a singly linked list, so you can't jump straight to Ln without walking or reversing.",
+      "\"In place\" and \"actual node links must be changed\" rule out copying values into an array and rewriting.",
+      "→ These clues say: find the middle, reverse the second half, then interleave the two halves.",
+    ],
     approach: [
       "Find middle using slow/fast pointers.",
       "Reverse second half in-place.",
@@ -1917,6 +1971,12 @@ public:
     examples: [{"input":"head = [1,2,2,1]","output":"true"},{"input":"head = [1,2]","output":"false"}],
     constraints: ["the number of nodes is in the range [1, 10^5]","0 <= Node.val <= 9"],
     intuition: "Find middle, reverse second half, compare with first half. O(1) space. Optionally restore the list afterward.",
+    recognize: [
+      "\"Reads the same forwards and backwards\" on a linked list — but you can't index from the end like an array.",
+      "No stated O(1) space would let you just copy values into an array and use two pointers; if O(1) space is expected here, that shortcut is off the table.",
+      "Comparing forwards vs backwards is the same shape as reverse-linked-list, just applied to half the list and compared against the other half.",
+      "→ These clues say: find the middle, reverse the second half in place, then compare the two halves node by node.",
+    ],
     approach: [
       "Find middle with slow/fast pointers.",
       "Reverse from middle+1 to end.",
@@ -1957,6 +2017,12 @@ public:
     examples: [{"input":"head = [1,2,3,4,5], k = 2","output":"[2,1,4,3,5]","explanation":"The last group [5] has fewer than k nodes so it stays as is."},{"input":"head = [1,2,3,4,5], k = 3","output":"[3,2,1,4,5]"},{"input":"head = [1,2,3,4,5,6], k = 3","output":"[3,2,1,6,5,4]"}],
     constraints: ["The number of nodes is n","1 <= k <= n <= 5000","0 <= Node.val <= 1000"],
     intuition: "Iteratively reverse chunks of k nodes. For each group: check k nodes exist, reverse them, relink to previous group's tail and next group's head.",
+    recognize: [
+      "It's reverse-linked-list generalized: reverse in fixed-size chunks of k instead of the whole list.",
+      "Explicitly says a trailing group smaller than k stays untouched — so you must check group size before committing to reverse it.",
+      "Nodes must actually be relinked, and each group's tail has to reconnect to the next group's (possibly reversed) head.",
+      "→ These clues say: for each group, verify k nodes remain, reverse that group in place, then stitch groups together.",
+    ],
     approach: [
       "Dummy head. prev = dummy.",
       "Find kth node from current. If fewer than k remain, stop.",
@@ -2002,6 +2068,12 @@ public:
     examples: [{"input":"head = [[7,null],[13,0],[11,4],[10,2],[1,0]]","output":"[[7,null],[13,0],[11,4],[10,2],[1,0]]","explanation":"Each pair is [val, random_index], where random_index is the index of the node the random pointer targets, or null."},{"input":"head = [[1,1],[2,1]]","output":"[[1,1],[2,1]]"},{"input":"head = []","output":"[]"}],
     constraints: ["the number of nodes is in the range [0, 1000]","-10^4 <= Node.val <= 10^4","Node.random is null or points to some node in the list"],
     intuition: "Three-pass approach using the original list as a hash map. 1) Interleave clones between originals. 2) Set random pointers. 3) Separate lists.",
+    recognize: [
+      "Each node has a random pointer to an arbitrary node — copying next alone isn't enough, you need a way to translate old-node references into new-node references.",
+      "\"Deep copy\" and \"new nodes\" rule out just returning the same list or shallow-copying pointers.",
+      "A hash map from old node to new node solves it trivially in O(n) space, so the recognizable twist is when O(1) extra space is asked for.",
+      "→ These clues say: either map old→new nodes with a hash map, or interleave clones directly into the original list to avoid the map.",
+    ],
     approach: [
       "Pass 1: for each node, insert clone right after it: A→A'→B→B'→...",
       "Pass 2: for each original node A, if A.random = X, set A'.random = X.next (X's clone).",
@@ -2044,6 +2116,12 @@ public:
     examples: [{"input":"head = [1,2,3,4]","output":"[2,1,4,3]","explanation":"Nodes 1-2 swap and nodes 3-4 swap."},{"input":"head = [1,2,3]","output":"[2,1,3]","explanation":"Nodes 1-2 swap; node 3 has no partner so it stays."},{"input":"head = []","output":"[]"}],
     constraints: ["The number of nodes is in the range [0, 100]","0 <= Node.val <= 100","You may not modify the values in the list's nodes (only the node positions may be changed)"],
     intuition: "Recursively (or iteratively) swap every two adjacent nodes. For recursive: swap first two, recurse on rest, relink.",
+    recognize: [
+      "\"Swap every pair of adjacent nodes\" with the rule that node positions (not values) must change — a values-only swap would be a giveaway shortcut the problem forbids.",
+      "The pattern repeats identically on every pair, which is a strong hint the same operation recurses cleanly on the remainder of the list.",
+      "Odd node count leaves one node untouched — a base case you must handle explicitly.",
+      "→ These clues say: swap the first pair, recurse (or iterate) on the rest, then relink the pair to the recursed result.",
+    ],
     approach: [
       "Base: if head null or head->next null, return head.",
       "second = head->next.",
@@ -2077,6 +2155,12 @@ public:
     examples: [{"input":"root = [3,9,20,null,null,15,7]","output":"[[3],[9,20],[15,7]]"},{"input":"root = [1]","output":"[[1]]"},{"input":"root = []","output":"[]"}],
     constraints: ["The number of nodes in the tree is in the range [0, 2000]","-1000 <= Node.val <= 1000"],
     intuition: "BFS with level separation. Track queue size at start of each level to know when one level ends and next begins.",
+    recognize: [
+      "Output is explicitly grouped \"level by level\" — that grouping is the signature of breadth-first traversal, not depth-first.",
+      "\"Top to bottom\" order with each level left to right matches exactly how a queue processes nodes if you know where one level ends and the next begins.",
+      "No mention of needing the deepest path or an accumulated sum — just structural grouping by depth.",
+      "→ These clues say: BFS with a queue, snapshotting the queue size at the start of each level to know where to cut.",
+    ],
     approach: [
       "Queue starting with root.",
       "While queue not empty: sz = queue.size(), process exactly sz nodes (one full level).",
@@ -2120,6 +2204,12 @@ public:
     examples: [{"input":"root = [1,2,3,null,5,null,4]","output":"[1,3,4]"},{"input":"root = [1,null,3]","output":"[1,3]"},{"input":"root = []","output":"[]"}],
     constraints: ["The number of nodes in the tree is in the range [0, 100]","-100 <= Node.val <= 100"],
     intuition: "BFS level order. For each level, the last node is visible from the right. Add last node of each level to result.",
+    recognize: [
+      "\"Standing on the right side\" and \"one value per depth\" means exactly one node per level makes it into the answer — a level-by-level structure again.",
+      "The visible node is whichever is rightmost at that depth, which is just \"last node processed in that level\" if you traverse left-to-right per level.",
+      "This is level-order-traversal with only the last element of each level kept, not a completely different traversal.",
+      "→ These clues say: BFS level-by-level, record the last node's value in each level.",
+    ],
     approach: [
       "BFS with level separation.",
       "For each level, push last node's val to result.",
@@ -2159,6 +2249,12 @@ public:
     examples: [{"input":"root = [3,9,20,null,null,15,7]","output":"3"},{"input":"root = [1,null,2]","output":"2"},{"input":"root = []","output":"0"}],
     constraints: ["The number of nodes in the tree is in the range [0, 10^4]","-100 <= Node.val <= 100"],
     intuition: "Recursively, max depth = 1 + max(depth(left), depth(right)). Base: null node has depth 0.",
+    recognize: [
+      "\"Longest path from root to farthest leaf\" wants a single number describing the whole tree's height, computed by combining children's answers.",
+      "Each subtree's own max depth is exactly the sub-problem, and the final answer at any node is 1 + the bigger of its two children's depths.",
+      "No comparison or constraint between left and right values needed — just their depths.",
+      "→ These clues say: DFS that returns a value up the call stack (height), combining left and right results at every node.",
+    ],
     approach: [
       "If root is null: return 0.",
       "Return 1 + max(maxDepth(root->left), maxDepth(root->right)).",
@@ -2187,6 +2283,12 @@ public:
     examples: [{"input":"root = [3,9,20,null,null,15,7]","output":"2"},{"input":"root = [2,null,3,null,4,null,5,null,6]","output":"5","explanation":"The tree is a single chain of right children, so the only leaf is at depth 5."},{"input":"root = []","output":"0"}],
     constraints: ["The number of nodes in the tree is in the range [0, 10^5]","-1000 <= Node.val <= 1000"],
     intuition: "Min depth is to nearest leaf. Can't just take min(left, right) — if one subtree is null, it's not a path to a leaf. Must handle null subtrees specially.",
+    recognize: [
+      "\"Shortest path to the nearest leaf\" (not just nearest null child) — the example with a one-sided chain to depth 5 shows a missing child does NOT count as a shortcut leaf.",
+      "This looks like max-depth-tree's twin, but a naive min(left, right) breaks the moment one child is null while the other has a long subtree.",
+      "A leaf is explicitly defined as a node with no children — so a node with only one child is not yet a leaf.",
+      "→ These clues say: DFS returning a value up the call stack, but special-case a missing child by forcing the path through the existing side instead of taking min(0, other).",
+    ],
     approach: [
       "If root null: return 0.",
       "If left null: return 1 + minDepth(right).",
@@ -2218,6 +2320,12 @@ public:
     examples: [{"input":"root = [1,2,3,4,5]","output":"3","explanation":"The longest path is 4 -> 2 -> 1 -> 3 (or 5 -> 2 -> 1 -> 3), which has 3 edges."},{"input":"root = [1,2]","output":"1"},{"input":"root = [1]","output":"0"}],
     constraints: ["The number of nodes in the tree is in the range [1, 10^4]","-100 <= Node.val <= 100"],
     intuition: "Diameter through any node = left height + right height. Compute height recursively; at each node update global max diameter as left_height + right_height.",
+    recognize: [
+      "\"Longest path between any two nodes\" — explicitly may NOT pass through the root, so a single top-down root-to-leaf measurement can't be the answer.",
+      "The path's length at any node is a combination of its left AND right subtree heights together, not just one side — that's different from a depth question.",
+      "The example shows the answer path doesn't have to end at a leaf on both sides in a simple way — it's the widest \"V\" shape at some node.",
+      "→ These clues say: DFS that computes height bottom-up, but at every node also updates a running global max of left_height + right_height.",
+    ],
     approach: [
       "DFS returns height of subtree.",
       "At each node: diameter_through = height(left) + height(right), update global max.",
@@ -2254,6 +2362,12 @@ public:
     examples: [{"input":"root = [3,9,20,null,null,15,7]","output":"true"},{"input":"root = [1,2,2,3,3,null,null,4,4]","output":"false","explanation":"The subtree rooted at the leftmost node 2 has left and right subtree heights that differ by more than 1."},{"input":"root = []","output":"true"}],
     constraints: ["The number of nodes in the tree is in the range [0, 5000]","-10^4 <= Node.val <= 10^4"],
     intuition: "Bottom-up check. At each node, compute height of subtrees. If heights differ by > 1, return -1 (sentinel for 'unbalanced'). Propagate -1 up to short-circuit.",
+    recognize: [
+      "\"For every node\" the left/right heights must differ by at most 1 — a condition checked at EVERY node, not just the root, so a plain height computation isn't enough on its own.",
+      "Computing height naively at every node and comparing separately would cost O(n^2) on a skewed tree — the problem doesn't say n is tiny, so that inefficiency is a smell.",
+      "You need both a height value AND a pass/fail signal to propagate up simultaneously.",
+      "→ These clues say: DFS returning a value up the call stack, overloading the return with a sentinel (-1) to short-circuit as soon as any subtree fails.",
+    ],
     approach: [
       "Helper returns height or -1 if unbalanced.",
       "If null: return 0.",
@@ -2287,6 +2401,12 @@ public:
     examples: [{"input":"p = [1,2,3], q = [1,2,3]","output":"true"},{"input":"p = [1,2], q = [1,null,2]","output":"false","explanation":"Node 2 is a left child in p but a right child in q."},{"input":"p = [1,2,1], q = [1,1,2]","output":"false"}],
     constraints: ["The number of nodes in both trees is in the range [0, 100]","-10^4 <= Node.val <= 10^4"],
     intuition: "Recursively compare: both null → true, one null → false, values differ → false, else recurse on children.",
+    recognize: [
+      "Two separate trees are compared node-for-node, not one tree searched for a pattern — a direct pairwise walk down both structures at once.",
+      "\"Structurally identical\" plus \"same value\" means both shape (null vs non-null in matching positions) and value have to match at every corresponding node.",
+      "The example with values [1,2] vs [1,null,2] shows identical values in different positions must fail — so shape matters as much as value.",
+      "→ These clues say: recurse on both trees simultaneously, short-circuit false on any structural or value mismatch, true only if both are null.",
+    ],
     approach: [
       "If both null: return true.",
       "If one null or values differ: return false.",
@@ -2316,6 +2436,12 @@ public:
     examples: [{"input":"root = [1,2,2,3,4,4,3]","output":"true"},{"input":"root = [1,2,2,null,3,null,3]","output":"false","explanation":"The inner values 3 and 3 are positioned asymmetrically, one on the far right of the left subtree and one on the far right of the right subtree."},{"input":"root = [1]","output":"true"}],
     constraints: ["The number of nodes in the tree is in the range [1, 1000]","-100 <= Node.val <= 100"],
     intuition: "Tree is symmetric if left subtree mirrors right subtree. Check recursively: outer children match, inner children match.",
+    recognize: [
+      "\"Mirror of itself\" across a single tree means you're really comparing the left subtree against the right subtree as if one were reflected — same-tree's logic but crossed.",
+      "The failing example has matching values but in swapped positions on each side — proving it's about crossed structural comparison, not just same-tree on left vs right.",
+      "You compare left->left against right->right (outer pair) AND left->right against right->left (inner pair) — a crossed pairing, not a straight one.",
+      "→ These clues say: recurse two pointers starting at root->left and root->right, but cross the recursive calls (outer-outer, inner-inner) instead of matching straight across.",
+    ],
     approach: [
       "Helper isMirror(left, right).",
       "If both null: true. If one null: false. If vals differ: false.",
@@ -2348,6 +2474,12 @@ public:
     examples: [{"input":"root = [3,4,5,1,2], subRoot = [4,1,2]","output":"true"},{"input":"root = [3,4,5,1,2,null,null,null,null,0], subRoot = [4,1,2]","output":"false","explanation":"The subtree at node 4 has an extra node 0, so it does not match subRoot exactly."},{"input":"root = [1,1], subRoot = [1]","output":"true"}],
     constraints: ["The number of nodes in root is in the range [1, 2000]","The number of nodes in subRoot is in the range [1, 1000]","-10^4 <= Node.val <= 10^4"],
     intuition: "At every node of s, check if the subtree rooted there is identical to t. Use the isSameTree subroutine.",
+    recognize: [
+      "You're searching for subRoot as an exact match ANYWHERE inside root, not just comparing root to subRoot directly — that's a search, not a single comparison.",
+      "The failing example shows an extra node deep inside disqualifies a match, so \"contains the same values somewhere\" isn't enough — full structural equality is required at the matching node.",
+      "This reuses the same-tree check as a subroutine, just tried at every node instead of only the root.",
+      "→ These clues say: DFS over root, and at each node run a full same-tree comparison against subRoot, recursing further if it fails.",
+    ],
     approach: [
       "If s is null: return false.",
       "If isSameTree(s, t): return true.",
@@ -2636,6 +2768,12 @@ public:
     examples: [{"input":"numCourses = 2, prerequisites = [[1,0]]","output":"true"},{"input":"numCourses = 2, prerequisites = [[1,0],[0,1]]","output":"false","explanation":"Course 0 requires course 1 and course 1 requires course 0, forming a cycle."}],
     constraints: ["1 <= numCourses <= 2000","0 <= prerequisites.length <= 5000","prerequisites[i].length == 2","All pairs prerequisites[i] are unique"],
     intuition: "Detect cycle in directed graph. Circular dependency = impossible. DFS with 3 states: 0=unvisited, 1=in current path, 2=done. Hitting state 1 again = cycle.",
+    recognize: [
+      "\"b must be completed before a\" is a directed edge (b → a), and prerequisites naturally form a dependency graph, not an undirected one.",
+      "\"Determine whether it is possible to finish all courses\" given circular dependencies is exactly asking whether the directed graph has a cycle.",
+      "A course requiring itself indirectly (course 0 needs 1, 1 needs 0) is the concrete failure case shown — that's a cycle through the current DFS path, not just any previously-visited node.",
+      "→ These clues say: DFS cycle detection on a directed graph using three states (unvisited / in current recursion path / fully done) — revisiting an in-path node means a cycle.",
+    ],
     approach: [
       "Build adjacency list from prerequisites.",
       "DFS each unvisited node. State 1 = visiting.",
@@ -2677,6 +2815,12 @@ public:
     examples: [{"input":"numCourses = 2, prerequisites = [[1,0]]","output":"[0,1]"},{"input":"numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]","output":"[0,1,2,3]","explanation":"Course 0 first, then 1 and 2 in either order, then 3; [0,2,1,3] is also valid."},{"input":"numCourses = 1, prerequisites = []","output":"[0]"}],
     constraints: ["1 <= numCourses <= 2000","0 <= prerequisites.length <= 5000","prerequisites[i].length == 2","All pairs prerequisites[i] are unique"],
     intuition: "Topological sort. Same DFS cycle detection, but push node to order AFTER processing all its neighbors (post-order). Reverse post-order = topological order.",
+    recognize: [
+      "It's course-schedule but now asking for an actual VALID ORDER, not just a yes/no — that upgrades cycle detection into topological sorting.",
+      "Multiple valid orders can exist for the same prerequisites (the example accepts either [0,1,2,3] or [0,2,1,3]) — a hallmark of topological sort, which isn't unique.",
+      "A cycle still means impossible (return empty), so whatever cycle-detection machinery solves course-schedule has to be reused here, just extended to record an order.",
+      "→ These clues say: same 3-state DFS cycle detection, but record each node in post-order (after all its dependencies are processed) and reverse that list for the final order.",
+    ],
     approach: [
       "Same 3-state DFS.",
       "After all neighbors done: order.push_back(node).",
@@ -2719,6 +2863,12 @@ public:
     examples: [{"input":"adjList = [[2,4],[1,3],[2,4],[1,3]]","output":"[[2,4],[1,3],[2,4],[1,3]]","explanation":"Node 1's neighbors are 2 and 4, node 2's neighbors are 1 and 3, etc.; the cloned graph has identical structure with new node objects."},{"input":"adjList = [[]]","output":"[[]]","explanation":"A single node with no neighbors."}],
     constraints: ["The number of nodes is in the range [0, 100]","1 <= Node.val <= 100","Node.val is unique for each node","There are no repeated edges and no self-loops","The graph is connected"],
     intuition: "DFS with memoization. Map original to clone. First visit: create clone, record, then recursively clone all neighbors.",
+    recognize: [
+      "The graph can have cycles (neighbors point back to each other), so a plain recursive copy without tracking visited nodes would loop forever.",
+      "\"Deep copy\" means every node and its full neighbor list must be recreated, not referenced — that's the hint you need a mapping from original node to its clone, created before recursing into neighbors.",
+      "It's a general graph, not a tree, so there's no guaranteed single root-to-leaf path — you need one lookup structure keyed by original node identity.",
+      "→ These clues say: DFS with a hashmap from original node to clone; check/create the clone entry BEFORE recursing into neighbors, so cycles terminate correctly.",
+    ],
     approach: [
       "visited map: Node* → Node*.",
       "DFS(node): if null return null. If in visited return visited[node].",
@@ -2756,6 +2906,12 @@ public:
     examples: [{"input":"heights = [[1,2,2,3,5],[3,2,3,4,4],[2,4,5,3,1],[6,7,1,4,5],[5,1,1,2,4]]","output":"[[0,4],[1,3],[1,4],[2,2],[3,0],[3,1],[4,0]]"},{"input":"heights = [[1]]","output":"[[0,0]]","explanation":"The single cell touches both oceans by definition."}],
     constraints: ["1 <= heights.length, heights[i].length <= 200","0 <= heights[i][j] <= 10^5"],
     intuition: "Reverse direction: start from ocean boundaries and flood inward (uphill). BFS from all Pacific edges, BFS from all Atlantic edges. Intersection = cells that reach both.",
+    recognize: [
+      "Asking \"which cells can reach BOTH oceans\" naively means checking a flow path from every single cell, which is expensive — a sign to flip the direction of the search.",
+      "Each ocean touches a fixed, known set of border cells (top+left, bottom+right) — a natural multi-source starting set rather than one cell at a time.",
+      "\"Equal or lower height\" downhill from a cell becomes \"equal or higher height\" when the search is reversed (flowing uphill from the ocean inward) — this reversal is what makes multi-source BFS/DFS from each ocean work.",
+      "→ These clues say: run multi-source BFS/DFS from each ocean's border cells with the flow condition reversed, then intersect the two reachable sets.",
+    ],
     approach: [
       "Pacific: top row + left col. Atlantic: bottom row + right col.",
       "Multi-source BFS from each set. Can move to neighbor if height >= current.",
@@ -2803,6 +2959,12 @@ public:
     examples: [{"input":"grid = [[2,1,1],[1,1,0],[0,1,1]]","output":"4"},{"input":"grid = [[2,1,1],[0,1,1],[1,0,1]]","output":"-1","explanation":"The orange in the bottom-left corner is isolated by zeros and can never rot."},{"input":"grid = [[0,2]]","output":"0"}],
     constraints: ["1 <= grid.length, grid[i].length <= 10","grid[i][j] is 0, 1, or 2"],
     intuition: "Multi-source BFS from all rotten oranges simultaneously. Each BFS level = 1 minute. Track fresh count — if any remain after BFS, return -1.",
+    recognize: [
+      "Multiple rotten oranges can exist simultaneously and all spread at the same time each minute — that's multiple starting points expanding in lockstep, the definition of multi-source BFS.",
+      "\"Minutes until no fresh orange remains\" wants a time/level count, and BFS's natural level-by-level expansion IS elapsed time here.",
+      "The -1 case (\"impossible\") means some fresh oranges are unreachable — detectable simply by checking if any fresh count remains after the BFS finishes.",
+      "→ These clues say: multi-source BFS starting from every rotten orange at once, incrementing minutes per BFS level, checking leftover fresh count at the end.",
+    ],
     approach: [
       "Enqueue all rotten (2) oranges, count fresh (1) oranges.",
       "BFS: spread to adjacent fresh. fresh-- on each rot. mins++.",
@@ -2848,6 +3010,12 @@ public:
     examples: [{"input":"rooms = [[2147483647,-1,0,2147483647],[2147483647,2147483647,2147483647,-1],[2147483647,-1,2147483647,-1],[0,-1,2147483647,2147483647]]","output":"[[3,-1,0,1],[2,2,1,-1],[1,-1,2,-1],[0,-1,3,4]]"},{"input":"rooms = [[-1]]","output":"[[-1]]"}],
     constraints: ["1 <= rooms.length, rooms[i].length <= 250","rooms[i][j] is -1, 0, or 2^31 - 1"],
     intuition: "Multi-source BFS from all gates (value 0) simultaneously. Distance flows outward — each room gets shortest distance to nearest gate naturally.",
+    recognize: [
+      "\"Distance to its NEAREST gate\" with potentially many gates is a multi-source shortest-path question, same family as rotting-oranges.",
+      "Walls block movement entirely (not just add cost), so this is unweighted shortest path through open cells only — BFS finds that in one pass instead of Dijkstra.",
+      "Modifying the grid in place with the running distance also serves as the visited marker, avoiding a separate visited structure.",
+      "→ These clues say: multi-source BFS starting from every gate simultaneously, writing distance = parent's distance + 1 as rooms are first visited.",
+    ],
     approach: [
       "Enqueue all gate positions.",
       "BFS: for each INF neighbor, set distance = current + 1, enqueue.",
@@ -4394,6 +4562,12 @@ public:
     examples: [{"input":"lists = [[1,4,5],[1,3,4],[2,6]]","output":"[1,1,2,3,4,4,5,6]","explanation":"Merging the three lists and sorting all values yields this list."},{"input":"lists = []","output":"[]"},{"input":"lists = [[]]","output":"[]"}],
     constraints: ["k == lists.length","0 <= k <= 10^4","0 <= lists[i].length <= 500","-10^4 <= lists[i][j] <= 10^4","lists[i] is sorted in ascending order","The sum of lists[i].length will not exceed 10^4"],
     intuition: "Min-heap of (value, list_index, element_index). Always extract minimum across all lists. Push next element from same list.",
+    recognize: [
+      "It's merge-two-sorted generalized to k lists — the pairwise compare-and-attach trick doesn't scale cleanly once k grows.",
+      "k can be up to 10^4, so comparing all k list-heads with a linear scan every step is too slow — you need the minimum in better than O(k) per pop.",
+      "Each individual list is already sorted, which is what lets you always trust \"the next candidate from this list\" once its current head is consumed.",
+      "→ These clues say: min-heap holding one head per list, repeatedly pop the smallest and push its successor.",
+    ],
     approach: [
       "Dummy head. Min-heap initialized with first element of each list.",
       "While heap not empty: pop minimum node, append to result.",
@@ -4431,6 +4605,12 @@ public:
     examples: [{"input":"[\"LRUCache\",\"put\",\"put\",\"get\",\"put\",\"get\",\"put\",\"get\",\"get\",\"get\"]\n[[2],[1,1],[2,2],[1],[3,3],[2],[4,4],[1],[3],[4]]","output":"[null,null,null,1,null,-1,null,-1,3,4]","explanation":"Capacity is 2; inserting a third key (3) evicts key 2 since key 1 was just accessed, and later inserting key 4 evicts key 1."}],
     constraints: ["1 <= capacity <= 3000","0 <= key <= 10^4","0 <= value <= 10^5","at most 2 * 10^5 calls total to get and put"],
     intuition: "Combine hashmap (O(1) lookup) with doubly-linked list (O(1) insertion/deletion). Most recently used at head, least recently used at tail. On access/put: move to head. On eviction: remove tail.",
+    recognize: [
+      "Both get and put must run in O(1) — that rules out a plain array or map-only solution, since eviction needs to find \"the oldest\" without scanning.",
+      "\"Least recently used\" eviction requires reordering on every access, not just on insert — a structure that's fast to look up (hashmap) alone can't reorder in O(1).",
+      "At most 2*10^5 total calls signals the design must avoid any O(n) step per operation.",
+      "→ These clues say: hashmap for O(1) lookup paired with a doubly linked list for O(1) reordering and eviction.",
+    ],
     approach: [
       "Doubly linked list with dummy head and tail.",
       "HashMap: key → node.",
@@ -4474,6 +4654,12 @@ public:
     examples: [{"input":"root = [3,1,4,null,2], k = 1","output":"1","explanation":"The sorted (in-order) values are [1,2,3,4], so the 1st smallest is 1."},{"input":"root = [5,3,6,2,4,null,null,1], k = 3","output":"3","explanation":"The sorted values are [1,2,3,4,5,6], so the 3rd smallest is 3."},{"input":"root = [2,1], k = 2","output":"2"}],
     constraints: ["The number of nodes in the tree is n","1 <= k <= n <= 10^4","0 <= Node.val <= 10^4"],
     intuition: "Inorder traversal of BST gives sorted sequence. k-th element in inorder = kth smallest. Perform inorder, count down.",
+    recognize: [
+      "It's a binary search TREE, and you need the k-th smallest — the BST's ordering property is the whole reason a special traversal order gives you sorted values for free.",
+      "Asking for the k-th value rather than the min or max rules out a simple leftmost/rightmost walk.",
+      "No need to build a full sorted array first if you can stop early once you've counted k visits.",
+      "→ These clues say: inorder traversal (left, root, right) visits BST nodes in sorted order — walk it and stop at the k-th visit.",
+    ],
     approach: [
       "Inorder DFS (left → root → right).",
       "Decrement k on each visit. When k == 0: record answer.",
@@ -4508,6 +4694,12 @@ public:
     examples: [{"input":"root = [2,1,3]","output":"true"},{"input":"root = [5,1,4,null,null,3,6]","output":"false","explanation":"The right subtree of 5 contains a node with value 3, which is less than 5, violating the BST property."},{"input":"root = [1,1]","output":"false","explanation":"Values must be strictly greater in the right subtree, so a duplicate value is invalid."}],
     constraints: ["The number of nodes in the tree is in the range [1, 10^4]","-2^31 <= Node.val <= 2^31 - 1"],
     intuition: "Pass valid range [min, max] down recursively. Root (-∞, +∞). Left subtree (-∞, root.val). Right subtree (root.val, +∞). Any violation → invalid.",
+    recognize: [
+      "The property is global, not just \"left child < node < right child\" — the failing example [5,1,4,null,null,3,6] has a locally-fine-looking 4>3 relationship that's still invalid because 3 violates the ancestor 5.",
+      "\"All values in left subtree\" (not just the immediate child) signals a naive check against only direct children is insufficient.",
+      "Strict inequality plus duplicate values being invalid means bounds must be exclusive, not inclusive.",
+      "→ These clues say: DFS carrying a (min, max) range downward, narrowing it at every step rather than comparing only parent-child pairs.",
+    ],
     approach: [
       "validate(node, minVal, maxVal):",
       "If null: return true.",
@@ -4541,6 +4733,12 @@ public:
     examples: [{"input":"root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8","output":"6","explanation":"6 is the lowest node that is an ancestor of both 2 and 8."},{"input":"root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 4","output":"2","explanation":"2 is an ancestor of 4, and a node can be its own ancestor."},{"input":"root = [2,1], p = 2, q = 1","output":"2"}],
     constraints: ["The number of nodes in the tree is in the range [2, 10^5]","-10^9 <= Node.val <= 10^9","All Node.val are unique","p and q are distinct nodes that both exist in the BST"],
     intuition: "BST property: if both p and q are less than root, LCA is in left subtree. If both greater, in right. If split (one each side, or one equals root), root is LCA.",
+    recognize: [
+      "It's specifically a binary search tree (not a generic binary tree) — that ordering lets you decide direction by comparing values, no need to search both subtrees.",
+      "\"Deepest node with both as descendants\" is exactly the point where p and q's paths from the root diverge — in a BST that's detectable by value comparison alone.",
+      "No parent pointers given, and values are unique, so a single top-down walk following BST comparisons suffices — no need to find both paths and compare them.",
+      "→ These clues say: walk down from root, go left if both values are smaller, right if both are larger, and stop at the first split (or match) — that node is the LCA.",
+    ],
     approach: [
       "While root not null:",
       "If p.val < root.val && q.val < root.val: root = root.left.",
@@ -4574,6 +4772,12 @@ public:
     examples: [{"input":"root = [3,1,4,3,null,1,5]","output":"4","explanation":"Nodes 3 (root), 4, 5, and the second 3 are all good; the 1s are not since a 3 or 4 precedes them."},{"input":"root = [3,3,null,4,2]","output":"3"},{"input":"root = [1]","output":"1"}],
     constraints: ["The number of nodes in the tree is in the range [1, 10^5]","0 <= Node.val <= 10^4"],
     intuition: "DFS passing the maximum value seen so far on the path from root. A node is 'good' if its value >= that maximum.",
+    recognize: [
+      "\"Good\" depends on the path from root to X, not the whole tree — so each node's answer depends on info coming DOWN from its ancestors, not up from its children.",
+      "You need to know the max value seen so far along the current path — that's state that must be threaded through the recursion as a parameter, not returned upward.",
+      "Counting good nodes across the whole tree, not just checking one node, means the DFS needs to accumulate a running total.",
+      "→ These clues say: DFS as an accumulator that passes maxSoFar down as a parameter, comparing each node against it before recursing further.",
+    ],
     approach: [
       "DFS(node, maxSoFar):",
       "If null: return 0.",
@@ -4609,6 +4813,12 @@ public:
     examples: [{"input":"root = [1,2,3]","output":"6","explanation":"The path 2 -> 1 -> 3 gives the maximum sum."},{"input":"root = [-10,9,20,null,null,15,7]","output":"42","explanation":"The path 15 -> 20 -> 7 gives the maximum sum, without using the root."}],
     constraints: ["The number of nodes in the tree is in the range [1, 3 * 10^4]","-1000 <= Node.val <= 1000"],
     intuition: "At each node, max path sum through it = node.val + max(0, left contribution) + max(0, right contribution). For the recursive return: only one branch (left or right) can extend upward.",
+    recognize: [
+      "\"Does not need to pass through the root\" and \"any sequence of nodes connected by parent-child edges\" — this is diameter-tree's shape again, but summing values instead of counting edges.",
+      "Negative values are allowed, so a branch might hurt more than help — you can't just always take a subtree's contribution, you must clamp negative contributions to 0.",
+      "A path can \"bend\" at one node (using both children) but a value returned to the parent can only extend through ONE side, since a path can't fork twice.",
+      "→ These clues say: DFS returning a value up the call stack (best single-branch extension), while separately tracking a global max that allows combining both children at each node.",
+    ],
     approach: [
       "DFS returns max path sum extending upward from this node.",
       "At each node: leftGain = max(0, DFS(left)), rightGain = max(0, DFS(right)).",
@@ -4642,6 +4852,12 @@ public:
     examples: [{"input":"root = [1,2,3,null,null,4,5]","output":"[1,2,3,null,null,4,5]","explanation":"After serializing the tree and then deserializing the resulting string, the reconstructed tree matches the original."},{"input":"root = []","output":"[]"}],
     constraints: ["The number of nodes in the tree is in the range [0, 10^4]","-1000 <= Node.val <= 1000","Your serialized format may be any encoding of your choosing"],
     intuition: "Preorder DFS serialization. Use '#' for null nodes, ',' as delimiter. Deserialize by reading tokens and reconstructing preorder.",
+    recognize: [
+      "\"Reconstruct the exact same tree structure\" — values alone (like a level-order array) aren't enough unless you also encode where the nulls are, since shape must round-trip perfectly.",
+      "\"Your serialized format may be any encoding of your choosing\" is a hint you get to pick a traversal order that makes reconstruction unambiguous — a bare inorder or postorder alone wouldn't be.",
+      "Preorder (root first) naturally supports single-pass reconstruction: the first token read is always the next subtree's root.",
+      "→ These clues say: preorder DFS with explicit null markers for serialization, then a single forward pass consuming tokens in the same order to rebuild.",
+    ],
     approach: [
       "Serialize: DFS, append node val or '#' for null, separated by ','.",
       "Deserialize: split by ',', use index counter, recursively build preorder.",
@@ -4678,6 +4894,12 @@ public:
     examples: [{"input":"root = [3,9,20,null,null,15,7]","output":"[3.0,14.5,11.0]","explanation":"Level 0 has only 3, level 1 has 9 and 20 (avg 14.5), level 2 has 15 and 7 (avg 11.0)."},{"input":"root = [5]","output":"[5.0]"}],
     constraints: ["The number of nodes in the tree is in the range [1, 10^4]","-2^31 <= Node.val <= 2^31 - 1"],
     intuition: "BFS level by level. For each level, compute average of all node values.",
+    recognize: [
+      "\"Average value of the nodes at each depth level\" needs a sum and count grouped strictly by depth — the same level-by-level grouping as level-order-traversal.",
+      "Order in the output is root level downward, matching exactly how a queue would emit levels in a BFS.",
+      "No need to retain the actual node values afterward — only a running sum and count per level, so you don't even need to collect a full list like plain level-order does.",
+      "→ These clues say: BFS with a queue-size snapshot per level, but accumulate sum/count per level instead of a full list.",
+    ],
     approach: [
       "BFS with level separation (queue size snapshot).",
       "Collect level sum and count, compute average.",
@@ -4716,6 +4938,12 @@ public:
     examples: [{"input":"root = [1,2,3,null,5]","output":"[\"1->2->5\",\"1->3\"]"},{"input":"root = [1]","output":"[\"1\"]"}],
     constraints: ["The number of nodes in the tree is in the range [1, 100]","-100 <= Node.val <= 100"],
     intuition: "DFS collecting path string. At leaf, add to result. Pass path by value for automatic backtracking.",
+    recognize: [
+      "You need EVERY root-to-leaf path reported, not just whether one exists or its sum — that's an enumeration problem, not a single yes/no check like path-sum.",
+      "\"Order does not need to match any particular sequence\" hints DFS is fine (no requirement to match BFS's left-to-right level order).",
+      "Building a path string incrementally and only recording it at a leaf mirrors the standard root-to-leaf DFS accumulator pattern.",
+      "→ These clues say: DFS passing the path built so far down as a parameter (by value, so branches don't interfere), recording it only when a leaf is reached.",
+    ],
     approach: [
       "DFS(node, path).",
       "At leaf: append path to result.",
@@ -4750,6 +4978,12 @@ public:
     examples: [{"input":"root = [5,4,8,11,null,13,4,7,2,null,null,null,1], targetSum = 22","output":"true","explanation":"The path 5 -> 4 -> 11 -> 2 sums to 22."},{"input":"root = [1,2,3], targetSum = 5","output":"false"},{"input":"root = [], targetSum = 0","output":"false"}],
     constraints: ["The number of nodes in the tree is in the range [0, 5000]","-1000 <= Node.val <= 1000","-1000 <= targetSum <= 1000"],
     intuition: "DFS with running sum. At each node subtract its value from target. At leaf check if remainder == 0.",
+    recognize: [
+      "Specifically \"root-to-leaf\" (must end exactly at a leaf) and \"add up exactly to targetSum\" — not any subpath, not an approximate match, so you're checking one committed root-to-leaf sum against an exact target.",
+      "Only a yes/no answer is required — no need to enumerate or return the paths themselves, unlike binary-tree-paths.",
+      "Subtracting the node's value from the remaining target as you descend avoids recomputing the full sum at each leaf.",
+      "→ These clues say: DFS as a void-ish boolean check, threading the remaining target down and testing remaining == 0 only at leaves.",
+    ],
     approach: [
       "If null: return false.",
       "remaining = targetSum - node->val.",
@@ -4781,6 +5015,12 @@ public:
     examples: [{"input":"preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]","output":"[3,9,20,null,null,15,7]","explanation":"The first value in preorder (3) is the root; it splits inorder into left subtree [9] and right subtree [15,20,7]."},{"input":"preorder = [-1], inorder = [-1]","output":"[-1]"}],
     constraints: ["1 <= preorder.length <= 3000","inorder.length == preorder.length","-3000 <= preorder[i], inorder[i] <= 3000","All values in preorder and inorder are unique","inorder is guaranteed to be a valid inorder traversal of the tree described by preorder"],
     intuition: "Preorder[0] = root. Find root in inorder — left part is left subtree, right part is right subtree. Recurse with proper index ranges. Use hashmap for O(1) inorder lookup.",
+    recognize: [
+      "You're given BOTH preorder and inorder — that specific pair is what makes reconstruction unique; preorder alone tells you nothing about where left/right subtrees split.",
+      "\"All node values are unique\" is what lets you find the root's position in inorder unambiguously via direct lookup.",
+      "Preorder's first element is always the current subtree's root, and its position in inorder splits the rest into left/right subtree ranges — a self-similar recursive split.",
+      "→ These clues say: recursively pick preorder[0] as root, locate it in inorder (hashmap for O(1)) to get subtree sizes, and recurse on the resulting index ranges.",
+    ],
     approach: [
       "Build inorder index map.",
       "build(preStart, preEnd, inStart, inEnd):",
@@ -5098,6 +5338,12 @@ public:
     examples: [{"input":"board = [[\"X\",\"X\",\"X\",\"X\"],[\"X\",\"O\",\"O\",\"X\"],[\"X\",\"X\",\"O\",\"X\"],[\"X\",\"O\",\"X\",\"X\"]]","output":"[[\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\"],[\"X\",\"X\",\"X\",\"X\"],[\"X\",\"O\",\"X\",\"X\"]]","explanation":"The bottom-left 'O' touches the border (via the region path) so it stays; the enclosed region is flipped to 'X'."},{"input":"board = [[\"X\"]]","output":"[[\"X\"]]"}],
     constraints: ["1 <= board.length, board[i].length <= 200","board[i][j] is 'X' or 'O'"],
     intuition: "Any 'O' connected to border is safe. DFS/BFS from all border 'O's, mark them. Then flip all remaining 'O' to 'X', restore marked to 'O'.",
+    recognize: [
+      "\"Surrounded on all sides\" but explicitly excluding regions touching the border is an inverted condition — easier to find what's SAFE (border-connected) than to prove every region is fully enclosed.",
+      "The example shows an 'O' region connected (even indirectly, through other O's) to the border surviving, which rules out just checking each O's four immediate neighbors.",
+      "Flood-filling from the border inward naturally marks exactly the safe cells, leaving everything else as capturable by elimination.",
+      "→ These clues say: DFS/BFS from every border 'O' to mark all border-connected regions as safe, then flip every unmarked 'O' to 'X' and restore the marked ones.",
+    ],
     approach: [
       "For each border cell with 'O': DFS to mark connected 'O's as 'S'.",
       "Scan grid: 'O' → 'X'. 'S' → 'O'. 'X' stays 'X'.",
@@ -5133,6 +5379,12 @@ public:
     examples: [{"input":"equations = [[\"a\",\"b\"],[\"b\",\"c\"]], values = [2.0,3.0], queries = [[\"a\",\"c\"],[\"b\",\"a\"],[\"a\",\"e\"],[\"a\",\"a\"],[\"x\",\"x\"]]","output":"[6.00000,0.50000,-1.00000,1.00000,-1.00000]","explanation":"a/c = (a/b)*(b/c) = 2*3 = 6; b/a = 1/2 = 0.5; \"e\" and \"x\" never appear so those queries are unanswerable, while a/a = 1."}],
     constraints: ["1 <= equations.length <= 20","equations[i].length == 2","1 <= variable name length <= 5","values.length == equations.length and 0.0 < values[i] <= 20.0","1 <= queries.length <= 20"],
     intuition: "Build weighted directed graph: a/b=val → edge a→b weight val, b→a weight 1/val. For each query BFS from source to target, multiply edge weights along path.",
+    recognize: [
+      "Equations like a/b=2 chain together (a/c = a/b * b/c) — that chaining is literally graph traversal where each edge weight is a division ratio.",
+      "Each equation a/b=val gives you both directions for free (b/a = 1/val), so the graph must be built as directed edges both ways with reciprocal weights.",
+      "Variables not appearing in any equation, or two variables with no connecting chain, must return -1 — that's just \"node not in graph\" or \"no path exists.\"",
+      "→ These clues say: build a weighted directed graph from the equations (and their reciprocals), then for each query DFS/BFS from the source variable to the target, multiplying edge weights along the path.",
+    ],
     approach: [
       "Build adj: adj[a][b]=val, adj[b][a]=1/val.",
       "For each query (a,b): BFS from a to b, tracking product.",
@@ -5182,6 +5434,12 @@ public:
     examples: [{"input":"times = [[2,1,1],[2,3,1],[3,4,1]], n = 4, k = 2","output":"2","explanation":"From node 2, node 1 is reached in 1 unit, node 3 in 1 unit, and node 4 via node 3 in 2 units; the maximum of these is 2."},{"input":"times = [[1,2,1]], n = 2, k = 1","output":"1"},{"input":"times = [[1,2,1]], n = 2, k = 2","output":"-1","explanation":"Node 1 is unreachable from node 2 since the only edge is directed from 1 to 2."}],
     constraints: ["1 <= n <= 100","1 <= times.length <= 6000","1 <= u, v <= n and u != v","1 <= w <= 100","All pairs (u, v) are distinct"],
     intuition: "Single source shortest path from k. Dijkstra with min-heap. Answer = max dist among all nodes. If any unreachable: -1.",
+    recognize: [
+      "Edges are directed AND weighted (w time units) — that combination is the classic setup for single-source shortest path from k, not plain BFS (which only handles unweighted/uniform edges).",
+      "\"Minimum time for the signal to reach EVERY node\" (the slowest one) means you need shortest distance to all nodes, then take the max — not just distance to one target.",
+      "\"Return -1 if some node is unreachable\" is a direct hint to check for any distance left at infinity after the algorithm finishes.",
+      "→ These clues say: Dijkstra's algorithm from source k with a min-heap, then report the maximum finite distance across all nodes (or -1 if any remain unreachable).",
+    ],
     approach: [
       "Build adjacency list.",
       "Dijkstra from k: min-heap (dist, node). dist[k]=0, others INF.",
@@ -5221,6 +5479,12 @@ public:
     examples: [{"input":"edges = [[1,2],[1,3],[2,3]]","output":"[2,3]","explanation":"Removing edge [2,3] breaks the only cycle and leaves a valid tree."},{"input":"edges = [[1,2],[2,3],[3,4],[1,4],[1,5]]","output":"[1,4]","explanation":"Edge [1,4] is the last edge added that completes a cycle among nodes 1-2-3-4."},{"input":"edges = [[1,2],[2,3],[1,3]]","output":"[1,3]"}],
     constraints: ["n == edges.length","3 <= n <= 1000","edges[i].length == 2","1 <= edges[i][0] < edges[i][1] <= n","there are no repeated edges"],
     intuition: "Union-Find. Add edges one by one. If both endpoints already same component: that edge creates cycle — return it.",
+    recognize: [
+      "\"n nodes, n edges, exactly one cycle, edges given in the order they were added\" — that framing (find the LAST edge completing a cycle) is a direct fit for processing edges in order and checking connectivity incrementally.",
+      "\"If more than one could be removed, return the one that appears last\" tells you to process edges left to right and stop at the first one that creates a cycle, rather than analyzing the whole graph at once.",
+      "This is graph-valid-tree's cycle-detection core, just returning the offending edge instead of a boolean.",
+      "→ These clues say: Union-Find, adding edges one at a time in input order; the first edge whose endpoints are already in the same component is the answer.",
+    ],
     approach: [
       "Union-Find with path compression + rank.",
       "For each edge (u,v): if find(u)==find(v): return {u,v}.",
@@ -5260,6 +5524,12 @@ public:
     examples: [{"input":"points = [[0,0],[2,2],[3,10],[5,2],[7,0]]","output":"20","explanation":"A minimum spanning tree over these points using Manhattan distances totals 20."},{"input":"points = [[3,12],[-2,5],[-4,1]]","output":"18"}],
     constraints: ["1 <= points.length <= 1000","-10^6 <= xi, yi <= 10^6","All pairs (xi, yi) are distinct"],
     intuition: "MST on complete graph with Manhattan distance edges. Prim's without heap is O(n²) — efficient for dense graphs. Always add cheapest unvisited node reachable from current MST.",
+    recognize: [
+      "\"Connect all points with a path between every pair\" at minimum total cost is literally minimum spanning tree — the points are nodes, and there's an implicit edge (Manhattan distance) between every pair.",
+      "No explicit edge list is given — it's a COMPLETE graph (every pair of points connectable), which with n up to 1000 means O(n^2) edges, too many to build explicitly for a heap-based Prim's/Kruskal's efficiently.",
+      "Since the graph is dense, comparing all unvisited nodes directly each round (O(n) per step, O(n^2) total) beats maintaining a heap of O(n^2) edges.",
+      "→ These clues say: Prim's algorithm without a heap — repeatedly pick the cheapest unvisited node reachable from the growing tree, updating costs in O(n) per iteration.",
+    ],
     approach: [
       "minCost[i] = min cost to connect node i to MST. Start: minCost[0]=0, rest INF.",
       "n times: pick unvisited u with min cost. Mark visited. Update minCost[v] for all unvisited v.",
@@ -5300,6 +5570,12 @@ public:
     examples: [{"input":"grid = [[0,2],[1,3]]","output":"3","explanation":"At time 3, all four cells (elevations 0,1,2,3) are accessible, allowing a path from top-left to bottom-right."},{"input":"grid = [[0,1,2,3,4],[24,23,22,21,5],[12,13,14,15,16],[11,17,18,19,20],[10,9,8,7,6]]","output":"16","explanation":"Following the spiral of increasing elevations, the bottom-right cell first becomes reachable once time reaches 16."}],
     constraints: ["1 <= n <= 50","0 <= grid[i][j] < n^2","Every integer in the range [0, n^2 - 1] appears exactly once in grid"],
     intuition: "Minimax path: minimize the maximum cell value along path from (0,0) to (n-1,n-1). Dijkstra where cost = max(cost_so_far, cell_value).",
+    recognize: [
+      "The \"cost\" of a path isn't a sum of edge weights — it's the single highest elevation you must wait for along the way, since water rises uniformly and you're blocked until time reaches that height.",
+      "You want the minimum over all paths of that path's maximum cell value — a minimax path problem, a variant that looks like shortest path but isn't a straightforward sum.",
+      "Grid cells with distinct elevations and 4-directional movement give a natural graph, but the relaxation rule differs from normal Dijkstra: combine via max(), not addition.",
+      "→ These clues say: Dijkstra's algorithm with a modified relaxation — new cost = max(current path cost, next cell's elevation) — instead of summing edge weights.",
+    ],
     approach: [
       "dist[i][j] = min bottleneck value to reach cell.",
       "Min-heap: (maxVal, r, c). Start (grid[0][0], 0, 0).",
@@ -5344,6 +5620,12 @@ public:
     examples: [{"input":"n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1","output":"700","explanation":"With at most 1 stop, the path 0 -> 1 -> 3 costs 100 + 600 = 700. The cheaper path 0 -> 1 -> 2 -> 3 (cost 400) uses 2 stops, exceeding the limit of k = 1, so it is not allowed."},{"input":"n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 1","output":"200","explanation":"With at most 1 stop, the path 0 -> 1 -> 2 costs 100 + 100 = 200, which is cheaper than the direct flight at 500."},{"input":"n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 0","output":"500","explanation":"With 0 stops allowed, only the direct flight 0 -> 2 is usable."}],
     constraints: ["1 <= n <= 100","0 <= flights.length <= (n * (n - 1) / 2)","0 <= from, to < n and from != to","1 <= price <= 10^4","0 <= src, dst, k < n"],
     intuition: "Bellman-Ford limited to k+1 rounds (k stops = k+1 edges). Use copy of previous round's distances to prevent same-round chaining.",
+    recognize: [
+      "\"Cheapest\" WITH a cap on stops rules out plain Dijkstra, since Dijkstra optimizes for cheapest ignoring hop count — the example explicitly shows a cheaper 2-stop route being disallowed in favor of a costlier 1-stop route.",
+      "A limit on the number of edges used (k stops = k+1 edges) is exactly what bounding the number of relaxation rounds in Bellman-Ford controls.",
+      "Using a single mutable distance array during relaxation would let a single round's update chain through multiple edges (violating the stop cap) — you need a fresh snapshot copy each round to prevent that.",
+      "→ These clues say: Bellman-Ford relaxation capped at exactly k+1 rounds, copying the distance array before each round so updates don't chain within the same round.",
+    ],
     approach: [
       "dist = INF everywhere. dist[src] = 0.",
       "k+1 times: tmp = copy of dist. For each edge (u,v,w): if dist[u]+w < tmp[v]: tmp[v]=dist[u]+w.",
@@ -5725,6 +6007,12 @@ public:
     examples: [{"input":"nums = [1,3,4,2,2]","output":"2"},{"input":"nums = [3,1,3,4,2]","output":"3"},{"input":"nums = [3,3,3,3,3]","output":"3"}],
     constraints: ["1 <= n <= 10^5","nums.length == n + 1","1 <= nums[i] <= n","exactly one integer in nums repeats, possibly more than once"],
     intuition: "Floyd's cycle detection. Array as linked list: index i → nums[i]. Duplicate = two indices pointing to same value = cycle. Find cycle entry = duplicate.",
+    recognize: [
+      "n+1 integers all in range [1, n] — pigeonhole guarantees a repeat, and every value can be treated as a valid array index.",
+      "\"Without modifying the array\" rules out sorting or marking visited indices, and \"O(1) extra space\" rules out a hash set.",
+      "Explicit ban on extra space is unusual for a \"find the duplicate\" problem — that's the tell to look past the obvious hash-set solution.",
+      "→ These clues say: treat nums[i] as a pointer to index nums[i], turning the array into an implicit linked list, and find the cycle entry with Floyd's algorithm.",
+    ],
     approach: [
       "Phase 1: slow=nums[0], fast=nums[nums[0]]. Move until slow==fast.",
       "Phase 2: slow=0. Move both one step until slow==fast.",
@@ -5809,6 +6097,12 @@ public:
     examples: [{"input":"tickets = [[\"MUC\",\"LHR\"],[\"JFK\",\"MUC\"],[\"SFO\",\"SJC\"],[\"LHR\",\"SFO\"]]","output":"[\"JFK\",\"MUC\",\"LHR\",\"SFO\",\"SJC\"]"},{"input":"tickets = [[\"JFK\",\"SFO\"],[\"JFK\",\"ATL\"],[\"SFO\",\"ATL\"],[\"ATL\",\"JFK\"],[\"ATL\",\"SFO\"]]","output":"[\"JFK\",\"ATL\",\"JFK\",\"SFO\",\"ATL\",\"SFO\"]","explanation":"This route uses all five tickets and is lexicographically smaller than the alternative starting \"JFK\",\"SFO\",\"ATL\",...."}],
     constraints: ["1 <= tickets.length <= 300","tickets[i].length == 2","Airport codes are three uppercase English letters","All tickets form at least one valid Eulerian itinerary starting at JFK"],
     intuition: "Eulerian path via Hierholzer's. DFS with sorted adjacency (multiset). Post-order append builds reverse path. Reverse at end.",
+    recognize: [
+      "\"Uses every ticket exactly once\" (not every airport once) is the signature of an Eulerian path — traversing every EDGE exactly once, as opposed to a Hamiltonian path over nodes.",
+      "\"Lexicographically smallest\" among multiple valid full-usage itineraries hints that greedily picking the smallest next airport doesn't always work directly (you can get stuck), which is why the classic greedy DFS needs post-order backtracking, not a naive forward-only greedy walk.",
+      "All tickets are guaranteed to form a valid itinerary, so you don't need to search for validity — you need the specific construction algorithm (Hierholzer's) that always finds an Eulerian path when one exists.",
+      "→ These clues say: DFS over a sorted (multiset) adjacency list, appending nodes to the result in POST-order (only once you've exhausted all edges from that node) and reversing at the end — Hierholzer's algorithm.",
+    ],
     approach: [
       "Build adjacency: multiset per airport.",
       "Iterative DFS from JFK: while adj[cur] not empty, push smallest to stack. When no neighbors, pop to result.",
@@ -5846,6 +6140,12 @@ public:
     examples: [{"input":"n = 5, edges = [[0,1],[0,2],[0,3],[1,4]]","output":"true"},{"input":"n = 5, edges = [[0,1],[1,2],[2,3],[1,3],[1,4]]","output":"false","explanation":"The edges 1-2, 2-3, and 1-3 form a cycle."}],
     constraints: ["1 <= n <= 2000","0 <= edges.length <= 5000","edges[i].length == 2","There are no self-loops or duplicate edges"],
     intuition: "Tree = n-1 edges + no cycle + connected. Check edge count first (quick reject). Union-Find for cycle detection.",
+    recognize: [
+      "\"Fully connected and contains no cycles\" is literally the definition of a tree — two separate conditions to verify, not one.",
+      "A graph with n nodes is a tree if and only if it has exactly n-1 edges AND is connected — that arithmetic fact turns \"is this a tree\" into a cheap pre-check plus a cycle/connectivity check.",
+      "Undirected edges with no self-loops or duplicates is exactly the setup Union-Find handles well: union each edge, and if the two endpoints are already in the same set, that's a cycle.",
+      "→ These clues say: quick-reject if edge count != n-1, otherwise Union-Find every edge and fail if any edge connects two nodes already in the same component.",
+    ],
     approach: [
       "If edges.size() != n-1: return false.",
       "Union-Find: for each edge, if same component → cycle → false.",
@@ -5882,6 +6182,12 @@ public:
     examples: [{"input":"n = 5, edges = [[0,1],[1,2],[3,4]]","output":"2","explanation":"Nodes 0,1,2 form one component and nodes 3,4 form another."},{"input":"n = 5, edges = [[0,1],[1,2],[2,3],[3,4]]","output":"1","explanation":"All five nodes are connected in a single chain."},{"input":"n = 4, edges = []","output":"4","explanation":"With no edges, every node is its own component."}],
     constraints: ["1 <= n <= 2000","0 <= edges.length <= n * (n - 1) / 2","edges[i].length == 2","0 <= edges[i][0], edges[i][1] < n","there are no duplicate edges and no self-loops"],
     intuition: "Union-Find. Start with n components. Each union of different components reduces count by 1.",
+    recognize: [
+      "\"Total number of connected components\" over an undirected graph with no direction or weights is a pure grouping question — DFS/BFS from each unvisited node, or Union-Find, both fit.",
+      "Every node starts as its own isolated component (n components with no edges) — a natural Union-Find initialization.",
+      "Each edge either merges two separate components (count drops by 1) or connects two nodes already together (no-op) — that increment/no-op pattern is Union-Find's core operation.",
+      "→ These clues say: Union-Find starting with n singleton components, decrementing the count each time an edge merges two previously separate sets.",
+    ],
     approach: [
       "components = n.",
       "For each edge: if different component → union, components--.",
@@ -5917,6 +6223,12 @@ public:
     examples: [{"input":"graph = [[1,2],[3],[3],[]]","output":"[[0,1,3],[0,2,3]]","explanation":"Both paths start at node 0 and end at node 3 (the last node)."},{"input":"graph = [[1,2],[2],[]]","output":"[[0,1,2],[0,2]]"},{"input":"graph = [[1],[]]","output":"[[0,1]]"}],
     constraints: ["2 <= n <= 15","0 <= graph[i][j] < n","graph[i][j] != i (no self-loops)","all values in graph[i] are unique","the graph is a DAG (no cycles)"],
     intuition: "DFS from node 0, collecting all paths to n-1. DAG so no visited set needed. Backtrack after each call.",
+    recognize: [
+      "You need EVERY path from source to target, not just whether one exists or the shortest one — enumeration, not reachability or shortest-path.",
+      "It's explicitly a DAG (no cycles), which is exactly what lets you skip a visited-set — no path can loop back on itself, so plain DFS with backtracking terminates safely.",
+      "Small n (<=15) signals an exponential number of paths is expected and acceptable, not something that needs a polynomial shortcut.",
+      "→ These clues say: DFS with backtracking from node 0, recording the path whenever node n-1 is reached, no visited-tracking needed since the graph is acyclic.",
+    ],
     approach: [
       "DFS(node, path): if node==n-1: add path to result.",
       "For each neighbor: push, recurse, pop.",
@@ -5950,6 +6262,12 @@ public:
     examples: [{"input":"words = [\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\"]","output":"\"wertf\"","explanation":"Comparing adjacent words gives constraints t<f, w<e, r<t, e<r, yielding the order w, e, r, t, f."},{"input":"words = [\"z\",\"x\"]","output":"\"zx\""},{"input":"words = [\"z\",\"x\",\"z\"]","output":"\"\"","explanation":"The constraints z<x and x<z contradict each other, so no valid ordering exists."}],
     constraints: ["1 <= words.length <= 100","1 <= words[i].length <= 100","words[i] consists of lowercase English letters","All characters used belong to the alien alphabet being reconstructed"],
     intuition: "Extract char ordering by comparing adjacent words. Build directed graph. Topo sort (Kahn's BFS). Cycle = invalid alphabet.",
+    recognize: [
+      "You're asked to reconstruct an ORDERING of letters consistent with given constraints — that's exactly what topological sort produces from a set of \"comes before\" relationships.",
+      "Each adjacent pair of dictionary-sorted words gives you exactly one letter-ordering constraint (the first position where they differ) — a natural way to build a directed graph edge by edge.",
+      "\"Contradiction → no valid ordering\" is precisely a cycle in the constraint graph, and the invalid-prefix case (longer word before its own shorter prefix) is a special malformed input that must be checked separately before building the graph.",
+      "→ These clues say: build a directed graph from first-differing-character pairs between adjacent words, then topologically sort it (Kahn's BFS); a cycle or leftover unprocessed nodes means no valid ordering.",
+    ],
     approach: [
       "Build graph: compare adjacent word pairs, first differing char = edge.",
       "Invalid: word1 is prefix of shorter word2.",
@@ -6036,6 +6354,12 @@ public:
     examples: [{"input":"beginWord = \"hit\", endWord = \"cog\", wordList = [\"hot\",\"dot\",\"dog\",\"lot\",\"log\",\"cog\"]","output":"5","explanation":"One shortest sequence is hit -> hot -> dot -> dog -> cog, which has 5 words."},{"input":"beginWord = \"hit\", endWord = \"cog\", wordList = [\"hot\",\"dot\",\"dog\",\"lot\",\"log\"]","output":"0","explanation":"endWord \"cog\" is not in wordList, so no valid transformation exists."},{"input":"beginWord = \"a\", endWord = \"c\", wordList = [\"a\",\"b\",\"c\"]","output":"2"}],
     constraints: ["1 <= beginWord.length <= 10","endWord.length == beginWord.length","1 <= wordList.length <= 5000","wordList[i].length == beginWord.length","beginWord, endWord, and wordList[i] consist of lowercase English letters","beginWord != endWord"],
     intuition: "BFS from beginWord. Each step try changing each character to a-z, check if in wordList. Shortest BFS path = minimum transformations.",
+    recognize: [
+      "\"Shortest transformation sequence\" (a length, not the sequence itself) with each step being a fixed unit cost (one letter changed) — shortest path in an unweighted graph is the tell for BFS, not DFS.",
+      "There's no explicit graph given — words are nodes and edges are implicit (\"one letter changed\"), so you generate neighbors on the fly by trying all 26 letters at each position instead of using a prebuilt adjacency list.",
+      "Words consumed once should not be revisited (marking as visited by removing from the set), since BFS already guarantees the first time you reach a word is via the shortest path.",
+      "→ These clues say: BFS over an implicit word graph, generating each word's neighbors by trying every single-letter substitution and checking dictionary membership, tracking steps as BFS depth.",
+    ],
     approach: [
       "Set from wordList for O(1) lookup.",
       "BFS queue: (word, steps). Start (beginWord, 1).",
@@ -6178,6 +6502,12 @@ public:
     examples: [{"input":"n = 3, edges = [[0,1],[1,2],[0,2]], succProb = [0.5,0.5,0.2], start = 0, end = 2","output":"0.25000","explanation":"The path 0 -> 1 -> 2 has probability 0.5 * 0.5 = 0.25, which exceeds the direct edge's probability of 0.2."},{"input":"n = 3, edges = [[0,1],[1,2],[0,2]], succProb = [0.5,0.5,0.3], start = 0, end = 2","output":"0.30000","explanation":"The direct edge 0 -> 2 with probability 0.3 beats the two-edge path's probability of 0.25."}],
     constraints: ["2 <= n <= 10^4","0 <= edges.length <= 2 * 10^4","edges[i].length == 2 and succProb.length == edges.length","0 <= succProb[i] <= 1","0 <= start, end < n and start != end"],
     intuition: "Modified Dijkstra: maximize probability instead of minimize cost. Max-heap by probability. Multiply probabilities along path (all <= 1). Stop early when target reached.",
+    recognize: [
+      "You're combining edge weights by MULTIPLICATION (probabilities along a path) rather than addition, and looking to maximize rather than minimize — that flips normal shortest-path assumptions.",
+      "The example shows a two-edge path beating a direct edge in one case but losing in another — so you genuinely need to explore multiple paths and compare products, not just take the direct edge.",
+      "Since all probabilities are between 0 and 1, \"greedily take the biggest available multiplier next\" (extract-max) is still safe here just like extract-min is safe for normal Dijkstra, because probabilities only shrink as you add edges.",
+      "→ These clues say: Dijkstra's algorithm with the min-heap swapped for a max-heap and the relaxation rule swapped from addition to multiplication.",
+    ],
     approach: [
       "Build adj: (neighbor, prob).",
       "dist[n] = {0}. dist[start] = 1.0.",
@@ -6221,6 +6551,12 @@ public:
     examples: [{"input":"n = 3, edges = [[0,1],[1,2],[2,0]], source = 0, destination = 2","output":"true"},{"input":"n = 6, edges = [[0,1],[0,2],[3,5],[5,4],[4,3]], source = 0, destination = 5","output":"false"}],
     constraints: ["1 <= n <= 2 * 10^5","0 <= edges.length <= 2 * 10^5","edges[i].length == 2","0 <= source, destination <= n - 1","There are no duplicate edges and no self-loops"],
     intuition: "Simple BFS/DFS or Union-Find. Check if source and destination are in same connected component.",
+    recognize: [
+      "Edges are bidirectional and the question is purely reachability (\"is there a path\"), not shortest path or path count — the simplest possible graph question.",
+      "No weights, no direction, no need to output the actual path — just true/false.",
+      "\"Zero or more edges\" explicitly covers source == destination as a trivial true case.",
+      "→ These clues say: build an adjacency list and run BFS/DFS from source (or Union-Find over all edges), checking if destination is reachable / in the same component.",
+    ],
     approach: [
       "BFS from source. If destination reached: return true.",
       "Or Union-Find: union all edges, check if find(source)==find(destination).",
@@ -7034,6 +7370,12 @@ public:
     constraints: ["0 <= capacity <= 10^4","0 <= key <= 10^5","0 <= value <= 10^9","At most 2 * 10^5 calls total will be made to get and put"],
     intuition:
       "LFU evicts the Least Frequently Used key (ties broken by LRU). Needs O(1) get and put. Use two hash maps: key→{value, freq} and freq→ordered set (doubly linked list) of keys. Track minFreq to know which bucket to evict from.",
+    recognize: [
+      "It's LRU-cache plus a second dimension: eviction now depends on use count first, and only falls back to recency as a tiebreaker.",
+      "\"Both operations must run in O(1) average time\" rules out scanning for the minimum frequency on every put — a plain min-heap by frequency would cost O(log n).",
+      "A tie in frequency needs an ordering within the tie — that's a second axis (recency) layered on top of frequency buckets.",
+      "→ These clues say: group keys into per-frequency doubly linked lists (LRU order inside each), track the current minimum frequency, and evict from that bucket's tail.",
+    ],
     approach: [
       "freqMap: freq → doubly linked list of keys (order = LRU within same freq).",
       "keyMap: key → {value, freq, iterator in freqMap[freq]}.",
@@ -7093,6 +7435,12 @@ public:
     constraints: ["The number of nodes in the tree is in the range [1, 4 * 10^4]","-4 * 10^4 <= Node.val <= 4 * 10^4"],
     intuition:
       "Find the maximum sum of all keys in any BST subtree of the binary tree. Post-order DFS: at each node, determine if its subtree is a valid BST and compute its sum. Return up min, max, sum, and isValid to the parent.",
+    recognize: [
+      "It's a general binary tree, not a BST — you must discover WHICH subtrees happen to be valid BSTs, combining validate-bst's logic with an aggregated sum.",
+      "Deciding validity at a node needs its children's min/max/validity/sum already computed — that's four pieces of information that must flow upward from children to parent.",
+      "The failing example shows a subtree can look locally fine but be invalid due to a value violating the range set by nodes further down — same trap as validate-bst.",
+      "→ These clues say: post-order DFS returning a bundle (isBST, min, max, sum) so each node can check the BST property using its children's reported ranges, updating a global max sum along the way.",
+    ],
     approach: [
       "Post-order DFS returning (isBST, minVal, maxVal, sum).",
       "A subtree is BST if: left is BST, right is BST, left.maxVal < node.val < right.minVal.",
@@ -7236,6 +7584,12 @@ public:
     constraints: ["1 <= n <= 10^5","n - 1 <= connections.length <= 10^5","0 <= connections[i][0], connections[i][1] <= n - 1","there are no self-loops or repeated connections","the network is guaranteed to be connected"],
     intuition:
       "Find all bridges (edges whose removal disconnects the graph). Use Tarjan's bridge-finding algorithm: DFS with discovery time and low-link values. An edge (u,v) is a bridge if low[v] > disc[u] — meaning v can't reach back to u or earlier without using the edge (u,v).",
+    recognize: [
+      "\"Removing it would split the network\" is asking for graph bridges specifically — edges that are NOT part of any cycle.",
+      "The example shows edges inside a cycle (0-1, 1-2, 2-0) are safe, while the single edge to node 3 (not part of any cycle) is critical — cycles provide alternate routes, so an edge only matters if it's the sole connection.",
+      "n up to 10^5 rules out testing each edge individually by removing it and re-running a full connectivity check (that would be O(E × (V+E))) — you need to find all bridges in one traversal.",
+      "→ These clues say: Tarjan's bridge-finding DFS, tracking discovery time and low-link value per node, flagging an edge (u,v) as a bridge when low[v] > disc[u].",
+    ],
     approach: [
       "DFS from any node. Track disc[node] = discovery time, low[node] = min disc reachable via DFS subtree.",
       "For each neighbor v of u: if unvisited, recurse. After return: low[u] = min(low[u], low[v]). If low[v] > disc[u], edge (u,v) is a bridge.",
@@ -7524,6 +7878,12 @@ public:
     constraints: ["1 <= m, n <= 40","1 <= k <= m * n","grid[i][j] is 0 or 1","grid[0][0] == 0 and grid[m-1][n-1] == 0"],
     intuition:
       "Find shortest path from top-left to bottom-right in grid, allowed to eliminate at most k obstacles. BFS with state (row, col, remaining_k). A 3D visited array prevents revisiting same (position, k_remaining) state.",
+    recognize: [
+      "\"Minimum number of moves\" with uniform-cost steps is shortest path in an unweighted grid — the base pattern is BFS, same family as rotting-oranges/walls-gates.",
+      "The twist is a BUDGET (k obstacle removals) that changes what \"visited\" means: the same cell can be revisited productively if you arrive with a different amount of budget remaining.",
+      "Plain 2D visited (row, col) would wrongly block a later visit to the same cell that still has more remaining budget and could lead to a shorter or only path — that's the tell you need a third dimension in your state.",
+      "→ These clues say: BFS where each state is (row, col, obstacles_remaining), with a 3D visited array keyed on all three, since the same position with different remaining budget is a genuinely different state.",
+    ],
     approach: [
       "BFS queue holds (row, col, k_remaining, steps).",
       "Mark visited[row][col][k] to avoid cycles.",
@@ -8126,6 +8486,12 @@ int findBound(vector<int>& nums, int target, bool isLeft) {
     examples: [{"input":"graph = [[1,3],[0,2],[1,3],[0,2]]","output":"true","explanation":"Nodes {0,2} and {1,3} form two groups with every edge going between them."},{"input":"graph = [[1,2],[0,2],[0,1]]","output":"false","explanation":"Nodes 0, 1, 2 form an odd cycle (triangle), which cannot be 2-colored."},{"input":"graph = [[1],[0]]","output":"true"}],
     constraints: ["graph.length == n","1 <= n <= 100","0 <= graph[u].length < n","graph[u] does not contain u itself and has no duplicate entries","the graph is undirected: if v is in graph[u], then u is in graph[v]"],
     intuition: "A graph is bipartite if it can be 2-colored: every edge connects vertices of different colors. Equivalent to: graph has no odd-length cycles. Use BFS/DFS: try to color each vertex, if a neighbor has the same color as current — not bipartite. Handle disconnected graphs by checking each unvisited vertex.",
+    recognize: [
+      "\"Split into two groups so every edge crosses between them\" is exactly the definition of 2-coloring a graph — every edge must connect two different colors.",
+      "The failing example is a triangle (odd cycle) — odd-length cycles are the concrete obstruction to 2-coloring, since you can't alternate colors around an odd loop without a clash.",
+      "The graph may be disconnected (isolated components), so a single BFS/DFS from one start node isn't enough — every unvisited vertex needs its own check.",
+      "→ These clues say: BFS/DFS coloring each vertex the opposite color of its parent, failing as soon as two adjacent vertices share a color, restarting from any unvisited vertex to cover all components.",
+    ],
     approach: [
       "For each unvisited vertex, start BFS.",
       "Color the start vertex 0. Add to queue.",
@@ -8528,6 +8894,12 @@ public:
     constraints: ["The number of nodes in the list is n","1 <= n <= 500","-500 <= Node.val <= 500","1 <= left <= right <= n"],
     intuition:
       "Reverse only the sublist between positions left and right. Walk to the node just before 'left' (call it 'prev'), then repeatedly move the node right after prev's reversed section to the front of that section — a technique called 'head insertion' — for exactly (right - left) iterations.",
+    recognize: [
+      "It's a partial reversal — only positions left..right flip, while the nodes before and after stay untouched and connected.",
+      "\"Single pass\" and \"without detaching the list into separate pieces\" push away from splitting into three lists, reversing the middle, and reattaching.",
+      "left can be 1 (reversal starts at the head), which is the classic case that needs a dummy node to avoid special-casing the head.",
+      "→ These clues say: walk to just before left, then repeatedly pull the next node forward and splice it right after that fixed point (head-insertion reversal).",
+    ],
     approach: [
       "Use a dummy node pointing to head to handle left = 1 cleanly.",
       "Advance a pointer 'prev' to the node just before position left.",
@@ -8569,6 +8941,12 @@ public:
     constraints: ["The number of nodes in the tree is in the range [0, 2000]","-100 <= Node.val <= 100"],
     intuition:
       "Standard BFS level-order traversal, but alternate the direction each level is read/stored: left-to-right, then right-to-left, then left-to-right again.",
+    recognize: [
+      "It's level-order-traversal's exact grouping, with only the READING direction of alternate levels flipped — nodes are still discovered left-to-right by the queue regardless.",
+      "The alternation is by level index (even vs odd), not by node value or depth-independent logic, so you need to know which level you're on.",
+      "You don't need to change how children get enqueued — only how the collected values for that level get placed or reversed before output.",
+      "→ These clues say: normal BFS level-order, but reverse (or index backwards into) every other level's result before appending it.",
+    ],
     approach: [
       "BFS with a queue, processing one level at a time (track level size before dequeuing).",
       "For each level, collect values into a vector as usual.",
@@ -8617,6 +8995,12 @@ public:
     constraints: ["The number of nodes in the tree is in the range [0, 5000]","-1000 <= Node.val <= 1000","-1000 <= targetSum <= 1000"],
     intuition:
       "DFS from root to leaf, tracking the running path and remaining sum needed. At a leaf, if the remaining sum equals the leaf's value, the current path is a valid answer — record a COPY of it (backtracking will mutate the path afterward).",
+    recognize: [
+      "It's path-sum but asking for ALL qualifying paths as lists of values, not just a yes/no — that upgrades a boolean DFS into one that builds and records paths.",
+      "\"Root-to-leaf\" and \"sum of the node values along the path equals the target\" is the same exact-match condition as path-sum, just with multiple valid answers possible.",
+      "Because the same path vector is reused and mutated across branches, you need to undo (pop) whatever you pushed before trying the sibling branch — otherwise paths bleed into each other.",
+      "→ These clues say: DFS with backtracking — push the node onto a shared path, recurse, check the leaf condition, then pop before returning.",
+    ],
     approach: [
       "DFS(node, remaining, path): add node->val to path.",
       "If node is a leaf and node->val == remaining, push a copy of path to results.",
@@ -8663,6 +9047,12 @@ private:
     constraints: ["The number of nodes in the tree is in the range [1, 1000]","0 <= Node.val <= 1000","When two nodes share the same row and column, order them by ascending value"],
     intuition:
       "Assign each node a (column, row) coordinate: root is (0,0), left child is (col-1, row+1), right child is (col+1, row+1). Group nodes by column; within a column, order by row, and for same row+column, order by value.",
+    recognize: [
+      "\"Group by vertical column\" with left = one column left, right = one column right — that's a coordinate system (col, row) layered onto the tree, not a standard traversal order.",
+      "The tie-break rule (\"same row and column, order by ascending value\") is an explicit sign there's a third sort key beyond just column and depth.",
+      "Output order is leftmost-to-rightmost column, top-to-bottom within a column — an ordering that only makes sense once every node has been assigned coordinates first, then sorted.",
+      "→ These clues say: DFS/BFS assigning (col, row) to every node, bucket by column, then sort each bucket by (row, value).",
+    ],
     approach: [
       "BFS or DFS while tracking (col, row, value) for every node.",
       "Group all nodes into a map keyed by column.",
@@ -8708,6 +9098,12 @@ public:
     constraints: ["The number of nodes in the tree is in the range [1, 10^4]","-1000 <= Node.val <= 1000","The root is never counted twice even if it is also a leaf"],
     intuition:
       "The boundary = left edge (top to bottom, excluding leaves) + all leaves (left to right) + right edge (bottom to top, excluding leaves). Handle each piece with a separate simple traversal, then concatenate, being careful not to double-count nodes that are both edge and leaf.",
+    recognize: [
+      "The output is described as three distinct pieces stitched together (root, left edge, leaves, right edge reversed) — a strong hint this isn't one traversal but several simple ones concatenated.",
+      "\"Excluding leaves\" on both edges plus \"avoid listing any node more than once\" flags the overlap case: a node that's both an edge node and a leaf must only appear once, in the leaves section.",
+      "The right edge is explicitly bottom-up while everything else reads top-down or left-to-right — an asymmetry that only makes sense if you build the right side separately and reverse it.",
+      "→ These clues say: three separate simple walks — left spine (skip leaves), all leaves (DFS), right spine reversed (skip leaves) — concatenated with the root.",
+    ],
     approach: [
       "Add the root (if it's not itself a leaf).",
       "Traverse the left boundary top-down: keep going left if a left child exists, else go right, stopping before leaves.",

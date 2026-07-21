@@ -178,6 +178,16 @@ export default function ProblemPage({ params }: Props) {
                 </WorkspaceSection>
               )}
 
+              {content.recognize && content.recognize.length > 0 && (
+                <WorkspaceSection title="Recognize this pattern">
+                  <ul className="space-y-2">
+                    {content.recognize.map((clue, i) => (
+                      <li key={i} className="text-sm leading-5" style={{ color: "var(--text-secondary)" }}>{clue}</li>
+                    ))}
+                  </ul>
+                </WorkspaceSection>
+              )}
+
               <WorkspaceSection title="Approach">
                 <ol className="space-y-2">
                   {content.approach.map((step, i) => (

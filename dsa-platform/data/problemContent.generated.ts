@@ -10,6 +10,9 @@ export interface ProblemContent {
   examples?: ProblemExample[];
   constraints?: string[];
   intuition: string;
+  // Clues in the problem statement that point to this technique — answers
+  // "why THIS approach and not another" before the approach itself is shown.
+  recognize?: string[];
   approach: string[];
   cppSolution: string;
   pythonSolution?: string;
