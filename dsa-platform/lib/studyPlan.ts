@@ -793,17 +793,30 @@ function blankStudyDay(): DayPlan {
 /**
  * Re-date and renumber every day from the start date, then force any day that
  * lands on a Sunday to be a rest day. Tasks displaced off a Sunday are
- * returned so the caller can re-place them.
+ * returned, split by the kind of day they came from, so the caller can put
+ * revision work back on revision days rather than dumping it into study days.
  */
-function redateAndFixRest(days: DayPlan[], startDate: string): PlanTask[] {
-  const displaced: PlanTask[] = [];
+function redateAndFixRest(
+  days: DayPlan[],
+  startDate: string
+): { core: PlanTask[]; review: PlanTask[]; mock: PlanTask[] } {
+  const displaced = { core: [] as PlanTask[], review: [] as PlanTask[], mock: [] as PlanTask[] };
   days.forEach((d, i) => {
     d.day = i + 1;
     d.date = addDays(startDate, i);
   });
   for (const d of days) {
+    // The trailing mock / behavioral days are appended OUTSIDE the core
+    // 21-day grind, so the "no work on Sunday" rest cadence doesn't apply to
+    // them. Leave them entirely alone — converting one to a rest day here
+    // would strand its tasks (they'd be wiped on the next study-day refill).
+    if (d.phase === "mock" || d.phase === "behavioral") continue;
     if (isSundayISO(d.date)) {
-      if (d.tasks.length) { displaced.push(...d.tasks); d.tasks = []; }
+      if (d.tasks.length) {
+        const into = d.type === "review" ? displaced.review : d.type === "mock" ? displaced.mock : displaced.core;
+        into.push(...d.tasks);
+        d.tasks = [];
+      }
       d.type = "rest";
       d.phase = "review";
       d.label = "Rest day";
@@ -834,15 +847,19 @@ export function rebalancePlan(
   // Mutable: extend mode splices extra study days into the core span.
   let coreCount = Math.min(plan.durationDays, days.length);
 
-  // 1. Strip unfinished work off past days. Behavioral tasks have no
-  //    completion toggle so they'd carry forever — leave them where they are.
-  //    Per-day recall prompts ("redo today's AM problems") are tied to that
+  // 1. Strip unfinished work off past days, bucketed by the KIND of day it
+  //    came from, so it can be put back on the same kind of day later.
+  //    Behavioral tasks have no completion toggle so they'd carry forever —
+  //    leave them where they are. Per-day recall prompts are tied to that
   //    day's content and every new day generates its own, so they're dropped
   //    rather than carried stale.
-  const carried: PlanTask[] = [];
+  const carried: PlanTask[] = [];        // from learn / practice days
+  const carriedReview: PlanTask[] = [];  // from revision days
+  const carriedMock: PlanTask[] = [];    // from mock days
   for (let i = 0; i < todayIdx; i++) {
     const d = days[i];
     if (!d || d.type === "rest") continue;
+    const bucket = d.type === "review" ? carriedReview : d.type === "mock" ? carriedMock : carried;
     const keep: PlanTask[] = [];
     for (const t of d.tasks) {
       if (isDone(t)) { keep.push(t); continue; }            // finished work stays as history
@@ -852,30 +869,59 @@ export function rebalancePlan(
       // every study day generates its own prompt, so this one is dropped
       // rather than carried stale or left behind looking unfinished.
       if (t.id.startsWith("recall-")) continue;
-      carried.push(markCarried(t));
+      bucket.push(markCarried(t));
     }
     d.tasks = keep;
   }
-  if (carried.length === 0) return { plan: { ...plan, days }, info: none };
+  if (carried.length + carriedReview.length + carriedMock.length === 0) {
+    return { plan: { ...plan, days }, info: none };
+  }
 
   const compress = Boolean(interviewDate);
 
-  // Days eligible to receive carried work: study days from today onward,
-  // inside the core span (never the trailing mock / behavioral days).
-  const eligible = (): number[] => {
+  // Slots of a given day type from today onward. Carried work always goes back
+  // onto the same kind of day it came from: missed revision lands on a future
+  // revision day, a missed mock on a future mock — never mixed into a normal
+  // study day, where recall drills and fresh learning would fight each other.
+  const slotsOfType = (types: DayType[], searchWholePlan = false): number[] => {
+    const end = searchWholePlan ? days.length : coreCount;
     const out: number[] = [];
-    for (let i = todayIdx; i < coreCount; i++) {
+    for (let i = todayIdx; i < end; i++) {
       const d = days[i];
-      if (!d || d.type === "rest") continue;
-      if (d.phase === "mock" || d.phase === "behavioral") continue;
+      if (!d || !types.includes(d.type)) continue;
       if (compress && interviewDate && d.date > interviewDate) continue;
       out.push(i);
     }
     return out;
   };
 
+  // Study days — the only ones that receive carried core work.
+  const eligible = (): number[] => slotsOfType(["learn", "practice"]);
+
+  // Spread a bucket evenly over its matching slots. If no matching slot is
+  // left (e.g. the last revision day is already behind us), fall back to study
+  // days so the work is still surfaced rather than silently dropped.
+  const placeBucket = (bucketTasks: PlanTask[], types: DayType[], wholePlan = false) => {
+    if (bucketTasks.length === 0) return;
+    let slots = slotsOfType(types, wholePlan);
+    if (slots.length === 0) slots = eligible();
+    if (slots.length === 0) return; // nothing left anywhere; handled by caller
+    const chunks = chunkEvenly(bucketTasks, slots.length);
+    slots.forEach((dayIdx, ci) => {
+      days[dayIdx].tasks = [...days[dayIdx].tasks, ...chunks[ci]];
+    });
+  };
+
+  // Route revision and mock work to their own day types up front, so the
+  // core-work logic below only ever deals with study days.
+  placeBucket(carriedReview, ["review"]);
+  placeBucket(carriedMock, ["mock"], true);
+
+  const totalCarried = carried.length + carriedReview.length + carriedMock.length;
+
   if (compress) {
-    // Deadline is fixed — spread carried work across what's left, no new days.
+    // Deadline is fixed — spread carried core work across what's left, no new
+    // days. Revision/mock work was already routed to its own day types above.
     const slots = eligible();
     if (slots.length === 0) {
       // Nothing left before the interview: dump on the soonest working day so
@@ -884,7 +930,7 @@ export function rebalancePlan(
       if (fallback >= 0) days[fallback].tasks.push(...carried);
       return {
         plan: { ...plan, days },
-        info: { mode: "compress", carriedCount: carried.length, daysAdded: 0, overloaded: true },
+        info: { mode: "compress", carriedCount: totalCarried, daysAdded: 0, overloaded: true },
       };
     }
     const chunks = chunkEvenly(carried, slots.length);
@@ -899,7 +945,7 @@ export function rebalancePlan(
       plan: { ...plan, days },
       info: {
         mode: "compress",
-        carriedCount: carried.length,
+        carriedCount: totalCarried,
         daysAdded: 0,
         overloaded: worstRatio > 1.6,
       },
@@ -959,8 +1005,13 @@ export function rebalancePlan(
     days.splice(coreCount, 0, blankStudyDay());
     coreCount += 1;
     daysAdded++;
+    // Inserting a day shifts every later day by one weekday, so a revision or
+    // mock day can land on a Sunday. Put anything displaced back onto its own
+    // kind of day; only core work rejoins the study-day stream.
     const displaced = redateAndFixRest(days, plan.startDate);
-    if (displaced.length) stream.push(...displaced);
+    if (displaced.review.length) placeBucket(displaced.review, ["review"]);
+    if (displaced.mock.length) placeBucket(displaced.mock, ["mock"], true);
+    if (displaced.core.length) stream.push(...displaced.core);
   }
 
   // Clear any day that ended up with nothing so it doesn't render as an empty
@@ -973,7 +1024,7 @@ export function rebalancePlan(
 
   return {
     plan: { ...plan, days },
-    info: { mode: "extend", carriedCount: carried.length, daysAdded, overloaded: false },
+    info: { mode: "extend", carriedCount: totalCarried, daysAdded, overloaded: false },
   };
 }
 
