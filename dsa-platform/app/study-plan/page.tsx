@@ -117,6 +117,21 @@ export default function StudyPlanPage() {
   }, [plan, todayIdx, isDoneTask]);
   const daysBehind = todayIdx - currentIdx;
 
+  // Rebalance notice is a dismissible toast, not a permanent banner. Dismissal
+  // is remembered per calendar day — closing it hides it for today, but if you
+  // miss another day it pops again the next day. Keyed on the day so it can't
+  // nag on every reload.
+  const rebalanceSig = today;
+  const [rebalanceDismissed, setRebalanceDismissed] = useState<string | null>(null);
+  useEffect(() => {
+    try { setRebalanceDismissed(localStorage.getItem("studyplan-rebalance-dismissed")); } catch { /* ignore */ }
+  }, []);
+  const showRebalanceToast = rebalance.mode !== "none" && rebalanceDismissed !== rebalanceSig;
+  function dismissRebalance() {
+    try { localStorage.setItem("studyplan-rebalance-dismissed", rebalanceSig); } catch { /* ignore */ }
+    setRebalanceDismissed(rebalanceSig);
+  }
+
   // Readiness — a single running signal instead of waiting until the last
   // day to find out. Blends actual completion across DSA/SE/SD/LLD (deduped
   // by underlying id, so a problem re-listed on a review/mock day only
@@ -308,6 +323,60 @@ export default function StudyPlanPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
+      {/* Missed-day rebalance toast — dismissible; remembered per day */}
+      {showRebalanceToast && (
+        <div style={{
+          position: "fixed", top: isMobile ? 12 : 20, left: "50%", transform: "translateX(-50%)",
+          zIndex: 90, width: "min(560px, calc(100vw - 24px))",
+          display: "flex", alignItems: "flex-start", gap: 10, padding: "12px 14px",
+          borderRadius: 10,
+          background: rebalance.overloaded ? "rgba(30,16,16,0.98)" : "rgba(14,26,20,0.98)",
+          border: `1px solid ${rebalance.overloaded ? "rgba(239,68,68,0.4)" : "rgba(47,191,113,0.4)"}`,
+          boxShadow: "0 8px 28px rgba(0,0,0,0.5)",
+          backdropFilter: "blur(6px)",
+          animation: "sp-toast-in 0.25s ease",
+        }}>
+          <style>{`@keyframes sp-toast-in{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translate(-50%,0)}}`}</style>
+          <span style={{ fontSize: 15, lineHeight: "18px", flexShrink: 0 }}>{rebalance.overloaded ? "⚠" : "↺"}</span>
+          <div style={{ fontSize: 12.5, lineHeight: 1.55, color: "var(--text-secondary)", flex: 1 }}>
+            <strong style={{ color: rebalance.overloaded ? "#EF4444" : "#2FBF71" }}>
+              {rebalance.carriedCount} task{rebalance.carriedCount > 1 ? "s" : ""} carried forward
+            </strong>
+            {rebalance.mode === "extend" ? (
+              <>
+                {" — "}nothing was lost. Your missed work moved into today and everything after it
+                shifted along, so the plan now runs{" "}
+                <strong style={{ color: "var(--text-primary)" }}>
+                  {rebalance.daysAdded} day{rebalance.daysAdded === 1 ? "" : "s"} longer
+                </strong>
+                . Daily load is unchanged. Set an interview date to compress instead of extend.
+              </>
+            ) : rebalance.overloaded ? (
+              <>
+                {" — "}but there aren&apos;t enough days left before your interview to absorb it
+                comfortably. The remaining days are now heavier than normal. Consider trimming
+                scope rather than trying to do everything.
+              </>
+            ) : (
+              <>
+                {" — "}nothing was lost. Because you have an interview date set, the plan
+                can&apos;t run longer, so the missed work was spread thinly across the days you
+                have left. Your finish date is unchanged.
+              </>
+            )}
+          </div>
+          <button
+            onClick={dismissRebalance}
+            aria-label="Dismiss"
+            style={{
+              flexShrink: 0, width: 22, height: 22, borderRadius: 5, cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              background: "transparent", border: "1px solid var(--border)", color: "var(--text-muted)",
+              fontSize: 13, lineHeight: 1,
+            }}
+          >✕</button>
+        </div>
+      )}
       <main style={{ maxWidth: 1152, margin: "0 auto", padding: isMobile ? "20px 14px 80px" : "28px 20px 48px" }}>
 
         {/* Header */}
@@ -379,45 +448,6 @@ export default function StudyPlanPage() {
             </div>
           </div>
         </div>
-
-        {/* Missed-day rebalance notice — explains where the carried work went */}
-        {rebalance.mode !== "none" && (
-          <div style={{
-            display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 14px",
-            borderRadius: 8, marginBottom: 16,
-            background: rebalance.overloaded ? "rgba(239,68,68,0.08)" : "rgba(47,191,113,0.07)",
-            border: `1px solid ${rebalance.overloaded ? "rgba(239,68,68,0.25)" : "rgba(47,191,113,0.22)"}`,
-          }}>
-            <span style={{ fontSize: 14, lineHeight: "18px" }}>{rebalance.overloaded ? "⚠" : "↺"}</span>
-            <div style={{ fontSize: 12, lineHeight: 1.6, color: "var(--text-secondary)" }}>
-              <strong style={{ color: rebalance.overloaded ? "#EF4444" : "#2FBF71" }}>
-                {rebalance.carriedCount} task{rebalance.carriedCount > 1 ? "s" : ""} carried forward
-              </strong>
-              {rebalance.mode === "extend" ? (
-                <>
-                  {" — "}nothing was lost. Your missed work moved into today and everything after it
-                  shifted along, so the plan now runs{" "}
-                  <strong style={{ color: "var(--text-primary)" }}>
-                    {rebalance.daysAdded} day{rebalance.daysAdded === 1 ? "" : "s"} longer
-                  </strong>
-                  . Daily load is unchanged. Set an interview date to compress instead of extend.
-                </>
-              ) : rebalance.overloaded ? (
-                <>
-                  {" — "}but there aren&apos;t enough days left before your interview to absorb it
-                  comfortably. The remaining days are now heavier than normal. Consider trimming
-                  scope rather than trying to do everything.
-                </>
-              ) : (
-                <>
-                  {" — "}nothing was lost. Because you have an interview date set, the plan
-                  can&apos;t run longer, so the missed work was spread thinly across the days you
-                  have left. Your finish date is unchanged.
-                </>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* Weekly calendar card */}
         <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: 10, padding: 16, marginBottom: 20 }}>
