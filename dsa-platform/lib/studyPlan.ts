@@ -906,12 +906,23 @@ export function rebalancePlan(
   const carried: PlanTask[] = [];        // from learn / practice days
   const carriedReview: PlanTask[] = [];  // from revision days
   const carriedMock: PlanTask[] = [];    // from mock days
-  // A task carried onto today and solved THERE must count as today's
-  // progress, not snap back onto the past day it was originally scheduled
-  // for — otherwise checking it off makes it vanish from today's list (no
-  // credit) while the redistribution below pulls in a different task to
-  // fill the gap, which reads as "today's work turned into tomorrow's".
-  const doneLate: PlanTask[] = [];
+  // A task carried forward and solved LATER must count on the day it was
+  // actually solved, not snap back onto the past day it was originally
+  // scheduled for — otherwise checking it off makes it vanish with no
+  // credit anywhere visible, and the redistribution below pulls in a
+  // different task to fill the gap, which reads as "today's work turned
+  // into tomorrow's". Bucketed by the exact day it was solved on (not always
+  // "today") so this doesn't re-pile the same historical completions onto
+  // every new "today" forever as the plan moves forward.
+  const dateToIdx = new Map<string, number>();
+  days.forEach((d, i) => dateToIdx.set(d.date, i));
+  const doneLateByDay = new Map<number, PlanTask[]>();
+  const queueDoneLate = (t: PlanTask, solvedOn: string) => {
+    const idx = dateToIdx.get(solvedOn) ?? todayIdx;
+    const arr = doneLateByDay.get(idx) ?? [];
+    arr.push(t);
+    doneLateByDay.set(idx, arr);
+  };
   for (let i = 0; i < todayIdx; i++) {
     const d = days[i];
     if (!d || d.type === "rest") continue;
@@ -920,7 +931,7 @@ export function rebalancePlan(
     for (const t of d.tasks) {
       if (isDone(t)) {
         const solvedOn = getSolvedDate?.(t);
-        if (solvedOn && solvedOn > d.date) { doneLate.push(t); continue; } // solved after this day had already passed
+        if (solvedOn && solvedOn > d.date) { queueDoneLate(t, solvedOn); continue; } // solved after this day had already passed
         keep.push(t); continue;            // finished on time — stays as history
       }
       if (t.domain === "behavioral") { keep.push(t); continue; } // no toggle → would carry forever
@@ -933,12 +944,17 @@ export function rebalancePlan(
     }
     d.tasks = keep;
   }
-  // doneLate is appended onto today's day right before each return below —
-  // not here — since extend mode still pulls days[todayIdx].tasks into its
-  // redistribution stream further down; appending before that would let
-  // already-done work get reshuffled onto some other day like everything else.
+  // Applied right before each return below — not here — since extend mode
+  // still pulls days[todayIdx].tasks into its redistribution stream further
+  // down; applying before that would let already-done work get reshuffled
+  // onto some other day like everything else.
+  const applyDoneLate = () => {
+    for (const [idx, tasks] of doneLateByDay) {
+      if (days[idx]) days[idx].tasks = [...days[idx].tasks, ...tasks];
+    }
+  };
   if (carried.length + carriedReview.length + carriedMock.length === 0) {
-    if (doneLate.length) days[todayIdx].tasks = [...days[todayIdx].tasks, ...doneLate];
+    applyDoneLate();
     normalizeDayOrder(days);
     return { plan: { ...plan, days }, info: none };
   }
@@ -994,7 +1010,7 @@ export function rebalancePlan(
       // the work is at least still visible rather than silently dropped.
       const fallback = days.findIndex((d, i) => i >= todayIdx && d.type !== "rest");
       if (fallback >= 0) days[fallback].tasks.push(...carried);
-      if (doneLate.length) days[todayIdx].tasks = [...days[todayIdx].tasks, ...doneLate];
+      applyDoneLate();
       normalizeDayOrder(days);
       return {
         plan: { ...plan, days },
@@ -1009,7 +1025,7 @@ export function rebalancePlan(
       const after = totalEffort(days[dayIdx].tasks);
       if (before > 0) worstRatio = Math.max(worstRatio, after / before);
     });
-    if (doneLate.length) days[todayIdx].tasks = [...days[todayIdx].tasks, ...doneLate];
+    applyDoneLate();
     normalizeDayOrder(days);
     return {
       plan: { ...plan, days },
@@ -1084,7 +1100,7 @@ export function rebalancePlan(
     if (displaced.core.length) stream.push(...displaced.core);
   }
 
-  if (doneLate.length) days[todayIdx].tasks = [...days[todayIdx].tasks, ...doneLate];
+  applyDoneLate();
 
   // Clear any day that ended up with nothing so it doesn't render as an empty
   // work day, and refresh labels.
