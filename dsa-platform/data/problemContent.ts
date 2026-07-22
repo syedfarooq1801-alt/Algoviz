@@ -11,6 +11,12 @@ const RICH_OVERRIDES: Record<string, import("./problemContent.generated").Proble
     constraints: ["2 <= nums.length <= 10^4","-10^9 <= nums[i] <= 10^9","-10^9 <= target <= 10^9","Exactly one valid answer exists"],
     intuition:
       "Brute force checks every pair in O(n²). The insight: if we need a + b = target, then b = target - a. Store each number in a hash map as we walk the array. For each number, instantly check if its complement already exists.",
+    recognize: [
+      "Need a PAIR of indices summing to a target — not just a single value.",
+      "\"Exactly one valid answer exists\" — no need to search for multiple solutions.",
+      "O(n²) brute force is obvious; array size up to 10^4 hints at wanting better.",
+      "→ Hash map: store seen values, check for target − current as you go.",
+    ],
     approach: [
       "Create an empty hash map (value → index).",
       "Iterate through the array with index i.",
@@ -57,6 +63,12 @@ public:
     constraints: ["1 <= nums.length <= 10^5","-10^9 <= nums[i] <= 10^9"],
     intuition:
       "We need to know if any value appears more than once. Hash set membership check is O(1). Walk the array: if element is already in set, we found a duplicate. Otherwise add it.",
+    recognize: [
+      "Just need true/false on \"does any value repeat\" — not which value or how many times.",
+      "No ordering or subarray constraint — any occurrence anywhere counts.",
+      "Sorting would work but costs O(n log n); a set gets O(n).",
+      "→ Walk once, check membership in a hash set before inserting.",
+    ],
     approach: [
       "Create an empty hash set.",
       "For each number in the array:",
@@ -100,6 +112,12 @@ public:
     constraints: ["1 <= s.length, t.length <= 5 * 10^4","s and t consist of lowercase English letters"],
     intuition:
       "Two strings are anagrams if they contain the same characters with the same frequencies. Sort both and compare — O(n log n). Better: count character frequencies using array of size 26 or hash map, then compare counts.",
+    recognize: [
+      "\"Anagram\" means same letters, same counts, order doesn't matter.",
+      "Only lowercase English letters — fixed alphabet of 26 fits a small array.",
+      "Different lengths can never be anagrams — an instant early exit.",
+      "→ Count letter frequencies in one string, subtract with the other, check all zero.",
+    ],
     approach: [
       "If lengths differ, return false immediately.",
       "Create frequency array of size 26 (for lowercase letters).",
@@ -146,6 +164,12 @@ public:
     constraints: ["1 <= strs.length <= 10^4","0 <= strs[i].length <= 100","strs[i] consists of lowercase English letters"],
     intuition:
       "Anagrams share the same sorted string. Use sorted string as hash map key. Group all strings with the same key together.",
+    recognize: [
+      "Need to bucket many strings into GROUPS of mutual anagrams — not just compare a pair.",
+      "\"Groups ... in any order\" — no ordering requirement simplifies to bucketing.",
+      "Anagrams collapse to the same sorted form, a ready-made bucket key.",
+      "→ Sort each string's letters as a key, group originals by that key in a hash map.",
+    ],
     approach: [
       "Create hash map: sorted_string → list of original strings.",
       "For each string, sort its characters to get the key.",
@@ -192,6 +216,12 @@ public:
     constraints: ["0 <= s.length <= 5 * 10^4","s consists of English letters, digits, symbols, and spaces"],
     intuition:
       "Track a window [left, right] with no repeating characters. When we add a character that already exists in the window, shrink left until the duplicate is removed. Use hash map to store last seen index of each character for O(1) jump.",
+    recognize: [
+      "\"Longest contiguous substring\" — must be a run of adjacent characters, not any subsequence.",
+      "Constraint is \"no character repeats\" inside that run — a window validity condition.",
+      "Need the length of the best window, which grows and shrinks as we scan.",
+      "→ Sliding window: expand right, jump left past the last duplicate's index.",
+    ],
     approach: [
       "Use hash map to store last index of each character.",
       "Maintain left pointer of current valid window.",
@@ -243,6 +273,12 @@ public:
     constraints: ["1 <= prices.length <= 10^5","0 <= prices[i] <= 10^4"],
     intuition:
       "We want max(prices[j] - prices[i]) where j > i. Equivalently: track the minimum price seen so far, and for each day, compute profit if we sold today. Keep track of maximum profit seen.",
+    recognize: [
+      "Single buy, single sell, sell day must come after buy day — one pass suffices.",
+      "Just need the best profit value, not the actual days.",
+      "\"Return 0 if no profit is possible\" — handles the all-decreasing case for free.",
+      "→ Track the running minimum price, compare against profit if sold today.",
+    ],
     approach: [
       "Initialize minPrice = infinity, maxProfit = 0.",
       "For each price in the array:",
@@ -286,6 +322,12 @@ public:
     constraints: ["1 <= s.length <= 10^4","s consists only of the characters '()[]{}'"],
     intuition:
       "Every closing bracket must match the most recently opened bracket. Stack perfectly models this LIFO requirement: push opening brackets, pop when we see closing bracket and verify match.",
+    recognize: [
+      "String of only bracket characters — need to validate nesting and matching order.",
+      "\"Most recently opened must close first\" — that's LIFO, the definition of a stack.",
+      "Wrong order like \"([)]\" must fail even though each bracket type is balanced in count.",
+      "→ Push openers, pop-and-match on closers, stack must end empty.",
+    ],
     approach: [
       "Create a stack.",
       "For each character:",
@@ -337,6 +379,12 @@ public:
     constraints: ["1 <= nums.length <= 10^4","-10^4 < nums[i], target < 10^4","All the integers in nums are unique","nums is sorted in ascending order"],
     intuition:
       "Array is sorted. At each step, compare middle element with target. If equal, found. If target > mid, answer is in right half. If target < mid, answer is in left half. Each step halves the search space.",
+    recognize: [
+      "\"sorted in ascending order\" plus a required logarithmic runtime — a linear scan won't qualify.",
+      "Single target lookup, unique values — no need to track ranges or duplicates.",
+      "n up to 10^4 easily allows log n, ruling out only brute force here.",
+      "→ Sorted array + log-time requirement means binary search: halve the range each step.",
+    ],
     approach: [
       "Initialize left = 0, right = n-1.",
       "While left <= right:",
@@ -441,6 +489,12 @@ public:
     constraints: ["1 <= n <= 45"],
     intuition:
       "To reach step n, you can come from step n-1 (1 step) or step n-2 (2 steps). So ways(n) = ways(n-1) + ways(n-2). This is exactly the Fibonacci sequence! ways(1)=1, ways(2)=2.",
+    recognize: [
+      "\"Number of distinct sequences of moves\" — a COUNT, not the moves themselves.",
+      "Each step only has two choices (1 or 2), and reaching step n depends only on n-1 and n-2.",
+      "Small recurrence with overlapping subproblems — the Fibonacci pattern in disguise.",
+      "→ dp[n] = dp[n-1] + dp[n-2], built bottom-up from two base cases.",
+    ],
     approach: [
       "Base cases: dp[1] = 1, dp[2] = 2.",
       "For i from 3 to n: dp[i] = dp[i-1] + dp[i-2].",
@@ -485,6 +539,12 @@ public:
     constraints: ["1 <= nums.length <= 100","0 <= nums[i] <= 400"],
     intuition:
       "Can't rob adjacent houses. For each house, decide: rob it (gain + skip previous) or skip it (take whatever was best up to previous). dp[i] = max(dp[i-2] + nums[i], dp[i-1]).",
+    recognize: [
+      "\"Cannot rob two adjacent\" — a constraint that rules out simply taking every big value greedily.",
+      "Asks for the MAXIMUM total, and each house's best choice depends on the two before it.",
+      "Small linear array with a local adjacency rule — classic 1D decision DP.",
+      "→ dp[i] = max(rob this house + dp[i-2], skip it and keep dp[i-1]).",
+    ],
     approach: [
       "If empty array, return 0.",
       "Track two values: prev2 = best up to 2 houses ago, prev1 = best up to 1 house ago.",
@@ -592,6 +652,12 @@ public:
     constraints: ["1 <= coins.length <= 12","1 <= coins[i] <= 2^31 - 1","0 <= amount <= 10^4","all values in coins are unique"],
     intuition:
       "Find minimum coins to make amount. Greedy doesn't always work (e.g., coins=[1,3,4], amount=6 → greedy gives 4+1+1=3 but 3+3=2 is better). Use DP: dp[i] = min coins to make amount i.",
+    recognize: [
+      "\"Minimum number of coins\" with unlimited supply of each denomination.",
+      "Greedy fails here — mention of arbitrary denominations rules out always-take-largest-coin.",
+      "Asks for an optimal count over unbounded choices — classic unbounded knapsack shape.",
+      "→ Build dp[amount] bottom-up from dp[0]=0 using every coin.",
+    ],
     approach: [
       "Initialize dp array of size amount+1 with INT_MAX (impossible).",
       "Base case: dp[0] = 0.",
@@ -686,6 +752,12 @@ public:
     constraints: ["1 <= nums.length <= 10^5","-10^4 <= nums[i] <= 10^4"],
     intuition:
       "Kadane's algorithm: at each position, decide — should I extend the existing subarray or start fresh? If current sum + nums[i] < nums[i], the current sum is dragging us down. Start fresh from nums[i].",
+    recognize: [
+      "Need the max sum of a CONTIGUOUS subarray, not any subset — rules out sorting or picking freely.",
+      "n up to 10^5 rules out checking every subarray (O(n^2)) — need one linear pass.",
+      "A running sum can go negative and drag future sums down — a local reset decision at each step.",
+      "→ Kadane's: extend or restart at each index, tracking the best sum seen.",
+    ],
     approach: [
       "Initialize currentSum = nums[0], maxSum = nums[0].",
       "For i from 1 to n-1:",
@@ -728,6 +800,12 @@ public:
     constraints: ["1 <= nums.length <= 3 * 10^4","-3 * 10^4 <= nums[i] <= 3 * 10^4","Each element appears twice except for one which appears exactly once"],
     intuition:
       "XOR properties: a XOR a = 0, a XOR 0 = a. If every number appears twice except one, XOR all numbers together — pairs cancel out (→ 0), leaving only the single number.",
+    recognize: [
+      "\"Every element appears exactly twice except one\" — pairs need to vanish, one value must survive.",
+      "\"Linear time, constant extra space\" rules out a hash map of counts.",
+      "Order doesn't matter and there's no comparison needed — just cancellation, which XOR does natively.",
+      "→ XOR every element together; duplicate pairs cancel, the lone value remains.",
+    ],
     approach: [
       "Initialize result = 0.",
       "XOR every number in the array with result.",
@@ -816,6 +894,12 @@ public:
     constraints: ["1 <= word.length, prefix.length <= 2000","word and prefix consist only of lowercase English letters","At most 3 * 10^4 total calls will be made to insert, search, and startsWith"],
     intuition:
       "Trie stores strings letter by letter in a tree. Each path from root to an isEnd node represents a word. Insert: walk/create nodes for each letter. Search: walk nodes, check isEnd. StartsWith: walk nodes, return true if all exist.",
+    recognize: [
+      "\"Design\" a structure supporting insert/search/startsWith on words — not a single algorithm question.",
+      "Prefix check (\"startsWith\") is a first-class operation, not just exact match.",
+      "Many repeated calls share common letter prefixes — suggests a shared tree of characters.",
+      "→ Build a Trie: one node per character, isEnd flag marks complete words.",
+    ],
     approach: [
       "Each node has children map (char → node) and isEnd flag.",
       "Insert: for each char, create node if missing, walk to child, mark last node isEnd.",
@@ -886,6 +970,12 @@ public:
     constraints: ["1 <= nums.length <= 10","-10 <= nums[i] <= 10","All the numbers in nums are unique"],
     intuition:
       "Every element has two choices: include or exclude. This gives 2^n subsets. Backtracking: at each index, decide include/exclude, recurse, undo. Alternative: iterative bit manipulation.",
+    recognize: [
+      "Asks for EVERY possible subset, not just one valid answer — output size is 2^n.",
+      "Distinct integers, n <= 10 — small enough that exponential enumeration is expected.",
+      "Each element independently is either in or out of a subset — a binary include/exclude choice.",
+      "→ Backtrack through include/exclude at each index, or build iteratively by doubling.",
+    ],
     approach: [
       "Start with result = [[]] (empty subset).",
       "For each num in nums:",
@@ -985,6 +1075,12 @@ public:
     constraints: ["1 <= ransomNote.length, magazine.length <= 10^5","ransomNote and magazine consist of lowercase English letters"],
     intuition:
       "You need to build the ransom note using only letters from the magazine — each magazine letter can be used at most once. This is a frequency-counting problem: count how many of each letter the magazine has, then verify the ransom note never requires more of any letter than the magazine provides.",
+    recognize: [
+      "\"Each letter may be used at most once\" — a supply-vs-demand counting problem, not ordering.",
+      "Only lowercase letters — fixed 26-slot frequency array fits perfectly.",
+      "Need a yes/no on feasibility, not the actual reconstruction.",
+      "→ Count magazine's letters, subtract note's needs, fail on any negative count.",
+    ],
     approach: [
       "Create a frequency array of size 26 (one slot per lowercase letter), initialized to 0.",
       "Walk through the magazine: for each character, increment its count (cnt[c - 'a']++).",
@@ -1030,6 +1126,12 @@ public:
     examples: [{"input":"height = [1,8,6,2,5,4,8,3,7]","output":"49","explanation":"Lines at index 1 (height 8) and index 8 (height 7) give width 7 and height min(8,7)=7, so area = 49, which is the maximum possible."},{"input":"height = [1,1]","output":"1"},{"input":"height = [4,3,2,1,4]","output":"16"}],
     constraints: ["2 <= height.length <= 10^5","0 <= height[i] <= 10^4"],
     intuition: "Two-pointer from both ends. The water height is limited by the shorter wall. To potentially find more water, move the shorter pointer inward — moving the taller one can only make things worse.",
+    recognize: [
+      "\"Choose two lines\" that maximize an area — pairs from an array, screams brute force O(n^2) by default.",
+      "n up to 10^5 rules out checking every pair; need O(n) or O(n log n).",
+      "Area is width times the shorter wall — moving the taller wall inward can never help.",
+      "→ Two pointers from both ends, always move the shorter wall inward.",
+    ],
     approach: [
       "Place left pointer at index 0, right pointer at last index.",
       "Compute area = min(height[left], height[right]) × (right − left).",
@@ -1072,6 +1174,12 @@ public:
     examples: [{"input":"nums = [1,2,3,4]","output":"[24,12,8,6]"},{"input":"nums = [-1,1,0,-3,3]","output":"[0,0,9,0,0]"}],
     constraints: ["2 <= nums.length <= 10^5","-30 <= nums[i] <= 30","The product of any prefix or suffix of nums is guaranteed to fit in a 32-bit integer"],
     intuition: "For each index i, the answer is (product of all elements left of i) × (product of all elements right of i). Compute prefix products left-to-right, then multiply suffix products right-to-left — no division needed.",
+    recognize: [
+      "\"Without using the division operator\" explicitly bans the obvious total/nums[i] trick.",
+      "\"In O(n) time\" rules out the O(n²) all-pairs product per index.",
+      "Each answer[i] needs everything except itself — split cleanly into a left product and a right product.",
+      "→ Prefix pass builds left products, suffix pass multiplies in right products.",
+    ],
     approach: [
       "Initialize result array with all 1s.",
       "Left pass: result[i] = product of all elements before i. Running left product, multiply into result[i] then update.",
@@ -1114,6 +1222,12 @@ public:
     examples: [{"input":"nums = [-1,0,1,2,-1,-4]","output":"[[-1,-1,2],[-1,0,1]]"},{"input":"nums = [0,1,1]","output":"[]","explanation":"No triplet in the array sums to 0."},{"input":"nums = [0,0,0]","output":"[[0,0,0]]"}],
     constraints: ["3 <= nums.length <= 3000","-10^5 <= nums[i] <= 10^5"],
     intuition: "Sort the array, then for each element use two pointers on the rest. Sorting lets us skip duplicates and use the two-pointer squeeze trick from Two Sum II.",
+    recognize: [
+      "Need triplets summing to zero with no duplicate triplets — combinatorial search with dedup built in.",
+      "n up to 3000 rules out brute-force O(n^3); O(n^2) is the expected ceiling.",
+      "Sorting first exposes a two-pointer squeeze for each fixed element and an easy way to skip duplicates.",
+      "→ Sort, fix one element, then two-pointer squeeze on the remainder, skipping repeated values.",
+    ],
     approach: [
       "Sort the array.",
       "For each index i (skip duplicates: if i > 0 && nums[i] == nums[i-1], continue):",
@@ -1169,6 +1283,12 @@ public:
     examples: [{"input":"numbers = [2,7,11,15], target = 9","output":"[1,2]","explanation":"numbers[0] + numbers[1] = 2 + 7 = 9, so the 1-indexed answer is [1,2]."},{"input":"numbers = [2,3,4], target = 6","output":"[1,3]"},{"input":"numbers = [-1,0], target = -1","output":"[1,2]"}],
     constraints: ["2 <= numbers.length <= 3 * 10^4","-1000 <= numbers[i] <= 1000","numbers is sorted in non-decreasing order","-1000 <= target <= 1000","Exactly one valid answer exists"],
     intuition: "Array is sorted. Use two pointers from both ends. If sum too big move right inward, if too small move left outward. Guaranteed one solution.",
+    recognize: [
+      "Array explicitly \"sorted in non-decreasing order\" — a strong hint two pointers beat hashing here.",
+      "\"Constant extra space\" rules out the hashmap approach used for unsorted Two Sum.",
+      "Exactly one solution guaranteed — pointers can move monotonically without backtracking.",
+      "→ Two pointers from both ends: sum too big shrinks right, too small grows left.",
+    ],
     approach: [
       "left = 0, right = n-1.",
       "While left < right: sum = numbers[left] + numbers[right].",
@@ -1210,6 +1330,12 @@ public:
     examples: [{"input":"s = \"A man, a plan, a canal: Panama\"","output":"true","explanation":"After removing non-alphanumeric characters and lowercasing, it becomes \"amanaplanacanalpanama\", which is a palindrome."},{"input":"s = \"race a car\"","output":"false"},{"input":"s = \" \"","output":"true","explanation":"After removing non-alphanumeric characters, the string is empty, which is trivially a palindrome."}],
     constraints: ["1 <= s.length <= 2 * 10^5","s consists only of printable ASCII characters"],
     intuition: "Two pointers from both ends. Skip non-alphanumeric characters, compare lowercased chars. If any mismatch, not palindrome.",
+    recognize: [
+      "\"Ignore case\" and \"only alphanumeric\" — noise characters are mixed in with the real content.",
+      "Asks whether it \"reads the same forwards and backwards\" — a mirror-symmetry check.",
+      "Comparing from both ends needs only a single pass, no need to build a cleaned copy first.",
+      "→ Two pointers from both ends, skipping non-alphanumeric chars and comparing lowercased characters.",
+    ],
     approach: [
       "left = 0, right = n-1.",
       "While left < right: skip non-alphanumeric on both sides.",
@@ -1254,6 +1380,12 @@ public:
     examples: [{"input":"nums = [100,4,200,1,3,2]","output":"4","explanation":"The longest consecutive sequence is 1, 2, 3, 4."},{"input":"nums = [0,3,7,2,5,8,4,6,0,1]","output":"9","explanation":"The longest consecutive sequence is 0,1,2,3,4,5,6,7,8."}],
     constraints: ["0 <= nums.length <= 10^5","-10^9 <= nums[i] <= 10^9"],
     intuition: "Put all numbers in a hash set. For each number that is the START of a sequence (n-1 not in set), count how long the consecutive run is. This ensures O(n) — each number is the start of at most one sequence.",
+    recognize: [
+      "\"Unsorted\" plus \"O(n) time\" — sorting first (O(n log n)) is explicitly too slow.",
+      "\"Do not need to appear in order within nums\" — only value continuity matters, not positions.",
+      "Need the length of the best run of consecutive integers, not the run itself.",
+      "→ Hash set of all values; only start counting from numbers whose n−1 is absent.",
+    ],
     approach: [
       "Insert all numbers into unordered_set.",
       "For each number n: if (n-1) is in the set, skip (not a sequence start).",
@@ -1301,6 +1433,12 @@ public:
     examples: [{"input":"nums = [0,1,0,3,12]","output":"[1,3,12,0,0]"},{"input":"nums = [0]","output":"[0]"}],
     constraints: ["1 <= nums.length <= 10^4","-2^31 <= nums[i] <= 2^31 - 1"],
     intuition: "Two-pointer in-place. One pointer (insert) tracks where next non-zero goes. Walk the array — when non-zero found, swap it to insert position, advance both.",
+    recognize: [
+      "\"Move all zeros to the end\" while keeping the rest in relative order — an in-place partition.",
+      "\"In-place without making a copy\" rules out building a new array.",
+      "Only one class of element (zero) needs pushing aside — a single write pointer suffices.",
+      "→ Two pointers: write pointer marks where the next non-zero goes, swap it in as you scan.",
+    ],
     approach: [
       "insert = 0.",
       "For each i: if nums[i] != 0, swap(nums[insert], nums[i]), insert++.",
@@ -1334,6 +1472,12 @@ public:
     examples: [{"input":"s = \"ABAB\", k = 2","output":"4","explanation":"Replace the two 'A's or the two 'B's to get a string like \"AAAA\" or \"BBBB\"."},{"input":"s = \"AABABBA\", k = 1","output":"4","explanation":"Replace one 'B' in \"AABA\" to get \"AAAA\", length 4."},{"input":"s = \"ABBB\", k = 2","output":"4"}],
     constraints: ["1 <= s.length <= 10^5","s consists of only uppercase English letters","0 <= k <= s.length"],
     intuition: "Sliding window. Key insight: window is valid if (window size − count of most frequent char) ≤ k. We can replace the minority chars. Expand right always, shrink left when invalid.",
+    recognize: [
+      "\"At most k changes\" to make one contiguous run of a single letter — a window with a budget.",
+      "Need the longest such substring, so windows should grow whenever still affordable.",
+      "Validity check is cheap: window length minus its most frequent letter's count vs k.",
+      "→ Sliding window; shrink left only when replacements needed exceed k.",
+    ],
     approach: [
       "left = 0, maxCount = 0, freq map.",
       "For each right: increment freq[s[right]], update maxCount = max(maxCount, freq[s[right]]).",
@@ -1376,6 +1520,12 @@ public:
     examples: [{"input":"s1 = \"ab\", s2 = \"eidbaooo\"","output":"true","explanation":"\"ba\" is a substring of s2 and is a permutation of \"ab\"."},{"input":"s1 = \"ab\", s2 = \"eidboaoo\"","output":"false"},{"input":"s1 = \"adc\", s2 = \"dcda\"","output":"true"}],
     constraints: ["1 <= s1.length, s2.length <= 10^4","s1 and s2 consist of lowercase English letters only"],
     intuition: "Fixed-size sliding window of length len(s1). Check if character frequencies in window match s1's frequencies. Slide window across s2.",
+    recognize: [
+      "\"Permutation\" of s1 means same letters/counts in any order — a fixed-size frequency match, not exact substring.",
+      "Substring must be contiguous in s2, and its length is always exactly len(s1).",
+      "Fixed window size that never grows or shrinks — a strong sliding-window signal.",
+      "→ Slide a window of size len(s1) across s2, comparing frequency arrays.",
+    ],
     approach: [
       "Count frequencies of s1 chars in array need[26].",
       "Maintain window frequency have[26] for window of size len(s1) in s2.",
@@ -1424,6 +1574,12 @@ public:
     examples: [{"input":"s = \"ADOBECODEBANC\", t = \"ABC\"","output":"\"BANC\"","explanation":"\"BANC\" is the smallest substring of s containing 'A', 'B', and 'C'."},{"input":"s = \"a\", t = \"a\"","output":"\"a\""},{"input":"s = \"a\", t = \"aa\"","output":"\"\"","explanation":"s only has one 'a', so it cannot contain two copies required by t."}],
     constraints: ["1 <= s.length, t.length <= 10^5","s and t consist of uppercase and lowercase English letters","It is guaranteed a valid answer, if one exists, is unique"],
     intuition: "Sliding window with variable size. Expand right to include needed chars, contract left to minimize window once all chars are covered. Track 'formed' count — how many unique chars satisfy required frequency.",
+    recognize: [
+      "Need the SMALLEST substring of s covering all of t's characters, including duplicates — a shrinkable window.",
+      "\"Any order\" for characters of t means only counts matter, not sequence.",
+      "Window must first become valid (expand), then be minimized (contract) — classic variable window.",
+      "→ Expand right until all t's requirements are met, then shrink left while still valid.",
+    ],
     approach: [
       "Build need map from t. formed = 0, required = need.size().",
       "Expand r: add s[r] to window, if window[s[r]] == need[s[r]] increment formed.",
@@ -1478,6 +1634,12 @@ public:
     examples: [{"input":"nums = [1,3,-1,-3,5,3,6,7], k = 3","output":"[3,3,5,5,6,7]"},{"input":"nums = [1], k = 1","output":"[1]"},{"input":"nums = [9,11], k = 2","output":"[11]"}],
     constraints: ["1 <= nums.length <= 10^5","-10^4 <= nums[i] <= 10^4","1 <= k <= nums.length"],
     intuition: "Use a monotonic deque (decreasing). Back of deque is always the index of the current max. When sliding, pop front if out of window, pop back if new element is larger (they're useless now).",
+    recognize: [
+      "Fixed-size window sliding across the whole array, need the max at every position.",
+      "Recomputing max per window naively costs O(n·k); n up to 10^5 suggests that's too slow.",
+      "A value smaller than one entering the window can never become the max again — safe to discard it.",
+      "→ Monotonic decreasing deque of indices; front is always the current window's max.",
+    ],
     approach: [
       "Use deque storing indices. Maintain decreasing order of values.",
       "For each i: pop front if deque front < i - k + 1 (out of window).",
@@ -1524,6 +1686,12 @@ public:
     examples: [{"input":"cardPoints = [1,2,3,4,5,6,1], k = 3","output":"12","explanation":"Taking the three rightmost cards (6, 1) plus one more from an optimal end selection sums to 12; concretely taking [4,5,6] or the equivalent rightmost run gives the max total of 12."},{"input":"cardPoints = [2,2,2], k = 2","output":"4"},{"input":"cardPoints = [9,7,7,9,7,7,9], k = 7","output":"55","explanation":"k equals the total number of cards, so all cards must be taken."}],
     constraints: ["1 <= cardPoints.length <= 10^5","1 <= cardPoints[i] <= 10^4","1 <= k <= cardPoints.length"],
     intuition: "You take k cards from left or right end. Total = fixed sum of k cards. Equivalently: maximize sum of k cards from ends = total_sum − minimize sum of middle (n−k) subarray. Use sliding window of size n−k.",
+    recognize: [
+      "Only allowed to take from the two ends — combinations of prefix+suffix, not arbitrary subsets.",
+      "Total cards taken is always exactly k, a fixed count, so total sum minus leftover is fixed too.",
+      "Maximizing ends taken is equivalent to minimizing a contiguous middle chunk left behind.",
+      "→ Fixed-size sliding window of size n−k over the middle, find its minimum sum.",
+    ],
     approach: [
       "Compute totalSum of all k cards you'd take from left initially.",
       "Slide a window of size (n−k) across the middle, tracking minimum window sum.",
@@ -1569,6 +1737,12 @@ public:
     examples: [{"input":"strs = [\"lint\",\"code\",\"love\",\"you\"]","output":"[\"lint\",\"code\",\"love\",\"you\"]","explanation":"encode(strs) produces some single string, and decoding that string returns the original list unchanged."},{"input":"strs = [\"we\",\"say\",\":\",\"yes\"]","output":"[\"we\",\"say\",\":\",\"yes\"]"}],
     constraints: ["1 <= strs.length <= 200","0 <= strs[i].length <= 200","strs[i] can contain any possible character out of 256 valid ASCII characters"],
     intuition: "Encode each string as its length followed by '#' followed by the string. Decode by reading length, skipping '#', reading that many chars.",
+    recognize: [
+      "Strings \"can contain any possible character\" — any delimiter you pick could appear inside the data itself.",
+      "Need decode(encode(x)) == x exactly — a plain join/split on a separator is ambiguous and unsafe.",
+      "A length prefix is unambiguous regardless of what characters follow it.",
+      "→ Encode as length + delimiter + string; decode by reading the length, then consuming exactly that many chars.",
+    ],
     approach: [
       "Encode: for each s, append to_string(s.size()) + '#' + s.",
       "Decode: parse length (read until '#'), then read exactly that many chars for the string.",
@@ -1619,6 +1793,12 @@ public:
     examples: [{"input":"board = [[\"5\",\"3\",\".\",\".\",\"7\",\".\",\".\",\".\",\".\"],[\"6\",\".\",\".\",\"1\",\"9\",\"5\",\".\",\".\",\".\"],[\".\",\"9\",\"8\",\".\",\".\",\".\",\".\",\"6\",\".\"],[\"8\",\".\",\".\",\".\",\"6\",\".\",\".\",\".\",\"3\"],[\"4\",\".\",\".\",\"8\",\".\",\"3\",\".\",\".\",\"1\"],[\"7\",\".\",\".\",\".\",\"2\",\".\",\".\",\".\",\"6\"],[\".\",\"6\",\".\",\".\",\".\",\".\",\"2\",\"8\",\".\"],[\".\",\".\",\".\",\"4\",\"1\",\"9\",\".\",\".\",\"5\"],[\".\",\".\",\".\",\".\",\"8\",\".\",\".\",\"7\",\"9\"]]","output":"true"},{"input":"board = [[\"8\",\"3\",\".\",\".\",\"7\",\".\",\".\",\".\",\".\"],[\"6\",\".\",\".\",\"1\",\"9\",\"5\",\".\",\".\",\".\"],[\".\",\"9\",\"8\",\".\",\".\",\".\",\".\",\"6\",\".\"],[\"8\",\".\",\".\",\".\",\"6\",\".\",\".\",\".\",\"3\"],[\"4\",\".\",\".\",\"8\",\".\",\"3\",\".\",\".\",\"1\"],[\"7\",\".\",\".\",\".\",\"2\",\".\",\".\",\".\",\"6\"],[\".\",\"6\",\".\",\".\",\".\",\".\",\"2\",\"8\",\".\"],[\".\",\".\",\".\",\"4\",\"1\",\"9\",\".\",\".\",\"5\"],[\".\",\".\",\".\",\".\",\"8\",\".\",\".\",\"7\",\"9\"]]","output":"false","explanation":"The top-left 3x3 box now contains the digit 8 twice (row 0 and row 3, column 0)."}],
     constraints: ["board.length == 9","board[i].length == 9","board[i][j] is a digit '1'-'9' or '.'"],
     intuition: "Each row, column, and 3×3 box must contain digits 1-9 with no repetition. Use sets (or bit arrays) to track seen digits. Box index = (row/3)*3 + col/3.",
+    recognize: [
+      "Three overlapping constraints — row, column, and 3x3 box — each just a \"no duplicates\" rule.",
+      "Fixed 9x9 board and digits 1-9 — bounded, hash-set-per-group friendly.",
+      "\"Only need to validate\", not solve — no need for backtracking or search.",
+      "→ One seen-set per row, column, and box; fail fast on any repeated digit.",
+    ],
     approach: [
       "Three 9-element arrays of sets: rows[9], cols[9], boxes[9].",
       "For each cell (i,j): if '.', skip.",
@@ -1668,6 +1848,12 @@ public:
     examples: [{"input":"matrix = [[1,2,3],[4,5,6],[7,8,9]]","output":"[[7,4,1],[8,5,2],[9,6,3]]"},{"input":"matrix = [[5,1,9,11],[2,4,8,10],[13,3,6,7],[15,14,12,16]]","output":"[[15,13,2,5],[14,3,4,1],[12,6,8,9],[16,7,10,11]]"}],
     constraints: ["n == matrix.length == matrix[i].length","1 <= n <= 20","-1000 <= matrix[i][j] <= 1000","You must rotate the matrix in place, using O(1) extra space"],
     intuition: "Rotate 90° clockwise = transpose then reverse each row. Transpose: swap matrix[i][j] with matrix[j][i]. Reverse rows: standard reversal.",
+    recognize: [
+      "\"Modifying it directly\" plus O(1) extra space — building a new rotated matrix is off the table.",
+      "Square n x n matrix, 90-degree clockwise — a fixed geometric transform, not a general reshuffle.",
+      "Rotation decomposes into two well-known primitives: transpose and row-reversal.",
+      "→ Transpose along the main diagonal, then reverse each row in place.",
+    ],
     approach: [
       "Transpose: for i in [0,n): for j in [i+1,n): swap(matrix[i][j], matrix[j][i]).",
       "Reverse each row: for each row, reverse(row.begin(), row.end()).",
@@ -1703,6 +1889,12 @@ public:
     examples: [{"input":"matrix = [[1,2,3],[4,5,6],[7,8,9]]","output":"[1,2,3,6,9,8,7,4,5]"},{"input":"matrix = [[1,2,3,4],[5,6,7,8],[9,10,11,12]]","output":"[1,2,3,4,8,12,11,10,9,5,6,7]"}],
     constraints: ["m == matrix.length","n == matrix[i].length","1 <= m, n <= 10","-100 <= matrix[i][j] <= 100"],
     intuition: "Maintain four boundaries: top, bottom, left, right. Traverse right → down → left → up, shrinking the boundary after each direction.",
+    recognize: [
+      "\"Clockwise spiral, starting from top-left, working inward\" — a fixed traversal pattern, not a search.",
+      "Order visited matters, so it can't be solved by simple row/column scans.",
+      "The pattern repeats: sweep an edge, retire it, turn — four shrinking boundaries.",
+      "→ Track top/bottom/left/right walls, sweep each edge in turn and shrink that wall inward.",
+    ],
     approach: [
       "top=0, bottom=m-1, left=0, right=n-1.",
       "While top<=bottom and left<=right:",
@@ -1750,6 +1942,12 @@ public:
     examples: [{"input":"matrix = [[1,1,1],[1,0,1],[1,1,1]]","output":"[[1,0,1],[0,0,0],[1,0,1]]"},{"input":"matrix = [[0,1,2,0],[3,4,5,2],[1,3,1,5]]","output":"[[0,0,0,0],[0,4,5,0],[0,3,1,0]]"}],
     constraints: ["m == matrix.length","n == matrix[0].length","1 <= m, n <= 200","-2^31 <= matrix[i][j] <= 2^31 - 1","Try to solve it using O(1) additional space"],
     intuition: "If cell (i,j) is 0, mark entire row i and col j as zero. Naively scanning and modifying causes cascading false zeros. Solution: first record which rows/cols need zeroing, then apply.",
+    recognize: [
+      "Zeroing a row/column while scanning would create new zeros that trigger more zeroing — a cascade to avoid.",
+      "\"Try to solve it using O(1) additional space\" rules out a separate rows/cols marker set.",
+      "The matrix itself has spare cells (row 0, col 0) that can double as marker storage.",
+      "→ Use the first row and first column as zero-flags, then apply them in a second pass.",
+    ],
     approach: [
       "Scan matrix: collect set of zero rows and zero cols.",
       "Second pass: if row in zeroRows or col in zeroCols, set to 0.",
@@ -1796,6 +1994,12 @@ public:
     examples: [{"input":"s = \"abc\", t = \"ahbgdc\"","output":"true"},{"input":"s = \"axc\", t = \"ahbgdc\"","output":"false"}],
     constraints: ["0 <= s.length <= 100","0 <= t.length <= 10^4","s and t consist only of lowercase English letters"],
     intuition: "Walk both strings with two pointers. When chars match advance both; otherwise advance only the t pointer. If s pointer reaches end, s is a subsequence.",
+    recognize: [
+      "\"Obtained from t by deleting some characters\" without reordering — order preserved, not an exact match.",
+      "s is far shorter than t (100 vs 10^4) — hints at one linear scan of t, not a search per character.",
+      "Only need to know WHETHER all of s can be found in order, not which characters were deleted.",
+      "→ Two pointers: advance through t, only advance s's pointer on a match; s fully matched means true.",
+    ],
     approach: [
       "i = 0 (pointer in s), j = 0 (pointer in t).",
       "While i < s.size() and j < t.size(): if s[i] == t[j], i++. Always j++.",
@@ -1834,6 +2038,12 @@ public:
     examples: [{"input":"tokens = [\"2\",\"1\",\"+\",\"3\",\"*\"]","output":"9","explanation":"(2 + 1) * 3 = 9."},{"input":"tokens = [\"4\",\"13\",\"5\",\"/\",\"+\"]","output":"6","explanation":"13 / 5 truncates to 2, then 4 + 2 = 6."},{"input":"tokens = [\"10\",\"6\",\"9\",\"3\",\"+\",\"-11\",\"*\",\"/\",\"*\",\"17\",\"+\",\"5\",\"+\"]","output":"22"}],
     constraints: ["1 <= tokens.length <= 10^4","Each token is either an operator ('+', '-', '*', '/') or an integer in the range [-200, 200]","The expression is always a valid RPN expression","Division between two integers always truncates toward zero, and the answer fits in a 32-bit integer"],
     intuition: "Stack-based evaluation. Numbers push onto stack. Operators pop two operands, compute, push result. Final stack top is the answer.",
+    recognize: [
+      "\"Reverse Polish (postfix) Notation\" is the keyword — an operator always applies to the two most recent operands.",
+      "Tokens mix numbers and operators, evaluated left to right with no explicit precedence rules to parse.",
+      "\"most recent operands\" is a LIFO relationship, not FIFO.",
+      "→ Push numbers, and on an operator pop two, compute, push the result.",
+    ],
     approach: [
       "For each token:",
       "  — If number: push to stack.",
@@ -1880,6 +2090,12 @@ public:
     examples: [{"input":"[\"MinStack\",\"push\",\"push\",\"push\",\"getMin\",\"pop\",\"top\",\"getMin\"]\n[[],[-2],[0],[-3],[],[],[],[]]","output":"[null,null,null,null,-3,null,0,-2]","explanation":"After pushing -2, 0, -3, getMin returns -3. After popping -3, top is 0 and getMin is now -2."}],
     constraints: ["-2^31 <= val <= 2^31 - 1","Methods pop, top, and getMin will always be called on a non-empty stack","At most 3 * 10^4 calls will be made to push, pop, top, and getMin"],
     intuition: "Maintain two stacks: main stack and a min-tracking stack. Min stack stores the current minimum at each level. When pushing x, push min(x, minStack.top()) to minStack.",
+    recognize: [
+      "\"push, pop, top\" plus \"getMin\", all required in O(1) — the min itself must be tracked incrementally.",
+      "Popping can restore an older minimum, so a single running variable can't work.",
+      "Operations only ever touch the top — a LIFO structure, i.e. a stack, fits naturally.",
+      "→ Keep a second stack that mirrors the main one, storing the min-so-far at each level.",
+    ],
     approach: [
       "push(x): main.push(x), minStack.push(min(x, minStack.empty() ? x : minStack.top())).",
       "pop(): main.pop(), minStack.pop().",
@@ -1918,6 +2134,12 @@ public:
     examples: [{"input":"temperatures = [73,74,75,71,69,72,76,73]","output":"[1,1,4,2,1,1,0,0]"},{"input":"temperatures = [30,40,50,60]","output":"[1,1,1,0]"},{"input":"temperatures = [30,60,90]","output":"[1,1,0]"}],
     constraints: ["1 <= temperatures.length <= 10^5","30 <= temperatures[i] <= 100"],
     intuition: "Monotonic stack (decreasing). For each temperature, pop all stack entries with smaller temperatures — those found their 'next warmer day'. Push current index. Unpopped entries never find a warmer day.",
+    recognize: [
+      "\"Days to wait\" for the next warmer value — a next-greater-element pattern.",
+      "n up to 10^5 rules out the O(n^2) pair-check between every day and every future day.",
+      "Each day only cares about the nearest future day that beats it, not all of them.",
+      "→ Monotonic decreasing stack of indices; pop and resolve when a warmer day arrives.",
+    ],
     approach: [
       "Initialize answer array with zeros, stack of indices.",
       "For each i: while stack not empty and temps[stack.top()] < temps[i]: pop j, set ans[j] = i - j.",
@@ -1964,6 +2186,12 @@ public:
     examples: [{"input":"s = \"3[a]2[bc]\"","output":"\"aaabcbc\""},{"input":"s = \"3[a2[c]]\"","output":"\"accaccacc\"","explanation":"2[c] expands to \"cc\", then 3[a\"cc\"] expands to \"acc\" repeated 3 times."},{"input":"s = \"2[abc]3[cd]ef\"","output":"\"abcabccdcdcdef\""}],
     constraints: ["1 <= s.length <= 30","s consists of lowercase English letters, digits, and square brackets '[]'","s is guaranteed to be a valid encoding","All integers in s are between 1 and 300"],
     intuition: "Use a stack. When encountering '[', push current string and count onto stack. When ']', pop and repeat current string count times. Build string character by character.",
+    recognize: [
+      "Pattern k[encoded_string] with brackets — nested structure, and \"encodings may be nested\" confirms it.",
+      "Each ']' must resolve using the count and text captured at its matching '[' — a LIFO save/restore.",
+      "Nesting depth isn't fixed, so a single running string/count pair isn't enough.",
+      "→ Stack of (outer string, repeat count); push on '[', pop-and-repeat on ']'.",
+    ],
     approach: [
       "curr = \"\", k = 0, stack of (string, int).",
       "Digit: k = k*10 + digit.",
@@ -2015,6 +2243,12 @@ public:
     examples: [{"input":"n = 3","output":"[\"((()))\",\"(()())\",\"(())()\",\"()(())\",\"()()()\"]"},{"input":"n = 1","output":"[\"()\"]"}],
     constraints: ["1 <= n <= 8"],
     intuition: "Backtracking with two counters: open (# of '(' added) and close (# of ')' added). Rule: can add '(' if open < n. Can add ')' if close < open. Recursion builds valid combos.",
+    recognize: [
+      "\"Generate all combinations\" — need every valid answer, not just one, so backtracking over enumeration.",
+      "n capped at 8 — search space is small (Catalan number), brute enumeration is fine.",
+      "Validity only depends on two running counts (opens used, closes used) — easy to prune as you build.",
+      "→ Backtrack, tracking open/close counts, only adding a bracket when it keeps the string completable.",
+    ],
     approach: [
       "Recurse with (current_string, open_count, close_count).",
       "Base: if len == 2n, add to result.",
@@ -2057,6 +2291,12 @@ public:
     examples: [{"input":"target = 12, position = [10,8,0,5,3], speed = [2,4,1,1,3]","output":"3","explanation":"The cars at positions 10 and 8 form one fleet, the car at 0 forms its own fleet, and the cars at 5 and 3 form another fleet, giving 3 fleets total."},{"input":"target = 10, position = [3], speed = [3]","output":"1"}],
     constraints: ["1 <= target <= 10^6","0 <= n == position.length == speed.length <= 10^5","0 <= position[i] < target","All values in position are unique","0 < speed[i] <= 10^6"],
     intuition: "Sort cars by starting position descending (closest to target first). Calculate time for each car to reach target. If a car behind reaches target faster than car ahead, it merges into that fleet.",
+    recognize: [
+      "Cars merge into a fleet once caught, then move at the slower speed — later cars depend on earlier fleet state.",
+      "Need a COUNT of fleets, not their compositions — a running comparison, not full simulation.",
+      "Processing closest-to-target first means each new car only ever compares against the fleet immediately ahead.",
+      "→ Sort by position descending, keep a stack of fleet arrival times, push only when strictly slower.",
+    ],
     approach: [
       "Pair positions and speeds, sort by position descending.",
       "For each car compute time = (target - pos) / speed.",
@@ -2102,6 +2342,12 @@ public:
     examples: [{"input":"asteroids = [5,10,-5]","output":"[5,10]","explanation":"The 10 and -5 collide, and since 10 is larger, -5 explodes, leaving 5 and 10 which never collide."},{"input":"asteroids = [8,-8]","output":"[]","explanation":"The two asteroids are equal in size, so both explode."},{"input":"asteroids = [10,2,-5]","output":"[10]","explanation":"2 and -5 collide and -5 wins, becoming -5, which then collides with 10 and explodes."}],
     constraints: ["2 <= asteroids.length <= 10^4","-1000 <= asteroids[i] <= 1000","asteroids[i] != 0"],
     intuition: "Stack simulation. Positive asteroids move right, negative move left. Collision only when positive asteroid is on stack and incoming asteroid is negative. Larger absolute value wins; equal = both destroyed.",
+    recognize: [
+      "Only adjacent-in-time collisions matter — a moving asteroid only ever fights the most recent survivor ahead.",
+      "Chain reactions possible: one collision's survivor can immediately collide again with what's behind it.",
+      "\"Simulate collisions\" over a sequence with LIFO-style repeated resolution — classic stack simulation.",
+      "→ Stack of surviving asteroids; on a leftward asteroid, resolve collisions against the stack top repeatedly.",
+    ],
     approach: [
       "For each asteroid a:",
       "  — If a > 0 or stack empty or stack top < 0: push (no collision).",
@@ -3000,6 +3246,12 @@ public:
     examples: [{"input":"nums = [3,4,5,1,2]","output":"1"},{"input":"nums = [4,5,6,7,0,1,2]","output":"0"},{"input":"nums = [11,13,15,17]","output":"11"}],
     constraints: ["n == nums.length","1 <= n <= 5000","-5000 <= nums[i] <= 5000","all values in nums are unique","nums was originally sorted ascending then rotated between 1 and n times"],
     intuition: "Rotated sorted array has one 'break point' where the min lives. Binary search: if mid > right, min is in right half. Otherwise min is in left half (including mid).",
+    recognize: [
+      "\"Originally sorted then rotated\" plus an O(log n) requirement — sorted-array structure is still exploitable.",
+      "Only one value needed (the minimum), not an index of a specific target.",
+      "Comparing mid against the rightmost element reveals which side of the rotation break you're on.",
+      "→ Binary search on the rotation break: if nums[mid] > nums[right], min is to the right.",
+    ],
     approach: [
       "left = 0, right = n-1.",
       "While left < right: mid = (left+right)/2.",
@@ -3041,6 +3293,12 @@ public:
     examples: [{"input":"nums = [4,5,6,7,0,1,2], target = 0","output":"4"},{"input":"nums = [4,5,6,7,0,1,2], target = 3","output":"-1"},{"input":"nums = [1], target = 0","output":"-1"}],
     constraints: ["1 <= nums.length <= 5000","-10^4 <= nums[i] <= 10^4","all values in nums are unique","nums is an ascending array rotated at some pivot","-10^4 <= target <= 10^4"],
     intuition: "One half of the rotated array is always sorted. Use that property: if left half sorted, check if target falls in that range; else search right half. Mirror for right half sorted.",
+    recognize: [
+      "\"Rotated at some unknown pivot\" plus O(log n) — a plain sorted-array binary search won't directly apply.",
+      "Unique values, single target to locate — no need to find boundaries or handle duplicates.",
+      "Despite the rotation, at least one of the two halves around mid is always fully sorted.",
+      "→ Binary search: identify the sorted half, then check if target lies within its range.",
+    ],
     approach: [
       "l=0, r=n-1. While l<=r: mid = (l+r)/2.",
       "If nums[mid] == target: return mid.",
@@ -3089,6 +3347,12 @@ public:
     examples: [{"input":"matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3","output":"true"},{"input":"matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 13","output":"false"}],
     constraints: ["m == matrix.length","n == matrix[i].length","1 <= m, n <= 100","-10^4 <= matrix[i][j] <= 10^4","-10^4 <= target <= 10^4"],
     intuition: "Matrix rows are sorted, first element of each row > last of previous row. Treat as 1D sorted array: index i maps to row i/n, col i%n.",
+    recognize: [
+      "\"Each row sorted\" AND \"first of each row > last of previous row\" — the whole matrix is one sorted sequence in disguise.",
+      "Required time is O(log(m*n)), not O(m+n) — rules out row-then-column search, points to a single binary search.",
+      "Only existence (true/false) is needed, not position — a plain search suffices.",
+      "→ Flatten conceptually: binary search over index 0..m*n-1, map back with row=i/n, col=i%n.",
+    ],
     approach: [
       "lo=0, hi=m*n-1.",
       "Binary search: mid=(lo+hi)/2, val=matrix[mid/n][mid%n].",
@@ -3131,6 +3395,12 @@ public:
     examples: [{"input":"piles = [3,6,7,11], h = 8","output":"4"},{"input":"piles = [30,11,23,4,20], h = 5","output":"30"},{"input":"piles = [30,11,23,4,20], h = 6","output":"23"}],
     constraints: ["1 <= piles.length <= 10^4","piles.length <= h <= 10^9","1 <= piles[i] <= 10^9"],
     intuition: "Binary search on the answer (eating speed k). For each candidate speed, check feasibility. Answer is minimum valid k.",
+    recognize: [
+      "Asks for the MINIMUM speed that satisfies a constraint — an optimization over a monotonic feasibility function.",
+      "h up to 10^9 and piles up to 10^9 rule out trying every speed value one at a time.",
+      "\"Can she finish within h hours at speed k\" is easy to check and only gets easier as k grows — monotonic.",
+      "→ Binary search on the answer (speed k), checking feasibility of each candidate.",
+    ],
     approach: [
       "lo=1, hi=max(piles).",
       "For each mid: hours = sum of ceil(pile/mid) for each pile.",
@@ -3174,6 +3444,12 @@ public:
     examples: [{"input":"n = 5, bad = 4","output":"4","explanation":"Calling isBadVersion(3) returns false and isBadVersion(4) returns true, so 4 is the first bad version."},{"input":"n = 1, bad = 1","output":"1"}],
     constraints: ["1 <= bad <= n <= 2^31 - 1","isBadVersion is consistent: it returns false for all versions before bad and true from bad onward"],
     intuition: "First bad version makes all subsequent bad. Binary search: if mid is bad, answer is at mid or left. If good, answer is right of mid.",
+    recognize: [
+      "\"Once bad, all following are also bad\" — a monotonic false...false, true...true boundary to find.",
+      "Must \"minimize the number of API calls\" — linear scanning every version is explicitly discouraged.",
+      "Only the boundary index matters, not a full list of bad versions.",
+      "→ Binary search for the first true in a monotonic predicate: bad → search left, good → search right.",
+    ],
     approach: [
       "lo=1, hi=n.",
       "While lo < hi: mid = lo+(hi-lo)/2.",
@@ -3214,6 +3490,12 @@ public:
     examples: [{"input":"nums = [1,3,5,6], target = 5","output":"2","explanation":"5 is found at index 2."},{"input":"nums = [1,3,5,6], target = 2","output":"1","explanation":"2 is not present, but it would be inserted at index 1 to keep nums sorted."},{"input":"nums = [1,3,5,6], target = 7","output":"4","explanation":"7 is larger than every element, so it would be inserted at the end, index 4."}],
     constraints: ["1 <= nums.length <= 10^4","-10^4 <= nums[i] <= 10^4","nums contains distinct values sorted in ascending order","-10^4 <= target <= 10^4"],
     intuition: "Standard lower_bound: find first index where nums[i] >= target. That's either where target is or where it should be inserted.",
+    recognize: [
+      "Sorted array, distinct values, need either the index of target or where it belongs — a lower_bound problem.",
+      "\"Insert to keep it sorted\" is the classic phrasing for a boundary binary search.",
+      "n up to 10^4 with a sorted array signals binary search over any O(n) scan.",
+      "→ Binary search for the first index where nums[i] >= target.",
+    ],
     approach: [
       "lo=0, hi=n (n allows insertion after last).",
       "While lo < hi: mid=(lo+hi)/2.",
@@ -3254,6 +3536,12 @@ public:
     examples: [{"input":"[\"TimeMap\",\"set\",\"get\",\"get\",\"set\",\"get\",\"get\"]\n[[],[\"foo\",\"bar\",1],[\"foo\",1],[\"foo\",3],[\"foo\",\"bar2\",4],[\"foo\",4],[\"foo\",5]]","output":"[null,null,\"bar\",\"bar\",null,\"bar2\",\"bar2\"]","explanation":"At timestamp 3 the most recent set at or before it is (\"bar\",1); at timestamp 5 it is (\"bar2\",4)."}],
     constraints: ["1 <= key.length, value.length <= 100","1 <= timestamp <= 10^7","all timestamps of set calls for the same key are strictly increasing","at most 2 * 10^5 calls total to set and get"],
     intuition: "Each key stores (timestamp, value) pairs. Since timestamps are strictly increasing, the list is sorted. Binary search for largest timestamp <= query timestamp.",
+    recognize: [
+      "\"Timestamps... are strictly increasing\" for a given key — each key's history is naturally sorted data.",
+      "get() wants the largest timestamp <= query — a boundary search, not an exact-match lookup.",
+      "Up to 2*10^5 calls total — needs faster than a linear scan per get.",
+      "→ Store each key's (timestamp, value) history in order, binary search for the floor timestamp.",
+    ],
     approach: [
       "Store map<string, vector<pair<int,string>>>.",
       "set: push_back({timestamp, value}).",
@@ -3640,6 +3928,12 @@ public:
     examples: [{"input":"candidates = [2,3,6,7], target = 7","output":"[[2,2,3],[7]]","explanation":"2+2+3 = 7 and 7 = 7 are the only combinations that sum to the target."},{"input":"candidates = [2,3,5], target = 8","output":"[[2,2,2,2],[2,3,3],[3,5]]"}],
     constraints: ["1 <= candidates.length <= 30","2 <= candidates[i] <= 40","All elements of candidates are distinct","1 <= target <= 40"],
     intuition: "Backtracking where same element can be reused. Two choices at each index: use it again (recurse at same index) or skip it (recurse at index+1).",
+    recognize: [
+      "\"Same number may be reused\" — an explicit signal that recursion can stay at the same index.",
+      "Need ALL unique combinations summing to target, not just a count or one answer.",
+      "Distinct candidates and small bounds (<=30, target<=40) fit an exponential search.",
+      "→ Backtrack: at each index, try reusing it or move to the next index.",
+    ],
     approach: [
       "bt(index, remaining):",
       "If remaining == 0: record. If < 0 or index >= n: return.",
@@ -3684,6 +3978,12 @@ public:
     examples: [{"input":"candidates = [10,1,2,7,6,1,5], target = 8","output":"[[1,1,6],[1,2,5],[1,7],[2,6]]"},{"input":"candidates = [2,5,2,1,2], target = 5","output":"[[1,2,2],[5]]"}],
     constraints: ["1 <= candidates.length <= 100","1 <= candidates[i] <= 50","1 <= target <= 30"],
     intuition: "Each element used once, skip duplicates at same level. Sort first. In loop: if j > start and candidates[j] == candidates[j-1], skip.",
+    recognize: [
+      "\"May contain duplicates\" plus \"no duplicate combinations\" — the classic sort-then-skip-at-this-level signal.",
+      "Each number used at most once per combination — recursion must move to index+1, not stay put.",
+      "Need every unique combination summing to target, so brute force must be pruned, not counted.",
+      "→ Sort, backtrack from an index, and skip a value equal to the previous one at the same recursion level.",
+    ],
     approach: [
       "Sort candidates.",
       "bt(start, remaining): loop j from start.",
@@ -3729,6 +4029,12 @@ public:
     examples: [{"input":"nums = [1,2,3]","output":"[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]"},{"input":"nums = [0,1]","output":"[[0,1],[1,0]]"},{"input":"nums = [1]","output":"[[1]]"}],
     constraints: ["1 <= nums.length <= 6","-10 <= nums[i] <= 10","All the integers of nums are unique"],
     intuition: "Backtracking. Pick each unused element, add to path, recurse, undo. Boolean used[] tracks current permutation members.",
+    recognize: [
+      "Need every possible ORDERING, not subset — order matters, so output size is n! not 2^n.",
+      "n up to 6 — small enough that generating all n! arrangements is feasible.",
+      "Every element must appear exactly once per arrangement — needs a used/visited tracker.",
+      "→ Backtrack over unused elements at each position, marking and unmarking as used.",
+    ],
     approach: [
       "bt(): if path.size()==n, record.",
       "For each i not used: used[i]=true, push, recurse, pop, used[i]=false.",
@@ -3773,6 +4079,12 @@ public:
     examples: [{"input":"digits = \"23\"","output":"[\"ad\",\"ae\",\"af\",\"bd\",\"be\",\"bf\",\"cd\",\"ce\",\"cf\"]"},{"input":"digits = \"\"","output":"[]"},{"input":"digits = \"2\"","output":"[\"a\",\"b\",\"c\"]"}],
     constraints: ["0 <= digits.length <= 4","digits[i] is a digit in the range ['2','9']"],
     intuition: "Backtracking. Map each digit to letters. For each digit expand all partial strings by each letter of that digit.",
+    recognize: [
+      "Need every possible letter combination — each digit independently branches into 3-4 letters.",
+      "digits.length <= 4 — small enough that the full 4^n combination tree is cheap to build.",
+      "A fixed keypad mapping (digit → letters) is the only \"rule\" — no complex constraint to prune.",
+      "→ Backtrack: expand the current prefix by each letter of the next digit.",
+    ],
     approach: [
       "Map: 2→abc, 3→def, ..., 9→wxyz.",
       "bt(index, current): if index==digits.size(), record current.",
@@ -3815,6 +4127,12 @@ public:
     examples: [{"input":"n = 4","output":"[[\".Q..\",\"...Q\",\"Q...\",\"..Q.\"],[\"..Q.\",\"Q...\",\"...Q\",\".Q..\"]]"},{"input":"n = 1","output":"[[\"Q\"]]"}],
     constraints: ["1 <= n <= 9"],
     intuition: "Place one queen per row. Track cols, diagonals (row-col), anti-diagonals (row+col) in sets. All three must be free.",
+    recognize: [
+      "n <= 9 with \"return all distinct arrangements\" — small enough for exhaustive constrained search.",
+      "One queen per row is forced by \"no shared row\" — reduces the problem to choosing a column per row.",
+      "Diagonal conflicts aren't just adjacency — need a way to check row-col and row+col in O(1).",
+      "→ Backtrack row by row, tracking used columns and both diagonals in sets.",
+    ],
     approach: [
       "bt(row): if row==n, record board.",
       "For each col: if col not in cols, row-col not in diag, row+col not in anti:",
@@ -3862,6 +4180,12 @@ public:
     examples: [{"input":"board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"ABCCED\"","output":"true"},{"input":"board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"SEE\"","output":"true"},{"input":"board = [[\"A\",\"B\",\"C\",\"E\"],[\"S\",\"F\",\"C\",\"S\"],[\"A\",\"D\",\"E\",\"E\"]], word = \"ABCB\"","output":"false","explanation":"The letter 'B' cannot be reused, so no valid path spells ABCB."}],
     constraints: ["1 <= board.length, board[i].length <= 6","1 <= word.length <= 15","board and word consist of only lowercase and uppercase English letters"],
     intuition: "DFS from each cell. Match word char by char. Mark visited with '#'. Unmark on backtrack.",
+    recognize: [
+      "2D grid with 4-directional moves and \"same cell may not be reused\" — path search with a visited constraint.",
+      "Small board (<=6x6) and short word (<=15) — exponential DFS per starting cell is cheap enough.",
+      "Need a yes/no on whether ANY path spells the word — early return the moment one is found.",
+      "→ DFS from every cell matching word[0], marking cells visited and unmarking on backtrack.",
+    ],
     approach: [
       "For each cell: if matches word[0], start DFS.",
       "DFS(i,j,k): if k==word.size() return true.",
@@ -3907,6 +4231,12 @@ public:
     examples: [{"input":"s = \"aab\"","output":"[[\"a\",\"a\",\"b\"],[\"aa\",\"b\"]]"},{"input":"s = \"a\"","output":"[[\"a\"]]"}],
     constraints: ["1 <= s.length <= 16","s consists of only lowercase English letters"],
     intuition: "Backtracking with DP palindrome precomputation. At each position try all substrings — if palindrome, recurse on rest. O(1) palindrome check via DP table.",
+    recognize: [
+      "Need every possible palindromic partitioning, not just whether one exists — exponential output.",
+      "s.length <= 16 — small enough to enumerate all 2^(n-1) cut placements.",
+      "Repeatedly checking \"is this substring a palindrome\" is wasteful without a precomputed table.",
+      "→ Precompute palindrome DP, then backtrack over where to cut next.",
+    ],
     approach: [
       "Precompute dp[i][j] = true if s[i..j] is palindrome.",
       "bt(start): if start==n, record current partition.",
@@ -3956,6 +4286,12 @@ public:
     examples: [{"input":"nums = [2,3,2]","output":"3","explanation":"Robbing houses 0 and 2 is not allowed since they are adjacent in the circle, so the best choice is house 1 alone."},{"input":"nums = [1,2,3,1]","output":"4","explanation":"Rob houses 0 and 2 for 1 + 3 = 4; house 3 cannot also be robbed since it is adjacent to house 0."},{"input":"nums = [1,2,3]","output":"3"}],
     constraints: ["1 <= nums.length <= 100","0 <= nums[i] <= 1000"],
     intuition: "Houses arranged in circle — first and last are adjacent, can't rob both. Split into two subproblems: rob houses [0..n-2] and [1..n-1]. Take max of both. Each subproblem is standard House Robber I.",
+    recognize: [
+      "Explicitly says houses are in a circle — first and last count as adjacent.",
+      "You've likely solved the linear House Robber before — this is that plus a wraparound rule.",
+      "The circular constraint only affects one pair (house 0 and house n-1), not the whole structure.",
+      "→ Run linear House Robber DP twice, excluding house 0 or house n-1, take the max.",
+    ],
     approach: [
       "If n==1: return nums[0].",
       "rob(nums, start, end): standard DP on that range.",
@@ -4000,6 +4336,12 @@ public:
     examples: [{"input":"nums = [2,3,1,1,4]","output":"true","explanation":"Jump 1 step from index 0 to index 1, then 3 steps to the last index."},{"input":"nums = [3,2,1,0,4]","output":"false","explanation":"Every path gets stuck at index 3, whose value is 0, so index 4 is unreachable."}],
     constraints: ["1 <= nums.length <= 10^4","0 <= nums[i] <= 10^5"],
     intuition: "Greedy: track the farthest reachable index. At each step, if current index > farthest reachable, stuck. Otherwise update farthest.",
+    recognize: [
+      "Only need a yes/no on reachability, not the actual path or jump count.",
+      "n up to 10^4 rules out trying every jump sequence (exponential) — need one linear pass.",
+      "Each index's value only bounds how far you COULD jump, so tracking the best reach so far is enough.",
+      "→ Greedily track the farthest reachable index; fail only if you fall behind it.",
+    ],
     approach: [
       "maxReach = 0.",
       "For i from 0 to n-1: if i > maxReach, return false.",
@@ -4040,6 +4382,12 @@ public:
     examples: [{"input":"nums = [2,3,1,1,4]","output":"2","explanation":"Jump from index 0 to index 1 (value 3), then from index 1 to index 4."},{"input":"nums = [2,3,0,1,4]","output":"2","explanation":"Jump from index 0 to index 1, then directly from index 1 to index 4 since its value is 3."}],
     constraints: ["1 <= nums.length <= 10^4","0 <= nums[i] <= 1000","It is guaranteed the last index is reachable"],
     intuition: "Greedy BFS-like. Track current jump range end and farthest reachable within current range. When you reach the end of current range, take a jump and update range to farthest.",
+    recognize: [
+      "Asks for the MINIMUM number of jumps, not just reachability — needs a count, not a boolean.",
+      "\"Last index is always reachable\" removes the failure case, so focus purely on minimizing jumps.",
+      "Reachability grows in expanding ranges — resembles BFS levels without building a graph.",
+      "→ Track current jump's range end and the farthest seen; jump when the range is exhausted.",
+    ],
     approach: [
       "jumps=0, curEnd=0, farthest=0.",
       "For i from 0 to n-2: farthest = max(farthest, i+nums[i]).",
@@ -4080,6 +4428,12 @@ public:
     examples: [{"input":"gas = [1,2,3,4,5], cost = [3,4,5,1,2]","output":"3","explanation":"Starting at station 3, the tank never goes negative while completing the loop."},{"input":"gas = [2,3,4], cost = [3,4,3]","output":"-1","explanation":"Total gas (9) is less than total cost (10), so completing the circuit is impossible from any station."}],
     constraints: ["n == gas.length == cost.length","1 <= n <= 10^5","0 <= gas[i], cost[i] <= 10^4"],
     intuition: "If total gas >= total cost, solution exists. Start from 0, track running tank. When tank < 0, reset start to next station (current start can't work).",
+    recognize: [
+      "Circular route with a UNIQUE valid starting station — hints at a single deterministic answer, not search.",
+      "n up to 10^5 rules out trying every starting station and simulating the loop (O(n^2)).",
+      "If the tank ever goes negative, none of the stations tried so far could have worked either.",
+      "→ Greedy single pass: reset the candidate start the moment the running tank dips below zero.",
+    ],
     approach: [
       "total = 0, tank = 0, start = 0.",
       "For each i: total += gas[i]-cost[i], tank += gas[i]-cost[i].",
@@ -4120,6 +4474,12 @@ public:
     examples: [{"input":"bills = [5,5,5,10,20]","output":"true","explanation":"Each customer can be given correct change using the $5 and $10 bills collected so far."},{"input":"bills = [5,5,10,10,20]","output":"false","explanation":"By the time the second $10 customer and the $20 customer arrive, there aren't enough $5 bills left to make change."},{"input":"bills = [5,5,10]","output":"true"}],
     constraints: ["1 <= bills.length <= 10^5","bills[i] is either 5, 10, or 20"],
     intuition: "Greedy. Track counts of $5 and $10 bills. For $20 payment: prefer to give $10+$5 (saves more $5s). Never have $20 as change — pass $20 through.",
+    recognize: [
+      "Customers arrive one at a time, decision made immediately — no lookahead or backtracking needed.",
+      "Only three bill values (5, 10, 20) — a handful of counters cover every case.",
+      "$5 bills are the scarce, more flexible resource — a hint to spend $10s on change before $5s.",
+      "→ Greedily track five/ten counts; prefer $10+$5 change over three $5s to conserve $5 bills.",
+    ],
     approach: [
       "Track five=0, ten=0.",
       "Customer pays $5: five++.",
@@ -4168,6 +4528,12 @@ public:
     examples: [{"input":"prices = [7,1,5,3,6,4]","output":"7","explanation":"Buy on day 2 (price 1), sell on day 3 (price 5) for profit 4, then buy on day 4 (price 3) and sell on day 5 (price 6) for profit 3."},{"input":"prices = [1,2,3,4,5]","output":"4","explanation":"Buy on day 1 and sell on day 5, or accumulate the same total by buying/selling each consecutive day."},{"input":"prices = [7,6,4,3,1]","output":"0","explanation":"Prices only fall, so no transaction is profitable."}],
     constraints: ["1 <= prices.length <= 3 * 10^4","0 <= prices[i] <= 10^4"],
     intuition: "Unlimited transactions. Collect every upward move. If prices[i] > prices[i-1], add the difference to profit. Equivalently: sum all positive differences.",
+    recognize: [
+      "\"Buy and sell any number of times\" — no limit on transactions, unlike the single-transaction variant.",
+      "Must sell before buying again — only one share held at a time, no complex state to track.",
+      "Maximizing total profit with unlimited trades reduces to capturing every price increase.",
+      "→ Sum every positive day-to-day price difference in one pass.",
+    ],
     approach: [
       "profit = 0.",
       "For i from 1 to n-1: if prices[i] > prices[i-1], profit += prices[i] - prices[i-1].",
@@ -4203,6 +4569,12 @@ public:
     examples: [{"input":"intervals = [[1,3],[6,9]], newInterval = [2,5]","output":"[[1,5],[6,9]]","explanation":"The new interval [2,5] overlaps [1,3], merging into [1,5]."},{"input":"intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]","output":"[[1,2],[3,10],[12,16]]","explanation":"The new interval merges with [3,5], [6,7], and [8,10] into one interval [3,10]."}],
     constraints: ["0 <= intervals.length <= 10^4","intervals is sorted by start time and non-overlapping","0 <= starti <= endi <= 10^5"],
     intuition: "Three phases: add all intervals that end before newInterval starts. Merge all overlapping intervals with newInterval. Add remaining intervals.",
+    recognize: [
+      "Existing intervals are already sorted and non-overlapping — a strong hint to exploit that order.",
+      "One new interval must be merged in, not a whole unsorted batch — no full re-sort needed.",
+      "Output must stay sorted and non-overlapping — single left-to-right sweep suffices.",
+      "→ Three-phase sweep: copy before, merge overlapping into newInterval, copy after.",
+    ],
     approach: [
       "Phase 1: while intervals[i].end < newInterval.start: add intervals[i], i++.",
       "Phase 2: while intervals[i].start <= newInterval.end: merge (expand newInterval). i++.",
@@ -4248,6 +4620,12 @@ public:
     examples: [{"input":"intervals = [[0,30],[5,10],[15,20]]","output":"false","explanation":"The interval [0,30] overlaps with both [5,10] and [15,20]."},{"input":"intervals = [[7,10],[2,4]]","output":"true","explanation":"The two meetings don't overlap once sorted: [2,4] ends before [7,10] begins."}],
     constraints: ["0 <= intervals.length <= 10^4","0 <= starti < endi <= 10^6"],
     intuition: "Sort by start time. If any meeting starts before previous ends, overlap exists.",
+    recognize: [
+      "\"Could attend every meeting\" with one person → just a yes/no overlap check.",
+      "No room count needed, only whether ANY two meetings conflict.",
+      "Sorting by start time turns a pairwise overlap check into adjacent-pair comparisons.",
+      "→ Sort by start; if any interval starts before the previous one ends, return false.",
+    ],
     approach: [
       "Sort intervals by start time.",
       "For i from 1 to n-1: if intervals[i][0] < intervals[i-1][1]: return false.",
@@ -4284,6 +4662,12 @@ public:
     examples: [{"input":"intervals = [[0,30],[5,10],[15,20]]","output":"2","explanation":"The meeting [0,30] overlaps with [5,10] and separately with [15,20], but the latter two never overlap each other, so 2 rooms suffice."},{"input":"intervals = [[7,10],[2,4]]","output":"1","explanation":"The meetings don't overlap, so they can share a single room."}],
     constraints: ["1 <= intervals.length <= 10^4","0 <= starti < endi <= 10^6"],
     intuition: "Min-heap of end times. Tracks earliest-ending room. If new meeting starts after earliest end, reuse that room. Else need new room. Heap size at end = min rooms needed.",
+    recognize: [
+      "Asks for a COUNT of rooms — the minimum resources needed to cover peak overlap.",
+      "Meetings can overlap in complex ways — need to track many \"in-progress\" end times at once.",
+      "Always need the soonest-ending room to check for reuse — a keyword for a min-heap.",
+      "→ Sort by start; min-heap of end times, reuse a room if it's free, else grow the heap.",
+    ],
     approach: [
       "Sort by start time.",
       "Min-heap (priority_queue with greater) of end times.",
@@ -4326,6 +4710,12 @@ public:
     examples: [{"input":"hand = [1,2,3,6,2,3,4,7,8], groupSize = 3","output":"true","explanation":"The cards can be split into the runs [1,2,3], [2,3,4], and [6,7,8]."},{"input":"hand = [1,2,3,4,5], groupSize = 4","output":"false","explanation":"The 5 cards cannot be evenly divided into groups of 4 consecutive values."}],
     constraints: ["1 <= hand.length <= 10^4","0 <= hand[i] <= 10^9","1 <= groupSize <= hand.length"],
     intuition: "Greedy: always form groups starting from smallest card. If can't complete a group, return false. Use sorted map to process cards in order.",
+    recognize: [
+      "Groups must be CONSECUTIVE values of exact size — a strong hint to process cards in sorted order.",
+      "hand.size() not divisible by groupSize instantly rules it out — a cheap early check.",
+      "The smallest remaining card must always start a run — greedy choice, no need to try alternatives.",
+      "→ Sort/count cards; repeatedly take the smallest remaining value and consume the next groupSize-1 values above it.",
+    ],
     approach: [
       "If hand.size() % groupSize != 0: return false.",
       "Sort/count cards in ordered map.",
@@ -4372,6 +4762,12 @@ public:
     examples: [{"input":"s = \"ababcbacadefegdehijhklij\"","output":"[9,7,8]","explanation":"The string splits into \"ababcbaca\", \"defegde\", and \"hijhklij\", each containing letters that don't appear in any other part."},{"input":"s = \"abac\"","output":"[4]","explanation":"Since 'a' reappears at the last position before 'c' finishes, the whole string forms a single part."},{"input":"s = \"eccbbbbdec\"","output":"[10]"}],
     constraints: ["1 <= s.length <= 500","s consists of lowercase English letters only"],
     intuition: "Each character's last occurrence determines the partition end. Walk the string: expand current partition end to max last occurrence of characters seen. When current index = partition end, cut.",
+    recognize: [
+      "\"Each letter appears in at most one part\" — a partition is only safe once every char's last copy is included.",
+      "Need max number of parts, so cut as early as possible — the last-occurrence bound tells you exactly when.",
+      "Only lowercase letters — a fixed 26-slot array can hold each char's last index cheaply.",
+      "→ Precompute last occurrence per char; extend current partition's end to cover it, cut when caught up.",
+    ],
     approach: [
       "Precompute last[c] = last index of char c.",
       "start=0, end=0.",
@@ -4415,6 +4811,12 @@ public:
     examples: [{"input":"nums = [3,0,1]","output":"2","explanation":"n = 3, the range is [0,3], and 2 is the value not present in the array."},{"input":"nums = [0,1]","output":"2"},{"input":"nums = [9,6,4,2,3,5,7,0,1]","output":"8"}],
     constraints: ["n == nums.length","1 <= n <= 10^4","0 <= nums[i] <= n","All the numbers in nums are unique"],
     intuition: "Expected sum 0+1+...+n = n*(n+1)/2. Subtract actual sum. Difference is missing number. Alternatively use XOR: XOR all indices and all values, mismatched pair cancels.",
+    recognize: [
+      "\"n distinct numbers from [0, n]\" — exactly one value out of a known complete range is absent.",
+      "Range and count are known up front, so the expected total can be computed without looking at the array.",
+      "No sorting or hashing needed — arithmetic alone pins down the gap.",
+      "→ Compute the expected sum of 0..n, subtract the actual sum, the difference is the missing number.",
+    ],
     approach: [
       "expected = n*(n+1)/2.",
       "actual = sum of nums.",
@@ -4449,6 +4851,12 @@ public:
     examples: [{"input":"n = 2","output":"[0,1,1]","explanation":"0 -> 0, 1 -> 1, 2 -> 10, which has one 1 bit."},{"input":"n = 5","output":"[0,1,1,2,1,2]"}],
     constraints: ["0 <= n <= 10^5"],
     intuition: "DP: for even n, bits(n) = bits(n/2). For odd n, bits(n) = bits(n/2) + 1. Equivalently bits(n) = bits(n>>1) + (n&1).",
+    recognize: [
+      "Need popcount for EVERY integer 0..n, not just one — recomputing each from scratch wastes work already done.",
+      "Right-shifting i by one bit is the same as looking up an already-computed smaller answer, dp[i>>1].",
+      "The dropped bit (i&1) is the only new information versus that smaller subproblem.",
+      "→ Bottom-up DP: dp[i] = dp[i>>1] + (i&1), building on previously computed bit counts.",
+    ],
     approach: [
       "dp[0] = 0.",
       "For i from 1 to n: dp[i] = dp[i>>1] + (i&1).",
@@ -4482,6 +4890,12 @@ public:
     examples: [{"input":"n = 00000000000000000000000000001011","output":"3","explanation":"The binary form has three 1 bits."},{"input":"n = 00000000000000000000000010000000","output":"1"},{"input":"n = 11111111111111111111111111111101","output":"31"}],
     constraints: ["The input is a 32-bit unsigned binary representation of an integer","0 <= n <= 2^32 - 1"],
     intuition: "Brian Kernighan: n & (n-1) clears the lowest set bit. Count how many times until n = 0.",
+    recognize: [
+      "\"Number of bits set to 1\" (Hamming weight) — a pure bit-counting task, not value comparison.",
+      "32-bit fixed width but the answer only depends on how many 1-bits exist, not their positions.",
+      "n & (n-1) is a well-known trick that strips exactly the lowest set bit each time.",
+      "→ Loop n &= (n-1) counting iterations until n hits 0.",
+    ],
     approach: [
       "count = 0.",
       "While n != 0: n &= (n-1), count++.",
@@ -4516,6 +4930,12 @@ public:
     examples: [{"input":"n = 00000010100101000001111010011100","output":"964176192","explanation":"Reversing the 32 bits gives 00111001011110000010100101000000, which equals 964176192."},{"input":"n = 11111111111111111111111111111101","output":"3221225471","explanation":"Reversing the 32 bits gives 10111111111111111111111111111111, which equals 3221225471."}],
     constraints: ["The input is a binary string of exactly 32 characters","Represents an unsigned 32-bit integer"],
     intuition: "Process bit by bit. Extract LSB of n, shift result left, OR in that bit, shift n right. Repeat 32 times.",
+    recognize: [
+      "\"Reverse the order of its bits\" on a fixed 32-bit integer — a mirror operation over a known bit width.",
+      "No arithmetic meaning attached to n — treat it purely as a bit string to flip end-to-end.",
+      "Fixed 32-bit width means exactly 32 iterations, no dynamic length to track.",
+      "→ Peel off the lowest bit of n each step, shift it into the top of the result.",
+    ],
     approach: [
       "result = 0.",
       "For i in 0..31: result = (result << 1) | (n & 1), n >>= 1.",
@@ -4555,6 +4975,12 @@ public:
     examples: [{"input":"n = 1","output":"true","explanation":"2^0 = 1."},{"input":"n = 16","output":"true","explanation":"2^4 = 16."},{"input":"n = 3","output":"false"}],
     constraints: ["-2^31 <= n <= 2^31 - 1"],
     intuition: "Power of two has exactly one set bit. n & (n-1) == 0 checks this (clears the one set bit to 0). Also n must be > 0.",
+    recognize: [
+      "\"2 raised to some exponent\" — every power of two has exactly one bit set in binary.",
+      "A yes/no answer with no need to find the exponent itself.",
+      "Looping and dividing by 2 works but a single bitwise check is O(1).",
+      "→ Check n > 0 and n & (n-1) == 0 — that trick clears the lone set bit.",
+    ],
     approach: [
       "Return n > 0 && (n & (n-1)) == 0.",
     ],
@@ -4585,6 +5011,12 @@ public:
     examples: [{"input":"a = 1, b = 2","output":"3"},{"input":"a = 2, b = 3","output":"5"}],
     constraints: ["-1000 <= a, b <= 1000"],
     intuition: "Simulate addition with XOR (sum without carry) and AND shifted left (carry). Repeat until carry is 0.",
+    recognize: [
+      "\"Without using '+' or '-'\" explicitly bans the arithmetic operators, pointing straight at bit tricks.",
+      "\"Relying instead on bitwise operations\" is a direct hint toward XOR/AND/shift.",
+      "Addition itself decomposes into a no-carry sum (XOR) plus a carry term (AND, shifted).",
+      "→ Loop: XOR gives the sum without carry, AND-shifted-left gives the carry, repeat until carry is 0.",
+    ],
     approach: [
       "While b != 0: carry = (a & b) << 1. a = a ^ b. b = carry.",
       "Return a.",
@@ -4623,6 +5055,12 @@ public:
     examples: [{"input":"s = \"12\"","output":"2","explanation":"\"12\" can be decoded as \"AB\" (1 2) or \"L\" (12)."},{"input":"s = \"226\"","output":"3","explanation":"\"226\" can be decoded as \"BZ\" (2 26), \"VF\" (22 6), or \"BBF\" (2 2 6)."},{"input":"s = \"06\"","output":"0","explanation":"A leading zero cannot be decoded on its own or combined validly, so there are no valid decodings."}],
     constraints: ["1 <= s.length <= 100","s consists only of digit characters '0'-'9'"],
     intuition: "DP. dp[i] = ways to decode s[0..i-1]. If s[i-1] is valid single digit (1-9): dp[i] += dp[i-1]. If s[i-2..i-1] is valid two-digit (10-26): dp[i] += dp[i-2].",
+    recognize: [
+      "Asks for a COUNT of ways, not a single decoding — hints at counting DP, not backtracking.",
+      "Each position branches into 1-digit or 2-digit choices — overlapping subproblems as positions repeat.",
+      "Leading zero rule ('06' invalid) is a constraint that breaks naive recursion without care.",
+      "→ dp[i] = ways to decode the first i chars, built from dp[i-1] and dp[i-2].",
+    ],
     approach: [
       "dp[0]=1 (empty string), dp[1]=s[0]!='0' ? 1 : 0.",
       "For i from 2 to n:",
@@ -4672,6 +5110,12 @@ public:
     examples: [{"input":"m = 3, n = 7","output":"28"},{"input":"m = 3, n = 2","output":"3","explanation":"The three paths are Down-Down-Right, Down-Right-Down, and Right-Down-Down."},{"input":"m = 1, n = 1","output":"1"}],
     constraints: ["1 <= m, n <= 100","The answer fits comfortably in a 32-bit integer"],
     intuition: "Robot moves right or down only. dp[i][j] = ways to reach (i,j) = dp[i-1][j] + dp[i][j-1]. First row and column all 1s (only one path).",
+    recognize: [
+      "Movement restricted to only right or down — a grid path-counting setup.",
+      "Asks for a COUNT of distinct paths, not the shortest or a specific path.",
+      "Each cell is reachable only from above or from the left — small, local recurrence.",
+      "→ dp[i][j] = dp[i-1][j] + dp[i][j-1], seeded with 1s on the first row/column.",
+    ],
     approach: [
       "dp[m][n], initialize all 1s in first row and col.",
       "For i from 1 to m-1: for j from 1 to n-1: dp[i][j] = dp[i-1][j] + dp[i][j-1].",
@@ -4709,6 +5153,12 @@ public:
     examples: [{"input":"grid = [[1,3,1],[1,5,1],[4,2,1]]","output":"7","explanation":"The path 1 -> 3 -> 1 -> 1 -> 1 minimizes the sum."},{"input":"grid = [[1,2,3],[4,5,6]]","output":"12"}],
     constraints: ["1 <= m, n <= 200","0 <= grid[i][j] <= 100"],
     intuition: "DP: dp[i][j] = minimum cost path to (i,j) = grid[i][j] + min(dp[i-1][j], dp[i][j-1]).",
+    recognize: [
+      "Grid with only right/down moves, but now cells carry costs, not just a path count.",
+      "Asks to MINIMIZE a sum along the path — greedy step choice can trap you in a bad path.",
+      "Same recurrence shape as Unique Paths, just min-cost instead of path-count.",
+      "→ dp[i][j] = grid[i][j] + min(from above, from left).",
+    ],
     approach: [
       "Initialize dp[0][0] = grid[0][0].",
       "Fill first row and col (only one path).",
@@ -4751,6 +5201,12 @@ public:
     examples: [{"input":"text1 = \"abcde\", text2 = \"ace\"","output":"3","explanation":"The longest common subsequence is \"ace\"."},{"input":"text1 = \"abc\", text2 = \"abc\"","output":"3"},{"input":"text1 = \"abc\", text2 = \"def\"","output":"0"}],
     constraints: ["1 <= text1.length, text2.length <= 1000","text1 and text2 consist of lowercase English characters only"],
     intuition: "DP: dp[i][j] = LCS length for s1[0..i-1] and s2[0..j-1]. If chars match: dp[i][j] = dp[i-1][j-1] + 1. Else: max(dp[i-1][j], dp[i][j-1]).",
+    recognize: [
+      "\"Subsequence\" (not substring) shared between two strings — order matters, gaps allowed.",
+      "Two strings to compare together — 2D grid of prefix pairs, not a single-string DP.",
+      "Every prefix pair (i,j) reduces cleanly to smaller prefix pairs.",
+      "→ dp[i][j]: match extends the diagonal, mismatch takes the better of skipping one char.",
+    ],
     approach: [
       "dp[m+1][n+1] initialized to 0.",
       "For i 1..m, j 1..n:",
@@ -4792,6 +5248,12 @@ public:
     examples: [{"input":"nums = [10,9,2,5,3,7,101,18]","output":"4","explanation":"One longest increasing subsequence is [2,3,7,101], which has length 4."},{"input":"nums = [0,1,0,3,2,3]","output":"4","explanation":"One longest increasing subsequence is [0,1,2,3]."},{"input":"nums = [7,7,7,7]","output":"1"}],
     constraints: ["1 <= nums.length <= 2500","-10^4 <= nums[i] <= 10^4"],
     intuition: "DP: dp[i] = length of LIS ending at index i. For each i, dp[i] = max(dp[j]+1) for all j < i where nums[j] < nums[i]. O(n²). Patience sorting gives O(n log n).",
+    recognize: [
+      "\"Strictly increasing subsequence\" (deletions allowed) — not contiguous, order preserved.",
+      "n up to 2500 hints O(n²) DP is safe, but O(n log n) patience sorting is the sharper answer.",
+      "Each element only cares about the best subsequence ending strictly before it.",
+      "→ Track smallest tail per subsequence length; binary search + replace/extend gives LIS length.",
+    ],
     approach: [
       "tails array (patience sorting): for each num, binary search for first tail >= num.",
       "If found: replace. If not found: append.",
@@ -4832,6 +5294,12 @@ public:
     examples: [{"input":"s = \"babad\"","output":"\"bab\"","explanation":"\"aba\" is also a valid answer of the same length."},{"input":"s = \"cbbd\"","output":"\"bb\""},{"input":"s = \"a\"","output":"\"a\""}],
     constraints: ["1 <= s.length <= 1000","s consists only of digits and English letters"],
     intuition: "Expand around center. For each index (and each gap between indices), expand outward as long as chars match. Track max expansion.",
+    recognize: [
+      "Need the longest palindromic SUBSTRING — must be contiguous, unlike LCS-style subsequences.",
+      "n up to 1000 — O(n²) expand-around-center or DP is fine, no need for Manacher's.",
+      "A palindrome grows symmetrically from a center, so every valid answer has one.",
+      "→ Try every center (odd and even), expand outward while both sides match, track the longest.",
+    ],
     approach: [
       "For each i: expand around i (odd length) and between i,i+1 (even length).",
       "Expansion: l=i,r=i (or i,i+1). While l>=0 && r<n && s[l]==s[r]: l--, r++.",
@@ -4873,6 +5341,12 @@ public:
     examples: [{"input":"s = \"abc\"","output":"3","explanation":"The palindromic substrings are \"a\", \"b\", and \"c\"."},{"input":"s = \"aaa\"","output":"6","explanation":"The palindromic substrings are \"a\", \"a\", \"a\", \"aa\", \"aa\", and \"aaa\"."},{"input":"s = \"aba\"","output":"4"}],
     constraints: ["1 <= s.length <= 1000","s consists of lowercase English letters"],
     intuition: "Same expand-around-center. Count each expansion as a palindrome found.",
+    recognize: [
+      "Asks for a COUNT of palindromic substrings, not the longest one — every match matters.",
+      "Same contiguous-substring shape as Longest Palindromic Substring — expand-around-center reuse.",
+      "Duplicates at different positions count separately — position, not just value, matters.",
+      "→ Expand from every center; each successful expansion step is one more palindrome to count.",
+    ],
     approach: [
       "For each i: expand odd (center i) and even (center i,i+1).",
       "Every expansion step counts as one palindrome.",
@@ -4910,6 +5384,12 @@ public:
     examples: [{"input":"word1 = \"horse\", word2 = \"ros\"","output":"3","explanation":"horse -> rorse (replace 'h' with 'r') -> rose (remove 'r') -> ros (remove 'e')."},{"input":"word1 = \"intention\", word2 = \"execution\"","output":"5"}],
     constraints: ["0 <= word1.length, word2.length <= 500","word1 and word2 consist of lowercase English letters"],
     intuition: "DP: dp[i][j] = min ops to convert word1[0..i-1] to word2[0..j-1]. If chars match: dp[i][j] = dp[i-1][j-1]. Else: 1 + min(delete, insert, replace).",
+    recognize: [
+      "Three operation types (insert, delete, replace) between two strings — classic edit-distance shape.",
+      "Asks for MINIMUM operations, and each prefix pair's cost depends only on smaller prefix pairs.",
+      "Same 2D grid-of-prefixes structure as LCS, but every cell has 3 possible predecessors, not 2.",
+      "→ dp[i][j]: match copies the diagonal, mismatch takes 1 + min of delete/insert/replace.",
+    ],
     approach: [
       "dp[m+1][n+1]. dp[i][0]=i, dp[0][j]=j.",
       "If word1[i-1]==word2[j-1]: dp[i][j]=dp[i-1][j-1].",
@@ -4953,6 +5433,12 @@ public:
     examples: [{"input":"amount = 5, coins = [1,2,5]","output":"4","explanation":"The combinations are 5, 2+2+1, 2+1+1+1, and 1+1+1+1+1."},{"input":"amount = 3, coins = [2]","output":"0"},{"input":"amount = 0, coins = [7]","output":"1"}],
     constraints: ["1 <= coins.length <= 300","1 <= coins[i] <= 5000","all coin values are distinct","0 <= amount <= 5000"],
     intuition: "Count ways to make amount using coins with unlimited use. DP: dp[i] = number of ways to make amount i. For each coin, update dp[i] += dp[i-coin] for all i >= coin.",
+    recognize: [
+      "\"Number of combinations\" where order doesn't matter — different from counting arrangements.",
+      "Unlimited supply of each coin — unbounded knapsack, same family as Coin Change I but counting, not minimizing.",
+      "Combinations, not permutations, means each coin must be processed as a whole loop, not per-amount.",
+      "→ Loop coins on the outside, amounts inside: dp[i] += dp[i-coin] avoids counting reorderings.",
+    ],
     approach: [
       "dp[amount+1] = {1, 0, 0, ...}.",
       "For each coin: for i from coin to amount: dp[i] += dp[i-coin].",
@@ -4991,6 +5477,12 @@ public:
     examples: [{"input":"nums = [2,3,-2,4]","output":"6","explanation":"The subarray [2,3] has the largest product, 6."},{"input":"nums = [-2,0,-1]","output":"0","explanation":"The subarray [0] gives the largest possible product since any subarray spanning across it includes a negative value or a zero."},{"input":"nums = [-2,3,-4]","output":"24"}],
     constraints: ["1 <= nums.length <= 2 * 10^4","-10 <= nums[i] <= 10","the product of any prefix or suffix of nums fits within a 32-bit integer"],
     intuition: "Two running products: maxProd and minProd (min because negative × negative = positive). At each step update both using current element and previous max/min. Track global max.",
+    recognize: [
+      "\"Product\" of a contiguous subarray — negatives can flip a very negative product into the max.",
+      "Array can contain negatives AND zeros — Kadane's plain max-sum trick alone breaks here.",
+      "A single negative number can turn the smallest running product into the next biggest.",
+      "→ Track both running max and running min product; a negative number swaps their roles.",
+    ],
     approach: [
       "maxP = minP = res = nums[0].",
       "For i from 1 to n-1:",
@@ -5036,6 +5528,12 @@ public:
     examples: [{"input":"s = \"leetcode\", wordDict = [\"leet\",\"code\"]","output":"true","explanation":"\"leetcode\" splits into \"leet\" and \"code\", both of which are in the dictionary."},{"input":"s = \"catsandog\", wordDict = [\"cats\",\"dog\",\"sand\",\"and\",\"cat\"]","output":"false","explanation":"No combination of dictionary words can be concatenated to form \"catsandog\"."},{"input":"s = \"applepenapple\", wordDict = [\"apple\",\"pen\"]","output":"true"}],
     constraints: ["1 <= s.length <= 300","1 <= wordDict.length <= 1000","1 <= wordDict[i].length <= 20","s and wordDict[i] consist of lowercase English letters","all strings in wordDict are unique"],
     intuition: "DP: dp[i] = true if s[0..i-1] can be segmented using wordDict. For each i, try all j < i: if dp[j] && s[j..i-1] is in dict, dp[i] = true.",
+    recognize: [
+      "Words can be reused unlimited times — rules out a simple greedy left-to-right match.",
+      "Just a yes/no on whether ANY valid segmentation exists, not which one — reachability DP fits.",
+      "Every prefix's answer depends only on shorter prefixes — no need to enumerate full segmentations.",
+      "→ dp[i] = true if some earlier dp[j] is true and s[j..i) is a dictionary word.",
+    ],
     approach: [
       "Set from wordDict for O(1) lookup.",
       "dp[0] = true.",
@@ -5078,6 +5576,12 @@ public:
     examples: [{"input":"nums = [1,5,11,5]","output":"true","explanation":"The array can be split into [1,5,5] and [11], both summing to 11."},{"input":"nums = [1,2,3,5]","output":"false","explanation":"The total sum is 11, which is odd, so it cannot be split into two equal-sum subsets."},{"input":"nums = [1,2,5]","output":"false"}],
     constraints: ["1 <= nums.length <= 200","1 <= nums[i] <= 100"],
     intuition: "Find if subset sums to total/2. If total is odd, impossible. 0/1 knapsack DP: dp[j] = can we achieve sum j using elements so far.",
+    recognize: [
+      "\"Split into two subsets with equal sum\" reduces to: does a subset sum to total/2?",
+      "Each number used at most once (no repeats mentioned) — signals 0/1 knapsack, not unbounded.",
+      "Odd total sum is an instant no — a cheap check before running any DP.",
+      "→ 0/1 knapsack on target = total/2; iterate items and sums backwards to avoid reuse.",
+    ],
     approach: [
       "If total sum is odd: return false.",
       "target = sum / 2.",
@@ -5121,6 +5625,12 @@ public:
     examples: [{"input":"nums = [1,1,1,1,1], target = 3","output":"5","explanation":"There are 5 ways to assign signs so the expression evaluates to 3, e.g. -1+1+1+1+1 = 3."},{"input":"nums = [1], target = 1","output":"1"}],
     constraints: ["1 <= nums.length <= 20","0 <= nums[i] <= 1000","0 <= sum(nums) <= 1000","-1000 <= target <= 1000"],
     intuition: "DFS with memoization or DP. The number of ways to assign +/- to reach target. DP: dp[sum+offset] = count of ways. Or use subset-sum: S(+) - S(-) = target, S(+) + S(-) = total → S(+) = (total+target)/2.",
+    recognize: [
+      "Every number gets a forced + or - sign — n <= 20 hints at 2^n brute force, but a smarter DP exists.",
+      "Asks for a COUNT of sign assignments hitting target, not just feasibility.",
+      "Algebra collapses +/- assignment into a subset-sum problem (positive subset size is fixed by target).",
+      "→ Convert to counting subsets that sum to (total+target)/2 via 0/1 knapsack.",
+    ],
     approach: [
       "Convert to subset sum: find subsets summing to (total+target)/2.",
       "If (total+target) odd or negative: return 0.",
@@ -5165,6 +5675,12 @@ public:
     examples: [{"input":"prices = [1,2,3,0,2]","output":"3","explanation":"Buy on day 0, sell on day 1, cooldown on day 2, buy on day 3, sell on day 4: profit = (2-1) + (2-0) = 3."},{"input":"prices = [1]","output":"0"}],
     constraints: ["1 <= prices.length <= 5000","0 <= prices[i] <= 1000"],
     intuition: "State machine DP. Three states: holding (can sell), sold (must cooldown next day), cooldown (can buy). Transitions: holding→sold (sell), sold→cooldown (forced), cooldown→holding (buy) or stay.",
+    recognize: [
+      "Unlimited transactions PLUS a cooldown rule after selling — plain Kadane-style greedy breaks.",
+      "Each day you're in one of a few distinct states (holding, just sold, resting) — state machine shape.",
+      "\"Wait one day before buying again\" is a transition constraint, not a global count limit.",
+      "→ Track hold/sold/cooldown profit per day, transition between the three states.",
+    ],
     approach: [
       "hold = max profit when holding a stock.",
       "sold = max profit day after selling.",
@@ -5209,6 +5725,12 @@ public:
     examples: [{"input":"points = [[1,3],[-2,2]], k = 1","output":"[[-2,2]]","explanation":"The distance of (1,3) from the origin is sqrt(10) while (-2,2) is sqrt(8), so (-2,2) is closer."},{"input":"points = [[3,3],[5,-1],[-2,4]], k = 2","output":"[[3,3],[-2,4]]"}],
     constraints: ["1 <= k <= points.length <= 10^4","-10^4 <= points[i][0], points[i][1] <= 10^4"],
     intuition: "Max-heap of size k. Maintain k smallest distances. If new point closer than heap max, swap. Result is heap contents.",
+    recognize: [
+      "Need the k closest points, not a full sorted order — sorting everything is wasted work.",
+      "\"Any order\" is acceptable in the answer — no need to preserve original ranking.",
+      "Only care about the smallest k of n distances — a bounded-size heap tracks exactly that.",
+      "→ Max-heap capped at size k; evict the farthest whenever a closer point arrives.",
+    ],
     approach: [
       "Max-heap (priority_queue) storing (dist², x, y).",
       "For each point: compute dist².",
@@ -5251,6 +5773,12 @@ public:
     examples: [{"input":"nums = [3,2,1,5,6,4], k = 2","output":"5","explanation":"Sorted descending: [6,5,4,3,2,1]; the 2nd element is 5."},{"input":"nums = [3,2,3,1,2,4,5,5,6], k = 4","output":"4"}],
     constraints: ["1 <= k <= nums.length <= 10^5","-10^4 <= nums[i] <= 10^4"],
     intuition: "Quickselect (average O(n)) or min-heap of size k. Heap approach: maintain heap of k largest seen. Top = kth largest.",
+    recognize: [
+      "Need one specific rank (the k-th largest), not the full sorted array.",
+      "A full sort works but does more work than needed — O(n log n) is overkill for a single rank.",
+      "Keeping only the k largest values seen at once is exactly what a bounded heap does.",
+      "→ Min-heap capped at size k; its top is the k-th largest once the heap is full.",
+    ],
     approach: [
       "Min-heap of size k.",
       "For each num: push. If size > k: pop min.",
@@ -5288,6 +5816,12 @@ public:
     examples: [{"input":"[\"KthLargest\",\"add\",\"add\",\"add\",\"add\"], k = 3, nums = [4,5,8,2], values to add = [3,5,10,9]","output":"[null,4,5,5,8]","explanation":"After construction the 3rd largest of {4,5,8,2} is 4; adding 3,5,10,9 one at a time updates the 3rd largest to 4, 5, 5, and 8 respectively."},{"input":"[\"KthLargest\",\"add\"], k = 1, nums = [], values to add = [-3]","output":"[null,-3]"}],
     constraints: ["1 <= k <= 10^4","0 <= nums.length <= 10^4","-10^4 <= nums[i] <= 10^4","-10^4 <= value to add <= 10^4","At least k elements will exist in the stream before a call needing the k-th largest"],
     intuition: "Maintain min-heap of size k. Top of heap is always the kth largest. On add: push, if size > k, pop. Return top.",
+    recognize: [
+      "\"Design a class\" with repeated add calls on a growing stream — needs persistent state, not one-shot.",
+      "Each add must return the current k-th largest — re-sorting from scratch every call is too slow.",
+      "Same k-th-largest question as the static array version, but values keep arriving over time.",
+      "→ Keep a min-heap capped at size k across calls; its top is always the k-th largest so far.",
+    ],
     approach: [
       "Init: build min-heap from vals, trim to size k.",
       "add(val): push val. If size > k: pop. Return top.",
@@ -5327,6 +5861,12 @@ public:
     examples: [{"input":"stones = [2,7,4,1,8,1]","output":"1","explanation":"Smashing repeatedly: (8,7)->1, (4,2)->2, (2,1)->1, (1,1)->0, leaving a single stone of weight 1."},{"input":"stones = [1]","output":"1"}],
     constraints: ["1 <= stones.length <= 30","1 <= stones[i] <= 1000"],
     intuition: "Repeatedly smash the two heaviest stones. Max-heap gives constant-time access to heaviest.",
+    recognize: [
+      "Repeatedly need the current two LARGEST elements, and the set keeps changing after each step.",
+      "\"Repeatedly pick the two heaviest\" — a fresh sort every round would be wasteful.",
+      "Small n (<= 30) doesn't matter for approach choice — the heap pattern is still the clean fit.",
+      "→ Max-heap: pop the two largest, push back the difference, repeat until one (or none) remains.",
+    ],
     approach: [
       "Build max-heap.",
       "While heap.size() > 1: pop two heaviest (x, y with x >= y).",
@@ -5368,6 +5908,12 @@ public:
     examples: [{"input":"tasks = [\"A\",\"A\",\"A\",\"B\",\"B\",\"B\"], n = 2","output":"8","explanation":"One valid ordering is A -> B -> idle -> A -> B -> idle -> A -> B, which takes 8 intervals."},{"input":"tasks = [\"A\",\"A\",\"A\",\"B\",\"B\",\"B\"], n = 0","output":"6","explanation":"With no cooldown required, tasks can run back-to-back in any order."}],
     constraints: ["1 <= tasks.length <= 10^4","tasks[i] is an uppercase English letter","0 <= n <= 100"],
     intuition: "Most frequent task determines idle time. Sort tasks by frequency. The formula: result = max(n+1 frames × (maxFreq-1) + tasks with maxFreq, total tasks).",
+    recognize: [
+      "Same task letter needs a cooldown gap — the most frequent letter dictates the schedule's shape.",
+      "Idle slots may be required — total time can exceed the raw task count.",
+      "Only counts matter, not which specific tasks, so full simulation isn't necessary.",
+      "→ Frequency-count the tasks; slot into (maxFreq-1) frames of size (n+1) plus tied leftovers.",
+    ],
     approach: [
       "Count task frequencies.",
       "maxFreq = max frequency.",
@@ -5407,6 +5953,12 @@ public:
     examples: [{"input":"addNum(1); addNum(2); findMedian(); addNum(3); findMedian()","output":"[null, null, 1.5, null, 2.0]","explanation":"After adding 1 and 2, the median of [1,2] is 1.5; after adding 3, the median of [1,2,3] is 2.0."}],
     constraints: ["-10^5 <= num <= 10^5","At most 5 * 10^4 calls will be made to addNum and findMedian combined","findMedian is only called after at least one number has been added"],
     intuition: "Two heaps: max-heap for lower half, min-heap for upper half. Keep sizes balanced (|maxH| - |minH| <= 1). Median is top of larger heap or average of both tops.",
+    recognize: [
+      "\"Design\" a structure with numbers streaming in and median queried repeatedly — needs live state.",
+      "Median needs the middle value(s) at any time — re-sorting the whole stream each query is too slow.",
+      "Splitting data into a \"lower half\" and \"upper half\" is exactly what two balanced heaps give you.",
+      "→ Max-heap for the lower half, min-heap for the upper half, kept balanced in size.",
+    ],
     approach: [
       "addNum: push to maxH. Move maxH.top() to minH. If minH.size() > maxH.size(): move minH.top() to maxH.",
       "findMedian: if maxH.size() > minH.size(): return maxH.top(). Else return (maxH.top()+minH.top())/2.0.",
@@ -6041,6 +6593,12 @@ public:
     examples: [{"input":"s = \"III\"","output":"3"},{"input":"s = \"LVIII\"","output":"58","explanation":"L = 50, V = 5, III = 3, summing to 58."},{"input":"s = \"MCMXCIV\"","output":"1994","explanation":"M = 1000, CM = 900, XC = 90, IV = 4, summing to 1994."}],
     constraints: ["1 <= s.length <= 15","s contains only the characters 'I','V','X','L','C','D','M'","The input is guaranteed to be a valid Roman numeral representing a value between 1 and 3999"],
     intuition: "Map each Roman numeral to its value. Walk left to right. If current value < next value, subtract current (subtractive pair like IV=4). Else add.",
+    recognize: [
+      "\"Subtractive notation such as IV meaning 4\" — a small symbol before a larger one flips it from addition to subtraction.",
+      "Fixed, known symbol-to-value mapping (I,V,X,L,C,D,M) — a simple lookup table problem.",
+      "Only a local look-ahead (this symbol vs the next) decides add or subtract — no need for full parsing.",
+      "→ Map each symbol to its value; add it, or subtract it if the next symbol's value is larger.",
+    ],
     approach: [
       "Map: I=1,V=5,X=10,L=50,C=100,D=500,M=1000.",
       "For i from 0 to n-2: if val[s[i]] < val[s[i+1]]: result -= val[s[i]]. Else: result += val[s[i]].",
@@ -6079,6 +6637,12 @@ public:
     examples: [{"input":"n = 19","output":"true","explanation":"1^2+9^2=82, 8^2+2^2=68, 6^2+8^2=100, 1^2+0^2+0^2=1, so the sequence reaches 1."},{"input":"n = 2","output":"false","explanation":"The sequence of sums enters a repeating cycle that never reaches 1."}],
     constraints: ["1 <= n <= 2^31 - 1"],
     intuition: "Repeatedly replace number with sum of squares of digits. Eventually hits 1 (happy) or enters cycle. Floyd's cycle detection catches cycle without HashSet.",
+    recognize: [
+      "\"Enters a cycle that never includes 1\" — the sequence either terminates at 1 or loops forever, never growing unbounded.",
+      "Each step deterministically maps one number to the next, like following a linked list of values.",
+      "A hash set of seen values would work, but the sequence structure suggests two-pointer cycle detection instead.",
+      "→ Floyd's slow/fast pointers over the sum-of-squared-digits sequence; happy if they meet at 1.",
+    ],
     approach: [
       "sumSquares(n): extract digits, sum squares.",
       "Fast/slow pointers: slow=sumSquares(n), fast=sumSquares(sumSquares(n)).",
@@ -6115,6 +6679,12 @@ public:
     examples: [{"input":"digits = [1,2,3]","output":"[1,2,4]","explanation":"The array represents 123, and 123 + 1 = 124."},{"input":"digits = [4,3,2,1]","output":"[4,3,2,2]","explanation":"The array represents 4321, and 4321 + 1 = 4322."},{"input":"digits = [9]","output":"[1,0]","explanation":"9 + 1 = 10, which requires an extra digit."}],
     constraints: ["1 <= digits.length <= 100","0 <= digits[i] <= 9","digits does not contain any leading zero, except for the number 0 itself"],
     intuition: "Add 1 from last digit. If becomes 10, set 0 and carry. If carry propagates through all digits, prepend 1.",
+    recognize: [
+      "Number is stored as an array of digits, most significant first — the same layout as manual addition on paper.",
+      "\"Add one\" is just elementary-school carrying, done right to left.",
+      "The only tricky case is all-9s, which grows the array by one digit — everything else stops early.",
+      "→ Walk from the last digit; increment and stop unless it rolls over from 9 to 0, carrying left.",
+    ],
     approach: [
       "Walk from end to start.",
       "If digit < 9: increment and return.",
@@ -6155,6 +6725,12 @@ public:
     examples: [{"input":"x = 2.00000, n = 10","output":"1024.00000"},{"input":"x = 2.10000, n = 3","output":"9.26100"},{"input":"x = 2.00000, n = -2","output":"0.25000","explanation":"2^-2 = 1 / 2^2 = 1/4 = 0.25."}],
     constraints: ["-100.0 < x < 100.0","-2^31 <= n <= 2^31 - 1","n is an integer","Either x is not zero or n > 0","-10^4 <= x^n <= 10^4"],
     intuition: "Fast exponentiation (binary). Even n: x^n = (x²)^(n/2). Odd n: x^n = x × x^(n-1). O(log n). Handle negative n.",
+    recognize: [
+      "n up to 2^31-1 — naively multiplying x by itself n times is far too slow.",
+      "Exponent n can be negative — power becomes a reciprocal, x^(-n) = (1/x)^n.",
+      "x^n splits cleanly by parity: even n halves the exponent by squaring the base, odd peels off one factor.",
+      "→ Binary/fast exponentiation: square the base and halve the exponent each step, O(log n).",
+    ],
     approach: [
       "If n < 0: x = 1/x, n = -n. Use long long for n.",
       "result = 1.",
@@ -6197,6 +6773,12 @@ public:
     examples: [{"input":"x = 123","output":"321"},{"input":"x = -123","output":"-321"},{"input":"x = 120","output":"21"}],
     constraints: ["-2^31 <= x <= 2^31 - 1"],
     intuition: "Extract digits right to left, build reversed number. Before each step check if adding next digit would overflow 32-bit int bounds.",
+    recognize: [
+      "\"Reverse the digits\" of an integer — a digit-by-digit extraction problem, not a string trick.",
+      "\"If the reversed value falls outside... return 0\" — explicit overflow handling requirement.",
+      "Bounded to signed 32-bit — overflow must be checked mid-computation, before it happens.",
+      "→ Peel digits with %10 and /10, rebuild in reverse, guard each step against INT_MAX/MIN overflow.",
+    ],
     approach: [
       "rev = 0.",
       "While x != 0: digit = x%10. x /= 10.",
@@ -6241,6 +6823,12 @@ public:
     examples: [{"input":"height = [0,1,0,2,1,0,1,3,2,1,2,1]","output":"6"},{"input":"height = [4,2,0,3,2,5]","output":"9"},{"input":"height = [1,0,1]","output":"1"}],
     constraints: ["1 <= height.length <= 2 * 10^4","0 <= height[i] <= 10^5"],
     intuition: "Two-pointer. Water at each index = min(maxLeft, maxRight) - height[i]. Track running maxLeft and maxRight from each side. Process the smaller-max side first.",
+    recognize: [
+      "Elevation map, each bar width 1 — trapped water per bar depends on the tallest wall to its left AND right.",
+      "n up to 2*10^4 pushes past a naive O(n^2) recompute of max-left/max-right per index.",
+      "Water above a bar is bounded by whichever side has the SHORTER running maximum — the smaller side is always safe to resolve.",
+      "→ Two pointers from both ends, tracking running maxLeft/maxRight, always advance the smaller-max side.",
+    ],
     approach: [
       "l=0, r=n-1, maxL=0, maxR=0, water=0.",
       "While l < r: if height[l] <= height[r]: maxL=max(maxL,height[l]). water+=maxL-height[l]. l++. Else: same for right side.",
@@ -6284,6 +6872,12 @@ public:
     examples: [{"input":"heights = [2,1,5,6,2,3]","output":"10","explanation":"The largest rectangle is formed by the bars of height 5 and 6, giving an area of 2 * 5 = 10."},{"input":"heights = [2,4]","output":"4"}],
     constraints: ["1 <= heights.length <= 10^5","0 <= heights[i] <= 10^4"],
     intuition: "Monotonic stack of indices (increasing heights). When shorter bar found, pop and calculate area using popped bar as height. Width = i to left stack element.",
+    recognize: [
+      "Largest rectangle using contiguous bars — each bar's max rectangle is capped by the first shorter bar on either side.",
+      "n up to 10^5 rules out checking every (left, right) pair in O(n^2).",
+      "A bar's right boundary is only revealed once a strictly shorter bar appears — a \"wait until resolved\" pattern.",
+      "→ Monotonic increasing stack of indices; popping and computing area when a shorter bar arrives.",
+    ],
     approach: [
       "Append 0-height sentinel to force all pops at end.",
       "For each bar: while stack not empty and height < height[stack.top()]: pop, compute area.",
@@ -6333,6 +6927,12 @@ public:
     examples: [{"input":"s = \"()\"","output":"true"},{"input":"s = \"(*)\"","output":"true","explanation":"The '*' can be treated as an empty string, leaving a balanced \"()\"."},{"input":"s = \"(*))\"","output":"true","explanation":"Treating the '*' as '(' gives \"(())\", which is balanced."}],
     constraints: ["1 <= s.length <= 100","s[i] is '(', ')', or '*'"],
     intuition: "Track range [lo, hi] of possible open-paren counts. '(' increments both. ')' decrements both. '*' expands range (lo--, hi++). Clamp lo at 0. If hi < 0: invalid. End: lo must be 0.",
+    recognize: [
+      "'*' can be three different things — a single running count can't capture this ambiguity.",
+      "n <= 100 is small, but trying all 3^(count of '*') interpretations is still wasteful.",
+      "Only the RANGE of possible open-paren counts matters, not which specific interpretation was chosen.",
+      "→ Greedily track [lo, hi] bounds on open count; '*' widens the range, clamp lo at 0.",
+    ],
     approach: [
       "lo=0, hi=0.",
       "For each c: '(' → lo++,hi++. ')' → lo--,hi--. '*' → lo--,hi++.",
@@ -6760,6 +7360,12 @@ public:
     examples: [{"input":"addWord(\"bad\"); addWord(\"dad\"); addWord(\"mad\"); search(\"pad\"); search(\"bad\"); search(\".ad\"); search(\"b..\")","output":"false, true, true, true","explanation":"\"pad\" was never added so it fails. \"bad\" matches exactly. \".ad\" matches \"bad\", \"dad\", or \"mad\" since '.' matches any letter. \"b..\" matches \"bad\"."}],
     constraints: ["1 <= word.length <= 25","word consists of lowercase English letters and possibly '.'","At most 2 * 10^4 calls will be made to addWord and search","There are at most 2 dots in any search query"],
     intuition: "Trie for insertion. DFS for search — '.' matches any child, letter matches exact child. Backtrack through trie for wildcard.",
+    recognize: [
+      "\"Design\" a structure with repeated addWord/search — needs a data structure, not a one-off function.",
+      "'.' can match ANY letter — a plain hash set of words can't handle wildcard search efficiently.",
+      "Wildcard means one query position can branch into up to 26 possibilities — a tree of shared prefixes helps.",
+      "→ Trie for storage; DFS the search query, branching on every child when '.' is hit.",
+    ],
     approach: [
       "Trie with isEnd flag.",
       "addWord: standard trie insert.",
@@ -6810,6 +7416,12 @@ public:
     examples: [{"input":"board = [[\"o\",\"a\",\"a\",\"n\"],[\"e\",\"t\",\"a\",\"e\"],[\"i\",\"h\",\"k\",\"r\"],[\"i\",\"f\",\"l\",\"v\"]], words = [\"oath\",\"pea\",\"eat\",\"rain\"]","output":"[\"eat\",\"oath\"]","explanation":"\"oath\" traces down the first column and across, \"eat\" traces through adjacent cells; \"pea\" and \"rain\" cannot be traced."},{"input":"board = [[\"a\",\"b\"],[\"c\",\"d\"]], words = [\"abcb\"]","output":"[]","explanation":"\"abcb\" would require reusing the cell containing 'b', which is not allowed."}],
     constraints: ["1 <= m, n <= 12","board[i][j] is a lowercase English letter","1 <= words.length <= 3 * 10^4","1 <= words[i].length <= 10","All words[i] are unique"],
     intuition: "Build Trie from all words. DFS from each board cell, matching Trie path. When Trie node has word ending, record it. Clear word after found to deduplicate.",
+    recognize: [
+      "Many words to find at once in one grid — searching each word separately with plain DFS wastes shared prefix work.",
+      "Grid path search (no cell reuse) is the same shape as Word Search I, just for a whole word list.",
+      "Words share common prefixes — a natural sign to merge them into one shared structure before searching.",
+      "→ Build a Trie of all words, then DFS the grid once, pruning any path with no matching trie branch.",
+    ],
     approach: [
       "Build Trie from words.",
       "DFS(board, r, c, TrieNode): mark cell '#'. For each neighbor: if char in trie children, recurse.",
@@ -6862,6 +7474,12 @@ public:
     examples: [{"input":"triplets = [[2,5,3],[1,8,4],[1,7,5]], target = [2,7,5]","output":"true","explanation":"Merging triplet [2,5,3] (valid since 2<=2,5<=7,3<=5) with [1,7,5] (valid since all coordinates <= target) gives elementwise max [2,7,5]."},{"input":"triplets = [[2,5,3],[1,8,4],[1,7,5]], target = [2,7,6]","output":"false","explanation":"Any triplet with a value exceeding the target's on some coordinate (like 8 > 7) cannot be used, and the remaining valid triplets never reach a third coordinate of 6."},{"input":"triplets = [[3,4,5],[4,4,5],[5,5,5]], target = [5,5,5]","output":"true"}],
     constraints: ["1 <= triplets.length <= 10^5","triplets[i].length == target.length == 3","1 <= triplets[i][j], target[j] <= 1000"],
     intuition: "Skip any triplet that exceeds target in any component (it can't help). From remaining valid triplets, take max per component. Check if result equals target.",
+    recognize: [
+      "Merging is elementwise MAX, which is monotonic — once a value exceeds target it can never be undone.",
+      "Only need a yes/no on reaching target exactly, not which subset of triplets was used.",
+      "Any triplet with a coordinate above target's poisons that merge — safe to discard outright.",
+      "→ Discard triplets exceeding target anywhere; take the elementwise max of the rest and compare to target.",
+    ],
     approach: [
       "For each triplet: if any triplet[i] > target[i]: skip.",
       "Else update best[i] = max(best[i], triplet[i]) for each i.",
@@ -6900,6 +7518,12 @@ public:
     examples: [{"input":"intervals = [[1,4],[2,4],[3,6],[4,4]], queries = [2,3,4,5]","output":"[3,3,1,4]","explanation":"For query 4, the interval [4,4] has size 1 and contains 4, which is the smallest containing interval."},{"input":"intervals = [[2,3],[2,5],[1,8],[20,25]], queries = [2,19,5,22]","output":"[2,-1,4,6]","explanation":"No interval contains 19, so the answer for that query is -1."}],
     constraints: ["1 <= intervals.length <= 5 * 10^4","1 <= queries.length <= 5 * 10^4","1 <= starti <= endi <= 10^7","1 <= queries[j] <= 10^7"],
     intuition: "Sort queries and intervals by start. Min-heap of (size, end) for active intervals. For each query: add intervals starting <= query. Remove expired. Heap top = smallest active.",
+    recognize: [
+      "Many queries against many intervals — checking every interval per query (O(n×q)) is too slow at 5*10^4 each.",
+      "Need the SMALLEST containing interval, and intervals \"activate\" and \"expire\" as query values increase.",
+      "Processing queries in sorted order lets intervals stream in and out — classic offline sweep-line setup.",
+      "→ Sort queries and intervals by position; min-heap of (size, end) tracks the smallest currently-active interval.",
+    ],
     approach: [
       "Sort intervals by start. Sort query indices by query value.",
       "Min-heap (size, end). i=0 pointer into intervals.",
@@ -6949,6 +7573,12 @@ public:
     examples: [{"input":"s = \"rabbbit\", t = \"rabbit\"","output":"3","explanation":"There are 3 ways to choose which of the three 'b' characters in s to keep so the remaining letters spell 'rabbit'."},{"input":"s = \"babgbag\", t = \"bag\"","output":"5"}],
     constraints: ["1 <= s.length, t.length <= 1000","s and t consist of English letters"],
     intuition: "DP: dp[i][j] = ways to embed t[0..j-1] in s[0..i-1]. Match: dp[i][j] = dp[i-1][j-1] + dp[i-1][j] (use current char or skip). No match: dp[i][j] = dp[i-1][j].",
+    recognize: [
+      "Asks for a COUNT of distinct subsequences forming t, not just whether one exists.",
+      "Deletions only, order preserved — same subsequence family as LCS, but counting instead of length.",
+      "Repeated characters (like the three 'b's) create multiple valid deletion choices to count.",
+      "→ dp[i][j] = ways to form t[0..j) from s[0..i); a match adds the diagonal on top of skipping.",
+    ],
     approach: [
       "dp[0][j]=0. dp[i][0]=1.",
       "If s[i-1]==t[j-1]: dp[i][j]=dp[i-1][j-1]+dp[i-1][j].",
@@ -6988,6 +7618,12 @@ public:
     examples: [{"input":"s1 = \"aabcc\", s2 = \"dbbca\", s3 = \"aadbbcbcac\"","output":"true"},{"input":"s1 = \"aabcc\", s2 = \"dbbca\", s3 = \"aadbbbaccc\"","output":"false"},{"input":"s1 = \"\", s2 = \"\", s3 = \"\"","output":"true"}],
     constraints: ["0 <= s1.length, s2.length <= 100","0 <= s3.length <= 200","s1, s2, and s3 consist of lowercase English letters"],
     intuition: "DP: dp[i][j] = can s1[0..i-1] and s2[0..j-1] interleave to form s3[0..i+j-1]. Two ways to reach dp[i][j]: use s1[i-1] or use s2[j-1].",
+    recognize: [
+      "Three strings, must check if two can merge (preserving order) into a third — a 2D matching shape.",
+      "Length check (len(s1)+len(s2) == len(s3)) is a cheap early exit before any DP.",
+      "At each position in s3, the next char came from exactly one of two sources — small branching.",
+      "→ dp[i][j] = s3's first i+j chars are reachable by consuming from s1 or from s2.",
+    ],
     approach: [
       "dp[m+1][n+1]. dp[0][0]=true.",
       "Init row and col with single-string match.",
@@ -7031,6 +7667,12 @@ public:
     examples: [{"input":"nums = [3,1,5,8]","output":"167","explanation":"Bursting in the order 1, 5, 3, 8 yields 3*1*5 + 3*5*8 + 1*3*8 + 1*8*1 = 15+120+24+8 = 167."},{"input":"nums = [1,5]","output":"10"}],
     constraints: ["1 <= nums.length <= 300","0 <= nums[i] <= 100"],
     intuition: "Interval DP. Think of LAST balloon burst in range [l,r]. If k is last burst: coins = nums[l-1]*nums[k]*nums[r+1] + dp[l][k-1] + dp[k+1][r]. Add sentinel 1s at boundaries.",
+    recognize: [
+      "Bursting order changes neighbors, so each choice reshapes the rest of the problem — order matters.",
+      "n up to 300 rules out brute-force permutations (n!) but allows an O(n³) DP.",
+      "Thinking \"which balloon bursts first\" is messy; thinking \"which bursts LAST in a range\" decouples it.",
+      "→ Interval DP: dp[l][r] tries every k as the last balloon burst in that range.",
+    ],
     approach: [
       "Pad nums with 1 on both ends.",
       "dp[l][r] = max coins from bursting all in [l,r].",
@@ -7073,6 +7715,12 @@ public:
     examples: [{"input":"s = \"aa\", p = \"a\"","output":"false","explanation":"\"a\" does not match the whole string \"aa\"."},{"input":"s = \"aa\", p = \"a*\"","output":"true","explanation":"'*' lets 'a' repeat, matching \"aa\"."},{"input":"s = \"ab\", p = \".*\"","output":"true","explanation":"\".*\" matches any sequence, including \"ab\"."}],
     constraints: ["1 <= s.length <= 20","1 <= p.length <= 30","s consists of lowercase English letters","p consists of lowercase English letters, '.', and '*'","every '*' in p is preceded by a valid character to repeat"],
     intuition: "DP: dp[i][j] = s[0..i-1] matches p[0..j-1]. If p[j-1]='*': zero use (dp[i][j-2]) OR one-more use (dp[i-1][j] if s[i-1] matches p[j-2]). Else match/dot: dp[i-1][j-1].",
+    recognize: [
+      "Pattern has '.' and '*' with special repeat semantics — not a plain string comparison.",
+      "'*' can mean zero occurrences, so a greedy scan can't safely commit to a match count.",
+      "Must match the ENTIRE string, not a substring — every position's decision affects the rest.",
+      "→ dp[i][j] on prefixes of s and p; '*' branches into \"use zero\" or \"use one more\".",
+    ],
     approach: [
       "dp[m+1][n+1]. dp[0][0]=true.",
       "Init: dp[0][j]=true if p[j-1]='*' and dp[0][j-2]=true.",
@@ -7120,6 +7768,12 @@ public:
     examples: [{"input":"postTweet(1,5); getNewsFeed(1); follow(1,2); postTweet(2,6); getNewsFeed(1); unfollow(1,2); getNewsFeed(1)","output":"[null, [5], null, null, [6,5], null, [5]]","explanation":"User 1 posts tweet 5, then follows user 2 who posts tweet 6, making the feed [6,5]; after unfollowing, the feed reverts to [5]."}],
     constraints: ["1 <= userId, followerId, followeeId <= 500","0 <= tweetId <= 10^4","All tweet ids are unique","At most 3 * 10^4 calls will be made in total to postTweet, getNewsFeed, follow, and unfollow"],
     intuition: "Each user has tweet list (timestamp, tweetId). Followees in sets. getNewsFeed: max-heap merge over all followees' tweet lists, pull top 10.",
+    recognize: [
+      "\"Design\" a system with post/follow/feed operations — needs persistent per-user state.",
+      "Feed merges tweets from MANY followees, each already in chronological order — merge-k-lists shape.",
+      "Only the top 10 most recent are needed, not a full merged sort of everything.",
+      "→ Max-heap merge: seed with each followee's newest tweet, pull the top 10 one at a time.",
+    ],
     approach: [
       "tweets[userId] = list of (time, tweetId).",
       "follows[userId] = set of followees.",
@@ -7219,6 +7873,12 @@ public:
     examples: [{"input":"n = 4","output":"4","explanation":"T3 = 0+1+1 = 2, and T4 = 1+1+2 = 4."},{"input":"n = 25","output":"1389537"},{"input":"n = 0","output":"0"}],
     constraints: ["0 <= n <= 37","the answer is guaranteed to fit within a 32-bit integer"],
     intuition: "T(0)=0, T(1)=1, T(2)=1, T(n)=T(n-1)+T(n-2)+T(n-3). Rolling three variables.",
+    recognize: [
+      "Recurrence is spelled out directly: each term is the sum of the previous three.",
+      "n is tiny (<= 37) — brute-force recursion would still work, but O(n) DP is cleaner.",
+      "Same shape as Fibonacci, just one extra term to track — rolling variables suffice.",
+      "→ Track the last three values, slide the window forward each step.",
+    ],
     approach: [
       "a=0,b=1,c=1.",
       "For i from 3 to n: next=a+b+c. a=b,b=c,c=next.",
@@ -7253,6 +7913,12 @@ public:
     examples: [{"input":"cost = [10,15,20]","output":"15","explanation":"Start at index 1, pay 15, then take two steps to go past the top, skipping index 2 entirely."},{"input":"cost = [1,100,1,1,1,100,1,1,100,1]","output":"6","explanation":"Starting at index 0 and always hopping 2 steps over the expensive 100-cost stairs yields total cost 6."},{"input":"cost = [0,0,0,1]","output":"0"}],
     constraints: ["2 <= cost.length <= 1000","0 <= cost[i] <= 999"],
     intuition: "dp[i] = cost[i] + min(dp[i-1], dp[i-2]). Modify in-place. Top = beyond last step = min of last two.",
+    recognize: [
+      "\"Minimum total cost\" with a choice of 1 or 2 steps — same decision shape as Climbing Stairs.",
+      "You may START from index 0 or 1, and the goal is one step PAST the last stair, not the last stair itself.",
+      "Cost is paid only when you step on a stair, so the recurrence lives on cost[i] itself.",
+      "→ dp[i] = cost[i] + min(dp[i-1], dp[i-2]); answer is min of the last two dp values.",
+    ],
     approach: [
       "For i from 2 to n-1: cost[i] += min(cost[i-1], cost[i-2]).",
       "Return min(cost[n-1], cost[n-2]).",
@@ -7530,6 +8196,12 @@ public:
     examples: [{"input":"matrix = [[9,9,4],[6,6,8],[2,1,1]]","output":"4","explanation":"The longest increasing path is 1 -> 2 -> 6 -> 9."},{"input":"matrix = [[3,4,5],[3,2,6],[2,2,1]]","output":"4"}],
     constraints: ["1 <= m, n <= 200","0 <= matrix[i][j] <= 2^31 - 1"],
     intuition: "DFS + memoization. memo[i][j] = longest increasing path from (i,j). Recurse to strictly greater neighbors. No visited array needed (increasing = no cycles).",
+    recognize: [
+      "Grid with 4-directional moves, but movement is only allowed to strictly greater values.",
+      "\"Strictly increasing\" removes any possibility of cycles — safe to memoize without a visited set.",
+      "Need the longest path overall, and each cell's best path depends only on its greater neighbors.",
+      "→ DFS from every cell with memoization: memo[r][c] = 1 + best among strictly-greater neighbors.",
+    ],
     approach: [
       "memo[m][n] = 0.",
       "dfs(r,c): if memo[r][c]: return it. Try 4 dirs, recurse if neighbor > current. memo[r][c] = 1 + max valid neighbors.",
@@ -7639,6 +8311,12 @@ public:
     examples: [{"input":"triangle = [[2],[3,4],[6,5,7],[4,1,8,3]]","output":"11","explanation":"The minimum path is 2 + 3 + 5 + 1 = 11."},{"input":"triangle = [[-10]]","output":"-10"}],
     constraints: ["1 <= triangle.length <= 200","triangle[i].length == i + 1","-10^4 <= triangle[i][j] <= 10^4"],
     intuition: "Bottom-up DP. Start from second-to-last row. Each cell = triangle[i][j] + min(triangle[i+1][j], triangle[i+1][j+1]). Work up to apex. Modify in-place or use 1D array.",
+    recognize: [
+      "Each row's move is restricted to just two children below — same shape as a grid path, but triangular.",
+      "Asks to MINIMIZE the path sum — greedy per-row choice can trap you, since local min isn't always global min.",
+      "Working top-down needs to track many partial sums; working bottom-up collapses each row into one number.",
+      "→ Bottom-up DP: each cell absorbs the min of its two children below, until the apex holds the answer.",
+    ],
     approach: [
       "For i from n-2 down to 0: for j from 0 to i: triangle[i][j] += min(triangle[i+1][j], triangle[i+1][j+1]).",
       "Return triangle[0][0].",
@@ -7674,6 +8352,12 @@ public:
     examples: [{"input":"n = 10","output":"4","explanation":"The primes less than 10 are 2, 3, 5, and 7."},{"input":"n = 0","output":"0"},{"input":"n = 1","output":"0"}],
     constraints: ["0 <= n <= 5 * 10^6"],
     intuition: "Sieve of Eratosthenes. Mark all composites by iterating multiples of each prime. Count remaining unmarked numbers up to n.",
+    recognize: [
+      "Need a COUNT of all primes below n, not a primality test for one number — checking each individually is wasteful.",
+      "n up to 5×10^6 rules out trial division per number (O(n·sqrt(n)) total is too slow).",
+      "Crossing off multiples of each found prime eliminates composites in bulk instead of testing them one by one.",
+      "→ Sieve of Eratosthenes: mark multiples of every prime starting at i*i, count what's left unmarked.",
+    ],
     approach: [
       "sieve[n] = {true}. sieve[0]=sieve[1]=false.",
       "For i from 2 to sqrt(n): if sieve[i]: mark i*i, i*i+i, ... as false.",
@@ -7713,6 +8397,12 @@ public:
     examples: [{"input":"num1 = \"2\", num2 = \"3\"","output":"\"6\""},{"input":"num1 = \"123\", num2 = \"456\"","output":"\"56088\""}],
     constraints: ["1 <= num1.length, num2.length <= 200","num1 and num2 consist of digits only","num1 and num2 do not contain any leading zero, except the number 0 itself"],
     intuition: "Grade-school multiplication. Digit at num1[i] × num2[j] contributes to result positions [i+j] and [i+j+1]. Build result array, handle carries, convert to string.",
+    recognize: [
+      "\"Without converting the inputs directly into built-in big-integer types\" — bans casting to int/long and multiplying directly.",
+      "Digit strings up to 200 chars — the product can far exceed any native integer type.",
+      "Each digit-pair product lands at a fixed, predictable output position — i+j and i+j+1.",
+      "→ Grade-school multiplication into a result array, digit-pair by digit-pair, handling carries.",
+    ],
     approach: [
       "result[m+n] = {0}.",
       "For i from m-1 to 0: for j from n-1 to 0: mul = (num1[i]-'0')*(num2[j]-'0'). p1=i+j, p2=i+j+1.",
@@ -7868,6 +8558,12 @@ public:
     examples: [{"input":"dictionary = [\"cat\",\"bat\",\"rat\"], sentence = \"the cattle was rattled by the battery\"","output":"\"the cat was rat by the bat\"","explanation":"\"cattle\" starts with \"cat\", \"rattled\" starts with \"rat\", and \"battery\" starts with \"bat\"."},{"input":"dictionary = [\"a\",\"b\",\"c\"], sentence = \"aadsfasf absbs bbab cadsfafs\"","output":"\"a a b c\"","explanation":"Every word in the sentence begins with one of the single-letter roots, so each is shortened to that root."}],
     constraints: ["1 <= dictionary.length <= 1000","1 <= dictionary[i].length <= 100","dictionary[i] and sentence consist of lowercase English letters and spaces","1 <= sentence.length <= 10^6","The number of words in sentence is in the range [1, 1000]"],
     intuition: "Build Trie from all roots. For each word in sentence, walk Trie. If prefix (root) found: replace word with that root. Else keep word.",
+    recognize: [
+      "\"Shortest matching root\" among many roots that could all be prefixes of the same word.",
+      "Prefix matching against a whole dictionary, repeated per sentence word — checking each root individually is wasteful.",
+      "Roots share common prefixes with each other — a strong hint to merge them into one structure.",
+      "→ Trie of roots; walk each sentence word char by char, stop at the first isEnd (shortest root).",
+    ],
     approach: [
       "Insert all roots into Trie.",
       "For each word: walk Trie char by char. If isEnd at any point: that's the shortest root, use it.",
@@ -7918,6 +8614,12 @@ public:
     examples: [{"input":"s = \"011010\", minJump = 2, maxJump = 3","output":"true","explanation":"Jump from 0 to 3 (s[3]='0'), then from 3 to 5 (s[5]='0'), the last index."},{"input":"s = \"01101110\", minJump = 2, maxJump = 3","output":"false"},{"input":"s = \"0000000000\", minJump = 1, maxJump = 1","output":"true"}],
     constraints: ["2 <= s.length <= 10^5","s[i] is either '0' or '1'","s[0] == '0'","1 <= minJump <= maxJump < s.length"],
     intuition: "BFS/sliding window. From each reachable position i, can jump to [i+minJump, i+maxJump] where s[pos]=='0'. Track rightmost reached to avoid re-checking positions. Use prefix sum of reachable positions for O(n) range checks.",
+    recognize: [
+      "Just a reachability yes/no question — no need for the actual jump sequence.",
+      "Each index's reachability depends on a WINDOW of earlier positions [i-maxJump, i-minJump], not just one predecessor.",
+      "n up to 10^5 rules out checking the whole window per index (O(n × maxJump)) — needs a running count.",
+      "→ dp/reach array with a sliding count of reachable positions in the valid jump window.",
+    ],
     approach: [
       "reach = 0 (rightmost pos reachable so far checked).",
       "BFS queue. For each i popped: for j from max(i+minJump, reach+1) to min(i+maxJump, n-1): if s[j]=='0': push j, update reach.",
@@ -7962,6 +8664,12 @@ public:
     examples: [{"input":"left = 5, right = 7","output":"4","explanation":"5 & 6 & 7 = 4."},{"input":"left = 0, right = 0","output":"0"},{"input":"left = 1, right = 2147483647","output":"0"}],
     constraints: ["0 <= left <= right <= 2^31 - 1"],
     intuition: "Common prefix of m and n in binary. Right-shift both until equal (find common prefix length), then shift result back left. Bits that differ get ANDed to 0.",
+    recognize: [
+      "AND across an entire range, not just two numbers — right can be up to 2^31-1, so iterating every value is too slow.",
+      "Any bit that flips even once between left and right gets ANDed down to 0 somewhere in the range.",
+      "Only bits identical across the WHOLE range (the common binary prefix) can survive.",
+      "→ Right-shift both numbers together until they're equal, then shift the common prefix back left.",
+    ],
     approach: [
       "shift = 0.",
       "While m != n: m >>= 1, n >>= 1, shift++.",
@@ -7996,6 +8704,12 @@ public:
     examples: [{"input":"nums = [1,2,3], multipliers = [3,2,1]","output":"14","explanation":"Take 3 from the right (3*3=9), then 2 from the right (2*2=4), then 1 from the remaining (1*1=1): total 9+4+1=14."},{"input":"nums = [-5,-3,-3,-2,7,1], multipliers = [-10,-5,3,4,6]","output":"102"}],
     constraints: ["1 <= m <= 300","m <= n <= 10^5","-1000 <= nums[i], multipliers[i] <= 1000"],
     intuition: "DP: at step i, can pick from left or right end. dp[left][i] where i = number of picks = left picks + right picks. right = i - left. dp[left][i] = max(pick from left, pick from right).",
+    recognize: [
+      "Only the two ends of nums are ever removable — the remaining subarray is always determined by (left, right) picks.",
+      "n up to 10^5 but m (operations) only up to 300 — a hint that the DP state should scale with m, not n.",
+      "At any point, right picks = step - left picks, collapsing what looks like 3 dimensions into 2.",
+      "→ dp[step][left]: choose leftmost or rightmost remaining element, recurse on the better continuation.",
+    ],
     approach: [
       "m = multipliers.size(), n = nums.size().",
       "dp[left][i]: at step i with 'left' picks from left end.",
@@ -8038,6 +8752,12 @@ public:
     examples: [{"input":"add([3,10]); add([11,2]); add([3,2]); count([11,10]); count([14,8]); add([11,2]); count([11,10])","output":"1, 0, 2","explanation":"After the first three adds, (11,10) completes exactly one square with (3,10), (11,2), (3,2). (14,8) completes none. After adding (11,2) again, (11,10) can now form the same square in two ways since (11,2) exists twice."}],
     constraints: ["point.length == 2","0 <= x, y <= 1000","At most 3000 calls in total will be made to add and count"],
     intuition: "For each query point (px,py), iterate all points with same x=px. For each such point (px,py2), try to form square: need (px2,py) and (px2,py2) where px2=px+(py2-py) or px2=px-(py2-py). Count combinations.",
+    recognize: [
+      "\"Axis-aligned squares\" — only two coordinates per corner ever matter: shared x or shared y, no rotation to handle.",
+      "\"Treating points added multiple times as distinct occurrences\" — counting duplicates means multiplying frequencies, not a plain set.",
+      "Fixing one diagonal corner (same x as query) determines the other two corners' exact coordinates.",
+      "→ Track counts per (x,y) and per-x lists of y's; for each shared-x point, compute the two candidate 4th corners and multiply counts.",
+    ],
     approach: [
       "Store points in map: cnt[(x,y)] = count. Also xToYs[x] = list of y values.",
       "count(px,py): for each py2 in xToYs[px] where py2!=py: side=|py2-py|. For each px2 in {px+side, px-side}: answer += cnt[(px,py2)]*cnt[(px2,py)]*cnt[(px2,py2)].",
@@ -8089,6 +8809,12 @@ public:
     examples: [{"input":"words = [\"w\",\"wo\",\"wor\",\"worl\",\"world\"]","output":"\"world\"","explanation":"\"world\" can be built up step by step: \"w\" -> \"wo\" -> \"wor\" -> \"worl\" -> \"world\", each prefix present in the list."},{"input":"words = [\"a\",\"banana\",\"app\",\"appl\",\"ap\",\"apply\",\"apple\"]","output":"\"apple\"","explanation":"Both \"apple\" and \"apply\" can be fully built from shorter list entries, and \"apple\" is lexicographically smaller."}],
     constraints: ["1 <= words.length <= 1000","1 <= words[i].length <= 30","words[i] consists of lowercase English letters","All words[i] are unique"],
     intuition: "Sort words by length (then lexicographically). Use set to track buildable words. A word is buildable if word[:-1] is already in set. Greedily find longest.",
+    recognize: [
+      "\"Built one character at a time\" means every shorter prefix must independently exist in the list.",
+      "Ties broken by lexicographically smallest — a hint to process words in an order that resolves ties for free.",
+      "A word's buildability depends only on whether its immediate one-shorter prefix is already buildable.",
+      "→ Sort by length then lex; a word is buildable if word-minus-last-char is already marked buildable.",
+    ],
     approach: [
       "Sort by length ascending, then lex.",
       "Set with '' (empty). For each word: if word[:-1] in set: add to set, update answer.",
@@ -8134,6 +8860,12 @@ public:
     examples: [{"input":"text = \"thestoryofleetcodeandme\", words = [\"story\",\"fleet\",\"leetcode\"]","output":"[[3,7],[9,13],[10,17]]","explanation":"text[3..7] = \"story\", text[9..13] = \"fleet\", and text[10..17] = \"leetcode\"."},{"input":"text = \"ababa\", words = [\"aba\",\"ab\"]","output":"[[0,1],[0,2],[2,3],[2,4]]","explanation":"\"ab\" occurs at [0,1] and [2,3]; \"aba\" occurs at [0,2] and [2,4]."}],
     constraints: ["1 <= text.length <= 100","1 <= words.length <= 20","1 <= words[i].length <= 50","text and words[i] consist of lowercase English letters","All words[i] are unique"],
     intuition: "Build Trie from all words. For each start index in text, walk Trie. Whenever isEnd encountered, record [start, current_index].",
+    recognize: [
+      "Need ALL matches of ANY dictionary word at ANY position, not just one — brute substring search per word is wasteful.",
+      "Small constraints (text <= 100, words <= 20) mean an O(n²) or trie walk is plenty fast.",
+      "Words can overlap and share prefixes (\"aba\"/\"ab\") — a shared prefix structure avoids repeat work.",
+      "→ Trie of words; from every start index in text, walk the trie, recording every isEnd hit.",
+    ],
     approach: [
       "Insert all words into Trie.",
       "For i from 0 to len(text)-1: walk Trie from root starting at text[i]. At each step if isEnd: add [i, i+j].",
@@ -8179,6 +8911,12 @@ public:
     examples: [{"input":"s = \"egg\", t = \"add\"","output":"true","explanation":"'e'->'a' and 'g'->'d' forms a valid one-to-one mapping."},{"input":"s = \"foo\", t = \"bar\"","output":"false","explanation":"'o' would need to map to both 'a' and 'r'."},{"input":"s = \"paper\", t = \"title\"","output":"true"}],
     constraints: ["1 <= s.length <= 5 * 10^4","t.length == s.length","s and t consist of any valid ASCII characters"],
     intuition: "Isomorphic means there's a consistent one-to-one character mapping from s to t. Key insight: the mapping must be a bijection — not just s[i] always maps to the same t[i], but also t[i] always maps back to the same s[i]. Without the reverse check, 'foo' → 'bar' would pass (f→b, o→a, o→r fails) but 'ab' → 'aa' would wrongly pass (a→a, b→a: two letters mapping to same letter is NOT isomorphic).",
+    recognize: [
+      "\"No character maps to more than one\" AND \"no two map to the same\" — a two-way (bijective) constraint, not one-way.",
+      "Order of characters must stay the same — position i in s always corresponds to position i in t.",
+      "A one-directional map alone lets two source chars collide onto one target char undetected.",
+      "→ Track both s→t and t→s maps; any contradiction in either direction fails.",
+    ],
     approach: [
       "Create two maps: st (s char → t char) and ts (t char → s char).",
       "Walk both strings simultaneously at index i.",
@@ -8228,6 +8966,12 @@ public:
     constraints: ["2 <= k <= 9","1 <= n <= 60"],
     intuition:
       "Find all combinations of exactly k numbers from 1–9 that sum to n. Classic backtracking: at each step choose the next number (must be > last chosen to avoid duplicates), recurse, then backtrack. Prune early when remaining sum goes negative or too few numbers remain.",
+    recognize: [
+      "Numbers restricted to 1-9, each used at most once — a tiny fixed universe, ideal for exhaustive search.",
+      "Need exactly k numbers AND an exact sum n — two simultaneous constraints to prune on.",
+      "\"Strictly increasing, no duplicates\" — recursion must only pick numbers greater than the last chosen.",
+      "→ Backtrack from 1-9, picking increasing digits, pruning when count or remaining sum goes wrong.",
+    ],
     approach: [
       "Backtrack(start, k, remaining, path):",
       "  Base case: k === 0 && remaining === 0 → add copy of path to results.",
@@ -8282,6 +9026,12 @@ public:
     constraints: ["1 <= intervals.length <= 10^5","-5 * 10^4 <= starti < endi <= 5 * 10^4"],
     intuition:
       "Remove minimum intervals to make the rest non-overlapping. Greedy insight: always keep the interval that ends earliest — it leaves the most room for future intervals. Sort by end time. If next interval starts before current end, remove it (count it). Otherwise update current end.",
+    recognize: [
+      "Asks for the MINIMUM number to remove so the rest don't overlap — a classic interval scheduling optimization.",
+      "\"Keep as many non-overlapping intervals as possible\" is the mirror of this removal count.",
+      "Sorting by START time (like Meeting Rooms) doesn't reveal which overlapping interval to drop — end time does.",
+      "→ Sort by end time; greedily keep the earliest-ending interval, discard anything that overlaps it.",
+    ],
     approach: [
       "Sort intervals by end time.",
       "Track end of last kept interval (prevEnd = intervals[0][1]).",
@@ -8334,6 +9084,12 @@ public:
     constraints: ["1 <= nums.length <= 10","-10 <= nums[i] <= 10"],
     intuition:
       "Generate all subsets of an array that may have duplicates, without duplicate subsets. Sort first so duplicates are adjacent. In backtracking, skip an element if it's the same as the previous one at the same recursion level — this eliminates duplicate subsets without needing a set.",
+    recognize: [
+      "\"May contain duplicate values\" plus \"without duplicate subset\" — the classic sort-and-skip-at-this-level clue.",
+      "Plain subsets backtracking would produce identical subsets multiple times here.",
+      "Small n (<=10) means brute-force generation with dedup pruning is cheap enough.",
+      "→ Sort first, backtrack over include/exclude, and skip a repeated value unless it's the first at this level.",
+    ],
     approach: [
       "Sort nums.",
       "Backtrack(start, path):",
@@ -8387,6 +9143,12 @@ public:
     constraints: ["1 <= intervals.length <= 10^4","0 <= starti <= endi <= 10^4"],
     intuition:
       "Sort intervals by start time. Then walk through: if the current interval overlaps the last merged one (current.start ≤ merged.end), extend the end. Otherwise push a new interval. Overlap condition after sorting: current.start ≤ previous.end.",
+    recognize: [
+      "Unsorted, possibly overlapping intervals need to be collapsed into a minimal covering set.",
+      "Once sorted by start, any interval that could merge with the current group sits right next to it.",
+      "Only need to compare each interval to the LAST merged one, not every previous interval.",
+      "→ Sort by start; extend the last merged interval's end whenever the next one overlaps it.",
+    ],
     approach: [
       "Sort intervals by start value.",
       "Initialize result with the first interval.",
@@ -8440,6 +9202,12 @@ public:
     constraints: ["1 <= nums.length <= 10^5","-10^4 <= nums[i] <= 10^4","k is between 1 and the number of distinct elements in nums","The test cases guarantee that the answer is unique"],
     intuition:
       "Count frequencies with a hash map. To find top-k without full sort: use bucket sort. Create an array of size n+1 where index = frequency. Bucket[i] holds all numbers that appear exactly i times. Scan buckets from high to low, collect until you have k elements.",
+    recognize: [
+      "\"k most frequently occurring\" — ranking by count, not by value, and order doesn't matter.",
+      "Full sort by frequency costs O(n log n); frequency values are bounded by array length n.",
+      "Bounded, integer-valued frequency lets you index buckets directly instead of comparing/sorting.",
+      "→ Count frequencies, bucket by frequency (index = count), scan buckets high to low.",
+    ],
     approach: [
       "Count frequency of each number using hash map.",
       "Create bucket array of size n+1 (max possible frequency).",
@@ -8493,6 +9261,12 @@ public:
     constraints: ["nums1.length == m","nums2.length == n","0 <= m, n <= 1000","1 <= m + n <= 2000","-10^6 <= nums1[i], nums2[i] <= 10^6"],
     intuition:
       "Binary search on the smaller array. Pick a cut point i in array A (0..m) and derive cut j = (m+n)/2 - i in array B. A valid cut means A[i-1] ≤ B[j] AND B[j-1] ≤ A[i] — left halves are all ≤ right halves. Binary search i until this holds. Then read median from the 4 boundary elements.",
+    recognize: [
+      "Explicit O(log(m+n)) requirement on two sorted arrays — merging them fully (O(m+n)) is too slow by design.",
+      "Median only needs a specific split point, not the fully merged array — a partitioning problem in disguise.",
+      "Both inputs already sorted — a cut in one array determines the matching cut in the other.",
+      "→ Binary search the cut point in the smaller array so left-side elements are all ≤ right-side elements.",
+    ],
     approach: [
       "Ensure A is the smaller array (swap if needed) — binary search on smaller = fewer iterations.",
       "Binary search i in [0, m]. j = half - i where half = (m+n)/2.",
@@ -8559,6 +9333,12 @@ public:
     constraints: ["1 <= nums.length <= 10^5","-2^31 <= nums[i] <= 2^31 - 1"],
     intuition:
       "Find the smallest missing positive integer in O(n) time and O(1) space. Key insight: the answer must be in [1, n+1]. Use the array itself as a hash map — place each number x at index x-1 if 1 ≤ x ≤ n. Then scan for the first index where nums[i] ≠ i+1.",
+    recognize: [
+      "O(n) time AND O(1) extra space explicitly forbids sorting or a separate hash set.",
+      "Answer is bounded: with n elements, the missing positive must lie in [1, n+1].",
+      "Values outside [1, n] can never be the answer — they're noise to skip.",
+      "→ Use the array itself as a hash map: place each x at index x-1, then scan for the first mismatch.",
+    ],
     approach: [
       "Ignore non-positives and numbers > n — they can't be the answer.",
       "For each valid number, swap nums[i] to its correct index (nums[i]-1) until the slot is already correct or out of range.",
@@ -8604,6 +9384,12 @@ public:
     constraints: ["1 <= nums.length <= 10^5","-10^4 <= nums[i] <= 10^4"],
     intuition:
       "For each element, count how many elements to its right are strictly smaller. Brute force is O(n²). Use modified merge sort: during the merge step, when we pick from the right half, all remaining left-half elements are larger — add right-half index contribution to left-half counts.",
+    recognize: [
+      "Need a count of smaller elements to the RIGHT for every position — an inversion-counting problem.",
+      "n up to 10^5 rules out the natural O(n^2) pairwise comparison.",
+      "Answer per element depends on relative order across the whole array, not adjacent elements — sorting-based counting fits.",
+      "→ Modified merge sort: while merging, count right-half elements placed before each left-half element.",
+    ],
     approach: [
       "Pair each number with its original index: [(num, originalIdx)].",
       "Merge sort the pairs. During merge: when right[j] < left[i], all elements left[i..] are greater than right[j]. Add count of remaining left elements to counts[right[j].originalIdx].",
@@ -8671,6 +9457,12 @@ public:
     constraints: ["1 <= s.length <= 2 * 10^4","1 <= t.length <= 100","s and t consist of lowercase English letters"],
     intuition:
       "Find the shortest contiguous substring of S that contains T as a subsequence (not substring). Two-pointer approach: forward scan to find where T ends in S, then backward scan from that point to tighten the window start.",
+    recognize: [
+      "\"Subsequence\" not substring — t's characters just need the same relative order, gaps allowed.",
+      "Need the minimum-length window, so any valid match must then be tightened.",
+      "A single forward greedy match finds A window, but its start may not be as late as possible — reversible from the end.",
+      "→ Two-pointer, two-phase: scan forward to close a window, then scan backward from its end to shrink the start.",
+    ],
     approach: [
       "i = 0 (pointer in S), j = 0 (pointer in T).",
       "Forward: advance i through S matching T[j]. When j == len(T), we've found a valid window ending at i.",
@@ -8730,6 +9522,12 @@ public:
     constraints: ["rows == matrix.length, cols == matrix[i].length","1 <= rows, cols <= 200","matrix[i][j] is '0' or '1'"],
     intuition:
       "The classic histogram trick applied to a 2D matrix. For each row, compute the 'height' array — consecutive 1s above that cell including the cell itself. Then apply largest-rectangle-in-histogram on each row's heights.",
+    recognize: [
+      "Largest all-'1's rectangle in a 2D grid — a 2D generalization of a rectangle-under-a-skyline problem.",
+      "Each column's run of consecutive 1s above a cell behaves exactly like a histogram bar height.",
+      "rows/cols up to 200 makes an O(rows * cols) or O(rows * cols) with a per-row stack pass feasible, not O(rows^2 * cols^2).",
+      "→ Build a histogram of column heights per row, reuse largest-rectangle-in-histogram on each row.",
+    ],
     approach: [
       "Initialize heights[n] = 0.",
       "For each row: update heights[j] = (matrix[i][j]=='1') ? heights[j]+1 : 0.",
@@ -8932,6 +9730,12 @@ public:
     constraints: ["k == nums.length","1 <= k <= 3500","1 <= nums[i].length <= 50","-10^5 <= nums[i][j] <= 10^5","nums[i] is sorted in non-decreasing order"],
     intuition:
       "Given k sorted lists, find the smallest range [a, b] such that there is at least one element from each list. Use a min-heap of size k — always expand the maximum element's range by advancing the pointer in that list.",
+    recognize: [
+      "k SORTED lists, need one element from each — same merge-k-lists shape as Find Median or Merge K Sorted Lists.",
+      "Range must include a representative from every list simultaneously — the current minimum across lists bounds it.",
+      "Each list is already sorted, so advancing only the current minimum's pointer can only shrink or maintain the range.",
+      "→ Min-heap of one pointer per list; repeatedly advance the smallest, tracking the running max as the other bound.",
+    ],
     approach: [
       "Push first element of each list into a min-heap: (value, listIdx, elementIdx).",
       "Track current max across all elements in heap.",
@@ -8987,6 +9791,12 @@ public:
     constraints: ["board.length == 9, board[i].length == 9","board[i][j] is a digit '1'-'9' or '.'","It is guaranteed that the input board has exactly one solution"],
     intuition:
       "Backtracking with constraint propagation. Try digits 1-9 at each empty cell. Prune immediately if digit violates row, column, or 3×3 box constraint. Backtrack when no digit works.",
+    recognize: [
+      "Fixed 9x9 board with row/column/box constraints — a classic constraint-satisfaction search, not a formula.",
+      "\"Guaranteed exactly one solution\" — a single successful fill is enough, no need to enumerate all.",
+      "Placing a digit can invalidate later cells — a wrong pick must be undoable, which points to backtracking.",
+      "→ Try digits 1-9 per empty cell, checking row/col/box validity, undoing on dead ends.",
+    ],
     approach: [
       "Scan for first empty cell ('.'). If none → solved, return true.",
       "Try digits '1' to '9'. Check validity: not in same row, column, or 3×3 box.",
@@ -9108,6 +9918,12 @@ public:
     constraints: ["1 <= ratings.length <= 2 * 10^4","0 <= ratings[i] <= 2 * 10^4"],
     intuition:
       "Each child must get at least 1 candy. Children with higher ratings than their neighbors get more. Two-pass greedy: left-to-right ensures left neighbor constraint, right-to-left ensures right neighbor constraint. Take the max of both passes.",
+    recognize: [
+      "A candy count depends on BOTH neighbors — a single left-to-right pass alone can't satisfy both sides.",
+      "\"More than an immediate neighbor\" is a purely local, relative comparison, not an absolute value.",
+      "Needing the MINIMUM total suggests each child gets the smallest amount that still satisfies both directions.",
+      "→ Two passes: left-to-right for the left constraint, right-to-left for the right, take the max per child.",
+    ],
     approach: [
       "Initialize candy[i] = 1 for all.",
       "Left to right: if ratings[i] > ratings[i-1], candy[i] = candy[i-1] + 1.",
@@ -9151,6 +9967,12 @@ public:
     constraints: ["1 <= schedule.length <= 50","0 <= schedule[i].length <= 50","0 <= starti < endi <= 10^8","Each employee's own intervals are sorted and non-overlapping"],
     intuition:
       "Given schedules of all employees (list of lists of intervals), find all time intervals when no employee is working. Flatten all intervals, sort by start, merge overlapping intervals, then gaps between merged intervals are free time.",
+    recognize: [
+      "Multiple employees' schedules combine into one busy timeline — the per-employee grouping doesn't actually matter.",
+      "\"Common free time\" is the complement of everyone's combined busy time — merge first, then look at gaps.",
+      "Each employee's own list is already sorted/non-overlapping, but overlaps ACROSS employees still need merging.",
+      "→ Flatten all intervals, sort by start, merge like Merge Intervals, then report the gaps between merges.",
+    ],
     approach: [
       "Collect all intervals from all employees into a single list.",
       "Sort by start time.",
@@ -9197,6 +10019,12 @@ public:
     constraints: ["1 <= s.length <= 3 * 10^5","s consists of digits, '+', '-', '(', ')', and ' '","s represents a valid expression","'+' is never used as a unary operator","'-' may be used as a unary operator, only in front of a number or a parenthesized expression"],
     intuition:
       "Evaluate a string expression with +, -, and parentheses. Use a stack to save context (running result and sign) when entering parentheses. Process character by character.",
+    recognize: [
+      "\"Without using a built-in expression evaluator\" — no eval()/parser library shortcut, must hand-roll it.",
+      "Parentheses can nest — evaluating an inner expression must resume the outer one afterward, a LIFO need.",
+      "Only +, -, and unary minus, no operator precedence puzzle like * or / to worry about.",
+      "→ Stack pushes {result, sign} on '(' , pops and combines on ')' to resume the outer context.",
+    ],
     approach: [
       "result = 0, sign = +1, num = 0.",
       "Digit: accumulate num.",
@@ -9258,6 +10086,12 @@ public:
     constraints: ["1 <= m <= 8","1 <= n <= 8","seats[i][j] is '.' or '#'"],
     intuition:
       "Place maximum students in seats without cheating (no two adjacent in same row or diagonally adjacent between rows). Use bitmask DP: each row's valid placement is a bitmask. Enumerate valid row configurations satisfying intra-row and inter-row constraints.",
+    recognize: [
+      "m, n ≤ 8 — tiny grid dimension is the classic tell for enumerating 2^n row states.",
+      "Constraints only involve neighbors in the same row and the row directly above/below — a per-row decision with local dependencies.",
+      "Need a MAXIMUM count under constraints — optimize over exponentially many row placements, screams DP over bitmasks.",
+      "→ Bitmask each row's seat choices; DP transitions between rows checking adjacency and diagonal bits.",
+    ],
     approach: [
       "Row mask: 1 = broken seat (no student). Valid placement: no two adjacent 1-bits (no side-by-side) and no 1 on a broken seat.",
       "DP[row][mask] = max students placeable in rows 0..row with row having this placement mask.",
@@ -9324,6 +10158,12 @@ public:
     constraints: ["1 <= sentences.length <= 100","1 <= sentences[i].length <= 100","1 <= times[i] <= 50","Total characters typed across all input calls is at most 5000","Characters are lowercase English letters, spaces, or the terminating '#'"],
     intuition:
       "Design a search autocomplete system. On each character input, return top 3 historical queries by (frequency desc, lexicographic asc). Use a trie where each node stores a list of (sentence, count). On '#', save completed query.",
+    recognize: [
+      "\"Design\" a system with an input(char) API called one character at a time — needs persistent state, not one-shot search.",
+      "Every prefix match needs the top-3 by frequency, ranked (freq desc, lex asc) — a prefix-indexed lookup problem.",
+      "New sentences get added and frequencies updated live ('#') — the structure must support both reads and writes.",
+      "→ Trie of historical sentences, each node tracking sentence counts for everything under that prefix.",
+    ],
     approach: [
       "Trie node stores map<char, TrieNode*> and vector<pair<string,int>> topResults (or just traverse at query time).",
       "On input(c): if c=='#', insert current sentence with incremented count into trie. Else, advance current path pointer, return top 3 from current node's prefix.",
@@ -9461,6 +10301,11 @@ public:
     examples: [{"input":"nums = [1,2,3,4]","output":"[1,3,6,10]"},{"input":"nums = [1,1,1,1,1]","output":"[1,2,3,4,5]"},{"input":"nums = [3,1,2,10,1]","output":"[3,4,6,16,17]"}],
     constraints: ["1 <= nums.length <= 1000","-10^6 <= nums[i] <= 10^6"],
     intuition: "Build a prefix sum array where each element is the sum of all previous elements plus itself. This is the foundation — every prefix sum technique extends this O(n) precompute + O(1) query idea.",
+    recognize: [
+      "\"Sum of itself and all preceding elements\" is a literal definition of running/prefix sum.",
+      "Each output position depends on everything before it — recomputing the sum each time would be O(n^2).",
+      "→ Accumulate left to right: result[i] = result[i-1] + nums[i].",
+    ],
     approach: [
       "Initialize result[0] = nums[0].",
       "For each i from 1 to n-1: result[i] = result[i-1] + nums[i].",
@@ -9490,6 +10335,11 @@ public:
     examples: [{"input":"nums = [1,7,3,6,5,6]","output":"3","explanation":"Left sum at index 3 is 1+7+3=11 and right sum is 5+6=11."},{"input":"nums = [1,2,3]","output":"-1"},{"input":"nums = [2,1,-1]","output":"0","explanation":"Left sum is 0 (empty) and right sum is 1+(-1)=0."}],
     constraints: ["1 <= nums.length <= 10^4","-1000 <= nums[i] <= 1000"],
     intuition: "Pivot index: left sum equals right sum. Total sum = leftSum + nums[i] + rightSum. So leftSum == total - leftSum - nums[i]. Scan left to right maintaining running leftSum — O(1) space, O(n) time.",
+    recognize: [
+      "Comparing a running left sum to \"everything else\" is a hint that rightSum can be derived from a total, not stored separately.",
+      "Recomputing left/right sums from scratch at every index would be O(n^2) — need it in one pass.",
+      "→ Precompute total; scan left to right, deriving rightSum = total - leftSum - nums[i] at each step.",
+    ],
     approach: [
       "Compute total = sum of all elements.",
       "Initialize leftSum = 0. Iterate i from 0 to n-1.",
@@ -9527,6 +10377,11 @@ public:
     examples: [{"input":"nums = [-2,0,3,-5,2,-1]; sumRange(0,2)","output":"1","explanation":"-2+0+3 = 1."},{"input":"nums = [-2,0,3,-5,2,-1]; sumRange(2,5)","output":"-1","explanation":"3+(-5)+2+(-1) = -1."},{"input":"nums = [-2,0,3,-5,2,-1]; sumRange(0,5)","output":"-3"}],
     constraints: ["1 <= nums.length <= 10^4","-10^5 <= nums[i] <= 10^5","0 <= i <= j < nums.length","up to 10^4 calls to sumRange"],
     intuition: "Build prefix sum once in O(n). Answer any range query [left, right] in O(1) as prefix[right+1] - prefix[left]. The 1-indexed prefix array with prefix[0]=0 eliminates boundary conditions.",
+    recognize: [
+      "\"Up to 10^4 calls\" to a range-sum query — repeatedly summing a slice per call would be too slow overall.",
+      "Array never changes between queries — a one-time precompute followed by O(1) lookups is the right trade.",
+      "→ Build a 1-indexed prefix sum array; answer sumRange(l,r) as prefix[r+1] - prefix[l].",
+    ],
     approach: [
       "Constructor: build prefix[n+1] where prefix[0]=0, prefix[i] = prefix[i-1] + nums[i-1].",
       "sumRange(l, r): return prefix[r+1] - prefix[l].",
@@ -9562,6 +10417,12 @@ public:
     examples: [{"input":"nums = [1,1,1], k = 2","output":"2","explanation":"The subarrays [1,1] (indices 0-1) and [1,1] (indices 1-2) both sum to 2."},{"input":"nums = [1,2,3], k = 3","output":"2","explanation":"[1,2] and [3] both sum to 3."},{"input":"nums = [1,-1,0], k = 0","output":"3"}],
     constraints: ["1 <= nums.length <= 2 * 10^4","-1000 <= nums[i] <= 1000","-10^7 <= k <= 10^7"],
     intuition: "For every index j, we want to count indices i < j where prefix[j] - prefix[i] = k, i.e., prefix[i] = prefix[j] - k. Maintain a hash map of seen prefix sums and their counts. Check if (currentSum - k) exists in the map before adding currentSum.",
+    recognize: [
+      "Negative numbers allowed — rules out sliding window, which needs monotonic sums to shrink/grow correctly.",
+      "Need a COUNT of subarrays summing to k, over up to 2*10^4 elements — O(n^2) brute force is too slow.",
+      "A subarray sum is a difference of two prefix sums — turns the search into a hash map lookup.",
+      "→ Track running prefix sum in a hash map of counts; look up (running - k) before recording running.",
+    ],
     approach: [
       "Initialize seen = {0: 1} (empty prefix has sum 0 — critical for subarrays starting at index 0).",
       "running = 0, count = 0.",
@@ -9605,6 +10466,12 @@ public:
     examples: [{"input":"nums = [4,5,0,-2,-3,1], k = 5","output":"7","explanation":"The subarrays with sums divisible by 5 are [4,5,0,-2,-3], [5], [5,0], [5,0,-2,-3], [0], [0,-2,-3], and [-2,-3]."},{"input":"nums = [5], k = 9","output":"0"},{"input":"nums = [5,10], k = 5","output":"3"}],
     constraints: ["1 <= nums.length <= 3 * 10^4","-10^4 <= nums[i] <= 10^4","2 <= k <= 10^4"],
     intuition: "Two prefix sums i and j have (prefix[j] - prefix[i]) % k == 0 iff prefix[j] % k == prefix[i] % k. Group prefixes by their remainder mod k. For each remainder r, if there are c prefixes with that remainder, there are c*(c-1)/2 valid pairs — or just count as you go.",
+    recognize: [
+      "\"Divisible by k\" on a subarray sum is really a statement about matching remainders mod k.",
+      "n up to 3*10^4 rules out checking every subarray's sum directly (O(n^2)).",
+      "Two prefix sums with the same remainder mod k bound a subarray divisible by k — a hash map on remainders counts them.",
+      "→ Track running sum mod k in a hash map; count matches, watching for negative-safe modulo.",
+    ],
     approach: [
       "Initialize remainderCount = {0: 1}.",
       "running = 0, count = 0.",
@@ -9648,6 +10515,12 @@ public:
     examples: [{"input":"nums = [23,2,4,6,7], k = 6","output":"true","explanation":"The subarray [2,4] sums to 6, which is a multiple of 6."},{"input":"nums = [23,2,6,4,7], k = 6","output":"true","explanation":"The subarray [23,2,6,4,7] sums to 42, a multiple of 6."},{"input":"nums = [23,2,6,4,7], k = 13","output":"false"}],
     constraints: ["1 <= nums.length <= 10^5","0 <= nums[i] <= 10^9","0 <= sum(nums[i]) <= 2^31 - 1","0 <= k <= 2^31 - 1"],
     intuition: "Find a subarray of length ≥ 2 whose sum is a multiple of k. Equivalent: find two prefix sums with the same remainder mod k, at least 2 apart. Store the FIRST index where each remainder appeared — if same remainder seen again with gap ≥ 2, answer is true.",
+    recognize: [
+      "\"Multiple of k\" on a subarray sum again reduces to matching prefix-sum remainders mod k.",
+      "The length >= 2 requirement means matching remainders alone isn't enough — the index gap must be checked too.",
+      "n up to 10^5 rules out checking every subarray's sum (O(n^2)).",
+      "→ Track first-seen index per remainder mod k; a repeat with gap >= 2 answers true.",
+    ],
     approach: [
       "Initialize seen = {0: -1} (remainder 0 seen before index 0).",
       "running = 0.",
@@ -9693,6 +10566,11 @@ public:
     examples: [{"input":"length = 5, updates = [[1,3,2],[2,4,3],[0,2,-2]]","output":"[-2,0,3,5,3]"},{"input":"length = 3, updates = [[0,2,1]]","output":"[1,1,1]"},{"input":"length = 4, updates = []","output":"[0,0,0,0]"}],
     constraints: ["1 <= length <= 2 * 10^4","0 <= updates.length <= 500","updates[i].length == 3","0 <= startIdx <= endIdx < length","-1000 <= inc <= 1000"],
     intuition: "Difference array: store deltas, not values. For range update [l, r] += val: diff[l] += val, diff[r+1] -= val. Then recover original array by taking prefix sum of diff. Each update is O(1). Final recovery is O(n). Complement to prefix sum — prefix sum answers queries, difference array answers updates.",
+    recognize: [
+      "Many RANGE updates (add val to [start,end]) applied before any read — applying each directly is O(n) per update.",
+      "Only the final array is needed, not intermediate states — updates can be deferred and batched.",
+      "→ Mark deltas at range boundaries (diff[l]+=val, diff[r+1]-=val), then prefix-sum once to materialize.",
+    ],
     approach: [
       "Initialize diff[n+1] = all zeros.",
       "For each update [start, end, inc]: diff[start] += inc, diff[end+1] -= inc.",
@@ -9735,6 +10613,12 @@ public:
     examples: [{"input":"trips = [[2,1,5],[3,3,7]], capacity = 4","output":"false","explanation":"Between positions 3 and 5 both trips overlap, requiring 2+3=5 seats, which exceeds capacity 4."},{"input":"trips = [[2,1,5],[3,3,7]], capacity = 5","output":"true"},{"input":"trips = [[2,1,5],[3,5,7]], capacity = 3","output":"true","explanation":"The trips do not overlap (the first ends where the second begins), so at most 3 passengers are ever on board."}],
     constraints: ["1 <= trips.length <= 1000","trips[i].length == 3","1 <= numPassengers <= 100","0 <= fromLoc < toLoc <= 1000","1 <= capacity <= 10^5"],
     intuition: "Difference array on capacity. Each trip adds passengers at from and removes at to. Build capacity timeline, scan for any point exceeding capacity. Classic difference array application on an event-based timeline.",
+    recognize: [
+      "Overlapping ranges (trips) affecting a shared value (occupancy) over a bounded location axis (0-1000).",
+      "Need to know occupancy at every point along the route, not just per-trip totals — a timeline problem.",
+      "Passengers exit AT the drop-off location, a signal that events, not just sums, need careful placement.",
+      "→ Difference array over locations: +num at pickup, -num at drop-off, then sweep checking against capacity.",
+    ],
     approach: [
       "Initialize diff[1001] = all zeros (max location is 1000).",
       "For each trip [num, from, to]: diff[from] += num, diff[to] -= num (passengers EXIT at 'to', not 'to+1').",
@@ -9780,6 +10664,12 @@ public:
     examples: [{"input":"nums1 = [4,1,2], nums2 = [1,3,4,2]","output":"[-1,3,-1]","explanation":"For 4, there is no greater element to its right in nums2. For 1, the next greater element is 3. For 2, there is no element to its right."},{"input":"nums1 = [2,4], nums2 = [1,2,3,4]","output":"[3,-1]"}],
     constraints: ["1 <= nums1.length <= nums2.length <= 1000","0 <= nums1[i], nums2[i] <= 10^4","All integers in nums1 and nums2 are unique","All elements of nums1 also appear in nums2"],
     intuition: "For each element in nums1, find the next greater element in nums2. Build a hash map from element → next greater element using a monotonic decreasing stack on nums2, then look up each nums1 element. O(n+m) total.",
+    recognize: [
+      "\"First element to its right that is strictly greater\" — the textbook next-greater-element phrasing.",
+      "Answers for nums1 depend only on positions in nums2, and nums1 is a subset — precompute once, then look up.",
+      "Brute force checking every right-neighbor per query would be O(n*m); the pattern hints at O(n+m).",
+      "→ Monotonic decreasing stack over nums2, resolving each element's next greater as a bigger value appears.",
+    ],
     approach: [
       "Build nextGreater map for nums2 using monotonic stack.",
       "Iterate nums2 left to right. Maintain a decreasing stack.",
@@ -9830,6 +10720,12 @@ public:
     examples: [{"input":"nums = [1,2,1]","output":"[2,-1,2]","explanation":"For the first 1, the next greater is 2. For 2, no greater element exists anywhere. For the last 1, wrapping around finds 2 at the start."},{"input":"nums = [1,2,3,4,3]","output":"[2,3,4,-1,4]"}],
     constraints: ["1 <= nums.length <= 10^4","-10^9 <= nums[i] <= 10^9"],
     intuition: "Circular array: elements wrap around. Simulate by iterating 2n times (indices mod n). Use monotonic decreasing stack storing indices. After 2n iterations, any element still in stack has no next greater (-1). Key insight: second pass fills the gaps the first pass couldn't.",
+    recognize: [
+      "\"Circular array\" plus \"next greater element\" — same pattern as NGE I, but the search can wrap past the end.",
+      "n up to 10^4 with a wrap means simulating a doubled pass (2n) is fine, actually duplicating the array is wasteful.",
+      "Monotonic stack still applies — just needs a second lap using index mod n to let wrap-around candidates resolve leftovers.",
+      "→ Monotonic decreasing stack of indices, iterate 2n times using i % n, only push during the first n.",
+    ],
     approach: [
       "Initialize result[n] = all -1. Stack stores indices.",
       "Iterate i from 0 to 2n-1. Use actual index = i % n.",
@@ -9878,6 +10774,12 @@ public:
     examples: [{"input":"n = 4","output":"false","explanation":"Whatever you take (1, 2, or 3), your friend can take the remaining stones and win."},{"input":"n = 1","output":"true","explanation":"You take the single stone and win immediately."},{"input":"n = 8","output":"true"}],
     constraints: ["1 <= n <= 2^31 - 1"],
     intuition: "If n % 4 == 0, second player wins (copies your strategy, always leaves you with 0 mod 4). Otherwise first player wins by taking enough to leave opponent at 4k. Pure math insight — no actual DP needed. Gateway to game theory.",
+    recognize: [
+      "Two players alternate optimally, each turn removes 1-3 — classic combinatorial game theory setup.",
+      "n up to 2^31-1 rules out any DP table of that size — must be a closed-form pattern.",
+      "Only a win/lose question, not the actual moves — small \"losing position\" states likely repeat.",
+      "→ Find the periodic losing pattern (multiples of 4) instead of simulating.",
+    ],
     approach: [
       "If n % 4 == 0: return false (second player always wins).",
       "Else: return true (first player wins).",
@@ -9912,6 +10814,12 @@ public:
     examples: [{"input":"piles = [5,3,4,5]","output":"true","explanation":"Alice can pick piles to guarantee a total of at least 13 stones out of 17."},{"input":"piles = [3,7,2,3]","output":"true"}],
     constraints: ["2 <= piles.length <= 500","piles.length is even","1 <= piles[i] <= 500"],
     intuition: "Alex (first player) always wins when n is even — mathematical proof. But the DP approach generalizes to Stone Game II, III, etc. DP: dp[i][j] = max score advantage (your score - opponent's) for stones[i..j]. On your turn you take either end; opponent plays optimally.",
+    recognize: [
+      "Two optimal players, each turn takes from either END of a row — interval-shrinking game DP.",
+      "Only picking front/back means the remaining piles are always a contiguous subrange [i..j].",
+      "Asks WHO wins, which reduces to a score-difference DP rather than tracking each player's total.",
+      "→ dp[i][j] = best achievable score advantage on stones[i..j], choosing the better end each turn.",
+    ],
     approach: [
       "dp[i][j] = best score difference (current player − opponent) over stones[i..j].",
       "Base case: dp[i][i] = stones[i] (only one stone, take it).",
@@ -9964,6 +10872,12 @@ bool stoneGameDP(vector<int>& piles) {
     examples: [{"input":"nums = [1,1,2]","output":"2, nums = [1,2,_]","explanation":"The function returns k = 2, with the first two elements of nums being 1 and 2."},{"input":"nums = [0,0,1,1,1,2,2,3,3,4]","output":"5, nums = [0,1,2,3,4,_,_,_,_,_]"}],
     constraints: ["1 <= nums.length <= 3 * 10^4","-100 <= nums[i] <= 100","nums is sorted in non-decreasing order"],
     intuition: "Write pointer technique: maintain a slow pointer (write index) that only advances when a unique element is found. Fast pointer scans everything. In-place, O(1) space. Foundation of all in-place array modification problems.",
+    recognize: [
+      "Array already \"sorted in non-decreasing order\" — duplicates are guaranteed to sit next to each other.",
+      "\"In-place\" removal returning a count k — the classic read/write pointer signature.",
+      "Only one occurrence per value survives — compare each candidate to the last kept value.",
+      "→ Two pointers: write pointer only advances when nums[read] differs from nums[read-1].",
+    ],
     approach: [
       "If array empty, return 0.",
       "Initialize write = 1 (first element always kept).",
@@ -10017,6 +10931,12 @@ int removeDuplicatesII(vector<int>& nums, int k = 2) {
     examples: [{"input":"nums = [2,0,2,1,1,0]","output":"[0,0,1,1,2,2]"},{"input":"nums = [2,0,1]","output":"[0,1,2]"}],
     constraints: ["1 <= nums.length <= 300","nums[i] is 0, 1, or 2","Follow up: can you solve it in one pass using only constant extra space?"],
     intuition: "Dutch National Flag algorithm (Dijkstra). Three-way partition with three pointers: low, mid, high. All 0s go to [0, low), all 1s in [low, mid), all 2s in (high, n-1]. Process mid until it crosses high. Critical technique used in quicksort's partition and any 3-category sort.",
+    recognize: [
+      "Only three distinct values (0, 1, 2) — a fixed, small number of categories to bucket.",
+      "\"Without using a library sort function\" and \"one pass\" rule out calling sort() outright.",
+      "Elements need grouping in order in-place — a three-way partition, not a comparison sort.",
+      "→ Dutch National Flag: three pointers (low/mid/high) partition into 0s, 1s, 2s in one pass.",
+    ],
     approach: [
       "Init low = 0, mid = 0, high = n-1.",
       "While mid <= high: examine nums[mid].",
@@ -10063,6 +10983,12 @@ int removeDuplicatesII(vector<int>& nums, int k = 2) {
     examples: [{"input":"nums = [5,7,7,8,8,10], target = 8","output":"[3,4]","explanation":"8 first appears at index 3 and last appears at index 4."},{"input":"nums = [5,7,7,8,8,10], target = 6","output":"[-1,-1]","explanation":"6 is not present in nums."},{"input":"nums = [], target = 0","output":"[-1,-1]"}],
     constraints: ["0 <= nums.length <= 10^5","-10^9 <= nums[i] <= 10^9","nums is sorted in non-decreasing order","-10^9 <= target <= 10^9"],
     intuition: "Two binary searches: one finds the leftmost (first) occurrence, one finds the rightmost (last) occurrence. The left-boundary template and right-boundary template are the two fundamental binary search variants. Mastering this unlocks 20+ problems that require finding a boundary rather than an exact target.",
+    recognize: [
+      "Sorted array, need first AND last index of a value (a range), not just existence — a boundary problem.",
+      "O(log n) requirement rules out scanning outward from a found match.",
+      "Duplicates form a contiguous block in sorted order — boundaries can be found independently.",
+      "→ Two binary searches: one biased to keep narrowing left on a match, one biased right.",
+    ],
     approach: [
       "Write findLeft(target): standard binary search but when nums[mid] == target, don't stop — move right = mid - 1 to keep searching left.",
       "Write findRight(target): when nums[mid] == target, move left = mid + 1 to keep searching right.",
@@ -10188,6 +11114,12 @@ int findBound(vector<int>& nums, int target, bool isLeft) {
     constraints: ["1 <= nums.length <= 3 * 10^4","-10^4 <= nums[i] <= 10^4","nums is sorted in non-decreasing order"],
     intuition:
       "Same write-pointer trick as removing all duplicates, but now each value is allowed to appear up to twice. Compare the candidate to the element TWO positions back in the write region — if it's different (or write index < 2), the value hasn't appeared twice yet, so it's safe to keep.",
+    recognize: [
+      "\"In place\" removal keeping order, sorted input, each value allowed at most twice — a write-pointer variant.",
+      "Duplicates beyond two are contiguous since the array is sorted, so a fixed lookback comparison suffices.",
+      "No extra array needed — output overwrites the same array's front positions.",
+      "→ Two pointers: read scans ahead, write only advances when nums[read] differs from nums[write-2].",
+    ],
     approach: [
       "If array length ≤ 2, return length as-is (nothing can violate 'at most 2').",
       "Initialize write = 2 (first two elements are always kept).",
@@ -10234,6 +11166,12 @@ public:
     constraints: ["nums1.length == m + n","nums2.length == n","0 <= m, n <= 200","1 <= m + n <= 200","-10^9 <= nums1[i], nums2[j] <= 10^9"],
     intuition:
       "Merging from the front requires shifting elements in nums1 to make room — O(n) per insert. Instead, merge from the BACK: the largest elements from both arrays land in the last empty slots first, so no shifting is ever needed.",
+    recognize: [
+      "nums1 has trailing zero placeholders sized exactly for nums2 — space to merge into is already reserved.",
+      "Both arrays are already sorted — merging, not sorting from scratch, is the operation needed.",
+      "Merging from the front requires shifting; merging from the back never overwrites an unread value.",
+      "→ Three pointers from the back: place the larger of nums1[i]/nums2[j] into the last open slot.",
+    ],
     approach: [
       "Set three pointers: i = m-1 (last real element of nums1), j = n-1 (last of nums2), k = m+n-1 (last slot overall).",
       "While j >= 0: if i >= 0 and nums1[i] > nums2[j], place nums1[i] at k, decrement i; else place nums2[j] at k, decrement j. Decrement k each time.",
@@ -10273,6 +11211,12 @@ public:
     constraints: ["1 <= nums.length <= 100","0 <= nums[i] <= 100"],
     intuition:
       "The next lexicographic permutation is found by: (1) finding the rightmost position where the sequence stops increasing (scanning from the end), (2) swapping it with the smallest element to its right that's still bigger than it, (3) reversing everything after that position to get the smallest possible suffix.",
+    recognize: [
+      "\"Lexicographically next greater permutation\", in place, O(1) space — a specific rearrangement recipe, not full generation.",
+      "Wrap-around case (highest permutation → lowest) is called out explicitly, hinting at a special all-descending case.",
+      "The suffix that's non-increasing from the end is already at its max — the change must happen at the last rising point.",
+      "→ Two pointers: find the rightmost ascent, swap with the smallest larger value to its right, reverse the suffix.",
+    ],
     approach: [
       "Scan from the right to find the first index i where nums[i] < nums[i+1] (the 'pivot'). If none exists, the array is the last permutation — reverse the whole array.",
       "Scan from the right again to find the first index j > i where nums[j] > nums[i].",
@@ -10318,6 +11262,12 @@ public:
     constraints: ["1 <= fruits.length <= 10^5","0 <= fruits[i] <= 10^5"],
     intuition:
       "This is 'longest substring with at most 2 distinct characters' wearing a fruit costume. Maintain a sliding window with a frequency map; when the map exceeds 2 distinct fruit types, shrink from the left until it's back to 2.",
+    recognize: [
+      "\"Exactly two baskets\", each one fruit type — a cap of at most 2 distinct values in a contiguous run.",
+      "\"Moving strictly to the right\" and stopping on a 3rd type — a contiguous window, not any subsequence.",
+      "Need the MAXIMUM length collectible — a window that grows and shrinks based on a distinct-count limit.",
+      "→ Sliding window with a frequency map, shrink left whenever distinct fruit types exceed 2.",
+    ],
     approach: [
       "Use a hash map counting fruit type frequency inside the window [left, right].",
       "Expand right, incrementing the count for fruits[right].",
@@ -10367,6 +11317,12 @@ public:
     constraints: ["1 <= nums.length <= 10^5","nums[i] is either 0 or 1","0 <= k <= nums.length"],
     intuition:
       "We're allowed to flip at most K zeros to ones. That's equivalent to: find the longest window containing at most K zeros. Sliding window: expand right always; shrink left only when the zero count inside the window exceeds K.",
+    recognize: [
+      "\"At most k\" flips reframes the problem as a budget constraint on a contiguous window.",
+      "Binary array — the only thing to track inside a window is a count of zeros.",
+      "Need the LONGEST achievable run, so windows should expand greedily and only shrink when over budget.",
+      "→ Sliding window tracking zero count; shrink left only when zeros exceed k.",
+    ],
     approach: [
       "Track zeroCount inside window [left, right].",
       "Expand right; if nums[right] == 0, increment zeroCount.",
@@ -10414,6 +11370,12 @@ public:
     constraints: ["1 <= nums.length <= 3 * 10^4","1 <= nums[i] <= 1000","0 <= k <= 10^6"],
     intuition:
       "For a sliding window with product < k: every time the window is valid (product < k), ALL subarrays ending at 'right' and starting anywhere from left to right are valid too — that's (right - left + 1) new subarrays to count. Shrink from the left whenever product >= k.",
+    recognize: [
+      "All positive integers only — products only grow as the window grows, so a threshold window is monotonic.",
+      "Asks to COUNT subarrays, not list them — suggests each window state contributes a formula, not enumeration.",
+      "n up to 3×10^4 rules out checking all O(n²) subarrays individually with fresh products.",
+      "→ Sliding window on product; each valid right endpoint adds (right − left + 1) new subarrays.",
+    ],
     approach: [
       "If k <= 1, return 0 immediately (no positive-integer array can have a product < 1).",
       "Maintain running product of window [left, right]; expand right by multiplying in nums[right].",
@@ -10464,6 +11426,12 @@ public:
     constraints: ["1 <= nums.length <= 1000","-2^31 <= nums[i] <= 2^31 - 1","nums[i] != nums[i + 1] for all valid i"],
     intuition:
       "A peak is any element strictly greater than its neighbors — the array isn't necessarily sorted, but binary search still works because you can always move toward a peak: if mid's right neighbor is bigger, a peak must exist somewhere to the right (values only increase or you hit a peak); symmetric logic for the left.",
+    recognize: [
+      "Array is NOT sorted, yet O(log n) is required — a red flag that plain binary search on values won't work directly.",
+      "\"Any one peak\" is acceptable, not all peaks — a decision at each step suffices, no need to scan everything.",
+      "Comparing mid to its neighbor tells you which direction is guaranteed to still contain a peak.",
+      "→ Binary search following the uphill slope: it always leads toward some peak.",
+    ],
     approach: [
       "Binary search with low = 0, high = n-1.",
       "At mid, compare nums[mid] to nums[mid+1].",
@@ -10508,6 +11476,12 @@ public:
     constraints: ["1 <= days <= weights.length <= 5 * 10^4","1 <= weights[i] <= 500"],
     intuition:
       "'Minimize the maximum' problems are binary search on the ANSWER, not the input. Guess a capacity; check if it's feasible to ship everything within D days using a greedy simulation. If feasible, try a smaller capacity; if not, try bigger.",
+    recognize: [
+      "\"Return the least weight capacity\" that satisfies a day constraint — minimize-the-maximum phrasing.",
+      "Feasibility (\"can ship in D days at capacity X\") only gets easier as X grows — a monotonic yes/no function.",
+      "n up to 5*10^4 with weights up to 500 rules out trying every possible capacity one at a time.",
+      "→ Binary search on the answer (capacity), checking feasibility with a greedy day-count simulation.",
+    ],
     approach: [
       "Set search bounds: low = max(weights) (must fit the heaviest single package), high = sum(weights) (ship everything in one day).",
       "Binary search: for mid capacity, greedily simulate loading — add packages to the current day's load until adding one more would exceed mid, then start a new day.",
@@ -10559,6 +11533,12 @@ public:
     constraints: ["1 <= nums.length <= 1000","0 <= nums[i] <= 10^6","1 <= k <= min(50, nums.length)"],
     intuition:
       "Identical shape to Capacity to Ship Packages — 'split into m subarrays minimizing the largest subarray sum' is 'binary search on the answer + greedy feasibility check', just renamed. Guess a max-sum limit; count how many subarrays are needed to respect it.",
+    recognize: [
+      "\"Minimize the largest sum\" among k contiguous subarrays — same minimize-the-maximum shape as ship capacity.",
+      "\"Can split into <= k parts with each sum <= X\" gets easier as X grows — a monotonic feasibility check.",
+      "n up to 1000 and k up to 50 make trying every partition combinatorially infeasible, but checking one X is cheap.",
+      "→ Binary search on the answer (max subarray sum cap), greedily counting parts needed for each candidate.",
+    ],
     approach: [
       "Binary search bounds: low = max(nums) (largest single element), high = sum(nums).",
       "For mid (candidate max sum), greedily partition: accumulate a running sum, start a new subarray whenever adding the next element would exceed mid.",
@@ -10929,6 +11909,12 @@ public:
     constraints: ["1 <= nums.length <= 3 * 10^4","-2^31 <= nums[i] <= 2^31 - 1","Each element in nums appears exactly three times except for one element which appears once"],
     intuition:
       "Every number appears exactly 3 times except one, which appears once. XOR cancels pairs, not triples — instead, track bit counts modulo 3. For each bit position, if the sum of that bit across all numbers isn't divisible by 3, the unique number has that bit set.",
+    recognize: [
+      "\"Every element appears exactly three times except one\" — plain XOR (which cancels pairs) no longer works.",
+      "\"Linear time, constant extra space\" rules out a hash map of counts.",
+      "Need a counter per bit that resets every 3 occurrences — a mod-3 state machine per bit position.",
+      "→ Track two bitmasks (ones/twos) that cycle each bit through counts 0→1→2→0 mod 3.",
+    ],
     approach: [
       "Use two bitmasks: ones (bits seen exactly once so far, mod 3) and twos (bits seen exactly twice so far, mod 3).",
       "For each number n: update ones = (ones XOR n) AND (NOT twos); update twos = (twos XOR n) AND (NOT ones).",
@@ -10970,6 +11956,12 @@ public:
     constraints: ["2 <= nums.length <= 3 * 10^4","-2^31 <= nums[i] <= 2^31 - 1","Each integer in nums will appear twice, only two integers will appear once"],
     intuition:
       "Two numbers appear once, everyone else twice. XOR-ing everything cancels the pairs, leaving XOR of the two unique numbers. Since they're different, that XOR has at least one set bit — use ANY such bit to split all numbers into two groups (bit set / bit not set). Each unique number falls into a different group, and XOR-ing within each group isolates each one.",
+    recognize: [
+      "\"Exactly two elements appear once\" — plain single-number XOR gives a mixed result, not either answer alone.",
+      "The two unique numbers must differ in at least one bit, since they're distinct values.",
+      "That differing bit can partition ALL numbers into two groups where duplicates stay paired together.",
+      "→ XOR everything to get unique1 XOR unique2, split by their lowest differing bit, XOR each group separately.",
+    ],
     approach: [
       "XOR all numbers together to get xorAll = unique1 XOR unique2.",
       "Find any set bit in xorAll (commonly the lowest: diffBit = xorAll & (-xorAll)).",
@@ -11014,6 +12006,12 @@ public:
     constraints: ["1 <= x <= 9","At most 100 calls will be made to push, pop, peek, and empty","All calls to pop and peek are valid (the queue is non-empty)"],
     intuition:
       "Two stacks simulate a queue: 'in-stack' receives pushes; 'out-stack' serves pops/peeks. When out-stack is empty and a pop/peek is requested, dump all of in-stack into out-stack — this reverses the order, turning stack (LIFO) behavior into queue (FIFO) behavior.",
+    recognize: [
+      "Explicitly required to build a FIFO queue using ONLY stack operations — the mismatch is the whole point.",
+      "A single stack reverses order; getting FIFO back out of LIFO means reversing twice.",
+      "Need amortized-cheap push/pop, not a full reversal on every single call.",
+      "→ Two stacks: push into one, and only when the output stack empties, dump the input stack into it once.",
+    ],
     approach: [
       "push(x): always push onto inStack.",
       "pop()/peek(): if outStack is empty, pour all elements from inStack into outStack (reversing order). Then operate on outStack's top.",
@@ -11069,6 +12067,12 @@ public:
     constraints: ["1 <= n <= 1000","1 <= weights[i], values[i] <= 1000","1 <= capacity <= 1000"],
     intuition:
       "Classic 0/1 knapsack: for each item, decide include or exclude to maximize value without exceeding weight capacity. dp[i][w] = best value using first i items with capacity w. Either skip item i (dp[i-1][w]) or take it (value[i] + dp[i-1][w-weight[i]], if it fits).",
+    recognize: [
+      "Each item can be taken once or not at all — no repeats, unlike coin-change style problems.",
+      "A capacity limit (weight <= W) plus a value to maximize — the textbook 0/1 knapsack shape.",
+      "n and capacity both up to ~1000 fit comfortably within an O(n × W) DP table.",
+      "→ dp[w] = best value at capacity w; loop capacity backwards per item so nothing is reused.",
+    ],
     approach: [
       "Build dp[n+1][W+1], dp[0][*] = 0 (no items, no value regardless of capacity).",
       "For each item i (1-indexed) and each capacity w: dp[i][w] = dp[i-1][w] (skip).",
@@ -11112,6 +12116,12 @@ public:
     constraints: ["2 <= p.length <= 100","1 <= p[i] <= 500"],
     intuition:
       "Matrix multiplication is associative but the number of scalar multiplications depends heavily on parenthesization. This is interval DP: dp[i][j] = minimum cost to multiply matrices i through j, trying every possible split point k and taking the best.",
+    recognize: [
+      "\"Associative\" but cost varies by grouping — the parenthesization choice is the thing to optimize.",
+      "n up to 100 rules out trying every parenthesization (exponential), but allows O(n³) DP.",
+      "The cost of multiplying a chain [i..j] only depends on where you split it, and both halves independently.",
+      "→ Interval DP over chain length: dp[i][j] tries every split point k between i and j.",
+    ],
     approach: [
       "Let dims[] be the dimension array (matrix i has dimensions dims[i-1] x dims[i]).",
       "dp[i][j] = min cost to multiply matrices i..j. Base case dp[i][i] = 0 (single matrix, no multiplication).",
@@ -11163,6 +12173,12 @@ public:
     constraints: ["1 <= prices.length <= 10^5","0 <= prices[i] <= 1000"],
     intuition:
       "At most 2 transactions allowed. Track 4 states across the array: after 1st buy, after 1st sell, after 2nd buy, after 2nd sell — each state greedily maximized so far. Each state can only improve using the previous state's best value plus today's price.",
+    recognize: [
+      "Fixed cap of \"at most 2 transactions\" — a hard number of states to track, unlike unlimited-trade problems.",
+      "Simple greedy (take every rising step) breaks because trades are capped at 2, not unlimited.",
+      "Each transaction stage's best value only depends on the previous stage's best on the same day.",
+      "→ Track 4 running states (buy1, sell1, buy2, sell2), updated in that dependency order each day.",
+    ],
     approach: [
       "Initialize buy1 = -infinity, sell1 = 0, buy2 = -infinity, sell2 = 0.",
       "For each price: buy1 = max(buy1, -price); sell1 = max(sell1, buy1 + price); buy2 = max(buy2, sell1 - price); sell2 = max(sell2, buy2 + price).",
@@ -11208,6 +12224,12 @@ public:
     constraints: ["1 <= k <= 100","1 <= prices.length <= 1000","0 <= prices[i] <= 1000"],
     intuition:
       "Generalizes 'Best Time III' from exactly 2 transactions to at most k. Maintain buy[] and sell[] arrays of size k, where buy[i] and sell[i] represent the best profit after completing the (i+1)-th buy/sell. Same recurrence, just looped k times instead of hardcoded twice.",
+    recognize: [
+      "Arbitrary transaction cap k, not a fixed 2 — Best Time III's hardcoded 4 variables won't generalize directly.",
+      "When k is large relative to n, the cap stops mattering — a hint to special-case it as unlimited/greedy.",
+      "Otherwise, the same buy/sell dependency chain from Best Time III just needs to repeat k times.",
+      "→ Arrays buy[0..k-1]/sell[0..k-1], each stage funded by the previous stage's sell.",
+    ],
     approach: [
       "If k >= n/2, any number of transactions is effectively unlimited — solve as 'buy low sell high whenever profitable' (greedy, sum of all positive differences).",
       "Otherwise: initialize buy[0..k-1] = -infinity, sell[0..k-1] = 0.",
