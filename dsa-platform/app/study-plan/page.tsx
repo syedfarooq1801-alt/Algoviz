@@ -192,15 +192,41 @@ export default function StudyPlanPage() {
   const totalWeeks = weeks.length;
   const [activeDayIdx, setActiveDayIdx] = useState<number>(0);
 
-  // Open on the current (earliest unfinished) day so missed work surfaces.
+  // Open on the current (earliest unfinished) day so missed work surfaces —
+  // but only on a genuinely fresh visit. Clicking through to a problem/case-
+  // study/concept page and back fully unmounts and remounts this page (no
+  // route-level state preservation in this app), which used to re-run this
+  // exact effect and jump back to the earliest-incomplete day even if the
+  // user was actively working ahead on today — checking something off from
+  // its own detail page looked like it "sent me back to a previous day"
+  // purely because leaving the page and returning is itself a remount.
+  // Remembering the last-viewed day across that remount fixes it without
+  // touching the actual carried/done-late day-assignment logic at all.
+  const FOCUS_STORAGE_KEY = "studyplan-focus-date";
   const didAutoInit = useRef(false);
   useEffect(() => {
     if (didAutoInit.current) return;
     didAutoInit.current = true;
-    setActiveWeek(Math.floor(currentIdx / 7));
-    setActiveDayIdx(currentIdx % 7);
+    let targetIdx = currentIdx;
+    try {
+      const savedDate = sessionStorage.getItem(FOCUS_STORAGE_KEY);
+      if (savedDate) {
+        const idx = plan.days.findIndex((d) => d.date === savedDate);
+        if (idx >= 0) targetIdx = idx;
+      }
+    } catch { /* ignore */ }
+    setActiveWeek(Math.floor(targetIdx / 7));
+    setActiveDayIdx(targetIdx % 7);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIdx]);
+
+  // Keep the remembered focus day up to date with whatever's on screen,
+  // whether that's the auto-init above or an explicit day/week click below.
+  useEffect(() => {
+    const d = plan.days[activeWeek * 7 + activeDayIdx];
+    if (!d) return;
+    try { sessionStorage.setItem(FOCUS_STORAGE_KEY, d.date); } catch { /* ignore */ }
+  }, [activeWeek, activeDayIdx, plan]);
 
   const focusDay = week[activeDayIdx] ?? week.find((d) => d.type !== "rest") ?? week[0];
 
