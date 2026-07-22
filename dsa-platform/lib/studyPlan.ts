@@ -329,7 +329,13 @@ function groupByPattern(queue: PlanTask[]): PlanTask[][] {
 function packPatternGroups(groups: PlanTask[][], dayCount: number): PlanTask[][] {
   const n = groups.length;
   if (n === 0) return Array.from({ length: dayCount }, () => []);
-  const sizes = groups.map((g) => g.length);
+  // Effort-weighted, not raw item count — a day with 5 Hard Graph problems is
+  // already a full day even at only 5 items, so it shouldn't also absorb
+  // another pattern's leftover just because the ITEM count looks balanced.
+  // Two intrinsically heavy patterns (Graphs, DP, ...) landing on the same
+  // day was exactly this: count-balancing let their remainders combine even
+  // though the actual study-hour load was already doubled.
+  const sizes = groups.map((g) => totalEffort(g));
 
   const countParts = (maxSum: number): number => {
     let parts = 1, cur = 0;
