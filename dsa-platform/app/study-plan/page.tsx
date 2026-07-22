@@ -7,7 +7,7 @@ import { useProgressStore } from "@/lib/store";
 import { useSDStore } from "@/lib/sdStore";
 import { useSEStore } from "@/lib/seStore";
 import { useLLDStore } from "@/lib/lldStore";
-import { useInterviewStore } from "@/lib/interviewStore";
+import { useInterviewStore, COMPANIES, type TargetCompany } from "@/lib/interviewStore";
 
 const DAYS_OPTIONS = [21, 30, 60, 90] as const;
 type Duration = 21 | 30 | 60 | 90;
@@ -56,16 +56,24 @@ export default function StudyPlanPage() {
   const { completed, toggleChapter } = useSEStore();
   const { completed: lldCompleted, toggleChapter: toggleLLDChapter } = useLLDStore();
   const targetDate = useInterviewStore((s) => s.targetDate);
+  const targetCompany = useInterviewStore((s) => s.targetCompany);
+  const setTarget = useInterviewStore((s) => s.setTarget);
+  const clearTarget = useInterviewStore((s) => s.clearTarget);
   const duration: Duration = studyPlanDuration;
   const [activeWeek, setActiveWeek] = useState(0);
 
   const today = todayISO();
-  // Anchor the plan to a fixed start date so "today" maps to a real day.
-  // First visit (or after reset) sets it to today.
-  useEffect(() => {
-    if (!planStartDate) setPlanStartDate(today);
-  }, [planStartDate, setPlanStartDate, today]);
+  // planStartDate is no longer auto-set silently — first visit shows a
+  // one-time setup gate (below the main return) that asks for an interview
+  // date before the plan begins, so extend-vs-compress mode is a deliberate
+  // choice from day one instead of a banner you discover later.
   const startDate = planStartDate || today;
+
+  // Small header editor for setting/changing the interview date after setup,
+  // so skipping it at setup time isn't a permanent trap.
+  const [showDateEditor, setShowDateEditor] = useState(false);
+  const [dateDraft, setDateDraft] = useState("");
+  const [companyDraft, setCompanyDraft] = useState<TargetCompany>("Other");
 
   function changeDuration(d: Duration) {
     setStudyPlanDuration(d);
@@ -321,6 +329,87 @@ export default function StudyPlanPage() {
   const totalTasks = plan.days.reduce((n, d) => n + d.tasks.filter(t => t.domain !== "behavioral").length, 0);
   const completedTasks = plan.days.reduce((n, d) => n + d.tasks.filter(isTaskDone).length, 0);
 
+  // First-visit setup gate — ask up front whether an interview date exists,
+  // since that decides extend vs. compress mode for the whole plan. Answering
+  // "no" just starts the plan (stays extend); answering "yes" sets the target
+  // date/company before the plan begins. Confirming either way sets
+  // planStartDate, which is what clears this gate on the next render.
+  if (!planStartDate) {
+    return (
+      <div style={{ minHeight: "100vh", background: "var(--bg-primary)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+        <div className="quiet-panel" style={{ maxWidth: 460, width: "100%", padding: 28 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 8px" }}>Do you have an interview date?</h1>
+          <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6, margin: "0 0 20px" }}>
+            This decides how the plan handles a missed day. With a date set, missed work spreads
+            thinly across the days left so your finish date never moves. Without one, the plan
+            simply grows by however many days you fall behind.
+          </p>
+
+          {!showDateEditor ? (
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <button
+                onClick={() => setShowDateEditor(true)}
+                className="btn-primary px-4 py-2 text-sm"
+              >
+                Yes, I have one
+              </button>
+              <button
+                onClick={() => setPlanStartDate(today)}
+                className="btn-ghost px-4 py-2 text-sm"
+              >
+                No, not yet — start the plan
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <label style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12, color: "var(--text-muted)" }}>
+                Interview date
+                <input
+                  type="date"
+                  value={dateDraft}
+                  onChange={(e) => setDateDraft(e.target.value)}
+                  style={{
+                    fontSize: 13, padding: "8px 10px", borderRadius: 6,
+                    background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)",
+                    color: "var(--text-primary)", colorScheme: "dark",
+                  }}
+                />
+              </label>
+              <label style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12, color: "var(--text-muted)" }}>
+                Company
+                <select
+                  value={companyDraft}
+                  onChange={(e) => setCompanyDraft(e.target.value as TargetCompany)}
+                  style={{
+                    fontSize: 13, padding: "8px 10px", borderRadius: 6,
+                    background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)",
+                    color: "var(--text-primary)",
+                  }}
+                >
+                  {COMPANIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </label>
+              <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+                <button
+                  onClick={() => {
+                    if (dateDraft) setTarget(dateDraft, companyDraft);
+                    setPlanStartDate(today);
+                  }}
+                  disabled={!dateDraft}
+                  className="btn-primary px-4 py-2 text-sm"
+                  style={!dateDraft ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
+                >
+                  Confirm
+                </button>
+                <button onClick={() => setShowDateEditor(false)} className="btn-ghost px-4 py-2 text-sm">Back</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
       {/* Missed-day rebalance toast — dismissible; remembered per day */}
@@ -422,6 +511,67 @@ export default function StudyPlanPage() {
               padding: "5px 10px", borderRadius: 6, border: "1px solid var(--border-subtle)",
               background: "var(--bg-secondary)",
             }}>📄 Cheat-sheet</Link>
+            <div style={{ position: "relative" }}>
+              <button
+                onClick={() => {
+                  setDateDraft(targetDate ?? "");
+                  setCompanyDraft(targetCompany ?? "Other");
+                  setShowDateEditor((v) => !v);
+                }}
+                style={{
+                  fontSize: 11, fontWeight: 600, cursor: "pointer",
+                  padding: "5px 10px", borderRadius: 6, border: "1px solid var(--border-subtle)",
+                  background: "var(--bg-secondary)", color: targetDate ? "var(--accent)" : "var(--text-muted)",
+                }}
+              >
+                🎯 {targetDate ? `${targetCompany} · ${fmtDate(targetDate)}` : "Set interview date"}
+              </button>
+              {showDateEditor && (
+                <div style={{
+                  position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 50,
+                  width: 260, padding: 14, borderRadius: 8,
+                  background: "var(--bg-card)", border: "1px solid var(--border)",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+                  display: "flex", flexDirection: "column", gap: 10,
+                }}>
+                  <label style={{ display: "flex", flexDirection: "column", gap: 5, fontSize: 11, color: "var(--text-muted)" }}>
+                    Interview date
+                    <input
+                      type="date"
+                      value={dateDraft}
+                      onChange={(e) => setDateDraft(e.target.value)}
+                      style={{ fontSize: 12, padding: "6px 8px", borderRadius: 5, background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)", color: "var(--text-primary)", colorScheme: "dark" }}
+                    />
+                  </label>
+                  <label style={{ display: "flex", flexDirection: "column", gap: 5, fontSize: 11, color: "var(--text-muted)" }}>
+                    Company
+                    <select
+                      value={companyDraft}
+                      onChange={(e) => setCompanyDraft(e.target.value as TargetCompany)}
+                      style={{ fontSize: 12, padding: "6px 8px", borderRadius: 5, background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)", color: "var(--text-primary)" }}
+                    >
+                      {COMPANIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </label>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      onClick={() => { if (dateDraft) setTarget(dateDraft, companyDraft); setShowDateEditor(false); }}
+                      disabled={!dateDraft}
+                      className="btn-primary px-3 py-1.5 text-xs"
+                      style={!dateDraft ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
+                    >
+                      Save
+                    </button>
+                    {targetDate && (
+                      <button onClick={() => { clearTarget(); setShowDateEditor(false); }} className="btn-ghost px-3 py-1.5 text-xs">
+                        Clear
+                      </button>
+                    )}
+                    <button onClick={() => setShowDateEditor(false)} className="btn-ghost px-3 py-1.5 text-xs">Cancel</button>
+                  </div>
+                </div>
+              )}
+            </div>
             {/* Start date — aligns the plan to the real calendar */}
             <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "var(--text-muted)" }}>
               Started
