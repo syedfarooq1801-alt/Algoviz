@@ -1,4 +1,5 @@
 import { PATTERNS } from "@/data/problems";
+import { PROBLEM_SUBGROUPS } from "@/data/problemSubgroups";
 import { SD_CHAPTERS } from "@/data/systemDesign";
 import { SE_SUBJECTS } from "@/data/seBasics";
 import { LLD_SUBJECTS } from "@/data/lld";
@@ -62,6 +63,25 @@ function sdPriority(difficulty: string): number {
   return difficulty === "Fundamental" ? 3 : difficulty === "Intermediate" ? 2 : 1;
 }
 
+// Within a pattern, cluster problems by sub-family (see problemSubgroups.ts)
+// so twin problems — same sub-technique, different twist — land adjacent in
+// the plan instead of scattered across the pattern's full problem list.
+// Clusters are placed at the position where their FIRST member originally
+// appeared (not alphabetically), so the existing easy-to-hard curriculum
+// ramp within a pattern is preserved — this only pulls siblings together,
+// it doesn't re-rank difficulty. Unlabeled problems keep their own slot.
+function bySubgroup<T extends { id: string }>(problems: T[]): T[] {
+  const anchor = new Map<string, number>();
+  problems.forEach((p, i) => {
+    const key = PROBLEM_SUBGROUPS[p.id] ?? `__solo-${p.id}`;
+    if (!anchor.has(key)) anchor.set(key, i);
+  });
+  return problems
+    .map((p, i) => ({ p, i, key: PROBLEM_SUBGROUPS[p.id] ?? `__solo-${p.id}` }))
+    .sort((a, b) => anchor.get(a.key)! - anchor.get(b.key)! || a.i - b.i)
+    .map((x) => x.p);
+}
+
 function buildDSATasks(): PlanTask[] {
   return PATTERNS.flatMap((pattern) => [
     {
@@ -75,7 +95,7 @@ function buildDSATasks(): PlanTask[] {
       meta: "Pattern theory",
       kind: "theory" as const,
     },
-    ...pattern.problems.map((p) => {
+    ...bySubgroup(pattern.problems).map((p) => {
       const freq = (p as { frequency?: string }).frequency ?? "Medium";
       return {
         domain: "dsa" as const,
