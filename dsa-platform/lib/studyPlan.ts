@@ -1076,6 +1076,14 @@ export function rebalancePlan(
     // that already has a different heavy pattern (e.g. Graphs) just because
     // there was still a little budget room left for ONE more task. A group
     // that doesn't fit moves to the next day entirely instead.
+    //
+    // (Deliberately NOT packPatternGroups' min-max balancing here: that
+    // algorithm can't shrink a bucket below its single largest indivisible
+    // group, so if one carried pattern-group alone exceeds `budget`, "add a
+    // day and check if the max bucket now fits" never resolves — it adds
+    // days up to MAX_ADDED for nothing. Greedy day-by-day fill has no such
+    // failure mode: it only ever needs enough days for every group to get
+    // *a* day, oversized or not.)
     const queue = groupByPattern(stream);
     for (const i of targets) {
       if (queue.length === 0) break;
@@ -1109,6 +1117,30 @@ export function rebalancePlan(
     if (displaced.review.length) placeBucket(displaced.review, ["review"]);
     if (displaced.mock.length) placeBucket(displaced.mock, ["mock"], true);
     if (displaced.core.length) stream.push(...displaced.core);
+  }
+
+  // The greedy fill above front-loads every day to `budget` before moving on,
+  // so if the total doesn't divide evenly the LAST added study day can end up
+  // with just a token handful of tasks (the tail end of whatever group didn't
+  // quite fill a prior day). Rather than leave a near-empty final day, fold
+  // its tasks back onto the previous study day and empty it out — it still
+  // renders (as a "Free — buffer day" via the pass below), just without the
+  // token leftover tasks. Only when it's genuinely small (well under half
+  // budget) AND it's a day this rebalance actually added; never touch an
+  // original curriculum day, and never touch the date/array structure itself
+  // (no re-dating needed since nothing is inserted or removed).
+  if (daysAdded > 0) {
+    const targets = eligible();
+    const lastIdx = targets[targets.length - 1];
+    const prevIdx = targets[targets.length - 2];
+    if (lastIdx !== undefined && prevIdx !== undefined) {
+      const lastDay = days[lastIdx];
+      if (lastDay.tasks.length > 0 && totalEffort(lastDay.tasks) < budget / 2) {
+        days[prevIdx].tasks = [...days[prevIdx].tasks, ...lastDay.tasks];
+        days[prevIdx].label = labelFromTasks(days[prevIdx].label, days[prevIdx].tasks);
+        lastDay.tasks = [];
+      }
+    }
   }
 
   applyDoneLate();
