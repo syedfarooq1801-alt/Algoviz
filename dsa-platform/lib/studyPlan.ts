@@ -1071,23 +1071,28 @@ export function rebalancePlan(
     // re-date has since turned into rest days or shifted around.
     for (const i of targets) days[i].tasks = [];
 
-    const queue = [...stream];
+    // Fill by WHOLE pattern-group, never by individual task — otherwise a
+    // heavy carried pattern (e.g. Dynamic Programming) can spill onto a day
+    // that already has a different heavy pattern (e.g. Graphs) just because
+    // there was still a little budget room left for ONE more task. A group
+    // that doesn't fit moves to the next day entirely instead.
+    const queue = groupByPattern(stream);
     for (const i of targets) {
       if (queue.length === 0) break;
       const day = days[i];
-      let eff = 0;
+      let eff = totalEffort(day.tasks);
       while (queue.length > 0) {
-        const next = queue[0];
-        const e = taskEffort(next);
+        const group = queue[0];
+        const e = totalEffort(group);
         if (day.tasks.length > 0 && eff + e > budget + 0.75) break;
-        day.tasks.push(queue.shift()!);
+        day.tasks.push(...queue.shift()!);
         eff += e;
         if (eff >= budget) break;
       }
       day.label = labelFromTasks(day.label, day.tasks);
     }
 
-    leftover = queue.length;
+    leftover = queue.reduce((s, g) => s + g.length, 0);
     if (leftover === 0) break;
     if (daysAdded >= MAX_ADDED) break;
 
