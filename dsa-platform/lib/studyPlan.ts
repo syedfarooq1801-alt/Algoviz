@@ -885,7 +885,8 @@ export function rebalancePlan(
   plan: StudyPlan,
   today: string,
   isDone: (task: PlanTask) => boolean,
-  interviewDate?: string | null
+  interviewDate?: string | null,
+  getSolvedDate?: (task: PlanTask) => string | undefined
 ): { plan: StudyPlan; info: RebalanceInfo } {
   const none: RebalanceInfo = { mode: "none", carriedCount: 0, daysAdded: 0, overloaded: false };
   const elapsed = daysDiff(plan.startDate, today);
@@ -901,17 +902,27 @@ export function rebalancePlan(
   //    Behavioral tasks have no completion toggle so they'd carry forever —
   //    leave them where they are. Per-day recall prompts are tied to that
   //    day's content and every new day generates its own, so they're dropped
-  //    rather than carried stale.
+  //    rather than carried stale or left behind looking unfinished.
   const carried: PlanTask[] = [];        // from learn / practice days
   const carriedReview: PlanTask[] = [];  // from revision days
   const carriedMock: PlanTask[] = [];    // from mock days
+  // A task carried onto today and solved THERE must count as today's
+  // progress, not snap back onto the past day it was originally scheduled
+  // for — otherwise checking it off makes it vanish from today's list (no
+  // credit) while the redistribution below pulls in a different task to
+  // fill the gap, which reads as "today's work turned into tomorrow's".
+  const doneLate: PlanTask[] = [];
   for (let i = 0; i < todayIdx; i++) {
     const d = days[i];
     if (!d || d.type === "rest") continue;
     const bucket = d.type === "review" ? carriedReview : d.type === "mock" ? carriedMock : carried;
     const keep: PlanTask[] = [];
     for (const t of d.tasks) {
-      if (isDone(t)) { keep.push(t); continue; }            // finished work stays as history
+      if (isDone(t)) {
+        const solvedOn = getSolvedDate?.(t);
+        if (solvedOn && solvedOn > d.date) { doneLate.push(t); continue; } // solved after this day had already passed
+        keep.push(t); continue;            // finished on time — stays as history
+      }
       if (t.domain === "behavioral") { keep.push(t); continue; } // no toggle → would carry forever
       // Per-day recall prompts ("redo today's AM problems") are tied to the
       // content that was scheduled that day. That content has just moved, and
@@ -922,7 +933,12 @@ export function rebalancePlan(
     }
     d.tasks = keep;
   }
+  // doneLate is appended onto today's day right before each return below —
+  // not here — since extend mode still pulls days[todayIdx].tasks into its
+  // redistribution stream further down; appending before that would let
+  // already-done work get reshuffled onto some other day like everything else.
   if (carried.length + carriedReview.length + carriedMock.length === 0) {
+    if (doneLate.length) days[todayIdx].tasks = [...days[todayIdx].tasks, ...doneLate];
     normalizeDayOrder(days);
     return { plan: { ...plan, days }, info: none };
   }
@@ -978,6 +994,7 @@ export function rebalancePlan(
       // the work is at least still visible rather than silently dropped.
       const fallback = days.findIndex((d, i) => i >= todayIdx && d.type !== "rest");
       if (fallback >= 0) days[fallback].tasks.push(...carried);
+      if (doneLate.length) days[todayIdx].tasks = [...days[todayIdx].tasks, ...doneLate];
       normalizeDayOrder(days);
       return {
         plan: { ...plan, days },
@@ -992,6 +1009,7 @@ export function rebalancePlan(
       const after = totalEffort(days[dayIdx].tasks);
       if (before > 0) worstRatio = Math.max(worstRatio, after / before);
     });
+    if (doneLate.length) days[todayIdx].tasks = [...days[todayIdx].tasks, ...doneLate];
     normalizeDayOrder(days);
     return {
       plan: { ...plan, days },
@@ -1065,6 +1083,8 @@ export function rebalancePlan(
     if (displaced.mock.length) placeBucket(displaced.mock, ["mock"], true);
     if (displaced.core.length) stream.push(...displaced.core);
   }
+
+  if (doneLate.length) days[todayIdx].tasks = [...days[todayIdx].tasks, ...doneLate];
 
   // Clear any day that ended up with nothing so it doesn't render as an empty
   // work day, and refresh labels.

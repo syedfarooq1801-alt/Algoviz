@@ -51,7 +51,7 @@ function withPlanSrc(href: string): string {
 
 export default function StudyPlanPage() {
   const isMobile = useMobile();
-  const { solved, toggleSolved, studyPlanDuration, setStudyPlanDuration, planStartDate, setPlanStartDate, weakAreas, toggleWeak, isWeak } = useProgressStore();
+  const { solved, solvedDates, toggleSolved, studyPlanDuration, setStudyPlanDuration, planStartDate, setPlanStartDate, weakAreas, toggleWeak, isWeak } = useProgressStore();
   const { mastered, toggleMastered } = useSDStore();
   const { completed, toggleChapter } = useSEStore();
   const { completed: lldCompleted, toggleChapter: toggleLLDChapter } = useLLDStore();
@@ -99,12 +99,21 @@ export default function StudyPlanPage() {
     [solved, mastered, completed, lldCompleted]
   );
 
+  // A DSA problem carried onto today and solved there should count as
+  // today's progress, not snap back onto whatever day it was originally
+  // scheduled for — solvedDates lets the rebalancer tell "solved on time"
+  // apart from "solved later, after being carried forward".
+  const getSolvedDate = useCallback(
+    (t: PlanTask) => (t.domain === "dsa" ? solvedDates[t.id] : undefined),
+    [solvedDates]
+  );
+
   // Missed days never strand their work. With no interview date the plan
   // extends; with one set it compresses into the days left before it.
   const { plan, rebalance } = useMemo(() => {
-    const r = rebalancePlan(basePlan, today, isDoneTask, targetDate);
+    const r = rebalancePlan(basePlan, today, isDoneTask, targetDate, getSolvedDate);
     return { plan: r.plan, rebalance: r.info };
-  }, [basePlan, today, isDoneTask, targetDate]);
+  }, [basePlan, today, isDoneTask, targetDate, getSolvedDate]);
 
   // Which day index is "today" within the plan (clamped to the plan range).
   const todayIdx = useMemo(() => {
