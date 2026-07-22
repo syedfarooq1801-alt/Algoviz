@@ -48,6 +48,11 @@ export default function ProblemPage({ params }: Props) {
   const [codeCopied, setCodeCopied] = useState(false);
   const [noteText, setNoteText] = useState(() => getNote(id));
   const [noteSaved, setNoteSaved] = useState(false);
+  // Gate: hide pattern/approach/solution behind an explicit reveal so the
+  // default is "attempt it yourself first", not "read the walkthrough".
+  // Resets on navigation on purpose — re-cover every time you open a problem.
+  const [showHint, setShowHint] = useState(false);
+  const [showSolution, setShowSolution] = useState(false);
 
   const saveNote = () => {
     setNote(id, noteText);
@@ -166,6 +171,30 @@ export default function ProblemPage({ params }: Props) {
                 </WorkspaceSection>
               )}
 
+              {!showSolution && (
+                <div className="quiet-panel p-5 text-center space-y-3" style={{ border: "1px dashed var(--border)" }}>
+                  <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>Try it yourself first.</p>
+                  <p className="text-xs leading-5 max-w-md mx-auto" style={{ color: "var(--text-muted)" }}>
+                    Read the problem above, sketch an approach, attempt it — before seeing the pattern or the solution. That's what actually sticks, not reading a walkthrough.
+                  </p>
+                  <div className="flex items-center justify-center gap-2 pt-1">
+                    {!showHint && (
+                      <button onClick={() => setShowHint(true)} className="btn-ghost px-3 py-1.5 text-xs">Stuck — show pattern hint</button>
+                    )}
+                    <button onClick={() => setShowSolution(true)} className="btn-ghost px-3 py-1.5 text-xs">Reveal full solution</button>
+                  </div>
+                  {showHint && content.recognize && content.recognize.length > 0 && (
+                    <ul className="text-left max-w-md mx-auto space-y-2 pt-2">
+                      {content.recognize.map((clue, i) => (
+                        <li key={i} className="text-sm leading-5" style={{ color: "var(--text-secondary)" }}>{clue}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+
+              {showSolution && (
+                <>
               {content.keyInsight && (
                 <div
                   className="quiet-panel p-4 text-sm leading-6"
@@ -302,6 +331,8 @@ export default function ProblemPage({ params }: Props) {
                     })}
                   </ul>
                 </WorkspaceSection>
+              )}
+                </>
               )}
 
               <WorkspaceSection title="Notes">
