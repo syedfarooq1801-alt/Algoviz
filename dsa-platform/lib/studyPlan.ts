@@ -1122,13 +1122,19 @@ export function rebalancePlan(
   // The greedy fill above front-loads every day to `budget` before moving on,
   // so if the total doesn't divide evenly the LAST added study day can end up
   // with just a token handful of tasks (the tail end of whatever group didn't
-  // quite fill a prior day). Rather than leave a near-empty final day, fold
-  // its tasks back onto the previous study day and empty it out — it still
-  // renders (as a "Free — buffer day" via the pass below), just without the
-  // token leftover tasks. Only when it's genuinely small (well under half
-  // budget) AND it's a day this rebalance actually added; never touch an
-  // original curriculum day, and never touch the date/array structure itself
-  // (no re-dating needed since nothing is inserted or removed).
+  // quite fill a prior day). Rather than leave that day sitting there — even
+  // emptied out it still renders as a dangling "Free — buffer day" the user
+  // has to click through — fold its tasks into the previous study day and
+  // actually remove the day, shrinking the plan back down by one. Only when
+  // it's genuinely small (well under half budget) AND it's a day this
+  // rebalance itself added; never touch an original curriculum day.
+  //
+  // Removing a day shifts every later day back by one weekday, same as
+  // inserting one does — a day that was forced to Sunday-rest can un-shift,
+  // or (rarer) a day can shift ONTO Sunday and need its own tasks displaced.
+  // `lastIdx` is always a day this loop added (always after todayIdx and
+  // after every day referenced by doneLateByDay), so this can't invalidate
+  // anything already queued for applyDoneLate() below.
   if (daysAdded > 0) {
     const targets = eligible();
     const lastIdx = targets[targets.length - 1];
@@ -1137,8 +1143,14 @@ export function rebalancePlan(
       const lastDay = days[lastIdx];
       if (lastDay.tasks.length > 0 && totalEffort(lastDay.tasks) < budget / 2) {
         days[prevIdx].tasks = [...days[prevIdx].tasks, ...lastDay.tasks];
+        days.splice(lastIdx, 1);
+        coreCount -= 1;
+        daysAdded -= 1;
+        const displaced = redateAndFixRest(days, plan.startDate);
+        if (displaced.review.length) placeBucket(displaced.review, ["review"]);
+        if (displaced.mock.length) placeBucket(displaced.mock, ["mock"], true);
+        if (displaced.core.length) days[prevIdx].tasks.push(...displaced.core);
         days[prevIdx].label = labelFromTasks(days[prevIdx].label, days[prevIdx].tasks);
-        lastDay.tasks = [];
       }
     }
   }
