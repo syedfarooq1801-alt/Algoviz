@@ -10,6 +10,9 @@ export interface ProblemContent {
   examples?: ProblemExample[];
   constraints?: string[];
   intuition: string;
+  // One-line "why this works" — the single fact that, if you already knew it,
+  // would let you solve the problem yourself without reading the solution.
+  keyInsight?: string;
   // Clues in the problem statement that point to this technique — answers
   // "why THIS approach and not another" before the approach itself is shown.
   recognize?: string[];

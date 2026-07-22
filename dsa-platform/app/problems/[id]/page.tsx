@@ -166,9 +166,27 @@ export default function ProblemPage({ params }: Props) {
                 </WorkspaceSection>
               )}
 
-              <WorkspaceSection title="Summary">
-                <p className="text-sm leading-6" style={{ color: "var(--text-secondary)" }}>{content.intuition}</p>
-              </WorkspaceSection>
+              {content.keyInsight && (
+                <div
+                  className="quiet-panel p-4 text-sm leading-6"
+                  style={{ border: "1px solid var(--border)" }}
+                >
+                  <div>
+                    <span style={{ color: "var(--text-muted)" }}>Problem: </span>
+                    <span style={{ color: "var(--text-primary)" }}>{problem.title}</span>
+                  </div>
+                  {pattern && (
+                    <div>
+                      <span style={{ color: "var(--text-muted)" }}>Pattern: </span>
+                      <span style={{ color: "var(--text-primary)" }}>{pattern.title}</span>
+                    </div>
+                  )}
+                  <div>
+                    <span style={{ color: "var(--text-muted)" }}>Key insight: </span>
+                    <span style={{ color: "var(--text-secondary)" }}>{content.keyInsight}</span>
+                  </div>
+                </div>
+              )}
 
               {VizComponent && (
                 <WorkspaceSection title="Visualization">
