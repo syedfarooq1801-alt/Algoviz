@@ -39,9 +39,9 @@ async function saveNewUser(u: User) {
     await setDoc(ref, {
       displayName: u.displayName, email: u.email, photoURL: u.photoURL,
       solved: [], bookmarked: [], xp: 0, streak: 0, lastActivity: "", studyPlanDuration: 30,
-      sdMastered: [], sdBookmarked: [],
-      seCompleted: [],
-      lldCompleted: [],
+      sdMastered: [], sdBookmarked: [], sdMasteredDates: {},
+      seCompleted: [], seCompletedDates: {},
+      lldCompleted: [], lldCompletedDates: {},
       flashcardKnown: [], flashcardWeak: [],
       createdAt,
     });
@@ -86,12 +86,15 @@ function hydrateAllStores(d: Record<string, unknown>) {
   useSDStore.getState().hydrateFromFirestore({
     mastered: new Set<string>((d.sdMastered as string[]) ?? []),
     bookmarked: new Set<string>((d.sdBookmarked as string[]) ?? []),
+    masteredDates: (d.sdMasteredDates as Record<string, string>) ?? {},
   });
   useSEStore.getState().hydrateFromFirestore({
     completed: new Set<string>((d.seCompleted as string[]) ?? []),
+    completedDates: (d.seCompletedDates as Record<string, string>) ?? {},
   });
   useLLDStore.getState().hydrateFromFirestore({
     completed: new Set<string>((d.lldCompleted as string[]) ?? []),
+    completedDates: (d.lldCompletedDates as Record<string, string>) ?? {},
   });
   useFlashcardStore.getState().hydrateFromFirestore({
     known: new Set<string>((d.flashcardKnown as string[]) ?? []),
@@ -124,9 +127,9 @@ async function loadAndSubscribe(uid: string) {
 
 async function syncAllToFirestore(uid: string) {
   const { solved, bookmarked, weakAreas, xp, streak, lastActivity, studyPlanDuration, solvedDates, solveTimes, username, planStartDate } = useProgressStore.getState();
-  const { mastered: sdMastered, bookmarked: sdBookmarked } = useSDStore.getState();
-  const { completed: seCompleted } = useSEStore.getState();
-  const { completed: lldCompleted } = useLLDStore.getState();
+  const { mastered: sdMastered, bookmarked: sdBookmarked, masteredDates: sdMasteredDates } = useSDStore.getState();
+  const { completed: seCompleted, completedDates: seCompletedDates } = useSEStore.getState();
+  const { completed: lldCompleted, completedDates: lldCompletedDates } = useLLDStore.getState();
   const { known: flashcardKnown, weak: flashcardWeak, nextReview: flashcardNextReview, level: flashcardLevel } = useFlashcardStore.getState();
   const { reviewDue, problemStates, selectedTrack, behavioralDrafts } = usePrepStore.getState();
 
@@ -154,8 +157,11 @@ async function syncAllToFirestore(uid: string) {
     solveTimes,
     sdMastered: Array.from(sdMastered),
     sdBookmarked: Array.from(sdBookmarked),
+    sdMasteredDates,
     seCompleted: Array.from(seCompleted),
+    seCompletedDates,
     lldCompleted: Array.from(lldCompleted),
+    lldCompletedDates,
     flashcardKnown: Array.from(flashcardKnown),
     flashcardWeak: Array.from(flashcardWeak),
     flashcardNextReview,

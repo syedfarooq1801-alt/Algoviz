@@ -52,9 +52,9 @@ function withPlanSrc(href: string): string {
 export default function StudyPlanPage() {
   const isMobile = useMobile();
   const { solved, solvedDates, toggleSolved, studyPlanDuration, setStudyPlanDuration, planStartDate, setPlanStartDate, weakAreas, toggleWeak, isWeak } = useProgressStore();
-  const { mastered, toggleMastered } = useSDStore();
-  const { completed, toggleChapter } = useSEStore();
-  const { completed: lldCompleted, toggleChapter: toggleLLDChapter } = useLLDStore();
+  const { mastered, toggleMastered, masteredDates } = useSDStore();
+  const { completed, toggleChapter, completedDates } = useSEStore();
+  const { completed: lldCompleted, toggleChapter: toggleLLDChapter, completedDates: lldCompletedDates } = useLLDStore();
   const targetDate = useInterviewStore((s) => s.targetDate);
   const targetCompany = useInterviewStore((s) => s.targetCompany);
   const setTarget = useInterviewStore((s) => s.setTarget);
@@ -99,13 +99,20 @@ export default function StudyPlanPage() {
     [solved, mastered, completed, lldCompleted]
   );
 
-  // A DSA problem carried onto today and solved there should count as
-  // today's progress, not snap back onto whatever day it was originally
-  // scheduled for — solvedDates lets the rebalancer tell "solved on time"
-  // apart from "solved later, after being carried forward".
+  // A task carried onto today and completed there should count as today's
+  // progress, not snap back onto whatever day it was originally scheduled
+  // for — per-domain completion dates let the rebalancer tell "done on time"
+  // apart from "done later, after being carried forward". Every domain that
+  // can be marked complete on the plan needs this, not just DSA.
   const getSolvedDate = useCallback(
-    (t: PlanTask) => (t.domain === "dsa" ? solvedDates[t.id] : undefined),
-    [solvedDates]
+    (t: PlanTask) => {
+      if (t.domain === "dsa") return solvedDates[t.id];
+      if (t.domain === "sd") return masteredDates[t.id];
+      if (t.domain === "se") return completedDates[t.id];
+      if (t.domain === "lld") return lldCompletedDates[t.id];
+      return undefined;
+    },
+    [solvedDates, masteredDates, completedDates, lldCompletedDates]
   );
 
   // Missed days never strand their work. With no interview date the plan
