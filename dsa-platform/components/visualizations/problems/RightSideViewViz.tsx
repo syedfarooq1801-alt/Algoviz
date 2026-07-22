@@ -59,14 +59,14 @@ export default function RightSideViewViz() {
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>BFS level order. Last element at each level is visible from right side.</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>
-          <button onClick={doStep} disabled={done} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
+          <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
           <button onClick={reset} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>↺ Reset</button>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="text-xs mb-2 font-semibold" style={{ color: "var(--text-muted)" }}>Tree</div>
-          <svg width="380" height="230" viewBox="0 0 380 230" style={{ width: "100%", height: "auto" }}>
+          <svg width="380" height="230" viewBox="0 0 380 230" style={{ width: "100%", height: "auto" }} role="img" aria-label="Binary tree with right-side view highlighted">
             {EDGES.map(([x1, y1, x2, y2], i) => (
               <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(107,114,128,0.4)" strokeWidth="1.5" />
             ))}

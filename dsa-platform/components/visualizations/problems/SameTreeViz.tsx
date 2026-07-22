@@ -59,7 +59,7 @@ export default function SameTreeViz() {
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Traverse both trees in sync. If any mismatch (val or structure), return false.</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>
-          <button onClick={doStep} disabled={done} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
+          <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
           <button onClick={reset} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>↺ Reset</button>
         </div>
       </div>
@@ -67,7 +67,7 @@ export default function SameTreeViz() {
         {["Tree P", "Tree Q"].map((label, ti) => (
           <div key={ti} className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
             <div className="text-xs mb-2 font-semibold" style={{ color: "var(--text-muted)" }}>{label}</div>
-            <svg width="200" height="150" viewBox="0 0 200 150" style={{ width: "100%", height: "auto" }}>
+            <svg width="200" height="150" viewBox="0 0 200 150" style={{ width: "100%", height: "auto" }} role="img" aria-label="Two binary trees compared for structural equality">
               <line x1="100" y1="28" x2="55" y2="88" stroke="rgba(107,114,128,0.4)" strokeWidth="1.5" />
               <line x1="100" y1="28" x2="145" y2="88" stroke="rgba(107,114,128,0.4)" strokeWidth="1.5" />
               <TreeNode val={1} x={100} y={20} active={cur?.nodeP === 1 && step <= 1} />

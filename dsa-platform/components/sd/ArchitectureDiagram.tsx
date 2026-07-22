@@ -39,7 +39,17 @@ export default function ArchitectureDiagram({ layers }: Props) {
       depths.set(l.name, 0);
     }
   }
+  // Longest-path relaxation, not a real topological BFS — content is
+  // author-provided, and a cycle in connects_to (two layers pointing back at
+  // each other) would otherwise re-queue both nodes forever with an
+  // ever-growing depth and hang the tab. A DAG never needs more than
+  // roughly V*E relaxations to settle, so cap iterations well above that and
+  // just stop refining if it's exceeded — the diagram still renders with
+  // whatever depths were computed so far.
+  const maxIterations = layers.length * layers.length + layers.length + 16;
+  let iterations = 0;
   while (queue.length > 0) {
+    if (++iterations > maxIterations) break;
     const cur = queue.shift()!;
     const d = depths.get(cur) ?? 0;
     const node = nodeMap.get(cur);

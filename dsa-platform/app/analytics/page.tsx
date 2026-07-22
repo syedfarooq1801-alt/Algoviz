@@ -209,7 +209,7 @@ export default function AnalyticsPage() {
         <div className="rounded-xl p-5 mb-8" style={{ background: "rgba(79,140,255,0.06)", border: "1px solid rgba(79,140,255,0.2)" }}>
           <h2 className="text-sm font-semibold mb-2" style={{ color: "#4F8CFF" }}>Prep Coach</h2>
           <div className="grid md:grid-cols-2 gap-3 text-sm" style={{ color: "var(--text-secondary)" }}>
-            <p>Track: {PREP_TRACKS[selectedTrack].title}. {PREP_TRACKS[selectedTrack].focus}</p>
+            <p>Track: {(PREP_TRACKS[selectedTrack] ?? PREP_TRACKS["product-sde1"]).title}. {(PREP_TRACKS[selectedTrack] ?? PREP_TRACKS["product-sde1"]).focus}</p>
             <p>{weakPatterns[0] ? `Weakest pattern: ${weakPatterns[0].title} at ${weakPatterns[0].pct}%.` : "No weak pattern under 50% yet."}</p>
             <p>{hardPct < easyPct - 30 ? "You are avoiding hard difficulty relative to easy problems." : "Difficulty balance is not badly skewed."}</p>
             <p>{mockSessions[0]?.insights[0] ?? "Run a mock interview to unlock pressure-tested feedback."}</p>

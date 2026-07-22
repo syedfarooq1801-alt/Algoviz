@@ -69,7 +69,7 @@ export default function TwoSumIIViz() {
             style={{ background:playing?"rgba(239,68,68,0.15)":"rgba(34,197,94,0.15)", color:playing?"#ef4444":"#22c55e", border:`1px solid ${playing?"rgba(239,68,68,0.3)":"rgba(34,197,94,0.3)"}` }}>
             {playing?"⏸ Pause":"▶ Play"}
           </button>
-          <button onClick={doStep} disabled={done} className="px-3 py-1.5 rounded text-xs" style={{ background:"var(--bg-hover)", color:"var(--text-secondary)", border:"1px solid var(--border)" }}>→ Step</button>
+          <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background:"var(--bg-hover)", color:"var(--text-secondary)", border:"1px solid var(--border)" }}>→ Step</button>
           <button onClick={()=>reset()} className="px-3 py-1.5 rounded text-xs" style={{ background:"var(--bg-hover)", color:"var(--text-secondary)", border:"1px solid var(--border)" }}>↺ Reset</button>
           <input type="range" min="200" max="1500" step="100" value={speed} onChange={e=>setSpeed(+e.target.value)} style={{ width:"80px", accentColor:"#4f8ef7" }} />
           {sum !== null && <span className="px-2 py-0.5 rounded text-xs font-mono" style={{ background:sum===target?"rgba(34,197,94,0.12)":sum<target?"rgba(79,142,247,0.1)":"rgba(239,68,68,0.1)", color:sum===target?"#22c55e":sum<target?"#4f8ef7":"#ef4444", border:"1px solid var(--border)" }}>sum={sum} {sum<target?"< target":sum>target?"> target":"= target ✓"}</span>}

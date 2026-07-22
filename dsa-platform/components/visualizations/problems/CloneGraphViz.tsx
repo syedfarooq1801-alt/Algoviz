@@ -51,14 +51,14 @@ export default function CloneGraphViz() {
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Map old→new node. If already mapped, return existing clone (prevents infinite loop).</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>
-          <button onClick={doStep} disabled={done} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
+          <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
           <button onClick={reset} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>↺ Reset</button>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="text-xs mb-2 font-semibold" style={{ color: "var(--text-muted)" }}>Original</div>
-          <svg width="360" height="220" viewBox="0 0 360 220" style={{ width: "100%", height: "auto" }}>
+          <svg width="360" height="220" viewBox="0 0 360 220" style={{ width: "100%", height: "auto" }} role="img" aria-label="Original graph before cloning">
             {EDGES.map(([a,b],i) => (
               <line key={i} x1={NODE_POS[a].x} y1={NODE_POS[a].y} x2={NODE_POS[b].x} y2={NODE_POS[b].y} stroke="rgba(107,114,128,0.4)" strokeWidth="1.5" />
             ))}
@@ -72,7 +72,7 @@ export default function CloneGraphViz() {
         </div>
         <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="text-xs mb-2 font-semibold" style={{ color: "var(--text-muted)" }}>Clone</div>
-          <svg width="360" height="220" viewBox="0 0 360 220" style={{ width: "100%", height: "auto" }}>
+          <svg width="360" height="220" viewBox="0 0 360 220" style={{ width: "100%", height: "auto" }} role="img" aria-label="Cloned graph after deep copy">
             {EDGES.filter(([a,b]) => cur.cloned.includes(a) && cur.cloned.includes(b)).map(([a,b],i) => (
               <line key={i} x1={NODE_POS[a].x} y1={NODE_POS[a].y} x2={NODE_POS[b].x} y2={NODE_POS[b].y} stroke="rgba(34,197,94,0.5)" strokeWidth="1.5" />
             ))}

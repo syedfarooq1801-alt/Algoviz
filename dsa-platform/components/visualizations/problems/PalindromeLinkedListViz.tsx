@@ -216,7 +216,7 @@ export default function PalindromeLinkedListViz() {
           >
             {playing ? "⏸ Pause" : "▶ Play"}
           </button>
-          <button onClick={doStep} disabled={done} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
+          <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
           <button onClick={reset} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>↺ Reset</button>
           <input type="range" min="200" max="1500" step="100" value={speed} onChange={e => setSpeed(+e.target.value)} style={{ width: "80px", accentColor: "#4f8ef7" }} />
           <span className="px-2 py-0.5 rounded text-xs font-medium" style={{ background: `${phaseColors[phase]}18`, color: phaseColors[phase], border: `1px solid ${phaseColors[phase]}40` }}>

@@ -76,7 +76,7 @@ export default function VizPageTabs({ problem, pattern, VizComponent, problemId 
               color: "var(--text-muted)",
               transform: showCode ? "rotate(180deg)" : "rotate(0deg)",
             }}
-          >
+           aria-hidden="true">
             <path d="M6 9l6 6 6-6" />
           </svg>
         </button>

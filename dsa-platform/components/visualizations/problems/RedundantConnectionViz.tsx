@@ -65,13 +65,13 @@ export default function RedundantConnectionViz() {
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Add edges. If two nodes already connected (same root) → that edge is redundant.</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>
-          <button onClick={doStep} disabled={done} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
+          <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
           <button onClick={reset} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>↺ Reset</button>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-          <svg width="280" height="200" viewBox="0 0 280 200" style={{ width: "100%", height: "auto" }}>
+          <svg width="280" height="200" viewBox="0 0 280 200" style={{ width: "100%", height: "auto" }} role="img" aria-label="Graph with a redundant edge creating a cycle">
             {EDGES.map(([a, b], i) => {
               const isRedundant = redundant && redundant[0] === a && redundant[1] === b;
               const added = i <= step;

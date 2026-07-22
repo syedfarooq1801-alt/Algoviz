@@ -204,7 +204,7 @@ export default function SymmetricTreeViz() {
 
       {/* SVG Tree */}
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <svg width="440" height="230" style={{ display: "block", margin: "0 auto" }}>
+        <svg width="440" height="230" style={{ display: "block", margin: "0 auto" }} role="img" aria-label="Binary tree symmetry check diagram">
           {edges.map(({ from, to }) => {
             const p = NODE_POS[from], c = NODE_POS[to];
             return <line key={`${from}-${to}`} x1={p.x} y1={p.y} x2={c.x} y2={c.y} stroke="rgba(79,142,247,0.25)" strokeWidth={1.5} />;

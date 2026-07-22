@@ -79,7 +79,7 @@ export default function PatternVizBacktracking() {
 
   return (
     <div className="space-y-3">
-      <svg width={300} height={230} style={{ width: "100%", maxWidth: 300, overflow: "visible" }}>
+      <svg width={300} height={230} style={{ width: "100%", maxWidth: 300, overflow: "visible" }} role="img" aria-label="Backtracking decision tree">
         {/* Edges */}
         {TREE_NODES.map((node) =>
           node.children.map((cid) => {

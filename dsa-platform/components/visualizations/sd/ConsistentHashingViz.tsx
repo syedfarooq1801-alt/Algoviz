@@ -55,7 +55,7 @@ export default function ConsistentHashingViz() {
 
       <div className="flex gap-6 items-center justify-center flex-wrap">
         {/* Ring SVG */}
-        <svg width={260} height={260} viewBox="0 0 260 260">
+        <svg width={260} height={260} viewBox="0 0 260 260" role="img" aria-label="Consistent hashing ring diagram">
           {/* Ring */}
           <circle cx={CX} cy={CY} r={R} fill="none" stroke="var(--border)" strokeWidth={2} />
           <circle cx={CX} cy={CY} r={INNER} fill="none" stroke="var(--border)" strokeDasharray="4 4" strokeWidth={1} />

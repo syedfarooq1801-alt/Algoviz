@@ -52,7 +52,7 @@ export default function PatternVizTree() {
 
   return (
     <div className="space-y-3">
-      <svg width={320} height={200} style={{ width: "100%", maxWidth: 320, overflow: "visible" }}>
+      <svg width={320} height={200} style={{ width: "100%", maxWidth: 320, overflow: "visible" }} role="img" aria-label="Binary tree pattern diagram">
         {edges.map(([p, c]) => (
           <line key={`${p}-${c}`}
             x1={positions[p].x} y1={positions[p].y}

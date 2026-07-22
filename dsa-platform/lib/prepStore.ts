@@ -80,7 +80,8 @@ interface PrepState {
   codeAttempts: CodeAttempt[];
   behavioralDrafts: Record<string, BehavioralDraft>;
   selectedTrack: PrepTrackId;
-  hydrateFromFirestore: (data: { reviewDue?: Record<string, string>; problemStates?: Record<string, ReadinessState>; selectedTrack?: PrepTrackId; behavioralDrafts?: Record<string, BehavioralDraft> }) => void;
+  hydrateFromFirestore: (data: { reviewDue?: Record<string, string>; problemStates?: Record<string, ReadinessState>; successfulReviews?: Record<string, number>; selectedTrack?: PrepTrackId; behavioralDrafts?: Record<string, BehavioralDraft> }) => void;
+  resetForUser: () => void;
   setProblemState: (problemId: string, state: ReadinessState) => void;
   scheduleReview: (problemId: string, outcome: "solved" | "failed" | "reviewed-fast" | "mastered") => void;
   clearReview: (problemId: string) => void;
@@ -167,8 +168,15 @@ export const usePrepStore = create<PrepState>()(
       hydrateFromFirestore: (data) => set({
         ...(data.reviewDue !== undefined ? { reviewDue: data.reviewDue } : {}),
         ...(data.problemStates !== undefined ? { problemStates: data.problemStates } : {}),
+        ...(data.successfulReviews !== undefined ? { successfulReviews: data.successfulReviews } : {}),
         ...(data.selectedTrack !== undefined ? { selectedTrack: data.selectedTrack } : {}),
         ...(data.behavioralDrafts !== undefined ? { behavioralDrafts: data.behavioralDrafts } : {}),
+      }),
+
+      resetForUser: () => set({
+        problemStates: {}, reviewDue: {}, successfulReviews: {},
+        mockSessions: [], diagnosisAttempts: [], codeAttempts: [],
+        behavioralDrafts: {}, selectedTrack: "product-sde1",
       }),
 
       setProblemState: (problemId, state) =>

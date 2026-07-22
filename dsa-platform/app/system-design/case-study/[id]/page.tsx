@@ -33,8 +33,6 @@ export default function CaseStudyPage({ params }: Props) {
         <div className="pt-6 pb-2 text-xs" style={{ color: "var(--text-muted)" }}>
           <Link href="/system-design" className="hover:text-white transition-colors">System Design</Link>
           <span className="mx-2">/</span>
-          <Link href="/system-design/case-studies" className="hover:text-white transition-colors">Case Studies</Link>
-          <span className="mx-2">/</span>
           <span style={{ color: "var(--text-secondary)" }}>{cs.title}</span>
         </div>
 

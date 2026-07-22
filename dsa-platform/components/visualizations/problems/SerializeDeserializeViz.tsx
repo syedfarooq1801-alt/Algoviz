@@ -60,13 +60,13 @@ export default function SerializeDeserializeViz() {
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>BFS level-order with null markers. Queue-driven reconstruction.</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>
-          <button onClick={doStep} disabled={done} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
+          <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
           <button onClick={reset} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>↺ Reset</button>
         </div>
       </div>
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <div className="text-xs mb-2 font-semibold" style={{ color: cur.phase === "S" ? "#4f8ef7" : "#22c55e" }}>{cur.phase === "S" ? "▶ Serializing" : "▶ Deserializing"}</div>
-        <svg width="400" height="190" viewBox="0 0 400 190" style={{ width: "100%", height: "auto" }}>
+        <svg width="400" height="190" viewBox="0 0 400 190" style={{ width: "100%", height: "auto" }} role="img" aria-label="Binary tree serialization and deserialization diagram">
           {EDGES.map(([a,b],i) => (
             <line key={i} x1={NODES[a].x} y1={NODES[a].y} x2={NODES[b].x} y2={NODES[b].y} stroke="rgba(107,114,128,0.4)" strokeWidth="1.5" />
           ))}

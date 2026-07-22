@@ -77,12 +77,12 @@ export default function MinCostConnectPointsViz() {
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Manhattan distance edges. Prim's greedily picks minimum edge to unvisited node. O(n² log n).</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>
-          <button onClick={doStep} disabled={done} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
+          <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
           <button onClick={reset} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>↺ Reset</button>
         </div>
       </div>
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <svg width="400" height="250" viewBox="0 0 400 250" style={{ width: "100%", height: "auto" }}>
+        <svg width="400" height="250" viewBox="0 0 400 250" style={{ width: "100%", height: "auto" }} role="img" aria-label="Points on a plane with minimum spanning tree connections">
           {cur.edges.map(([u,v,w],i) => (
             <g key={i}>
               <line x1={px(POINTS[u][0])} y1={py(POINTS[u][1])} x2={px(POINTS[v][0])} y2={py(POINTS[v][1])} stroke={i === cur.edges.length-1 && !done ? "#f97316" : "#22c55e"} strokeWidth="2" />

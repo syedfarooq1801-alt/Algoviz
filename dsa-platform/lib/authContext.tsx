@@ -4,7 +4,7 @@ import {
   User, signInWithPopup, signInWithRedirect, getRedirectResult,
   signOut as firebaseSignOut, onAuthStateChanged,
 } from "firebase/auth";
-import { doc, getDoc, setDoc, updateDoc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 import { logError } from "./logger";
 import { auth, db, googleProvider } from "./firebase";
 import { useProgressStore } from "./store";
@@ -30,6 +30,20 @@ const AuthContext = createContext<AuthContextType>({
 // Track when we last wrote to Firestore — prevents bouncing our own writes back
 let lastLocalWriteAt = 0;
 let unsubSnapshot: (() => void) | null = null;
+
+// Every store holding per-user progress must be wiped on sign-out, not just
+// the main DSA progress store — otherwise the next account signed in on the
+// same device inherits the previous user's SD/SE/LLD/flashcard/prep data,
+// and for a brand-new account the debounced Firestore sync then writes that
+// leftover data straight into the new user's freshly created document.
+function resetAllStores() {
+  useProgressStore.getState().resetForUser();
+  useSDStore.getState().resetForUser();
+  useSEStore.getState().resetForUser();
+  useLLDStore.getState().resetForUser();
+  useFlashcardStore.getState().resetAll();
+  usePrepStore.getState().resetForUser();
+}
 
 async function saveNewUser(u: User) {
   const ref = doc(db, "users", u.uid);
@@ -80,6 +94,7 @@ function hydrateAllStores(d: Record<string, unknown>) {
   usePrepStore.getState().hydrateFromFirestore({
     reviewDue: (d.reviewDue as Record<string, string>) ?? {},
     problemStates: (d.problemStates as never) ?? {},
+    successfulReviews: (d.successfulReviews as Record<string, number>) ?? {},
     selectedTrack: d.selectedTrack as never,
     behavioralDrafts: (d.behavioralDrafts as never) ?? {},
   });
@@ -131,7 +146,7 @@ async function syncAllToFirestore(uid: string) {
   const { completed: seCompleted, completedDates: seCompletedDates } = useSEStore.getState();
   const { completed: lldCompleted, completedDates: lldCompletedDates } = useLLDStore.getState();
   const { known: flashcardKnown, weak: flashcardWeak, nextReview: flashcardNextReview, level: flashcardLevel } = useFlashcardStore.getState();
-  const { reviewDue, problemStates, selectedTrack, behavioralDrafts } = usePrepStore.getState();
+  const { reviewDue, problemStates, successfulReviews, selectedTrack, behavioralDrafts } = usePrepStore.getState();
 
   const ref = doc(db, "users", uid);
   lastLocalWriteAt = Date.now(); // mark before write to suppress bounce-back
@@ -147,7 +162,12 @@ async function syncAllToFirestore(uid: string) {
     selectedTrack: selectedTrack ?? "",
   }, { merge: true });
 
-  await updateDoc(ref, {
+  // setDoc+merge instead of updateDoc: updateDoc throws "not-found" if the
+  // user's doc was never created (e.g. saveNewUser failed silently on
+  // sign-in) — every subsequent debounced sync would then fail forever with
+  // no user-visible indication. setDoc+merge creates the doc if missing and
+  // otherwise behaves identically to updateDoc.
+  await setDoc(ref, {
     solved: Array.from(solved),
     bookmarked: Array.from(bookmarked),
     weakAreas: Array.from(weakAreas),
@@ -168,9 +188,10 @@ async function syncAllToFirestore(uid: string) {
     flashcardLevel,
     reviewDue,
     problemStates,
+    successfulReviews,
     selectedTrack,
     behavioralDrafts,
-  });
+  }, { merge: true });
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -181,7 +202,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     getRedirectResult(auth).then(async (result) => {
       if (result?.user) await saveNewUser(result.user);
-    }).catch(() => {});
+    }).catch((err: unknown) => {
+      // Swallowing this used to be silent — a failure here (redirect error,
+      // or saveNewUser failing to create the Firestore doc) meant the user
+      // ended up "signed in" with no doc, and every later sync would then
+      // fail forever with no indication anything was wrong.
+      logError(err, { source: "redirect-signin" });
+      const e = err as { message?: string };
+      setSignInError(e?.message ?? "Sign-in didn't fully complete. Please try signing in again.");
+    });
 
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
@@ -189,7 +218,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       else {
         unsubSnapshot?.();
         unsubSnapshot = null;
-        useProgressStore.getState().resetForUser();
+        resetAllStores();
       }
       setLoading(false);
     });
@@ -242,7 +271,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await firebaseSignOut(auth);
     unsubSnapshot?.();
     unsubSnapshot = null;
-    useProgressStore.getState().resetForUser();
+    resetAllStores();
   };
 
   return (

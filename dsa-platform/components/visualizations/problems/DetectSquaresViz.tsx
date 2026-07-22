@@ -56,12 +56,12 @@ export default function DetectSquaresViz() {
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Store points with counts. For count(p): iterate all same-x points as diagonal, check 2 remaining corners.</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>
-          <button onClick={doStep} disabled={done} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
+          <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
           <button onClick={reset} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>↺ Reset</button>
         </div>
       </div>
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <svg width="400" height="250" viewBox="0 0 400 250" style={{ width: "100%", height: "auto" }}>
+        <svg width="400" height="250" viewBox="0 0 400 250" style={{ width: "100%", height: "auto" }} role="img" aria-label="Coordinate plane with detected squares">
           {/* Grid */}
           {[0,2,4,6,8,10,12].map(x => (
             <line key={`gx${x}`} x1={px(x)} y1={py(0)} x2={px(x)} y2={py(12)} stroke="rgba(107,114,128,0.1)" strokeWidth="0.5" />

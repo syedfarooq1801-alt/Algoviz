@@ -2,19 +2,10 @@
 import { useState, useRef, useEffect } from "react";
 import { getProblemRunner, buildTestCode, type ProblemTestCase } from "@/data/testCases";
 import { usePrepStore } from "@/lib/prepStore";
+import { runPython as runPythonCode, getPyodide } from "@/lib/pyodide";
 
 // Wandbox free C++ runner (no API key, scratchpad only)
 const WANDBOX_URL = "https://wandbox.org/api/compile.json";
-const PYODIDE_VERSION = "0.26.4";
-const PYODIDE_BASE = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
-
-declare global {
-  interface Window {
-    loadPyodide?: (opts: { indexURL: string }) => Promise<unknown>;
-    __pyodide?: unknown;
-    __pyodideLoading?: Promise<unknown>;
-  }
-}
 
 type Lang = "python" | "cpp";
 type Mode = "scratchpad" | "submit";
@@ -26,44 +17,6 @@ interface TestResult {
   actual?: string;
   errorMsg?: string;
   timeMs?: number;
-}
-
-function injectScript(src: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) return resolve();
-    const s = document.createElement("script");
-    s.src = src;
-    s.onload = () => resolve();
-    s.onerror = () => reject(new Error("Failed to load Python runtime"));
-    document.head.appendChild(s);
-  });
-}
-
-async function getPyodide(onProgress: (msg: string) => void): Promise<any> {
-  if (typeof window === "undefined") throw new Error("Pyodide browser only");
-  if (window.__pyodide) return window.__pyodide;
-  if (window.__pyodideLoading) return window.__pyodideLoading;
-  window.__pyodideLoading = (async () => {
-    onProgress("Loading Python runtime (first run only, ~5s)…");
-    if (!window.loadPyodide) await injectScript(`${PYODIDE_BASE}pyodide.js`);
-    const py = await window.loadPyodide!({ indexURL: PYODIDE_BASE });
-    window.__pyodide = py;
-    return py;
-  })();
-  return window.__pyodideLoading;
-}
-
-async function runPythonCode(code: string, onProgress: (msg: string) => void): Promise<{ output: string; error?: string }> {
-  const py = await getPyodide(onProgress);
-  let out = "";
-  py.setStdout({ batched: (s: string) => { out += s + "\n"; } });
-  py.setStderr({ batched: (s: string) => { out += s + "\n"; } });
-  try {
-    await py.runPythonAsync(code);
-    return { output: out.trim() };
-  } catch (e) {
-    return { output: out.trim(), error: (e as Error).message ?? String(e) };
-  }
 }
 
 function normalizeJson(s: string): string {

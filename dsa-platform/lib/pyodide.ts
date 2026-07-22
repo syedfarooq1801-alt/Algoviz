@@ -27,14 +27,24 @@ export async function getPyodide(onProgress?: (msg: string) => void): Promise<an
   if (typeof window === "undefined") throw new Error("Pyodide only runs in browser");
   if (window.__pyodide) return window.__pyodide;
   if (window.__pyodideLoading) return window.__pyodideLoading;
-  window.__pyodideLoading = (async () => {
+  const loadPromise = (async () => {
     onProgress?.("Loading Python runtime (first run only, ~5s)…");
     if (!window.loadPyodide) await injectScript(`${PYODIDE_BASE}pyodide.js`);
     const py = await window.loadPyodide!({ indexURL: PYODIDE_BASE });
     window.__pyodide = py;
     return py;
   })();
-  return window.__pyodideLoading;
+  window.__pyodideLoading = loadPromise;
+  try {
+    return await loadPromise;
+  } catch (err) {
+    // A failed load (CDN blip, ad-blocker, offline) used to stay cached
+    // forever here — every later call would keep returning the same
+    // rejected promise until a full page reload. Clear it so the next
+    // attempt actually retries.
+    if (window.__pyodideLoading === loadPromise) window.__pyodideLoading = undefined;
+    throw err;
+  }
 }
 
 export async function runPython(

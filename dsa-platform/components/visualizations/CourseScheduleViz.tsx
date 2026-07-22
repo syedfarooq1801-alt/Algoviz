@@ -162,7 +162,7 @@ export default function CourseScheduleViz() {
             style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>
             {playing ? "⏸ Pause" : "▶ Play"}
           </button>
-          <button onClick={doStep} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
+          <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
           <button onClick={() => reset()} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>↺ Reset</button>
           <div className="flex items-center gap-2">
             <input type="range" min="200" max="1500" step="100" value={speed} onChange={(e) => setSpeed(Number(e.target.value))} style={{ width: "80px", accentColor: "#4f8ef7" }} />
@@ -176,7 +176,7 @@ export default function CourseScheduleViz() {
           <div className="text-xs mb-2 font-semibold" style={{ color: "var(--text-muted)" }}>
             Directed Graph (edge = must take prereq first)
           </div>
-          <svg width={W} height={H} style={{ overflow: "visible" }}>
+          <svg width={W} height={H} style={{ overflow: "visible" }} role="img" aria-label="Course prerequisite graph with cycle detection">
             <defs>
               <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
                 <polygon points="0 0, 8 3, 0 6" fill="#4f8ef7" />

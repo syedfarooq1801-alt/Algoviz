@@ -1,5 +1,7 @@
 import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
+import { verifyIdToken } from "@/lib/verifyIdToken";
+import { rateLimited } from "@/lib/rateLimit";
 
 const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -32,6 +34,14 @@ Rules:
 export async function POST(request: Request) {
   if (!process.env.GROQ_API_KEY) {
     return NextResponse.json({ error: "Axon needs GROQ_API_KEY set in the server env." }, { status: 500 });
+  }
+
+  const uid = await verifyIdToken(request);
+  if (!uid) {
+    return NextResponse.json({ error: "Sign in to use Axon." }, { status: 401 });
+  }
+  if (rateLimited(`chat:${uid}`, 30, 10 * 60 * 1000)) {
+    return NextResponse.json({ error: "Too many requests — slow down and try again shortly." }, { status: 429 });
   }
 
   const body = (await request.json()) as Body;

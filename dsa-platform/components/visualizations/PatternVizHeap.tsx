@@ -83,7 +83,7 @@ export default function PatternVizHeap() {
 
   return (
     <div className="space-y-3">
-      <svg width={320} height={180} style={{ width: "100%", maxWidth: 320, overflow: "visible" }}>
+      <svg width={320} height={180} style={{ width: "100%", maxWidth: 320, overflow: "visible" }} role="img" aria-label="Heap tree diagram">
         {heapEdges.map(([p, c]) => {
           if (p >= heap.length || c >= heap.length) return null;
           return (

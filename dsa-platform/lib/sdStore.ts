@@ -14,6 +14,7 @@ interface SDProgressState {
   isMastered: (id: string) => boolean;
   isBookmarked: (id: string) => boolean;
   hydrateFromFirestore: (data: { mastered: Set<string>; bookmarked: Set<string>; masteredDates?: Record<string, string> }) => void;
+  resetForUser: () => void;
 }
 
 export const useSDStore = create<SDProgressState>()(
@@ -42,6 +43,7 @@ export const useSDStore = create<SDProgressState>()(
       isMastered: (id) => get().mastered.has(id),
       isBookmarked: (id) => get().bookmarked.has(id),
       hydrateFromFirestore: (data) => set({ mastered: data.mastered, bookmarked: data.bookmarked, masteredDates: data.masteredDates ?? {} }),
+      resetForUser: () => set({ mastered: new Set<string>(), bookmarked: new Set<string>(), masteredDates: {} }),
     }),
     {
       name: "sd-progress",

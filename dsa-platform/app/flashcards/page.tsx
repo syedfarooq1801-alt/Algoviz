@@ -80,7 +80,7 @@ export default function FlashcardsPage() {
             background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)",
             borderRadius: 5, padding: "3px 10px",
           }}>
-            {idx + (card ? 0 : 0)} / {allCards.length} cards
+            {idx + 1} / {allCards.length} cards
           </span>
         </div>
 

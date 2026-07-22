@@ -55,14 +55,14 @@ export default function SubtreeOfAnotherViz() {
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>For each node, check if tree rooted there is identical to subRoot. O(m×n) time.</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>
-          <button onClick={doStep} disabled={done} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
+          <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
           <button onClick={reset} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>↺ Reset</button>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl p-3" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="text-xs mb-2 font-semibold" style={{ color: "var(--text-muted)" }}>Main Tree [3,4,5,1,2]</div>
-          <svg width="360" height="180" viewBox="0 0 360 180" style={{ width: "100%", height: "auto" }}>
+          <svg width="360" height="180" viewBox="0 0 360 180" style={{ width: "100%", height: "auto" }} role="img" aria-label="Main tree being searched">
             {MAIN_EDGES.map(([a,b],i) => (
               <line key={i} x1={MAIN_POS[a].x} y1={MAIN_POS[a].y} x2={MAIN_POS[b].x} y2={MAIN_POS[b].y} stroke="rgba(107,114,128,0.4)" strokeWidth="1.5" />
             ))}
@@ -80,7 +80,7 @@ export default function SubtreeOfAnotherViz() {
         </div>
         <div className="rounded-xl p-3" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="text-xs mb-2 font-semibold" style={{ color: "var(--text-muted)" }}>subRoot [4,1,2]</div>
-          <svg width="160" height="120" viewBox="0 0 160 120" style={{ width: "100%", height: "auto" }}>
+          <svg width="160" height="120" viewBox="0 0 160 120" style={{ width: "100%", height: "auto" }} role="img" aria-label="Candidate subtree to match">
             {SUB_EDGES.map(([a,b],i) => (
               <line key={i} x1={SUB_POS[a].x} y1={SUB_POS[a].y} x2={SUB_POS[b].x} y2={SUB_POS[b].y} stroke="rgba(79,142,247,0.5)" strokeWidth="1.5" />
             ))}

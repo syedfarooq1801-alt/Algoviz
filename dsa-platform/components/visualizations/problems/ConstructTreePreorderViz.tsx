@@ -62,7 +62,7 @@ export default function ConstructTreePreorderViz() {
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>preorder[i]=root → find in inorder → left/right split. Recurse.</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>
-          <button onClick={doStep} disabled={done} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
+          <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
           <button onClick={reset} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>↺ Reset</button>
         </div>
       </div>
@@ -86,7 +86,7 @@ export default function ConstructTreePreorderViz() {
       </div>
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <div className="text-xs mb-2 font-semibold" style={{ color: "var(--text-muted)" }}>Tree being built</div>
-        <svg width="400" height="190" viewBox="0 0 400 190" style={{ width: "100%", height: "auto" }}>
+        <svg width="400" height="190" viewBox="0 0 400 190" style={{ width: "100%", height: "auto" }} role="img" aria-label="Binary tree construction from preorder and inorder traversal">
           {EDGES.filter(([a,b]) => cur.built.includes(a) && cur.built.includes(b)).map(([a,b],i) => (
             <line key={i} x1={NODES[a].x} y1={NODES[a].y} x2={NODES[b].x} y2={NODES[b].y} stroke="rgba(79,142,247,0.5)" strokeWidth="1.5" />
           ))}

@@ -83,7 +83,7 @@ export default function CAPTheoremViz() {
             ⚡ Network Partition
           </div>
         )}
-        <svg width="100%" height={280} viewBox="0 0 280 280">
+        <svg width="100%" height={280} viewBox="0 0 280 280" role="img" aria-label="CAP theorem triangle diagram">
           {/* Connections */}
           {!partitioned ? (
             <>

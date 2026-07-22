@@ -130,7 +130,7 @@ export default function SlidingWindowViz() {
           >
             {playing ? "⏸ Pause" : "▶ Play"}
           </button>
-          <button onClick={step} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>
+          <button onClick={step} disabled={done || playing} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>
             → Step
           </button>
           <button onClick={() => reset()} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>

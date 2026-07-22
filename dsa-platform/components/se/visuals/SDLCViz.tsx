@@ -32,7 +32,15 @@ export default function SDLCViz() {
               const x = 110 + 80 * Math.cos(ang), y = 110 + 80 * Math.sin(ang);
               const on = i === active;
               return (
-                <g key={s} style={{ cursor: "pointer" }} onClick={() => setActive(i)}>
+                <g
+                  key={s}
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setActive(i)}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Select phase ${s}`}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setActive(i); } }}
+                >
                   <circle cx={x} cy={y} r="26" fill={on ? "rgba(45,212,160,0.18)" : "var(--bg-hover)"} stroke={on ? "var(--accent-green)" : "var(--border)"} strokeWidth="1.5" />
                   <text x={x} y={y + 3} textAnchor="middle" fontSize="9" fontWeight="600" fill={on ? "var(--accent-green)" : "var(--text-secondary)"}>{s}</text>
                 </g>

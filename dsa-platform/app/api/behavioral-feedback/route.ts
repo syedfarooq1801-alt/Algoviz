@@ -1,5 +1,7 @@
 import Groq from "groq-sdk";
 import { NextResponse } from "next/server";
+import { verifyIdToken } from "@/lib/verifyIdToken";
+import { rateLimited } from "@/lib/rateLimit";
 
 const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -11,13 +13,21 @@ export async function POST(request: Request) {
     );
   }
 
+  const uid = await verifyIdToken(request);
+  if (!uid) {
+    return NextResponse.json({ error: "Sign in to request feedback." }, { status: 401 });
+  }
+  if (rateLimited(`behavioral:${uid}`, 20, 10 * 60 * 1000)) {
+    return NextResponse.json({ error: "Too many requests — slow down and try again shortly." }, { status: 429 });
+  }
+
   const body = await request.json() as {
     question: string;
     situation: string;
     task: string;
     action: string;
     result: string;
-    rubric: Record<string, number>;
+    rubric?: Record<string, number>;
   };
 
   const { question, situation, task, action, result, rubric } = body;
@@ -29,7 +39,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const rubricSummary = Object.entries(rubric)
+  const rubricSummary = Object.entries(rubric ?? {})
     .map(([k, v]) => `${k}: ${v}/5`)
     .join(", ");
 

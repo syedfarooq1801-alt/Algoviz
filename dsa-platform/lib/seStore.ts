@@ -12,6 +12,7 @@ interface SEState {
   isComplete: (key: string) => boolean;
   subjectDone: (subjectId: string, chapterIds: string[]) => number;
   hydrateFromFirestore: (data: { completed: Set<string>; completedDates?: Record<string, string> }) => void;
+  resetForUser: () => void;
 }
 
 export const useSEStore = create<SEState>()(
@@ -33,6 +34,7 @@ export const useSEStore = create<SEState>()(
         return chapterIds.filter((id) => completed.has(`${subjectId}/${id}`)).length;
       },
       hydrateFromFirestore: (data) => set({ completed: data.completed, completedDates: data.completedDates ?? {} }),
+      resetForUser: () => set({ completed: new Set<string>(), completedDates: {} }),
     }),
     {
       name: "se-progress",

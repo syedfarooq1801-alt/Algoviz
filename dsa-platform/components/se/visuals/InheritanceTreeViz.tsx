@@ -29,7 +29,15 @@ export default function InheritanceTreeViz() {
           const inChain = chain.includes(name);
           const isResolver = name === resolver;
           return (
-            <g key={name} style={{ cursor: "pointer" }} onClick={() => setSel(name)}>
+            <g
+              key={name}
+              style={{ cursor: "pointer" }}
+              onClick={() => setSel(name)}
+              role="button"
+              tabIndex={0}
+              aria-label={`Select class ${name}`}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSel(name); } }}
+            >
               <rect x={c.x - 45} y={c.y - 15} width="90" height="30" rx="7"
                 fill={isResolver ? "var(--accent-soft)" : name === sel ? "rgba(45,212,160,0.12)" : "var(--bg-hover)"}
                 stroke={isResolver ? "var(--accent)" : name === sel ? "var(--accent-green)" : inChain ? "var(--accent)" : "var(--border)"} strokeWidth="1.5" />

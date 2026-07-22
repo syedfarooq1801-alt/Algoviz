@@ -23,6 +23,11 @@ export async function isUsernameAvailable(name: string, myUid: string): Promise<
 export async function claimUsername(uid: string, newName: string, oldName?: string): Promise<void> {
   const display = newName.trim();
   const lower = display.toLowerCase();
+  // Callers already validate before calling, but the actual Firestore write
+  // happens here — this is the one place that must not trust the caller, so
+  // it re-checks rather than relying on validation staying correct upstream.
+  const validationError = validateUsername(display);
+  if (validationError) throw new Error(validationError);
   await runTransaction(db, async (tx) => {
     const newRef = doc(db, "usernames", lower);
     const newSnap = await tx.get(newRef);

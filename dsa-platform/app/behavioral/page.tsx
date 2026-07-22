@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { COMPANY_VALUES, STAR_FRAMEWORK, COMMON_QUESTIONS } from "@/data/behavioral";
 import { usePrepStore } from "@/lib/prepStore";
+import { auth } from "@/lib/firebase";
 
 type Tab = "star" | "amazon" | "google" | "meta" | "microsoft" | "apple" | "netflix" | "common";
 
@@ -68,9 +69,13 @@ export default function BehavioralPage() {
     setAiError(null);
     setAiFeedback(null);
     try {
+      const idToken = await auth.currentUser?.getIdToken();
       const res = await fetch("/api/behavioral-feedback", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(idToken ? { Authorization: `Bearer ${idToken}` } : {}),
+        },
         body: JSON.stringify({
           question: draft.question,
           situation: draft.situation,

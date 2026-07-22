@@ -28,12 +28,14 @@ export default function SelectionPopover() {
     const onDown = (e: MouseEvent) => {
       if (!(e.target as HTMLElement)?.closest("[data-selpop]")) setPos(null);
     };
+    const onScroll = () => setPos(null);
     document.addEventListener("mouseup", onUp);
     document.addEventListener("mousedown", onDown);
-    document.addEventListener("scroll", () => setPos(null), true);
+    document.addEventListener("scroll", onScroll, true);
     return () => {
       document.removeEventListener("mouseup", onUp);
       document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("scroll", onScroll, true);
     };
   }, []);
 

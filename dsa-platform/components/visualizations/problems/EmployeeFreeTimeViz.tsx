@@ -68,7 +68,7 @@ export default function EmployeeFreeTimeViz() {
             style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>
             {playing ? "⏸ Pause" : "▶ Play"}
           </button>
-          <button onClick={doStep} disabled={done} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
+          <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
           <button onClick={reset} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>↺ Reset</button>
           <input type="range" min={300} max={2500} step={100} value={speed} onChange={e => setSpeed(+e.target.value)} style={{ width: 80, accentColor: "#4f8ef7" }} />
         </div>
@@ -77,7 +77,7 @@ export default function EmployeeFreeTimeViz() {
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         {/* Timeline grid */}
         <div className="relative" style={{ height: 160 }}>
-          <svg width="300" height="160" style={{ position: "absolute", top: 0, left: 0 }}>
+          <svg width="300" height="160" style={{ position: "absolute", top: 0, left: 0 }} role="img" aria-label="Employee schedule timeline with free-time gaps">
             {/* time ticks */}
             {Array.from({length: TIME_MAX + 1}, (_, t) => (
               <g key={t}>

@@ -109,7 +109,7 @@ export default function LinkedListViz() {
             style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>
             {playing ? "⏸ Pause" : "▶ Play"}
           </button>
-          <button onClick={() => setStepIdx((p) => Math.min(p + 1, steps.length - 1))} disabled={done}
+          <button onClick={() => setStepIdx((p) => Math.min(p + 1, steps.length - 1))} disabled={done || playing}
             className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
           <button onClick={() => reset()} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>↺ Reset</button>
           <span className="text-xs" style={{ color: "var(--text-muted)" }}>Step {stepIdx + 1}/{steps.length}</span>
@@ -126,7 +126,7 @@ export default function LinkedListViz() {
           width={Math.max(vals.length * (nodeW + gap) + 40, 400)}
           height={140}
           style={{ overflow: "visible" }}
-        >
+         role="img" aria-label="Linked list node diagram">
           {/* Arrows */}
           {current.arrows.map(([from, to], i) => {
             const x1 = from * (nodeW + gap) + nodeW + 20;

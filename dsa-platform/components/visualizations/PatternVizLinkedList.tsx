@@ -42,7 +42,7 @@ export default function PatternVizLinkedList() {
 
   return (
     <div className="space-y-3">
-      <svg width={W} height={110} style={{ overflow: "visible", width: "100%", maxWidth: W }}>
+      <svg width={W} height={110} style={{ overflow: "visible", width: "100%", maxWidth: W }} role="img" aria-label="Linked list pattern diagram">
         {/* Forward arrows (not yet reversed) */}
         {VALS.map((_, i) => {
           if (i >= VALS.length - 1) return null;

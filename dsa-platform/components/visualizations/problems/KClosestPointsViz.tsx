@@ -59,14 +59,14 @@ export default function KClosestPointsViz() {
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Max-heap of size K. If new point closer than max, swap. Use x²+y² (no sqrt needed).</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>
-          <button onClick={doStep} disabled={done} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
+          <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
           <button onClick={reset} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>↺ Reset</button>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="text-xs mb-3 font-semibold" style={{ color: "var(--text-muted)" }}>Coordinate plane</div>
-          <svg width="200" height="200" viewBox="-10 -10 20 20" style={{ width: "100%", height: "auto", background: "rgba(0,0,0,0.2)", borderRadius: "8px" }}>
+          <svg width="200" height="200" viewBox="-10 -10 20 20" style={{ width: "100%", height: "auto", background: "rgba(0,0,0,0.2)", borderRadius: "8px" }} role="img" aria-label="Scatter plot of points with k closest to origin highlighted">
             <line x1="-10" y1="0" x2="10" y2="0" stroke="rgba(107,114,128,0.4)" strokeWidth="0.3" />
             <line x1="0" y1="-10" x2="0" y2="10" stroke="rgba(107,114,128,0.4)" strokeWidth="0.3" />
             <circle cx="0" cy="0" r="0.5" fill="#22c55e" />

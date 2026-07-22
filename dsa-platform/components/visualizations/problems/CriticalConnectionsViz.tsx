@@ -76,14 +76,14 @@ export default function CriticalConnectionsViz() {
             style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>
             {playing ? "⏸ Pause" : "▶ Play"}
           </button>
-          <button onClick={doStep} disabled={done} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
+          <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
           <button onClick={reset} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>↺ Reset</button>
           <input type="range" min={300} max={2500} step={100} value={speed} onChange={e => setSpeed(+e.target.value)} style={{ width: 80, accentColor: "#4f8ef7" }} />
         </div>
       </div>
 
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <svg width="340" height="220" style={{ display: "block", margin: "0 auto" }}>
+        <svg width="340" height="220" style={{ display: "block", margin: "0 auto" }} role="img" aria-label="Network graph with critical connection (bridge) detection">
           {EDGES.map(([u, v], i) => {
             const key = `${Math.min(u,v)}-${Math.max(u,v)}`;
             const isBridge = bridgeSet.has(key);

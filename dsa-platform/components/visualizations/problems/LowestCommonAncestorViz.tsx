@@ -86,14 +86,14 @@ export default function LowestCommonAncestorViz() {
             style={{ background:playing?"rgba(239,68,68,0.15)":"rgba(34,197,94,0.15)", color:playing?"#ef4444":"#22c55e", border:`1px solid ${playing?"rgba(239,68,68,0.3)":"rgba(34,197,94,0.3)"}` }}>
             {playing?"⏸ Pause":"▶ Play"}
           </button>
-          <button onClick={doStep} disabled={done} className="px-3 py-1.5 rounded text-xs" style={{ background:"var(--bg-hover)", color:"var(--text-secondary)", border:"1px solid var(--border)" }}>→ Step</button>
+          <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background:"var(--bg-hover)", color:"var(--text-secondary)", border:"1px solid var(--border)" }}>→ Step</button>
           <button onClick={reset} className="px-3 py-1.5 rounded text-xs" style={{ background:"var(--bg-hover)", color:"var(--text-secondary)", border:"1px solid var(--border)" }}>↺ Reset</button>
           <input type="range" min="200" max="1500" step="100" value={speed} onChange={e=>setSpeed(+e.target.value)} style={{ width:"80px", accentColor:"#4f8ef7" }} />
         </div>
       </div>
 
       <div className="rounded-xl p-2" style={{ background:"var(--bg-card)", border:"1px solid var(--border)" }}>
-        <svg width="420" height="270" style={{ display:"block", margin:"0 auto" }}>
+        <svg width="420" height="270" style={{ display:"block", margin:"0 auto" }} role="img" aria-label="Binary search tree with lowest common ancestor path">
           {TREE.map((n,i) => {
             const edges = [];
             if (n.left!==null) { const pa=POS[i],c=POS[n.left]; edges.push(<line key={`l${i}`} x1={pa.x} y1={pa.y} x2={c.x} y2={c.y} stroke="rgba(79,142,247,0.25)" strokeWidth={1.5}/>); }

@@ -55,13 +55,13 @@ export default function EvaluateDivisionViz() {
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Edges: a→b=2.0, b→a=0.5. DFS multiplies weights. Unknown node → -1.</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>
-          <button onClick={doStep} disabled={done} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
+          <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
           <button onClick={reset} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>↺ Reset</button>
         </div>
       </div>
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <div className="text-xs mb-3 font-semibold" style={{ color: "var(--text-muted)" }}>Graph (a/b=2, b/c=3)</div>
-        <svg width="380" height="100" viewBox="0 0 380 100" style={{ width: "100%", height: "auto" }}>
+        <svg width="380" height="100" viewBox="0 0 380 100" style={{ width: "100%", height: "auto" }} role="img" aria-label="Weighted graph of division relationships">
           <defs>
             <marker id="arrd" markerWidth="5" markerHeight="5" refX="5" refY="2.5" orient="auto">
               <path d="M0,0 L5,2.5 L0,5 Z" fill="rgba(79,142,247,0.7)" />

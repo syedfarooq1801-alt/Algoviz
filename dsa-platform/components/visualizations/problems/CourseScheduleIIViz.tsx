@@ -60,14 +60,14 @@ export default function CourseScheduleIIViz() {
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Kahn's: track in-degrees. Repeatedly take 0-in-degree nodes. If all processed = valid order.</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>
-          <button onClick={doStep} disabled={done} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
+          <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
           <button onClick={reset} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>↺ Reset</button>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="text-xs mb-2 font-semibold" style={{ color: "var(--text-muted)" }}>Graph (directed edges = prereqs)</div>
-          <svg width="360" height="200" viewBox="0 0 360 200" style={{ width: "100%", height: "auto" }}>
+          <svg width="360" height="200" viewBox="0 0 360 200" style={{ width: "100%", height: "auto" }} role="img" aria-label="Course prerequisite graph with topological ordering">
             {PREREQS.map(([a,b], i) => {
               const from = NODE_POS[b], to = NODE_POS[a];
               return <line key={i} x1={from.x} y1={from.y} x2={to.x} y2={to.y} stroke="rgba(107,114,128,0.5)" strokeWidth="1.5" markerEnd="url(#arr)" />;

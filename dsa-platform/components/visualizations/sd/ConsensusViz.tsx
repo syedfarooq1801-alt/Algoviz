@@ -113,7 +113,7 @@ export default function ConsensusViz() {
 
       {/* Raft cluster diagram */}
       <div className="relative rounded-xl overflow-hidden" style={{ height: 290, background: "rgba(0,0,0,0.15)", border: "1px solid var(--border)" }}>
-        <svg width="100%" height={290} viewBox="0 0 270 270">
+        <svg width="100%" height={290} viewBox="0 0 270 270" role="img" aria-label="Distributed consensus protocol diagram">
           {/* Connections */}
           {nodes.filter((n) => n.state !== "crashed").map((n1) =>
             nodes.filter((n2) => n2.id > n1.id && n2.state !== "crashed").map((n2) => (

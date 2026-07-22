@@ -41,7 +41,15 @@ export default function ProcessStateViz() {
           const isCur = id === cur;
           const reachable = next[cur]?.includes(id);
           return (
-            <g key={id} style={{ cursor: reachable ? "pointer" : "default" }} onClick={() => reachable && setCur(id)}>
+            <g
+              key={id}
+              style={{ cursor: reachable ? "pointer" : "default" }}
+              onClick={() => reachable && setCur(id)}
+              role={reachable ? "button" : undefined}
+              tabIndex={reachable ? 0 : undefined}
+              aria-label={reachable ? `Transition to ${s.label}` : undefined}
+              onKeyDown={reachable ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setCur(id); } } : undefined}
+            >
               <rect x={s.x - 42} y={s.y - 16} width="84" height="32" rx="8"
                 fill={isCur ? `${s.color}28` : "var(--bg-hover)"} stroke={isCur ? s.color : reachable ? "var(--accent)" : "var(--border)"} strokeWidth={isCur ? 2 : 1.25} />
               <text x={s.x} y={s.y + 4} textAnchor="middle" fontSize="12" fontWeight="600" fill={isCur ? s.color : "var(--text-secondary)"}>{s.label}</text>

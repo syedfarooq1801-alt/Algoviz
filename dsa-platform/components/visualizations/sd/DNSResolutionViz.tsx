@@ -62,7 +62,7 @@ export default function DNSResolutionViz() {
 
       {/* Diagram */}
       <div className="relative rounded-xl overflow-hidden" style={{ height: 280, background: "rgba(0,0,0,0.15)", border: "1px solid var(--border)" }}>
-        <svg width="100%" height="100%" viewBox="0 0 300 260">
+        <svg width="100%" height="100%" viewBox="0 0 300 260" role="img" aria-label="DNS resolution step diagram">
           {/* Static connection lines */}
           <line x1={130} y1={120} x2={240} y2={50} stroke="var(--border)" strokeWidth={1} strokeDasharray="3 3" />
           <line x1={130} y1={120} x2={240} y2={120} stroke="var(--border)" strokeWidth={1} strokeDasharray="3 3" />
