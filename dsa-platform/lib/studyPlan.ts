@@ -912,6 +912,14 @@ export function rebalancePlan(
   const carried: PlanTask[] = [];        // from learn / practice days
   const carriedReview: PlanTask[] = [];  // from revision days
   const carriedMock: PlanTask[] = [];    // from mock days
+  // A review day can legitimately pick the same problem again on a later
+  // cycle (spaced repetition re-selects from the growing pool of past work),
+  // and each pick carries the identical `rv-<id>` — genuinely the same
+  // tracked completion, not a separate rep. If several such picks are still
+  // unsolved when carrying happens, they'd otherwise collapse onto one
+  // target day as multiple visually-identical rows that even share the same
+  // checkbox state. Carry each id at most once.
+  const seenCarriedIds = new Set<string>();
   // A task carried forward and solved LATER must count on the day it was
   // actually solved, not snap back onto the past day it was originally
   // scheduled for — otherwise checking it off makes it vanish with no
@@ -946,6 +954,8 @@ export function rebalancePlan(
       // every study day generates its own prompt, so this one is dropped
       // rather than carried stale or left behind looking unfinished.
       if (t.id.startsWith("recall-")) continue;
+      if (seenCarriedIds.has(t.id)) continue; // already queued from an earlier day's identical pick
+      seenCarriedIds.add(t.id);
       bucket.push(markCarried(t));
     }
     d.tasks = keep;
@@ -959,8 +969,28 @@ export function rebalancePlan(
       if (days[idx]) days[idx].tasks = [...days[idx].tasks, ...tasks];
     }
   };
+
+  // Catch-all dedup across every day from today onward, keeping the first
+  // occurrence of each id. seenCarriedIds above only dedupes what the
+  // stripping loop itself carries; it can't see a FUTURE (not-yet-reached)
+  // day's own originally-generated content, which review-day selection can
+  // independently repick even when an earlier, still-unsolved carried
+  // instance of the exact same problem already exists. Never touches days
+  // before todayIdx — that's finalized history, not still-visible content.
+  const dedupeFromToday = () => {
+    const seen = new Set<string>();
+    for (let i = todayIdx; i < days.length; i++) {
+      days[i].tasks = days[i].tasks.filter((t) => {
+        if (seen.has(t.id)) return false;
+        seen.add(t.id);
+        return true;
+      });
+    }
+  };
+
   if (carried.length + carriedReview.length + carriedMock.length === 0) {
     applyDoneLate();
+    dedupeFromToday();
     normalizeDayOrder(days);
     return { plan: { ...plan, days }, info: none };
   }
@@ -1017,6 +1047,7 @@ export function rebalancePlan(
       const fallback = days.findIndex((d, i) => i >= todayIdx && d.type !== "rest");
       if (fallback >= 0) days[fallback].tasks.push(...carried);
       applyDoneLate();
+      dedupeFromToday();
       normalizeDayOrder(days);
       return {
         plan: { ...plan, days },
@@ -1032,6 +1063,7 @@ export function rebalancePlan(
       if (before > 0) worstRatio = Math.max(worstRatio, after / before);
     });
     applyDoneLate();
+    dedupeFromToday();
     normalizeDayOrder(days);
     return {
       plan: { ...plan, days },
@@ -1156,6 +1188,7 @@ export function rebalancePlan(
   }
 
   applyDoneLate();
+  dedupeFromToday();
 
   // Clear any day that ended up with nothing so it doesn't render as an empty
   // work day, and refresh labels.
