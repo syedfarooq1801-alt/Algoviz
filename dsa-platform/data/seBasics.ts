@@ -45,7 +45,7 @@ export const SUBJECT_META: Record<string, { blurb: string; accent: string; topic
 };
 
 export const SE_SUBJECTS: Subject[] = (raw as { [k: string]: Subject }) &&
-  ["operating-systems", "dbms", "computer-networks", "oop", "linux-se", "concurrency", "systems-depth"]
+  ["operating-systems", "dbms", "computer-networks", "oop", "concurrency", "systems-depth", "linux-se"]
     .map((id) => (raw as Record<string, Subject>)[id])
     .filter(Boolean);
 
