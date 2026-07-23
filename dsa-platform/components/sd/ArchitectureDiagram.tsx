@@ -19,6 +19,25 @@ interface Props {
   layers: ArchLayer[];
 }
 
+const BOX_W = 176;
+const BOX_H = 92;
+const COL_GAP = 28;
+const ROW_GAP = 56;
+const PAD = 24;
+
+// Trim a source→target center-to-center segment back from BOTH ends so the
+// visible line starts/ends at the box's edge instead of its center — margin
+// picks box-half-width or box-half-height depending on which the line is
+// more aligned with, which is a good approximation for the rectangular box.
+function edgeMargin(dx: number, dy: number): number {
+  return Math.abs(dy) > Math.abs(dx) ? BOX_H / 2 + 4 : BOX_W / 2 + 4;
+}
+function pointAt(x1: number, y1: number, x2: number, y2: number, dist: number) {
+  const dx = x2 - x1, dy = y2 - y1;
+  const len = Math.hypot(dx, dy) || 1;
+  return { x: x1 + (dx / len) * dist, y: y1 + (dy / len) * dist };
+}
+
 export default function ArchitectureDiagram({ layers }: Props) {
   const nodeMap = new Map<string, ArchLayer>(layers.map((l) => [l.name, l]));
 
@@ -71,47 +90,90 @@ export default function ArchitectureDiagram({ layers }: Props) {
     byDepth[d].push(l);
   }
 
+  // Layout: assign every node a real (x, y) center so every actual edge in
+  // `connects_to` — same-row, adjacent-row, or skip-level — can be drawn as
+  // its own arrow, instead of one generic "there's a connection here"
+  // indicator between rows that couldn't show WHICH nodes connect or catch
+  // same-row / skip-level relationships at all.
+  const rowWidth = (n: number) => n * BOX_W + Math.max(0, n - 1) * COL_GAP;
+  const canvasWidth = Math.max(...byDepth.map((r) => rowWidth(r.length)), BOX_W) + PAD * 2;
+  const canvasHeight = byDepth.length * BOX_H + Math.max(0, byDepth.length - 1) * ROW_GAP + PAD * 2;
+
+  const pos = new Map<string, { x: number; y: number }>();
+  byDepth.forEach((row, di) => {
+    const w = rowWidth(row.length);
+    const startX = (canvasWidth - w) / 2;
+    row.forEach((node, ci) => {
+      pos.set(node.name, {
+        x: startX + ci * (BOX_W + COL_GAP) + BOX_W / 2,
+        y: PAD + di * (BOX_H + ROW_GAP) + BOX_H / 2,
+      });
+    });
+  });
+
+  const edges = layers.flatMap((l) =>
+    l.connects_to
+      .filter((to) => pos.has(to) && to !== l.name)
+      .map((to) => ({ from: l.name, to }))
+  );
+
   return (
     <div className="rounded-xl overflow-hidden" style={{ border: "1px solid var(--border)" }}>
       <div className="px-4 py-3 flex items-center gap-2" style={{ background: "var(--bg-card)", borderBottom: "1px solid var(--border-subtle)" }}>
         <span>🏗️</span>
         <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Architecture Diagram</h3>
       </div>
-      <div className="p-4 space-y-2" style={{ background: "rgba(0,0,0,0.15)" }}>
-        {byDepth.map((row, di) => (
-          <div key={di}>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {row.map((node) => {
-                const c = TYPE_COLOR[node.type] ?? TYPE_COLOR.service;
-                return (
-                  <div
-                    key={node.name}
-                    className="flex flex-col items-center gap-1 px-3 py-2 rounded-lg"
-                    style={{ background: c.bg, border: `1px solid ${c.border}`, minWidth: 100, maxWidth: 160 }}
-                  >
-                    <span className="text-base">{c.icon}</span>
-                    <span className="text-xs font-semibold text-center" style={{ color: c.text }}>{node.name}</span>
-                    {node.note && (
-                      <span className="text-xs text-center leading-tight" style={{ color: "var(--text-muted)" }}>{node.note}</span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-            {di < byDepth.length - 1 && (
-              <div className="flex justify-center my-1.5">
-                <div className="flex flex-col items-center gap-0.5">
-                  {row.flatMap((node) => node.connects_to).filter(Boolean).slice(0, 3).map((_, i) => (
-                    <div key={i} className="h-1.5 w-px" style={{ background: "var(--border)" }} />
-                  ))}
-                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ color: "var(--text-muted)" }}>
-                    <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
+      <div className="p-4" style={{ background: "rgba(0,0,0,0.15)", overflowX: "auto" }}>
+        <svg width={canvasWidth} height={canvasHeight} viewBox={`0 0 ${canvasWidth} ${canvasHeight}`} style={{ display: "block", margin: "0 auto" }}>
+          <defs>
+            <marker id="arch-arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L7,3 L0,6 Z" fill="var(--text-muted)" />
+            </marker>
+          </defs>
+          {edges.map((e, i) => {
+            const s = pos.get(e.from)!, t = pos.get(e.to)!;
+            const dx = t.x - s.x, dy = t.y - s.y;
+            const start = pointAt(s.x, s.y, t.x, t.y, edgeMargin(dx, dy));
+            const end = pointAt(t.x, t.y, s.x, s.y, edgeMargin(dx, dy) + 6); // +6 so the arrowhead tip lands right at the box edge
+            const sameRow = s.y === t.y;
+            if (sameRow || Math.abs(dx) < 4) {
+              return (
+                <line key={i} x1={start.x} y1={start.y} x2={end.x} y2={end.y}
+                  stroke="var(--border)" strokeWidth="1.5" strokeDasharray="3 3" markerEnd="url(#arch-arrow)" />
+              );
+            }
+            // Cross-row (including skip-level) edges get a gentle S-curve
+            // instead of a straight diagonal — reads as "flow downward" even
+            // when it jumps more than one row, and avoids overlapping other
+            // boxes it passes near.
+            const midY = (start.y + end.y) / 2;
+            const path = `M ${start.x} ${start.y} C ${start.x} ${midY}, ${end.x} ${midY}, ${end.x} ${end.y}`;
+            return <path key={i} d={path} fill="none" stroke="var(--border)" strokeWidth="1.5" strokeDasharray="3 3" markerEnd="url(#arch-arrow)" />;
+          })}
+          {layers.map((node) => {
+            const p = pos.get(node.name);
+            if (!p) return null;
+            const c = TYPE_COLOR[node.type] ?? TYPE_COLOR.service;
+            return (
+              <foreignObject key={node.name} x={p.x - BOX_W / 2} y={p.y - BOX_H / 2} width={BOX_W} height={BOX_H}>
+                <div
+                  style={{
+                    width: "100%", height: "100%", boxSizing: "border-box",
+                    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                    gap: 3, padding: "8px 10px", borderRadius: 10,
+                    background: c.bg, border: `1px solid ${c.border}`, textAlign: "center",
+                  }}
+                >
+                  <span style={{ fontSize: 15 }}>{c.icon}</span>
+                  <span style={{ fontSize: 11.5, fontWeight: 600, color: c.text, lineHeight: 1.2 }}>{node.name}</span>
+                  {node.note && (
+                    <span style={{ fontSize: 10, lineHeight: 1.3, color: "var(--text-muted)" }}>{node.note}</span>
+                  )}
                 </div>
-              </div>
-            )}
-          </div>
-        ))}
+              </foreignObject>
+            );
+          })}
+        </svg>
       </div>
       {/* Legend */}
       <div className="px-4 py-2 flex flex-wrap gap-3 border-t" style={{ background: "rgba(0,0,0,0.1)", borderColor: "var(--border-subtle)" }}>
