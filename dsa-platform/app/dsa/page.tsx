@@ -96,7 +96,7 @@ function DSAContent() {
                     <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{p.title}</span>
                     <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, opacity: 0.55, flexShrink: 0, marginLeft: 4 }}>{done}/{p.problems.length}</span>
                   </button>
-                  <Link href={`/patterns/${p.id}`} title="View theory" style={{
+                  <Link href={`/patterns/${p.id}`} title="View theory" target="_blank" rel="noopener noreferrer" style={{
                     flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
                     width: 20, height: 24, borderRadius: 4, fontSize: 11,
                     color: "var(--text-muted)", textDecoration: "none", opacity: 0.6, transition: "opacity 0.1s",
@@ -204,7 +204,7 @@ function DSAContent() {
               <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
                 {PATTERNS.find(p => p.id === activeTopic)?.title}
               </span>
-              <Link href={`/patterns/${activeTopic}`} style={{
+              <Link href={`/patterns/${activeTopic}`} target="_blank" rel="noopener noreferrer" style={{
                 fontSize: 11, fontWeight: 600, color: "var(--accent)", textDecoration: "none",
                 display: "flex", alignItems: "center", gap: 4, padding: "3px 10px", borderRadius: 5,
                 border: "1px solid rgba(79,140,255,0.3)", background: "rgba(79,140,255,0.08)",
@@ -254,7 +254,7 @@ function DSAContent() {
 
                   <div style={{ minWidth: 0, paddingRight: 8 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                      <Link href={`/problems/${prob.id}`} style={{
+                      <Link href={`/problems/${prob.id}`} target="_blank" rel="noopener noreferrer" style={{
                         fontSize: isMobile ? 13 : 13, fontWeight: 500,
                         color: isSolved ? "var(--text-muted)" : "var(--text-primary)",
                         textDecoration: isSolved ? "line-through" : "none",
