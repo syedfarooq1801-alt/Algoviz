@@ -868,10 +868,16 @@ function orderRank(t: PlanTask): number {
 
 function normalizeDayOrder(days: DayPlan[]): void {
   for (const d of days) {
-    d.tasks = d.tasks
-      .map((t, i) => ({ t, i }))
-      .sort((a, b) => orderRank(a.t) - orderRank(b.t) || a.i - b.i)
-      .map((x) => x.t);
+    // Tiebreak by id, not original array position — rebalancePlan rebuilds
+    // the carried-task distribution from scratch on every completion toggle
+    // (isDoneTask changing reference re-runs it), so the array position a
+    // task lands in isn't stable across runs even when the same set of
+    // tasks ends up on the same day. An id-based tiebreak makes a day's
+    // order depend only on WHICH tasks are on it, not on how this pass
+    // happened to assemble them — otherwise checking a task off could make
+    // it (and everything after it) visually jump position within the day,
+    // which read as the whole page "moving" when you marked something done.
+    d.tasks = [...d.tasks].sort((a, b) => orderRank(a) - orderRank(b) || a.id.localeCompare(b.id));
   }
 }
 
