@@ -148,10 +148,22 @@ export default function StudyPlanPage() {
 
   // Missed days never strand their work. With no interview date the plan
   // extends; with one set it compresses into the days left before it.
+  // Deliberately NOT re-run on every isDoneTask/getSolvedDate change (only
+  // when the day, duration, start date, or interview date actually change):
+  // rebalancePlan re-flows ALL remaining days from scratch, in whole
+  // pattern-groups, to keep daily load flat — so re-running it on every
+  // single checkbox click could shift which day large chunks of upcoming
+  // work land on, even content that was never overdue. A checked task still
+  // shows as done immediately (isTaskDone reads the live solved/mastered/etc
+  // sets directly, not anything baked into `plan`) — it just doesn't also
+  // reshuffle the rest of the plan around that one click. Whatever
+  // isDoneTask/getSolvedDate currently are IS still used correctly whenever
+  // this does run (new day, etc.) — only the reactive re-trigger is skipped.
   const { plan, rebalance } = useMemo(() => {
     const r = rebalancePlan(basePlan, today, isDoneTask, targetDate, getSolvedDate);
     return { plan: r.plan, rebalance: r.info };
-  }, [basePlan, today, isDoneTask, targetDate, getSolvedDate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [basePlan, today, targetDate]);
 
   // Which day index is "today" within the plan (clamped to the plan range).
   const todayIdx = useMemo(() => {
