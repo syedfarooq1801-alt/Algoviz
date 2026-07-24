@@ -252,11 +252,36 @@ export default function StudyPlanPage() {
 
   // Keep the remembered focus day up to date with whatever's on screen,
   // whether that's the auto-init above or an explicit day/week click below.
+  // Deliberately keyed on the click, not on `plan` — see the reconciliation
+  // effect below for why `plan` can't be a trigger here too.
+  const focusedDateRef = useRef<string | null>(null);
   useEffect(() => {
     const d = plan.days[activeWeek * 7 + activeDayIdx];
     if (!d) return;
+    focusedDateRef.current = d.date;
     try { sessionStorage.setItem(FOCUS_STORAGE_KEY, d.date); } catch { /* ignore */ }
-  }, [activeWeek, activeDayIdx, plan]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeWeek, activeDayIdx]);
+
+  // Marking a task complete can itself restructure the plan: rebalancePlan
+  // re-runs on every completion change, and if that task was carried-forward
+  // backlog, the day it clears can shrink/grow the plan (extend mode) or
+  // resettle which days hold what (compress mode). activeWeek/activeDayIdx
+  // are raw indices, so when that happens they can end up pointing at
+  // completely different content — and `focusDay`'s "first non-rest day of
+  // this week" fallback below would silently substitute an EARLIER day,
+  // which is exactly what looked like "checking something off sent me back
+  // a day". Re-locate the same calendar date in the restructured plan
+  // instead of leaving the raw index to drift.
+  useEffect(() => {
+    const date = focusedDateRef.current;
+    if (!date) return;
+    const idx = plan.days.findIndex((d) => d.date === date);
+    if (idx < 0) return; // that date no longer exists in the plan — leave as-is
+    const w = Math.floor(idx / 7), di = idx % 7;
+    setActiveWeek((prev) => (prev === w ? prev : w));
+    setActiveDayIdx((prev) => (prev === di ? prev : di));
+  }, [plan]);
 
   const focusDay = week[activeDayIdx] ?? week.find((d) => d.type !== "rest") ?? week[0];
 
