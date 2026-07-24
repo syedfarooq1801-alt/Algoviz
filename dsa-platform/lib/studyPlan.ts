@@ -1132,50 +1132,43 @@ export function rebalancePlan(
     };
   }
 
-  // EXTEND — no deadline, so keep daily load flat and let the plan grow.
-  // Rebuild the remaining stream (carried work first, then everything already
-  // scheduled from today onward) and re-slice it over the study days using
-  // each day's original effort budget, appending days for the overflow.
-  const slots = eligible();
+  // EXTEND — no deadline, so the plan is allowed to grow. Carried backlog
+  // never touches today's own already-scheduled content, and never touches
+  // any day already scheduled further out either — it gets entirely fresh
+  // day(s) of its own, inserted immediately after today, filled by whole
+  // pattern-group (never split — see below) up to a normal day's budget.
+  // That's what keeps a heavy carried pattern (e.g. 8 DP problems) as its
+  // OWN clean day instead of getting jammed in alongside whatever today
+  // already had — and what keeps completing one task from reshuffling
+  // content on days that were never touched: the OLD approach re-collected
+  // and re-flowed every eligible day from today onward on every single
+  // call, so shrinking the backlog by one task could shift which day an
+  // entire unrelated pattern group landed on.
   const budget = (() => {
     const study = plan.days.filter((d) => d.type === "learn" || d.type === "practice");
     const eff = study.length ? totalEffort(study.flatMap((d) => d.tasks)) / study.length : 0;
     return Math.max(4, eff);
   })();
 
-  const stream: PlanTask[] = [...carried];
-  for (const i of slots) {
-    stream.push(...days[i].tasks);
-    days[i].tasks = [];
-  }
-
   let daysAdded = 0;
   const MAX_ADDED = 60; // hard stop; a plan needing more than this is a rewrite
-  let leftover = 0;
+  const primaryIdx = eligible()[0];
 
-  for (let guard = 0; guard < MAX_ADDED + 2; guard++) {
-    const targets = eligible();
-    // Clear every target first — a previous pass may have filled days that a
-    // re-date has since turned into rest days or shifted around.
-    for (const i of targets) days[i].tasks = [];
-
+  if (primaryIdx === undefined) {
+    // No eligible study day exists at all (shouldn't normally happen) —
+    // fall back to surfacing the work on the soonest non-rest day so it's
+    // at least visible rather than silently dropped.
+    const fallback = days.findIndex((d, i) => i >= todayIdx && d.type !== "rest");
+    if (fallback >= 0) days[fallback].tasks.push(...carried);
+  } else {
     // Fill by WHOLE pattern-group, never by individual task — otherwise a
     // heavy carried pattern (e.g. Dynamic Programming) can spill onto a day
-    // that already has a different heavy pattern (e.g. Graphs) just because
+    // that already has a different heavy pattern (e.g. LLD) just because
     // there was still a little budget room left for ONE more task. A group
-    // that doesn't fit moves to the next day entirely instead.
-    //
-    // (Deliberately NOT packPatternGroups' min-max balancing here: that
-    // algorithm can't shrink a bucket below its single largest indivisible
-    // group, so if one carried pattern-group alone exceeds `budget`, "add a
-    // day and check if the max bucket now fits" never resolves — it adds
-    // days up to MAX_ADDED for nothing. Greedy day-by-day fill has no such
-    // failure mode: it only ever needs enough days for every group to get
-    // *a* day, oversized or not.)
-    const queue = groupByPattern(stream);
-    for (const i of targets) {
-      if (queue.length === 0) break;
-      const day = days[i];
+    // that doesn't fit moves to its own day entirely instead.
+    const queue = groupByPattern(carried);
+    const fillDay = (dayIdx: number) => {
+      const day = days[dayIdx];
       let eff = totalEffort(day.tasks);
       while (queue.length > 0) {
         const group = queue[0];
@@ -1186,50 +1179,61 @@ export function rebalancePlan(
         if (eff >= budget) break;
       }
       day.label = labelFromTasks(day.label, day.tasks);
+    };
+
+    // primaryIdx itself is left alone — carried work always gets its own
+    // fresh day(s), starting right after it. Insert the WHOLE estimated
+    // batch before doing a single re-date pass, rather than one insert +
+    // one full re-date per single day: re-dating shifts every later day by
+    // a weekday, which can knock a revision/mock day onto Sunday and
+    // displace it back into the fill queue — doing that once per single
+    // inserted day let each round's displacement potentially trigger
+    // another, compounding into far more days than the backlog actually
+    // needed (inserting this close to today shifts many more days per
+    // insert than the old end-of-plan insertion point did).
+    let insertAt = primaryIdx + 1;
+    const remainingEffort = queue.reduce((s, g) => s + totalEffort(g), 0);
+    const estimate = Math.min(MAX_ADDED, Math.max(0, Math.ceil(remainingEffort / budget)));
+    if (estimate > 0) {
+      days.splice(insertAt, 0, ...Array.from({ length: estimate }, () => blankStudyDay()));
+      coreCount += estimate;
+      daysAdded += estimate;
+      const displaced = redateAndFixRest(days, plan.startDate);
+      if (displaced.review.length) placeBucket(displaced.review, ["review"]);
+      if (displaced.mock.length) placeBucket(displaced.mock, ["mock"], true);
+      if (displaced.core.length) queue.push(...groupByPattern(displaced.core));
+      for (let i = 0; i < estimate; i++) fillDay(insertAt + i);
+      insertAt += estimate;
+    }
+    // Top up if whole-group sizes didn't divide evenly into the estimate
+    // (or displaced content added more than expected) — rarely more than a
+    // day or two now that the bulk landed in one batch above.
+    while (queue.length > 0 && daysAdded < MAX_ADDED) {
+      days.splice(insertAt, 0, blankStudyDay());
+      coreCount += 1;
+      daysAdded++;
+      const displaced = redateAndFixRest(days, plan.startDate);
+      if (displaced.review.length) placeBucket(displaced.review, ["review"]);
+      if (displaced.mock.length) placeBucket(displaced.mock, ["mock"], true);
+      if (displaced.core.length) queue.push(...groupByPattern(displaced.core));
+      fillDay(insertAt);
+      insertAt++;
     }
 
-    leftover = queue.reduce((s, g) => s + g.length, 0);
-    if (leftover === 0) break;
-    if (daysAdded >= MAX_ADDED) break;
-
-    // Still work left over — append another study day at the end of the core
-    // span (before the mock / behavioral tail), then re-date so Sundays stay
-    // rest days, and run the fill again over the new slot set.
-    days.splice(coreCount, 0, blankStudyDay());
-    coreCount += 1;
-    daysAdded++;
-    // Inserting a day shifts every later day by one weekday, so a revision or
-    // mock day can land on a Sunday. Put anything displaced back onto its own
-    // kind of day; only core work rejoins the study-day stream.
-    const displaced = redateAndFixRest(days, plan.startDate);
-    if (displaced.review.length) placeBucket(displaced.review, ["review"]);
-    if (displaced.mock.length) placeBucket(displaced.mock, ["mock"], true);
-    if (displaced.core.length) stream.push(...displaced.core);
-  }
-
-  // The greedy fill above front-loads every day to `budget` before moving on,
-  // so if the total doesn't divide evenly the LAST added study day can end up
-  // with just a token handful of tasks (the tail end of whatever group didn't
-  // quite fill a prior day). Rather than leave that day sitting there — even
-  // emptied out it still renders as a dangling "Free — buffer day" the user
-  // has to click through — fold its tasks into the previous study day and
-  // actually remove the day, shrinking the plan back down by one. Only when
-  // it's genuinely small (well under half budget) AND it's a day this
-  // rebalance itself added; never touch an original curriculum day.
-  //
-  // Removing a day shifts every later day back by one weekday, same as
-  // inserting one does — a day that was forced to Sunday-rest can un-shift,
-  // or (rarer) a day can shift ONTO Sunday and need its own tasks displaced.
-  // `lastIdx` is always a day this loop added (always after todayIdx and
-  // after every day referenced by doneLateByDay), so this can't invalidate
-  // anything already queued for applyDoneLate() below.
-  if (daysAdded > 0) {
-    const targets = eligible();
-    const lastIdx = targets[targets.length - 1];
-    const prevIdx = targets[targets.length - 2];
-    if (lastIdx !== undefined && prevIdx !== undefined) {
+    // The fill above front-loads each inserted day to `budget` before
+    // moving on, so the LAST one can end up with just a token handful of
+    // tasks. Rather than leave that day sitting there — even emptied out it
+    // still renders as a dangling "Free — buffer day" the user has to click
+    // through — fold its tasks into the PREVIOUS overflow day and remove it,
+    // shrinking the plan back down by one. Only ever folds into another day
+    // this same rebalance added — never into today (kept clean, untouched
+    // by carried work) or an original curriculum day. If there's only one
+    // overflow day, it's simply left as-is, small or not.
+    if (daysAdded > 1) {
+      const lastIdx = insertAt - 1;
+      const prevIdx = insertAt - 2;
       const lastDay = days[lastIdx];
-      if (lastDay.tasks.length > 0 && totalEffort(lastDay.tasks) < budget / 2) {
+      if (lastDay && lastDay.tasks.length > 0 && totalEffort(lastDay.tasks) < budget / 2) {
         days[prevIdx].tasks = [...days[prevIdx].tasks, ...lastDay.tasks];
         days.splice(lastIdx, 1);
         coreCount -= 1;
