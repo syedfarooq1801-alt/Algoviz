@@ -18,8 +18,7 @@ export default function SlidingWindowViz() {
   const stateRef = useRef({ l: 0, r: -1, set: new Set<string>(), best: 0, bestW: [-1, -1] as [number,number] });
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const reset = (s?: string) => {
-    const target = s ?? str;
+  const reset = () => {
     setLeft(0);
     setRight(-1);
     setCharSet(new Set());
@@ -89,11 +88,12 @@ export default function SlidingWindowViz() {
       if (intervalRef.current) clearInterval(intervalRef.current);
     }
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed, str]);
 
   const apply = () => {
     setStr(input);
-    reset(input);
+    reset();
     // need to update ref after state
     setTimeout(() => {
       stateRef.current = { l: 0, r: -1, set: new Set(), best: 0, bestW: [-1, -1] };

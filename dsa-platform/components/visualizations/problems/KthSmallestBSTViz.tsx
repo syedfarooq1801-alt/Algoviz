@@ -19,7 +19,7 @@ export default function KthSmallestBSTViz() {
   const [count, setCount] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(800);
+  const [speed] = useState(800);
   const [msg, setMsg] = useState(`In-order traversal of BST gives sorted order. Find k=${K}th element.`);
   const stateRef = useRef({ idx: 0, count: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

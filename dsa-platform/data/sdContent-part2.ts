@@ -1,5 +1,5 @@
 // Databases (10) + Networking (8) — 18 concepts
-export default {
+const sdContentPart2 = {
   "relational-vs-nosql": {
     id: "relational-vs-nosql",
     intuition: "Relational databases enforce schema and support ACID transactions — right for structured, relational data where integrity matters. NoSQL sacrifices some guarantees for scale, flexibility, or access patterns that SQL handles poorly.",
@@ -416,3 +416,5 @@ export default {
     cheatSheetLine: "p99 matters at scale. Fan-out: P(hit p99) = 1 - (1-p99rate)^N. Hedged requests fix tail. Monitor p50/p95/p99 separately. Never alert on mean latency alone.",
   },
 };
+
+export default sdContentPart2;

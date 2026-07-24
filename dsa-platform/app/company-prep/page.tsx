@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
 import { COMPANIES } from "@/data/companyPrep";
 
 const DIFF_COLOR = {

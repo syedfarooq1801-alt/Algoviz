@@ -13,7 +13,7 @@ export default function BinarySearchViz() {
   const [right, setRight] = useState(nums.length - 1);
   const [mid, setMid] = useState(-1);
   const [found, setFound] = useState<number | null>(null);
-  const [notFound, setNotFound] = useState(false);
+  const [, setNotFound] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(800);
   const [log, setLog] = useState<string[]>([]);
@@ -21,7 +21,7 @@ export default function BinarySearchViz() {
   const stateRef = useRef({ l: 0, r: nums.length - 1, done: false });
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const reset = (arr = nums, tgt = target) => {
+  const reset = (arr = nums) => {
     setLeft(0);
     setRight(arr.length - 1);
     setMid(-1);
@@ -80,6 +80,7 @@ export default function BinarySearchViz() {
       if (intervalRef.current) clearInterval(intervalRef.current);
     }
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed]);
 
   const apply = () => {
@@ -90,7 +91,7 @@ export default function BinarySearchViz() {
       const sorted = [...arr].sort((a, b) => a - b);
       setNums(sorted);
       setTarget(t);
-      reset(sorted, t);
+      reset(sorted);
     } catch {}
   };
 

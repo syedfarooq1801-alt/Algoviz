@@ -4,16 +4,6 @@ import { useEffect, useState } from "react";
 // Min-heap insert demo
 const INSERT_SEQ = [5, 3, 8, 1, 9, 2];
 
-function siftUp(heap: number[], i: number): number[] {
-  const h = [...heap];
-  while (i > 0) {
-    const parent = Math.floor((i - 1) / 2);
-    if (h[parent] > h[i]) { [h[parent], h[i]] = [h[i], h[parent]]; i = parent; }
-    else break;
-  }
-  return h;
-}
-
 const heapPositions: { x: number; y: number }[] = [
   { x: 160, y: 20 },
   { x: 90,  y: 80 },  { x: 230, y: 80 },

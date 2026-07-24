@@ -42,7 +42,10 @@ export default function CoinChangeViz() {
     setMsg(`dp[${i}]: try coin=${coin} → dp[${i}]=min(${d[i]<INF?d[i]:"∞"}, dp[${i}-${coin}]+1=${d[i-coin]<INF&&coin<=i?d[i-coin]+1:"∞"})=${val}`);
   };
 
-  useEffect(() => { reset(); }, []);
+  // setState deferred into the timeout callback rather than called
+  // synchronously in the effect body, per react-hooks/set-state-in-effect.
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
+  useEffect(() => { const t = setTimeout(() => reset(), 0); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
     if (playing) { iRef.current = setInterval(doStep, speed); }

@@ -35,7 +35,7 @@ export default function CheapestFlightsViz() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState(`Bellman-Ford with k+1 iterations. At most k stops = at most k+1 edges.`);
   const stateRef = useRef({ step: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

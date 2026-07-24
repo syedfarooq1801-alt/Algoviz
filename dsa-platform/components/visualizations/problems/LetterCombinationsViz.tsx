@@ -60,7 +60,7 @@ export default function LetterCombinationsViz() {
     <div className="space-y-4">
       <div className="rounded-xl p-4" style={{ background:"var(--bg-card)", border:"1px solid var(--border)" }}>
         <h3 className="text-sm font-semibold mb-2" style={{ color:"var(--text-primary)" }}>Letter Combinations — Phone Keypad Backtracking</h3>
-        <div className="text-xs mb-3" style={{ color:"var(--text-muted)" }}>digits="{DIGITS}". For each digit, try each letter, recurse to next digit.</div>
+        <div className="text-xs mb-3" style={{ color:"var(--text-muted)" }}>digits=&quot;{DIGITS}&quot;. For each digit, try each letter, recurse to next digit.</div>
         <div className="flex gap-2 flex-wrap items-center">
           <button onClick={()=>setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium"
             style={{ background:playing?"rgba(239,68,68,0.15)":"rgba(34,197,94,0.15)", color:playing?"#ef4444":"#22c55e", border:`1px solid ${playing?"rgba(239,68,68,0.3)":"rgba(34,197,94,0.3)"}` }}>
@@ -100,7 +100,7 @@ export default function LetterCombinationsViz() {
             ))}
             {(!cur||!cur.path.length)&&<span style={{ color:"var(--text-muted)", fontSize:"11px" }}>[ ]</span>}
           </div>
-          {cur&&cur.found&&<div className="mt-2 text-xs font-mono" style={{ color:"#22c55e" }}>✓ "{cur.path.join("")}"</div>}
+          {cur&&cur.found&&<div className="mt-2 text-xs font-mono" style={{ color:"#22c55e" }}>✓ &quot;{cur.path.join("")}&quot;</div>}
         </div>
       </div>
 

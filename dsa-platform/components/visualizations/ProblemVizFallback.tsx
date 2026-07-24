@@ -70,9 +70,9 @@ export default function ProblemVizFallback({ problem, pattern }: Props) {
           How this applies to {problem.title}
         </h2>
         <ul className="space-y-2 text-sm" style={{ color: "var(--text-secondary)" }}>
-          <li>• Use the {patternTitle} pattern to simplify the problem's main structure.</li>
-          <li>• Focus on the pattern's invariant rather than brute-force enumeration.</li>
-          <li>• The animation above shows the technique in action for this problem's family.</li>
+          <li>• Use the {patternTitle} pattern to simplify the problem&apos;s main structure.</li>
+          <li>• Focus on the pattern&apos;s invariant rather than brute-force enumeration.</li>
+          <li>• The animation above shows the technique in action for this problem&apos;s family.</li>
         </ul>
       </div>
     </div>

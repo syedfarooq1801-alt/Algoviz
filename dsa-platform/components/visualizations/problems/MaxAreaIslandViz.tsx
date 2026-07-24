@@ -18,8 +18,8 @@ export default function MaxAreaIslandViz() {
   const [maxArea, setMaxArea] = useState(0);
   const [bestIsland, setBestIsland] = useState<Set<string>>(new Set());
   const [curArea, setCurArea] = useState(0);
-  const [row, setRow] = useState(0);
-  const [col, setCol] = useState(0);
+  const [, setRow] = useState(0);
+  const [, setCol] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(400);
@@ -71,7 +71,9 @@ export default function MaxAreaIslandViz() {
     setMsg(`Island at [${nr},${nc}]: area=${island.size}${island.size>mx?` → new max!`:""}`);
   };
 
-  useEffect(() => { reset(); }, []);
+  // setState deferred into the timeout callback rather than called
+  // synchronously in the effect body, per react-hooks/set-state-in-effect.
+  useEffect(() => { const t = setTimeout(reset, 0); return () => clearTimeout(t); }, []);
   useEffect(() => {
     if (playing) { iRef.current=setInterval(doStep,speed); }
     else if (iRef.current) { clearInterval(iRef.current); iRef.current=null; }

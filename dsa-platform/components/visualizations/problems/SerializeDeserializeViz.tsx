@@ -26,7 +26,7 @@ export default function SerializeDeserializeViz() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1000);
+  const [speed] = useState(1000);
   const [msg, setMsg] = useState("Serialize: BFS with null markers. Deserialize: queue-based reconstruction.");
   const stateRef = useRef({ step: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

@@ -2,7 +2,6 @@
 import { useState } from "react";
 
 type Bits = { r: boolean; w: boolean; x: boolean };
-const blank = (): Bits => ({ r: false, w: false, x: false });
 
 export default function PermissionViz() {
   const [perms, setPerms] = useState<{ user: Bits; group: Bits; other: Bits }>({

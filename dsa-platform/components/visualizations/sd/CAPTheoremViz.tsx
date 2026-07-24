@@ -14,7 +14,7 @@ interface Node { id: string; x: number; y: number; data: string; synced: boolean
 export default function CAPTheoremViz() {
   const [mode, setMode] = useState<Mode>("CP");
   const [partitioned, setPartitioned] = useState(false);
-  const [tick, setTick] = useState(0);
+  const [, setTick] = useState(0);
   const [nodes, setNodes] = useState<Node[]>([
     { id: "N1", x: 60, y: 140, data: "v1", synced: true },
     { id: "N2", x: 200, y: 80, data: "v1", synced: true },

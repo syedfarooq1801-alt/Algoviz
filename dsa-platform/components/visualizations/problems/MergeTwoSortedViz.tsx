@@ -26,7 +26,7 @@ export default function MergeTwoSortedViz() {
     const st = stateRef.current;
     const { p1: a, p2: b, list1: l1, list2: l2 } = st;
     if (a >= l1.length && b >= l2.length) { setDone(true); setPlaying(false); setMsg(`Done! merged=[${st.merged.join("→")}]`); return; }
-    let nm = [...st.merged];
+    const nm = [...st.merged];
     if (a >= l1.length) {
       nm.push(l2[b]);
       stateRef.current = { ...st, p2:b+1, merged:nm };

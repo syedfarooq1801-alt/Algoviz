@@ -10,7 +10,7 @@ export default function LemonadeChangeViz() {
   const [done, setDone] = useState(false);
   const [valid, setValid] = useState(true);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(800);
+  const [speed] = useState(800);
   const [msg, setMsg] = useState("Lemonade costs $5. Give change for $10 and $20 greedily (prefer $10 for $20).");
   const stateRef = useRef({ idx: 0, fives: 0, tens: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

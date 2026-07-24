@@ -4,30 +4,34 @@ import { useEffect, useState } from "react";
 const DEMO = [2, 7, 11, 15];
 const TARGET = 9;
 
+// Hoisted to module scope (not recomputed per render) — DEMO/TARGET are
+// fixed, so this is a true constant, and the mount-only effect below can
+// close over it directly without react-hooks/exhaustive-deps complaining
+// about a component-scoped value it deliberately excludes.
+const STEPS = (() => {
+  const s: { map: Record<number,number>; idx: number; found: [number,number] | null }[] = [];
+  const m: Record<number,number> = {};
+  for (let i = 0; i < DEMO.length; i++) {
+    const comp = TARGET - DEMO[i];
+    if (m[comp] !== undefined) { s.push({ map: { ...m }, idx: i, found: [m[comp], i] }); break; }
+    s.push({ map: { ...m }, idx: i, found: null });
+    m[DEMO[i]] = i;
+  }
+  return s;
+})();
+
 export default function PatternVizHashMap() {
-  const [step, setStep] = useState(0);
+  const [, setStep] = useState(0);
   const [map, setMap] = useState<Record<number, number>>({});
   const [activeIdx, setActiveIdx] = useState(-1);
   const [found, setFound] = useState<[number,number] | null>(null);
 
-  const steps = (() => {
-    const s: { map: Record<number,number>; idx: number; found: [number,number] | null }[] = [];
-    const m: Record<number,number> = {};
-    for (let i = 0; i < DEMO.length; i++) {
-      const comp = TARGET - DEMO[i];
-      if (m[comp] !== undefined) { s.push({ map: { ...m }, idx: i, found: [m[comp], i] }); break; }
-      s.push({ map: { ...m }, idx: i, found: null });
-      m[DEMO[i]] = i;
-    }
-    return s;
-  })();
-
   useEffect(() => {
     const id = setInterval(() => {
       setStep((p) => {
-        const next = (p + 1) % (steps.length + 2);
+        const next = (p + 1) % (STEPS.length + 2);
         if (next === 0) { setMap({}); setActiveIdx(-1); setFound(null); return 0; }
-        const s = steps[Math.min(next - 1, steps.length - 1)];
+        const s = STEPS[Math.min(next - 1, STEPS.length - 1)];
         setMap(s.map); setActiveIdx(s.idx); setFound(s.found);
         return next;
       });

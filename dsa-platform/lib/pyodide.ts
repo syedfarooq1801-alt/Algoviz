@@ -4,11 +4,21 @@
 const PYODIDE_VERSION = "0.26.4";
 const PYODIDE_BASE = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
 
+// Minimal slice of the real Pyodide API this app actually calls — the full
+// interface has no official published types, and `any` would hide real
+// mismatches at every call site instead of catching them.
+export interface PyodideInterface {
+  runPython: (code: string) => unknown;
+  runPythonAsync: (code: string) => Promise<unknown>;
+  setStdout: (opts: { batched: (s: string) => void }) => void;
+  setStderr: (opts: { batched: (s: string) => void }) => void;
+}
+
 declare global {
   interface Window {
-    loadPyodide?: (opts: { indexURL: string }) => Promise<unknown>;
-    __pyodide?: unknown;
-    __pyodideLoading?: Promise<unknown>;
+    loadPyodide?: (opts: { indexURL: string }) => Promise<PyodideInterface>;
+    __pyodide?: PyodideInterface;
+    __pyodideLoading?: Promise<PyodideInterface>;
   }
 }
 
@@ -23,7 +33,7 @@ function injectScript(src: string): Promise<void> {
   });
 }
 
-export async function getPyodide(onProgress?: (msg: string) => void): Promise<any> {
+export async function getPyodide(onProgress?: (msg: string) => void): Promise<PyodideInterface> {
   if (typeof window === "undefined") throw new Error("Pyodide only runs in browser");
   if (window.__pyodide) return window.__pyodide;
   if (window.__pyodideLoading) return window.__pyodideLoading;

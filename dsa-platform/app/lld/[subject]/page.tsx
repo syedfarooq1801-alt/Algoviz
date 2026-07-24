@@ -2,7 +2,7 @@
 import { use, useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getLLDSubject, LLD_SUBJECT_META, LLD_SUBJECTS, type Block } from "@/data/lld";
+import { getLLDSubject, LLD_SUBJECTS, type Block } from "@/data/lld";
 import { useLLDStore } from "@/lib/lldStore";
 
 interface Props { params: Promise<{ subject: string }>; }
@@ -76,7 +76,6 @@ export default function LLDSubjectPage({ params }: Props) {
   const subject = getLLDSubject(subjectId);
   if (!subject) notFound();
 
-  const meta = LLD_SUBJECT_META[subjectId];
   // Subscribe reactively to `completed` (a selector) so the component actually
   // re-renders when a chapter is toggled. Reading via the store's isComplete()
   // helper is a non-reactive get() and won't trigger a re-render on its own.

@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from "react";
 
 // matrix=[[9,9,4],[6,6,8],[2,1,1]]
 const MATRIX = [[9,9,4],[6,6,8],[2,1,1]];
-const R = MATRIX.length, C = MATRIX[0].length;
 
 // DFS + memo: result = 4 (path: 1→2→6→9)
 const MEMO: number[][] = [[1,1,2],[2,1,1],[3,4,2]]; // pre-computed
@@ -21,7 +20,7 @@ export default function LongestIncreasingPathMatrixViz() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState("DFS + memoization. For each cell: max(1 + DFS(neighbor)) if neighbor > current.");
   const stateRef = useRef({ step: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

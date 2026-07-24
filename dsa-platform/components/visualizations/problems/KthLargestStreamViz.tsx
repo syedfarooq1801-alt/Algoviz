@@ -8,7 +8,7 @@ export default function KthLargestStreamViz() {
   const [heap, setHeap] = useState<number[]>([]);
   const [streamIdx, setStreamIdx] = useState(0);
   const [results, setResults] = useState<(number|null)[]>([]);
-  const [lastAdded, setLastAdded] = useState<number|null>(null);
+  const [, setLastAdded] = useState<number|null>(null);
   const [lastEvicted, setLastEvicted] = useState<number|null>(null);
 
   const addNum = () => {

@@ -42,7 +42,7 @@ export default function SubnettingViz() {
           </div>
         ))}
       </div>
-      <p className="text-xs mt-2" style={{ color: "var(--text-muted)" }}>The /{prefix} prefix = {prefix} network bits (blue) + {hostBits} host bits. Network &amp; broadcast addresses aren't usable, hence −2.</p>
+      <p className="text-xs mt-2" style={{ color: "var(--text-muted)" }}>The /{prefix} prefix = {prefix} network bits (blue) + {hostBits} host bits. Network &amp; broadcast addresses aren&apos;t usable, hence −2.</p>
     </div>
   );
 }

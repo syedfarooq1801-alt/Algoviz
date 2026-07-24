@@ -98,7 +98,7 @@ export default function GroupAnagramsViz() {
                   boxShadow: isCurr?"0 6px 16px rgba(79,142,247,0.3)":"none",
                 }}>
                 {w}
-                {isCurr && <div className="text-[10px] mt-0.5" style={{ color:"#a855f7" }}>→ "{key}"</div>}
+                {isCurr && <div className="text-[10px] mt-0.5" style={{ color:"#a855f7" }}>→ &quot;{key}&quot;</div>}
               </div>
             );
           })}
@@ -116,7 +116,7 @@ export default function GroupAnagramsViz() {
               return (
                 <div key={key} className="flex items-center gap-3 p-2 rounded-lg transition-all duration-300"
                   style={{ background:`${col}08`, border:`1px solid ${isNew?col:col+"30"}`, boxShadow:isNew?`0 0 12px ${col}20`:"none" }}>
-                  <span className="text-xs font-mono font-bold px-2 py-0.5 rounded" style={{ background:`${col}18`, color:col, minWidth:"60px", textAlign:"center" }}>"{key}"</span>
+                  <span className="text-xs font-mono font-bold px-2 py-0.5 rounded" style={{ background:`${col}18`, color:col, minWidth:"60px", textAlign:"center" }}>&quot;{key}&quot;</span>
                   <span className="text-xs" style={{ color:"var(--text-muted)" }}>→</span>
                   <div className="flex gap-1.5 flex-wrap">
                     {ws.map((w,i) => (

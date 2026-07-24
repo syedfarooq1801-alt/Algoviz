@@ -398,7 +398,7 @@ function BigOCheatSheet({ patternId }: { patternId: string }) {
                 </div>
               </div>
               <div>
-                <div className="text-xs font-semibold mb-2" style={{ color: "var(--text-secondary)" }}>This Pattern's Algorithms</div>
+                <div className="text-xs font-semibold mb-2" style={{ color: "var(--text-secondary)" }}>This Pattern&apos;s Algorithms</div>
                 <div className="rounded-lg overflow-hidden" style={{ border: "1px solid var(--border)" }}>
                   <div className="grid text-xs font-medium px-3 py-1.5" style={{ gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr", background: "rgba(0,0,0,0.2)", color: "var(--text-muted)" }}>
                     <span>Algorithm</span><span className="text-center">Best</span><span className="text-center">Avg</span><span className="text-center">Worst</span><span className="text-center">Space</span>

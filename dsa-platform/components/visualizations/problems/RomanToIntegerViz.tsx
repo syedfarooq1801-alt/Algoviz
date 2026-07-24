@@ -43,13 +43,14 @@ export default function RomanToIntegerViz() {
     if (playing) { iRef.current = setInterval(doStep, speed); }
     else if (iRef.current) { clearInterval(iRef.current); iRef.current = null; }
     return () => { if (iRef.current) clearInterval(iRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed]);
 
   return (
     <div className="space-y-4">
       {/* Controls */}
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Roman to Integer — "{ROMAN_INIT}" = 1994</h3>
+        <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Roman to Integer — &quot;{ROMAN_INIT}&quot; = 1994</h3>
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>
           If current symbol value &lt; next symbol value → subtract; otherwise add.
         </div>
@@ -98,7 +99,6 @@ export default function RomanToIntegerViz() {
             const isCurrent = i === step;
             const isNext = i === step + 1;
             const isPast = i < step;
-            const lastEntry = history[history.length - 1];
             const wasSub = isPast && history[i]?.op === "sub";
             const wasAdd = isPast && history[i]?.op === "add";
             return (
@@ -166,7 +166,7 @@ export default function RomanToIntegerViz() {
         {done && (
           <div className="text-right">
             <div className="text-sm font-semibold" style={{ color: "#22c55e" }}>Result: {total}</div>
-            <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>"{ROMAN_INIT}" = {total}</div>
+            <div className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>&quot;{ROMAN_INIT}&quot; = {total}</div>
           </div>
         )}
       </div>

@@ -1,7 +1,7 @@
 "use client";
 import { Suspense } from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   BarChart3,
   BookOpen,
@@ -31,19 +31,11 @@ interface HeaderProps {
 }
 
 function HeaderContent({ searchQuery = "", onSearchChange }: HeaderProps) {
-  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentQuery = searchQuery || searchParams.get("q") || "";
   const { solved } = useProgressStore();
   const total = getTotalProblems();
-
-  const navigateWithQuery = (value: string) => {
-    const query = value.trim();
-    const path = query ? `/dsa?q=${encodeURIComponent(query)}` : "/dsa";
-    if (pathname === "/dsa") router.replace(path);
-    else router.push(path);
-  };
 
   const handleSearch = () => {
     if (onSearchChange && currentQuery) onSearchChange(currentQuery);

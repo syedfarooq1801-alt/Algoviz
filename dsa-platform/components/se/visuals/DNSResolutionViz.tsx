@@ -15,8 +15,13 @@ export default function DNSResolutionViz() {
 
   useEffect(() => {
     if (!playing) return;
-    if (step >= HOPS.length - 1) { setPlaying(false); return; }
-    const t = setTimeout(() => setStep((s) => s + 1), 1100);
+    // setState deferred into the timeout callback in both branches, per
+    // react-hooks/set-state-in-effect — no synchronous setState in the
+    // effect body itself.
+    const t = setTimeout(() => {
+      if (step >= HOPS.length - 1) setPlaying(false);
+      else setStep((s) => s + 1);
+    }, 1100);
     return () => clearTimeout(t);
   }, [playing, step]);
 

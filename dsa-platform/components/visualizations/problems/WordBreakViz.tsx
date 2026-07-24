@@ -28,7 +28,7 @@ export default function WordBreakViz() {
   const [dp, setDp] = useState(Array(S.length + 1).fill(false).map((_, i) => i === 0));
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState(`Word break "${S}" using wordDict [${[...DICT].join(", ")}].`);
   const stateRef = useRef({ step: -1 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -71,7 +71,7 @@ export default function WordBreakViz() {
         </div>
       </div>
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <div className="text-xs mb-2 font-semibold" style={{ color: "var(--text-muted)" }}>String "{S}"</div>
+        <div className="text-xs mb-2 font-semibold" style={{ color: "var(--text-muted)" }}>String &quot;{S}&quot;</div>
         <div className="flex gap-1 mb-3">
           {S.split("").map((c, i) => (
             <div key={i} className="w-9 h-9 rounded flex items-center justify-center text-sm font-bold" style={{
@@ -97,7 +97,7 @@ export default function WordBreakViz() {
       </div>
       {cur && (
         <div className="rounded-xl p-3 flex gap-4 text-xs" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-          <div><span style={{ color: "var(--text-muted)" }}>Word: </span><span style={{ color: "#f97316", fontWeight: "bold" }}>"{cur.word}"</span></div>
+          <div><span style={{ color: "var(--text-muted)" }}>Word: </span><span style={{ color: "#f97316", fontWeight: "bold" }}>&quot;{cur.word}&quot;</span></div>
           <div><span style={{ color: "var(--text-muted)" }}>In dict: </span><span style={{ color: cur.match ? "#22c55e" : "#ef4444", fontWeight: "bold" }}>{cur.match ? "YES ✓" : "NO ✗"}</span></div>
         </div>
       )}

@@ -10,7 +10,7 @@ export default function MergeTripletsViz() {
   const [selected, setSelected] = useState<number[]>([]);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState(`Find triplets to merge to get target [${TARGET.join(",")}]. Skip if any value exceeds target.`);
   const stateRef = useRef({ idx: 0, merged: [0,0,0], selected: [] as number[] });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

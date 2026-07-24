@@ -2,13 +2,16 @@
 import { useEffect, useState } from "react";
 
 const INPUT = "({[]})";
+// Hoisted to module scope (not recomputed per render) — fixed mapping, so
+// the mount-only effect below can close over it directly without
+// react-hooks/exhaustive-deps complaining about a component-scoped value.
+const MATCH: Record<string,string> = { ")":"(", "]":"[", "}":"{" };
 
 export default function PatternVizStack() {
   const [stack, setStack] = useState<string[]>([]);
   const [idx, setIdx] = useState(-1);
   const [valid, setValid] = useState<boolean | null>(null);
   const [action, setAction] = useState("");
-  const MATCH: Record<string,string> = { ")":"(", "]":"[", "}":"{" };
 
   useEffect(() => {
     const frames: { stack: string[]; idx: number; action: string; valid: boolean | null }[] = [];

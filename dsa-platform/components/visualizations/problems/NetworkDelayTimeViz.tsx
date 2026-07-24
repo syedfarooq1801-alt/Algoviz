@@ -2,9 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 
 // times = [[2,1,1],[2,3,1],[3,4,1]], n=4, k=2
-const N_NODES = 4;
 const EDGES = [[2,1,1],[2,3,1],[3,4,1]]; // [from, to, weight]
-const SOURCE = 2;
 const INF = Infinity;
 
 // Dijkstra steps from node 2
@@ -22,7 +20,7 @@ export default function NetworkDelayTimeViz() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1100);
+  const [speed] = useState(1100);
   const [msg, setMsg] = useState("Dijkstra from source. Network delay = max dist to any node.");
   const stateRef = useRef({ step: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -54,7 +52,7 @@ export default function NetworkDelayTimeViz() {
   return (
     <div className="space-y-4">
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Network Delay Time — Dijkstra's Algorithm</h3>
+        <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Network Delay Time — Dijkstra&apos;s Algorithm</h3>
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Shortest path from source to all nodes. Answer = max of all shortest paths (if all reachable).</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>

@@ -31,7 +31,7 @@ export default function AddSearchWordsViz() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1000);
+  const [speed] = useState(1000);
   const [msg, setMsg] = useState("Add words to Trie. For search: '.' matches any single char (DFS all children).");
   const stateRef = useRef({ step: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -72,7 +72,7 @@ export default function AddSearchWordsViz() {
     <div className="space-y-4">
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Design Add and Search Words — Trie</h3>
-        <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>addWord: O(len). search: '.' → DFS all children. Regular char → exact match.</div>
+        <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>addWord: O(len). search: &apos;.&apos; → DFS all children. Regular char → exact match.</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>
           <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
@@ -105,7 +105,7 @@ export default function AddSearchWordsViz() {
         <div className="space-y-1">
           {OPERATIONS.map((op, i) => (
             <div key={i} className="flex items-center gap-3 px-2 py-1.5 rounded text-xs" style={{ background: i === step ? (op.op==="add" ? "rgba(79,142,247,0.15)" : "rgba(249,115,22,0.15)") : "transparent", border: i === step ? "1px solid rgba(79,142,247,0.3)" : "1px solid transparent" }}>
-              <span className="font-mono" style={{ color: op.op==="add" ? "#4f8ef7" : "#f97316" }}>{op.op}("{op.word}")</span>
+              <span className="font-mono" style={{ color: op.op==="add" ? "#4f8ef7" : "#f97316" }}>{op.op}(&quot;{op.word}&quot;)</span>
               {op.result !== null && i <= step && (
                 <span className="font-bold" style={{ color: op.result ? "#22c55e" : "#ef4444" }}> → {op.result ? "true" : "false"}</span>
               )}

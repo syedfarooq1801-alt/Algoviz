@@ -13,7 +13,7 @@ export default function PolymorphismViz() {
   return (
     <div>
       <code className="text-xs block px-3 py-2 rounded mb-3" style={{ background: "var(--bg-card)", color: "var(--text-secondary)" }}>
-        Shape* s = new <span style={{ color: s.color }}>{s.name}</span>(); s-&gt;<b style={{ color: "var(--accent)" }}>area()</b>;  <span style={{ color: "var(--text-muted)" }}>// same call, different code runs</span>
+        Shape* s = new <span style={{ color: s.color }}>{s.name}</span>(); s-&gt;<b style={{ color: "var(--accent)" }}>area()</b>;  <span style={{ color: "var(--text-muted)" }}>{"// same call, different code runs"}</span>
       </code>
       <div className="flex gap-2 mb-3">
         {SHAPES.map((x, k) => (
@@ -28,7 +28,7 @@ export default function PolymorphismViz() {
           <div className="text-lg font-mono font-bold" style={{ color: s.color }}>{s.val}</div>
         </div>
       </div>
-      <p className="text-xs mt-3" style={{ color: "var(--text-muted)" }}>One interface (Shape::area), many implementations. The vtable picks the right override at runtime based on the actual object type — that's polymorphism.</p>
+      <p className="text-xs mt-3" style={{ color: "var(--text-muted)" }}>One interface (Shape::area), many implementations. The vtable picks the right override at runtime based on the actual object type — that&apos;s polymorphism.</p>
     </div>
   );
 }

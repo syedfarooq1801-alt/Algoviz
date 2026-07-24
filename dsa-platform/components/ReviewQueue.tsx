@@ -4,10 +4,11 @@ import { useProgressStore } from "@/lib/store";
 import { getDueForReview, getUpcomingReviews } from "@/lib/studyPlan";
 import { getProblemById } from "@/data/problems";
 import { useMemo } from "react";
+import { todayLocalISO } from "@/lib/date";
 
 export default function ReviewQueue() {
   const { solvedDates } = useProgressStore();
-  const today = new Date().toISOString().split("T")[0];
+  const today = todayLocalISO();
 
   const due = useMemo(() => getDueForReview(solvedDates, today), [solvedDates, today]);
   const upcoming = useMemo(() => getUpcomingReviews(solvedDates, today), [solvedDates, today]);

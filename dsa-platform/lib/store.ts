@@ -1,6 +1,7 @@
 "use client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { todayLocalISO } from "@/lib/date";
 
 interface ProgressState {
   solved: Set<string>;
@@ -14,6 +15,10 @@ interface ProgressState {
   studyPlanDuration: 21 | 30 | 60 | 90;
   planStartDate: string; // YYYY-MM-DD — anchors the plan to the calendar
   setPlanStartDate: (d: string) => void;
+  // Relative weights for DSA/SD/SE/LLD in the study plan (30/60/90-day plans
+  // only — the 21-day plan is fixed-curriculum). Empty = balanced default.
+  trackWeights: Record<string, number>;
+  setTrackWeights: (w: Record<string, number>) => void;
   username: string;
   setUsername: (name: string) => void;
   toggleSolved: (id: string, syncFn?: () => void, timeSecs?: number) => void;
@@ -53,15 +58,17 @@ export const useProgressStore = create<ProgressState>()(
       solveTimes: {},
       studyPlanDuration: 30 as 21 | 30 | 60 | 90,
       planStartDate: "",
+      trackWeights: {},
       username: "",
 
       setPlanStartDate: (d) => set({ planStartDate: d }),
+      setTrackWeights: (w) => set({ trackWeights: w }),
       setUsername: (name) => set({ username: name }),
 
       toggleSolved: (id, syncFn, timeSecs) =>
         set((state) => {
           const next = new Set(state.solved);
-          const today = new Date().toISOString().split("T")[0];
+          const today = todayLocalISO();
           let newState: Partial<ProgressState>;
           if (next.has(id)) {
             next.delete(id);
@@ -92,7 +99,7 @@ export const useProgressStore = create<ProgressState>()(
       toggleBookmark: (id, syncFn) =>
         set((state) => {
           const next = new Set(state.bookmarked);
-          next.has(id) ? next.delete(id) : next.add(id);
+          if (next.has(id)) next.delete(id); else next.add(id);
           if (syncFn) setTimeout(syncFn, 0);
           return { bookmarked: next };
         }),
@@ -100,7 +107,7 @@ export const useProgressStore = create<ProgressState>()(
       toggleWeak: (id, syncFn) =>
         set((state) => {
           const next = new Set(state.weakAreas);
-          next.has(id) ? next.delete(id) : next.add(id);
+          if (next.has(id)) next.delete(id); else next.add(id);
           if (syncFn) setTimeout(syncFn, 0);
           return { weakAreas: next };
         }),
@@ -141,6 +148,7 @@ export const useProgressStore = create<ProgressState>()(
         solveTimes: {},
         studyPlanDuration: 30,
         planStartDate: "",
+        trackWeights: {},
         username: "",
       }),
     }),

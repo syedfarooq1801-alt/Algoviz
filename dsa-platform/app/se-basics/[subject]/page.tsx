@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import SEBlock from "@/components/se/SEBlock";
 import NextNav from "@/components/NextNav";
-import { getSEVisual } from "@/components/se/visuals/registry";
+import { REGISTRY } from "@/components/se/visuals/registry";
 import { getSubject, SUBJECT_META, SE_SUBJECTS } from "@/data/seBasics";
 import { useSEStore } from "@/lib/seStore";
 
@@ -55,7 +55,11 @@ export default function SubjectPage({ params }: Props) {
     () => subject.chapters.find((c) => c.id === activeId) ?? subject.chapters[0],
     [subject, activeId]
   );
-  const Visual = activeChapter ? getSEVisual(subjectId, activeChapter.id) : null;
+  // Direct property access (not a function call) — react-hooks/static-components
+  // taints any component reference that comes from a CallExpression, even a
+  // memoized one, so the lookup has to be an inline object index here instead
+  // of going through a getSEVisual() helper.
+  const Visual = activeChapter ? REGISTRY[`${subjectId}/${activeChapter.id}`] ?? null : null;
   const key = activeChapter ? `${subjectId}/${activeChapter.id}` : "";
   const done = isComplete(key);
 

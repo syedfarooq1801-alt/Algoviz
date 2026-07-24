@@ -1,5 +1,5 @@
 // Interview Framework (10) + Advanced (10) + Toolkit/Cheat/Mental (9) — 29 concepts
-export default {
+const sdContentPart3 = {
   // ——— INTERVIEW FRAMEWORK ———
 
   "45-minute-clock": {
@@ -677,3 +677,5 @@ export default {
     cheatSheetLine: "SMART: Scope(5min), Measure(5min), Architecture(10min), Refine(10min), Threats(5min). Adapt time by question type. Cover all 5 or explicitly state what's skipped.",
   },
 };
+
+export default sdContentPart3;

@@ -28,7 +28,7 @@ export default function DecodeStringViz() {
       setDone(true); setPlaying(false); setMsg(`Result: "${cur}"`); return;
     }
     const ch = INPUT[ci];
-    let newStack = [...st.map(s => ({ ...s }))];
+    const newStack = [...st.map(s => ({ ...s }))];
     let newCur = cur, newNum = num, newMsg = "";
     if (ch >= "0" && ch <= "9") {
       newNum = num * 10 + parseInt(ch);
@@ -61,7 +61,7 @@ export default function DecodeStringViz() {
     <div className="space-y-4">
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Decode String — Stack</h3>
-        <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Stack stores (repeatCount, prevString) at each '['. On ']' pop and repeat current string.</div>
+        <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Stack stores (repeatCount, prevString) at each &apos;[&apos;. On &apos;]&apos; pop and repeat current string.</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>
           <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>
@@ -87,7 +87,7 @@ export default function DecodeStringViz() {
           <div className="flex flex-col-reverse gap-1">
             {stack.map((item, i) => (
               <div key={i} className="px-3 py-2 rounded text-xs font-mono" style={{ background: i === stack.length - 1 ? "rgba(249,115,22,0.15)" : "var(--bg-hover)", border: i === stack.length - 1 ? "1px solid #f97316" : "1px solid var(--border)", color: i === stack.length - 1 ? "#f97316" : "var(--text-secondary)" }}>
-                {item.count}×"{item.str}"
+                {item.count}×&quot;{item.str}&quot;
               </div>
             ))}
             {stack.length === 0 && <div className="text-xs text-center py-2" style={{ color: "var(--text-muted)" }}>empty</div>}
@@ -100,7 +100,7 @@ export default function DecodeStringViz() {
           </div>
           <div>
             <div className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>current string</div>
-            <div className="text-lg font-bold font-mono px-2 py-1 rounded" style={{ color: done ? "#22c55e" : "#4f8ef7", background: done ? "rgba(34,197,94,0.1)" : "rgba(79,142,247,0.1)" }}>"{current}"</div>
+            <div className="text-lg font-bold font-mono px-2 py-1 rounded" style={{ color: done ? "#22c55e" : "#4f8ef7", background: done ? "rgba(34,197,94,0.1)" : "rgba(79,142,247,0.1)" }}>&quot;{current}&quot;</div>
           </div>
         </div>
       </div>

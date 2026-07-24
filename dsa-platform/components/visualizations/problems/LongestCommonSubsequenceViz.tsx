@@ -73,7 +73,7 @@ export default function LongestCommonSubsequenceViz() {
           <thead>
             <tr>
               <td style={{ width:"28px" }}></td>
-              <td style={{ textAlign:"center", fontSize:"10px", color:"var(--text-muted)", padding:"2px" }}>""</td>
+              <td style={{ textAlign:"center", fontSize:"10px", color:"var(--text-muted)", padding:"2px" }}>&quot;&quot;</td>
               {s2.split("").map((c,j)=><td key={j} style={{ textAlign:"center", fontSize:"10px", color:"#4f8ef7", padding:"2px" }}>{c}</td>)}
             </tr>
           </thead>

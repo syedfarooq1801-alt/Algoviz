@@ -26,6 +26,7 @@ import { useTheme } from "@/lib/themeStore";
 import { usePrepStore } from "@/lib/prepStore";
 import { useTutorStore } from "@/lib/tutorStore";
 import { useSidebarStore } from "@/lib/sidebarStore";
+import { todayLocalISO } from "@/lib/date";
 
 interface NavItem {
   href: string;
@@ -71,7 +72,7 @@ export default function Sidebar() {
   const openTutor = useTutorStore((s) => s.open);
   const { collapsed, toggle: toggleSidebar } = useSidebarStore();
   const days = daysUntil();
-  const todayIso = new Date().toISOString().slice(0, 10);
+  const todayIso = todayLocalISO();
   const dueCount = Object.values(reviewDue).filter((d) => d <= todayIso).length;
 
   const initials = user?.displayName

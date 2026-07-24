@@ -16,7 +16,7 @@ export const useAIMLStore = create<AIMLState>()(
       toggleChapter: (key) =>
         set((state) => {
           const next = new Set(state.completed);
-          next.has(key) ? next.delete(key) : next.add(key);
+          if (next.has(key)) next.delete(key); else next.add(key);
           return { completed: next };
         }),
       isComplete: (key) => get().completed.has(key),

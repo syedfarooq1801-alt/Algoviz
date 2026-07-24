@@ -24,7 +24,7 @@ export default function TriangleViz() {
   const [dp, setDp] = useState([...TRIANGLE[TRIANGLE.length-1]]);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(800);
+  const [speed] = useState(800);
   const [msg, setMsg] = useState("Bottom-up: each cell = its value + min of two cells below it.");
   const stateRef = useRef({ step: -1 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

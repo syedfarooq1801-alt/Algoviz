@@ -69,8 +69,8 @@ export default function CriticalConnectionsViz() {
   return (
     <div className="space-y-4">
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Critical Connections — Tarjan's Bridge Finding</h3>
-        <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Bridge: low[v] {">"} disc[u]. v can't reach back to u or earlier without this edge.</div>
+        <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Critical Connections — Tarjan&apos;s Bridge Finding</h3>
+        <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Bridge: low[v] {">"} disc[u]. v can&apos;t reach back to u or earlier without this edge.</div>
         <div className="flex gap-2 flex-wrap items-center">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium"
             style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>

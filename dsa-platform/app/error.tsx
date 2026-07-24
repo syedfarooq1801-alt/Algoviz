@@ -1,5 +1,6 @@
 "use client";
 import { useEffect } from "react";
+import Link from "next/link";
 import { logError } from "@/lib/logger";
 
 // Route-segment error boundary — catches render/runtime errors in pages.
@@ -20,9 +21,9 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
           <button onClick={reset} style={{ padding: "8px 18px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "var(--accent)", color: "#fff", border: "none", cursor: "pointer" }}>
             Try again
           </button>
-          <a href="/" style={{ padding: "8px 18px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "var(--bg-card)", color: "var(--text-secondary)", border: "1px solid var(--border)", textDecoration: "none" }}>
+          <Link href="/" style={{ padding: "8px 18px", borderRadius: 8, fontSize: 13, fontWeight: 600, background: "var(--bg-card)", color: "var(--text-secondary)", border: "1px solid var(--border)", textDecoration: "none" }}>
             Go home
-          </a>
+          </Link>
         </div>
       </div>
     </div>

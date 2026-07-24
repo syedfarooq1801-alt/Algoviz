@@ -9,7 +9,7 @@ const GRID = [
   [6,7,1,4,5],
   [5,1,1,2,4],
 ];
-const R = GRID.length, C = GRID[0].length;
+const C = GRID[0].length;
 
 // Pre-computed BFS results
 const PACIFIC = new Set(["0,0","0,1","0,2","0,3","0,4","1,0","2,0","3,0","4,0","1,1","2,1","3,1","2,2"]);
@@ -25,7 +25,7 @@ export default function PacificAtlanticViz() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1000);
+  const [speed] = useState(1000);
   const [msg, setMsg] = useState("Two BFS: one from Pacific borders, one from Atlantic borders. Go UPHILL.");
   const stateRef = useRef({ step: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

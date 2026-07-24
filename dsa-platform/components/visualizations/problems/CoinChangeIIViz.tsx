@@ -27,7 +27,7 @@ export default function CoinChangeIIViz() {
   const [dp, setDp] = useState([1, ...Array(AMOUNT).fill(0)]);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(700);
+  const [speed] = useState(700);
   const [msg, setMsg] = useState(`Count ways to make amount=${AMOUNT} using coins [${COINS.join(",")}].`);
   const stateRef = useRef({ step: -1 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

@@ -1,6 +1,7 @@
 "use client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { todayLocalISO } from "@/lib/date";
 
 interface SDProgressState {
   mastered: Set<string>;
@@ -29,14 +30,14 @@ export const useSDStore = create<SDProgressState>()(
           const next = new Set(state.mastered);
           const nextDates = { ...state.masteredDates };
           if (next.has(id)) { next.delete(id); delete nextDates[id]; }
-          else { next.add(id); nextDates[id] = new Date().toISOString().split("T")[0]; }
+          else { next.add(id); nextDates[id] = todayLocalISO(); }
           return { mastered: next, masteredDates: nextDates };
         }),
 
       toggleBookmark: (id) =>
         set((state) => {
           const next = new Set(state.bookmarked);
-          next.has(id) ? next.delete(id) : next.add(id);
+          if (next.has(id)) next.delete(id); else next.add(id);
           return { bookmarked: next };
         }),
 

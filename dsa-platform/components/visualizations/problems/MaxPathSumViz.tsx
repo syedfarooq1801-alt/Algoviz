@@ -16,7 +16,7 @@ export default function MaxPathSumViz() {
   const [maxSum, setMaxSum] = useState(-Infinity);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1100);
+  const [speed] = useState(1100);
   const [msg, setMsg] = useState("DFS: at each node compute max gain and max path through node.");
   const stateRef = useRef({ step: -1, maxSum: -Infinity });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

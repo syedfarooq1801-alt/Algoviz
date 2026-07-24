@@ -25,7 +25,7 @@ export default function PowXNViz() {
   const [step, setStep] = useState(-1);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState(`Compute ${BASE}^${EXP} using fast power (O(log n) instead of O(n)).`);
   const stateRef = useRef({ step: -1 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

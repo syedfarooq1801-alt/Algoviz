@@ -1,6 +1,5 @@
 "use client";
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { useSDStore } from "@/lib/sdStore";
 
 // Curated dependency graph of core concepts. Each node sits in a tier (row);
@@ -39,7 +38,7 @@ export default function SDLearningPath() {
   const { mastered } = useSDStore();
   const [open, setOpen] = useState(true);
 
-  const { positions, width, height, tiers } = useMemo(() => {
+  const { positions, width, height } = useMemo(() => {
     const byTier: Record<number, Node[]> = {};
     NODES.forEach((n) => { (byTier[n.tier] ??= []).push(n); });
     const tierKeys = Object.keys(byTier).map(Number).sort((a, b) => a - b);

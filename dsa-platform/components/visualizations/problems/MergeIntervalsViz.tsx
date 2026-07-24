@@ -26,7 +26,7 @@ export default function MergeIntervalsViz() {
     const { idx, sorted: s, merged: m } = stateRef.current;
     if (idx >= s.length) { setDone(true); setPlaying(false); setMsg(`Done! ${stateRef.current.merged.length} intervals after merge`); return; }
     const cur = s[idx];
-    let nm = [...m];
+    const nm = [...m];
     let action = "";
     if (!nm.length || nm[nm.length-1][1] < cur[0]) {
       nm.push([...cur] as [number,number]);
@@ -40,7 +40,9 @@ export default function MergeIntervalsViz() {
     setMerged([...nm]); setActive(idx); setMsg(action);
   };
 
-  useEffect(() => { reset(); }, []);
+  // setState deferred into the timeout callback rather than called
+  // synchronously in the effect body, per react-hooks/set-state-in-effect.
+  useEffect(() => { const t = setTimeout(reset, 0); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
     if (playing) { iRef.current = setInterval(doStep, speed); }

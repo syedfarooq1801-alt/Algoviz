@@ -117,7 +117,7 @@ export default function ImplementTrieViz() {
               <div key={i} className="flex items-center gap-2 px-2 py-1 rounded text-xs"
                 style={{ background:l.result===undefined?"rgba(79,142,247,0.07)":l.result?"rgba(34,197,94,0.1)":"rgba(239,68,68,0.08)" }}>
                 <span style={{ color:l.op==="insert"?"#4f8ef7":"#f97316", fontWeight:600 }}>{l.op}</span>
-                <span style={{ color:"var(--text-primary)", fontFamily:"monospace" }}>"{l.val}"</span>
+                <span style={{ color:"var(--text-primary)", fontFamily:"monospace" }}>&quot;{l.val}&quot;</span>
                 {l.result!==undefined&&<span style={{ color:l.result?"#22c55e":"#ef4444", marginLeft:"auto" }}>{l.result?"true":"false"}</span>}
               </div>
             ))}

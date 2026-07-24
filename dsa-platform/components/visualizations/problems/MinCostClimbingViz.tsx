@@ -23,7 +23,7 @@ export default function MinCostClimbingViz() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState(`Minimum cost to climb stairs [${COST.join(",")}]. Can take 1 or 2 steps.`);
   const stateRef = useRef({ step: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

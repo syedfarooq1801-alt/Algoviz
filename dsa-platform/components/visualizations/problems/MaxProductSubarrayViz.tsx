@@ -10,7 +10,7 @@ export default function MaxProductSubarrayViz() {
   const [result, setResult] = useState(NUMS[0]);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState("Track both max and min product. Negative can flip min→max!");
   const stateRef = useRef({ idx: 1, maxP: NUMS[0], minP: NUMS[0], result: NUMS[0] });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

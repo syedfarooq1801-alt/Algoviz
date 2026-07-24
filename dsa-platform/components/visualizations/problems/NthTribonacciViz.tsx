@@ -5,11 +5,11 @@ const N = 7;
 // T(0)=0, T(1)=1, T(2)=1, T(n)=T(n-1)+T(n-2)+T(n-3)
 
 export default function NthTribonacciViz() {
-  const [idx, setIdx] = useState(3);
+  const [, setIdx] = useState(3);
   const [seq, setSeq] = useState([0, 1, 1]);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(800);
+  const [speed] = useState(800);
   const [msg, setMsg] = useState(`Compute T(${N}). T(n) = T(n-1) + T(n-2) + T(n-3). Base: T(0)=0,T(1)=1,T(2)=1.`);
   const stateRef = useRef({ idx: 3, seq: [0, 1, 1] });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

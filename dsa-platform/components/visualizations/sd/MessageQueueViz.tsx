@@ -14,7 +14,7 @@ export default function MessageQueueViz() {
   const [queues, setQueues] = useState<Record<string, Message[]>>({ orders: [], payments: [], notifications: [] });
   const [offsets, setOffsets] = useState<Record<string, number>>({ orders: 0, payments: 0, notifications: 0 });
   const [processing, setProcessing] = useState<string | null>(null);
-  const [tick, setTick] = useState(0);
+  const [, setTick] = useState(0);
 
   useEffect(() => {
     const id = setInterval(() => {

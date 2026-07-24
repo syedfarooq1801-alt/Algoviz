@@ -35,7 +35,7 @@ export default function MoveZeroesViz() {
     }
     const newNums = [...n];
     let newSlow = s;
-    let newFast = f + 1;
+    const newFast = f + 1;
     let newMsg = "";
     if (n[f] !== 0) {
       // swap slow and fast

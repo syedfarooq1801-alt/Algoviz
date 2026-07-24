@@ -1,5 +1,5 @@
 // Foundations — 20 concepts
-export default {
+const sdContentPart1 = {
   scalability: {
     id: "scalability",
     intuition: "Scalability is the system's ability to handle more load — more users, more data, more requests — without degrading performance or requiring a full rewrite.",
@@ -460,3 +460,5 @@ export default {
     cheatSheetLine: "RAM: <1µs, $$$. SSD: ~100µs, $$. HDD: ~10ms, $. S3: 100ms, ¢/GB. Glacier: hours, pennies. Hot data in Redis, cold in S3.",
   },
 };
+
+export default sdContentPart1;

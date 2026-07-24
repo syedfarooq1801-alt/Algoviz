@@ -377,7 +377,7 @@ export default function BehavioralPage() {
 
                       {/* Anti-pattern */}
                       <div className="rounded-lg p-3" style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.2)" }}>
-                        <div className="text-xs font-semibold mb-1" style={{ color: "#ef4444" }}>⚠️ Don't say this</div>
+                        <div className="text-xs font-semibold mb-1" style={{ color: "#ef4444" }}>⚠️ Don&apos;t say this</div>
                         <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{q.antiPattern}</p>
                       </div>
 

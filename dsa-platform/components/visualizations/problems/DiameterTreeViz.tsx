@@ -23,13 +23,15 @@ export default function DiameterTreeViz() {
   const stateRef = useRef({ stack:[[0,"down"]] as [number,string][], depthMap:{} as Record<number,number>, diaMap:{} as Record<number,number>, maxDia:0 });
   const iRef = useRef<ReturnType<typeof setInterval>|null>(null);
 
-  useEffect(() => { reset(); }, []);
-
   const reset = () => {
     stateRef.current = { stack:[[0,"down"]], depthMap:{}, diaMap:{}, maxDia:0 };
     setDepthMap({}); setDiaMap({}); setMaxDia(0); setCurrent(null); setDone(false); setPlaying(false);
     setMsg("DFS — postorder, compute depth and diameter at each node"); if (iRef.current) clearInterval(iRef.current);
   };
+
+  // setState deferred into the timeout callback rather than called
+  // synchronously in the effect body, per react-hooks/set-state-in-effect.
+  useEffect(() => { const t = setTimeout(reset, 0); return () => clearTimeout(t); }, []);
 
   const doStep = () => {
     const st = stateRef.current;

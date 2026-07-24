@@ -1,17 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 
-interface LLNode { val: number; next: number | null; }
-type NodeMap = Record<number, LLNode>;
-
-function buildList(vals: number[]): { nodes: NodeMap; head: number | null } {
-  const nodes: NodeMap = {};
-  for (let i = 0; i < vals.length; i++) {
-    nodes[i] = { val: vals[i], next: i + 1 < vals.length ? i + 1 : null };
-  }
-  return { nodes, head: vals.length > 0 ? 0 : null };
-}
-
 function reverseSteps(vals: number[]) {
   const steps: { prev: number | null; curr: number | null; next: number | null; arrows: [number, number][]; msg: string }[] = [];
   const arr = vals.map((v, i) => ({ id: i, val: v, next: i + 1 < vals.length ? i + 1 : null }));
@@ -52,7 +41,7 @@ export default function LinkedListViz() {
 
   const steps = reverseSteps(vals);
 
-  const reset = (v = vals) => {
+  const reset = () => {
     setStepIdx(0);
     setDone(false);
     setPlaying(false);
@@ -82,7 +71,7 @@ export default function LinkedListViz() {
       const v = input.split(/[\s,→]+/).map((x) => parseInt(x.trim(), 10)).filter((x) => !isNaN(x));
       if (v.length === 0) return;
       setVals(v);
-      reset(v);
+      reset();
     } catch {}
   };
 

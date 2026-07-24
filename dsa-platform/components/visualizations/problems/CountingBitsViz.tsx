@@ -5,13 +5,6 @@ const N = 8;
 
 const toBin = (n: number) => n.toString(2).padStart(4, "0");
 
-// Precompute full dp array
-const FULL_DP = Array.from({ length: N + 1 }, (_, i) => {
-  const bits: number[] = [0];
-  for (let j = 1; j <= i; j++) bits[j] = bits[j >> 1] + (j & 1);
-  return bits[i];
-});
-
 export default function CountingBitsViz() {
   const [current, setCurrent] = useState(0); // index being processed (0-based, step = index+1 processed)
   const [dp, setDp] = useState<number[]>([0]); // built so far

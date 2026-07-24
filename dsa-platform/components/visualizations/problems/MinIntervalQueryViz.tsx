@@ -23,7 +23,7 @@ export default function MinIntervalQueryViz() {
   const [qi, setQi] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState("For each query: find smallest interval containing that point.");
   const stateRef = useRef({ qi: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

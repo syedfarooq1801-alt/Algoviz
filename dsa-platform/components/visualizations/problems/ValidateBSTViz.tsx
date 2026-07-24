@@ -21,13 +21,15 @@ export default function ValidateBSTViz() {
   const stateRef = useRef({ stack:[[0,-Infinity,Infinity]] as [number,number,number][], validMap:{} as Record<number,boolean> });
   const iRef = useRef<ReturnType<typeof setInterval>|null>(null);
 
-  useEffect(() => { reset(); }, []);
-
   const reset = () => {
     stateRef.current = { stack:[[0,-Infinity,Infinity]], validMap:{} };
     setValidMap({}); setCurrent(null); setDone(false); setPlaying(false);
     setMsg("root: bounds=(-∞, +∞)"); if (iRef.current) clearInterval(iRef.current);
   };
+
+  // setState deferred into the timeout callback rather than called
+  // synchronously in the effect body, per react-hooks/set-state-in-effect.
+  useEffect(() => { const t = setTimeout(reset, 0); return () => clearTimeout(t); }, []);
 
   const doStep = () => {
     const st = stateRef.current;

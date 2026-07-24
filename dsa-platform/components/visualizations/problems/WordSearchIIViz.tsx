@@ -10,16 +10,6 @@ const BOARD = [
 ];
 const WORDS = ["oath","pea","eat","rain"];
 const FOUND_WORDS = ["oath","eat"]; // Actually found in board
-const PATHS: Record<string,[number,number][]> = {
-  "oath": [[0,0],[1,1],[2,1],[1,0]], // o→a→t→h - needs check
-  "eat": [[1,0],[0,0],[1,1]], // rough path for visualization
-};
-
-// Corrected paths - just for display
-const WORD_PATHS: Record<string, [number,number][]> = {
-  "oath": [[0,0],[0,1],[1,1],[2,1]],
-  "eat": [[1,0],[0,1],[1,1]],
-};
 
 const STEPS = [
   { word: "", highlightCells: [] as [number,number][], found: [] as string[], msg: "Build Trie from words. DFS from each cell, prune using Trie." },
@@ -31,7 +21,7 @@ export default function WordSearchIIViz() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1000);
+  const [speed] = useState(1000);
   const [msg, setMsg] = useState("Trie + DFS backtracking. Prune DFS branches not matching Trie prefix.");
   const stateRef = useRef({ step: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

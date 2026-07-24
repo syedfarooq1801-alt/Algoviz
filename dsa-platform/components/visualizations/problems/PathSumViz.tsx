@@ -16,7 +16,7 @@ export default function PathSumViz() {
   const [step, setStep] = useState(-1);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1000);
+  const [speed] = useState(1000);
   const [msg, setMsg] = useState(`DFS with targetSum=${TARGET_SUM}. Subtract node val, check at leaf.`);
   const stateRef = useRef({ step: -1 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

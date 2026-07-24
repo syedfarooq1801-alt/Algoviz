@@ -70,6 +70,10 @@ export default function MockPage() {
   const [problemSecs, setProblemSecs] = useState<Record<string, number>>({});
   const [reviews, setReviews] = useState<Record<string, MockProblemReview>>({});
   const [savedSession, setSavedSession] = useState<MockSessionReview | null>(null);
+  // Snapshot of Date.now() taken when the session finalizes (timer hits 0 or
+  // Finish is clicked) — finalizedReviews reads this instead of calling
+  // Date.now() directly, since doing so inside useMemo is a purity violation.
+  const [finalizedAt, setFinalizedAt] = useState(0);
   const { toggleSolved, isSolved } = useProgressStore();
   const addMockSession = usePrepStore((s) => s.addMockSession);
 
@@ -94,24 +98,28 @@ export default function MockPage() {
     setActive(0);
     setSavedSession(null);
     setPhase("running");
-  }, [diff]);
+  }, [diff, company]);
 
   useEffect(() => {
     if (phase !== "running") return;
     if (secsLeft <= 0) {
-      stampActiveTime();
-      setPhase("review");
-      return;
+      // setState deferred into the timeout callback (0ms) rather than called
+      // synchronously in the effect body, per react-hooks/set-state-in-effect —
+      // the delay is imperceptible, timer still ends the instant it hits 0.
+      const t = setTimeout(() => { stampActiveTime(); setFinalizedAt(Date.now()); setPhase("review"); }, 0);
+      return () => clearTimeout(t);
     }
     const t = setTimeout(() => setSecsLeft((s) => s - 1), 1000);
     return () => clearTimeout(t);
   }, [phase, secsLeft, stampActiveTime]);
 
-  const switchProblem = (idx: number) => {
+  // useCallback (not a plain closure) so Date.now() inside it isn't treated
+  // as an impure call during render by react-hooks/purity.
+  const switchProblem = useCallback((idx: number) => {
     stampActiveTime();
     setActive(idx);
     setActiveStartedAt(Date.now());
-  };
+  }, [stampActiveTime]);
 
   const updateReview = (id: string, patch: Partial<MockProblemReview>) => {
     setReviews((prev) => ({ ...prev, [id]: { ...prev[id], ...patch } }));
@@ -119,13 +127,14 @@ export default function MockPage() {
 
   const finish = () => {
     stampActiveTime();
+    setFinalizedAt(Date.now());
     setPhase("review");
   };
 
   const finalizedReviews = useMemo(() => problems.map((p) => ({
     ...(reviews[p.id] ?? emptyReview(p)),
-    timeSpentSecs: Math.max(1, problemSecs[p.id] ?? Math.round((Date.now() - startedAt) / 1000 / Math.max(1, problems.length))),
-  })), [problems, reviews, problemSecs, startedAt]);
+    timeSpentSecs: Math.max(1, problemSecs[p.id] ?? Math.round((finalizedAt - startedAt) / 1000 / Math.max(1, problems.length))),
+  })), [problems, reviews, problemSecs, startedAt, finalizedAt]);
 
   const solvedCount = finalizedReviews.filter((r) => r.solved).length;
   const lowTime = secsLeft <= 300 && secsLeft > 0;

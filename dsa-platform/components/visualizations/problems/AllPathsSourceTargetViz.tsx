@@ -22,7 +22,7 @@ export default function AllPathsSourceTargetViz() {
   const [foundPaths, setFoundPaths] = useState<number[][]>([]);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState("DFS from 0 to n-1. Collect all paths via backtracking.");
   const stateRef = useRef({ step: -1, foundPaths: [] as number[][] });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

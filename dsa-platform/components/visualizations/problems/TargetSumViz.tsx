@@ -32,7 +32,7 @@ export default function TargetSumViz() {
   const [step, setStep] = useState(-1);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(600);
+  const [speed] = useState(600);
   const [msg, setMsg] = useState(`Find ways to assign +/- to [${NUMS}] to get sum=${TARGET}.`);
   const stateRef = useRef({ step: -1 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

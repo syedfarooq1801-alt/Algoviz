@@ -20,7 +20,7 @@ export default function AlienDictionaryViz() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1000);
+  const [speed] = useState(1000);
   const [msg, setMsg] = useState(`Compare adjacent words → extract char order → topological sort.`);
   const stateRef = useRef({ step: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -46,13 +46,13 @@ export default function AlienDictionaryViz() {
   }, [playing, speed]);
 
   const cur = STEPS[step];
-  const topoStep = (cur as any).topo;
+  const topoStep = "topo" in cur ? cur.topo : undefined;
 
   return (
     <div className="space-y-4">
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Alien Dictionary — Topological Sort</h3>
-        <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Extract ordering from word pairs → build DAG → topological sort (Kahn's).</div>
+        <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Extract ordering from word pairs → build DAG → topological sort (Kahn&apos;s).</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>
           <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>

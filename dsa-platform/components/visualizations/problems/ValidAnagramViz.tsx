@@ -90,7 +90,7 @@ export default function ValidAnagramViz() {
         {[["s", s, "inc", "#22c55e"], ["t", t, "dec", "#f97316"]] .map(([label, str, ph, col]) => (
           <div key={label as string} className="rounded-xl p-4" style={{ background:"var(--bg-card)", border:`1px solid ${phase===ph?"rgba(79,142,247,0.4)":"var(--border)"}` }}>
             <div className="text-xs mb-2 font-semibold" style={{ color: phase===ph?(col as string):"var(--text-muted)" }}>
-              {label} = "{str}"  {phase===ph?(label==="s"?"← incrementing":"← decrementing"):""}
+              {label} = &quot;{str}&quot;  {phase===ph?(label==="s"?"← incrementing":"← decrementing"):""}
             </div>
             <div className="flex gap-1 flex-wrap">
               {(str as string).split("").map((c,i) => (

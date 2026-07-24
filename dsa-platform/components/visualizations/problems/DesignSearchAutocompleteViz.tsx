@@ -69,7 +69,7 @@ export default function DesignSearchAutocompleteViz() {
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Design Search Autocomplete</h3>
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>
-          Trie where each node caches (sentence→count). Navigate prefix path, return top-3 by count desc / lex asc. '#' saves.
+          Trie where each node caches (sentence→count). Navigate prefix path, return top-3 by count desc / lex asc. &apos;#&apos; saves.
         </div>
       </div>
 
@@ -100,7 +100,7 @@ export default function DesignSearchAutocompleteViz() {
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <div className="text-xs font-semibold mb-2" style={{ color: "var(--text-muted)" }}>Top-3 suggestions (freq desc, lex asc):</div>
         {suggestions.length === 0 ? (
-          <div className="text-xs" style={{ color: "var(--text-muted)" }}>No matches for "{prefix}"</div>
+          <div className="text-xs" style={{ color: "var(--text-muted)" }}>No matches for &quot;{prefix}&quot;</div>
         ) : (
           <div className="space-y-1">
             {suggestions.map(([s, cnt], i) => (

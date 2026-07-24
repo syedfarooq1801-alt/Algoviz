@@ -28,7 +28,7 @@ export default function SlidingWindowMaxViz() {
     const next = st.idx + 1;
     if (next >= st.nums.length) { setDone(true); setPlaying(false); setMsg(`Done! Output: [${st.output.join(",")}]`); return; }
 
-    let dq = [...st.deque];
+    const dq = [...st.deque];
     // Remove out-of-window from front
     while (dq.length && dq[0] <= next - st.k) dq.shift();
     // Remove smaller elements from back (maintain decreasing order)

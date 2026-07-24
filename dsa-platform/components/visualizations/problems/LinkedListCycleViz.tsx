@@ -9,12 +9,12 @@ export default function LinkedListCycleViz() {
   const [cycleAt] = useState(CYCLE_POS);
   const [slow, setSlow] = useState(-1);
   const [fast, setFast] = useState(-1);
-  const [step, setStep] = useState(0);
+  const [, setStep] = useState(0);
   const [result, setResult] = useState<boolean|null>(null);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(800);
   const [msg, setMsg] = useState("Press Play — Floyd's cycle detection: slow moves 1, fast moves 2");
-  const [trail, setTrail] = useState<number[]>([]);
+  const [, setTrail] = useState<number[]>([]);
   const stateRef = useRef({ slow:0, fast:0, step:0, trail:[] as number[] });
   const iRef = useRef<ReturnType<typeof setInterval>|null>(null);
 
@@ -27,7 +27,9 @@ export default function LinkedListCycleViz() {
     if (iRef.current) clearInterval(iRef.current);
   };
 
-  useEffect(() => { reset(); }, []);
+  // setState deferred into the timeout callback rather than called
+  // synchronously in the effect body, per react-hooks/set-state-in-effect.
+  useEffect(() => { const t = setTimeout(reset, 0); return () => clearTimeout(t); }, []);
 
   const doStep = () => {
     const st = stateRef.current;
@@ -50,6 +52,7 @@ export default function LinkedListCycleViz() {
     if (playing) { iRef.current = setInterval(doStep, speed); }
     else if (iRef.current) { clearInterval(iRef.current); iRef.current = null; }
     return () => { if (iRef.current) clearInterval(iRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed]);
 
   const done = result !== null;
@@ -61,7 +64,7 @@ export default function LinkedListCycleViz() {
   return (
     <div className="space-y-4">
       <div className="rounded-xl p-4" style={{ background:"var(--bg-card)", border:"1px solid var(--border)" }}>
-        <h3 className="text-sm font-semibold mb-3" style={{ color:"var(--text-primary)" }}>Linked List Cycle — Floyd's Tortoise & Hare</h3>
+        <h3 className="text-sm font-semibold mb-3" style={{ color:"var(--text-primary)" }}>Linked List Cycle — Floyd&apos;s Tortoise & Hare</h3>
         <div className="text-xs mb-3" style={{ color:"var(--text-muted)" }}>
           List: {nodes.join(" → ")} → (cycle back to index {cycleAt})
         </div>

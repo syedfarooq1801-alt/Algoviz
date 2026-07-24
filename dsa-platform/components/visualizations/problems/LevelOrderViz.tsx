@@ -14,9 +14,9 @@ const POS = [{ x:200, y:40 },{ x:100, y:110 },{ x:300, y:110 },{ x:220, y:180 },
 export default function LevelOrderViz() {
   const [queue, setQueue] = useState<number[]>([0]);
   const [levels, setLevels] = useState<number[][]>([]);
-  const [currentLevel, setCurrentLevel] = useState<number[]>([]);
-  const [visited, setVisited] = useState<number[]>([]);
-  const [current, setCurrent] = useState<number|null>(null);
+  const [, setCurrentLevel] = useState<number[]>([]);
+  const [, setVisited] = useState<number[]>([]);
+  const [, setCurrent] = useState<number|null>(null);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(700);
@@ -30,7 +30,9 @@ export default function LevelOrderViz() {
     setMsg("queue=[root] — BFS"); if (iRef.current) clearInterval(iRef.current);
   };
 
-  useEffect(() => { reset(); }, []);
+  // setState deferred into the timeout callback rather than called
+  // synchronously in the effect body, per react-hooks/set-state-in-effect.
+  useEffect(() => { const t = setTimeout(reset, 0); return () => clearTimeout(t); }, []);
 
   const doStep = () => {
     const st = stateRef.current;

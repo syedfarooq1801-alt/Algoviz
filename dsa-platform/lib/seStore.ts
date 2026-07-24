@@ -1,6 +1,7 @@
 "use client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { todayLocalISO } from "@/lib/date";
 
 interface SEState {
   completed: Set<string>; // key: `${subjectId}/${chapterId}`
@@ -25,7 +26,7 @@ export const useSEStore = create<SEState>()(
           const next = new Set(state.completed);
           const nextDates = { ...state.completedDates };
           if (next.has(key)) { next.delete(key); delete nextDates[key]; }
-          else { next.add(key); nextDates[key] = new Date().toISOString().split("T")[0]; }
+          else { next.add(key); nextDates[key] = todayLocalISO(); }
           return { completed: next, completedDates: nextDates };
         }),
       isComplete: (key) => get().completed.has(key),

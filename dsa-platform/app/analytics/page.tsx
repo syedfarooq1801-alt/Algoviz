@@ -2,6 +2,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { PATTERNS, getTotalProblems } from "@/data/problems";
+import { todayLocalISO } from "@/lib/date";
 import { useProgressStore } from "@/lib/store";
 import { useSDStore } from "@/lib/sdStore";
 import { useSEStore } from "@/lib/seStore";
@@ -96,7 +97,7 @@ export default function AnalyticsPage() {
   }, [solveTimes, allProblems]);
 
   const overallPct = Math.round(((solved.size / totalDSA) + (mastered.size / totalSD) + (completed.size / totalSE)) / 3 * 100);
-  const today = new Date().toISOString().split("T")[0];
+  const today = todayLocalISO();
 
   // Last 5 solved problems (most recent first)
   const { solvedDates } = useProgressStore();
@@ -120,13 +121,6 @@ export default function AnalyticsPage() {
     : 0;
   const days = daysUntil();
   const neededDaily = days && days > 0 ? Math.ceil((totalDSA - solved.size) / days) : null;
-
-  const COLOR_MAP: Record<string, string> = {
-    blue: "#4F8CFF", green: "#2FBF71", purple: "#8b5cf6", orange: "#F5A524",
-    cyan: "#4F8CFF", yellow: "#F5A524", emerald: "#10b981", red: "#ef4444",
-    violet: "#8b5cf6", teal: "#14b8a6", indigo: "#6366f1", amber: "#F5A524",
-    lime: "#84cc16", rose: "#f43f5e", slate: "#94a3b8", pink: "#ec4899",
-  };
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>

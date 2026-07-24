@@ -98,7 +98,7 @@ export default function LongestRepeatingReplacementViz() {
         </div>
         {R >= L && R >= 0 && (
           <div className="text-xs font-mono px-3 py-1.5 rounded" style={{ background:"rgba(79,142,247,0.08)", color:"var(--text-secondary)", border:"1px solid rgba(79,142,247,0.15)" }}>
-            window="{s.slice(L,R+1)}" | size={R-L+1} | maxFreq={maxFreq} | replacements needed={R-L+1-maxFreq} | k={k}
+            window=&quot;{s.slice(L,R+1)}&quot; | size={R-L+1} | maxFreq={maxFreq} | replacements needed={R-L+1-maxFreq} | k={k}
           </div>
         )}
       </div>

@@ -39,11 +39,46 @@ service cloud.firestore {
 
     // Public projection — safe subset for leaderboard + public profiles.
     // Contains ONLY: username, photoURL, xp, streak, solvedCount, activeDays,
-    // selectedTrack, createdAt. NO email, no raw progress maps.
+    // selectedTrack, createdAt. NO email, no raw progress maps. Field
+    // allow-list + type/range validation below so an owner (writes are
+    // client-side setDoc(..., {merge:true}) calls, not server-verified) can't
+    // hand-craft a write that inflates xp/streak/solvedCount past what
+    // actually solving problems could produce — xp is always solvedCount*10
+    // (lib/store.ts), and 238 is the current total DSA problem count
+    // (data/problems.ts); ceilings below carry slack for that count growing.
     match /leaderboard/{uid} {
       allow read: if request.auth != null;            // any signed-in user
-      allow write: if request.auth != null
-        && request.auth.uid == uid;                   // owner maintains own projection
+
+      function isValidLeaderboardDoc(d) {
+        return d.keys().hasOnly(['username', 'photoURL', 'xp', 'streak', 'solvedCount', 'activeDays', 'selectedTrack', 'createdAt'])
+          && (!('username' in d) || (d.username is string && d.username.size() <= 20))
+          && (!('photoURL' in d) || d.photoURL == null || d.photoURL is string)
+          && (!('xp' in d) || (d.xp is int && d.xp >= 0 && d.xp <= 5000))
+          && (!('streak' in d) || (d.streak is int && d.streak >= 0 && d.streak <= 1000))
+          && (!('solvedCount' in d) || (d.solvedCount is int && d.solvedCount >= 0 && d.solvedCount <= 500))
+          && (!('activeDays' in d) || (d.activeDays is int && d.activeDays >= 0 && d.activeDays <= 1000))
+          && (!('selectedTrack' in d) || d.selectedTrack is string)
+          && (!('createdAt' in d) || d.createdAt is string)
+          // xp only ever comes from solving problems (10 xp/solve) — never a
+          // free-standing value a client can set independently.
+          && (!('xp' in d) || !('solvedCount' in d) || d.xp == d.solvedCount * 10)
+          // Can't be "active" or "on a streak" more days than problems solved.
+          && (!('activeDays' in d) || !('solvedCount' in d) || d.activeDays <= d.solvedCount)
+          && (!('streak' in d) || !('activeDays' in d) || d.streak <= d.activeDays);
+      }
+
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && isValidLeaderboardDoc(request.resource.data);
+
+      allow update: if request.auth != null
+        && request.auth.uid == uid
+        && isValidLeaderboardDoc(request.resource.data)
+        // createdAt is set once at account creation and never touched again
+        // (lib/authContext.tsx) — reject any write that changes it.
+        && (!('createdAt' in resource.data)
+            || !('createdAt' in request.resource.data)
+            || request.resource.data.createdAt == resource.data.createdAt);
     }
 
     // Deny everything else by default.

@@ -19,7 +19,6 @@ function buildSteps(): St[] {
 
   while (heap.length === LISTS.length) {
     const min = heap.shift()!;
-    const newRange = curMax - min.val;
     const best = bestR - bestL;
     if (curMax - min.val < best) { bestL = min.val; bestR = curMax; }
 

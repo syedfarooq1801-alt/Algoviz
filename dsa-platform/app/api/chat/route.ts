@@ -11,6 +11,37 @@ interface Body {
   context?: { kind: string; title: string; body: string };
 }
 
+// Bounds on untrusted request JSON — without these, a client can send
+// arbitrarily many/large messages or context text, inflating token cost
+// (and Groq API spend) per request regardless of the rate limiter.
+const MAX_MESSAGES = 12;
+const MAX_MESSAGE_LEN = 4000;
+const MAX_CONTEXT_TITLE_LEN = 200;
+const MAX_CONTEXT_BODY_LEN = 8000;
+
+function sanitizeMessages(raw: unknown): ChatMessage[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((m): m is ChatMessage =>
+      !!m && typeof m === "object"
+      && (m.role === "user" || m.role === "assistant")
+      && typeof m.content === "string" && m.content.trim().length > 0
+    )
+    .slice(-MAX_MESSAGES)
+    .map((m) => ({ role: m.role, content: m.content.slice(0, MAX_MESSAGE_LEN) }));
+}
+
+function sanitizeContext(raw: unknown): Body["context"] | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const c = raw as Record<string, unknown>;
+  if (typeof c.title !== "string" || typeof c.body !== "string") return undefined;
+  return {
+    kind: typeof c.kind === "string" ? c.kind.slice(0, 50) : "",
+    title: c.title.slice(0, MAX_CONTEXT_TITLE_LEN),
+    body: c.body.slice(0, MAX_CONTEXT_BODY_LEN),
+  };
+}
+
 const SYSTEM = (ctx: Body["context"]) => `You are Axon, a precise interview-prep tutor for DSA, system design, and CS fundamentals.
 
 ${ctx?.body ? `The user is studying: "${ctx.title}".
@@ -44,15 +75,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Too many requests — slow down and try again shortly." }, { status: 429 });
   }
 
-  const body = (await request.json()) as Body;
-  const msgs = (body.messages ?? []).filter((m) => m.content?.trim());
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+  }
+  if (!body || typeof body !== "object") {
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+  }
+
+  const msgs = sanitizeMessages((body as Record<string, unknown>).messages);
+  const context = sanitizeContext((body as Record<string, unknown>).context);
   if (!msgs.length) {
     return NextResponse.json({ error: "Empty message." }, { status: 400 });
   }
 
   const messages = [
-    { role: "system" as const, content: SYSTEM(body.context) },
-    ...msgs.slice(-12), // keep recent turns within token budget
+    { role: "system" as const, content: SYSTEM(context) },
+    ...msgs, // already capped to MAX_MESSAGES most-recent, each truncated to MAX_MESSAGE_LEN
   ];
 
   async function makeStream(model: string) {

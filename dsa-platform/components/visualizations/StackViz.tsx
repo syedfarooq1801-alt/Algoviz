@@ -17,7 +17,7 @@ export default function StackViz() {
   const stateRef = useRef({ stack: [] as string[], idx: -1 });
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const reset = (s = str) => {
+  const reset = () => {
     stateRef.current = { stack: [], idx: -1 };
     setStack([]);
     setCharIdx(-1);
@@ -82,9 +82,10 @@ export default function StackViz() {
       if (intervalRef.current) clearInterval(intervalRef.current);
     }
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed, str, done]);
 
-  const apply = () => { setStr(input); reset(input); };
+  const apply = () => { setStr(input); reset(); };
 
   return (
     <div className="space-y-4">

@@ -60,7 +60,7 @@ export default function BasicCalculatorViz() {
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Basic Calculator — Stack + Scan</h3>
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>
-          '(' saves context. ')' restores and combines. +/- applies previous number, updates sign.
+          &apos;(&apos; saves context. &apos;)&apos; restores and combines. +/- applies previous number, updates sign.
         </div>
         <div className="flex gap-2 flex-wrap items-center">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium"
@@ -75,7 +75,7 @@ export default function BasicCalculatorViz() {
 
       {/* Expression display */}
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <div className="text-xs font-semibold mb-3" style={{ color: "var(--text-muted)" }}>Expression: "{EXPR}"</div>
+        <div className="text-xs font-semibold mb-3" style={{ color: "var(--text-muted)" }}>Expression: &quot;{EXPR}&quot;</div>
         <div className="flex flex-wrap gap-1">
           {EXPR.split("").map((c, i) => (
             <div key={i} className="w-7 h-7 rounded flex items-center justify-center text-xs font-mono font-bold transition-all"
@@ -124,7 +124,7 @@ export default function BasicCalculatorViz() {
 
       {done && (
         <div className="rounded-xl p-4 text-center" style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.3)" }}>
-          <div className="text-lg font-bold" style={{ color: "#22c55e" }}>calculate("{EXPR}") = {cur.result}</div>
+          <div className="text-lg font-bold" style={{ color: "#22c55e" }}>calculate(&quot;{EXPR}&quot;) = {cur.result}</div>
         </div>
       )}
     </div>

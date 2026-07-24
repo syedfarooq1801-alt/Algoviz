@@ -11,7 +11,7 @@ import ExampleVisual from "@/components/ExampleVisual";
 import { useProgressStore } from "@/lib/store";
 import { useNotesStore } from "@/lib/notesStore";
 import { usePrepStore } from "@/lib/prepStore";
-import { getProblemViz } from "@/components/visualizations/problemVizMap";
+import { VIZ_MAP } from "@/components/visualizations/problemVizMap";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -24,7 +24,11 @@ export default function ProblemPage({ params }: Props) {
 
   const pattern = getPatternById(problem.pattern);
   const content = PROBLEM_CONTENT[id];
-  const VizComponent = getProblemViz(id);
+  // Direct property access (not a function call) — react-hooks/static-components
+  // taints any component reference that comes from a CallExpression, even a
+  // memoized one, so the lookup has to be an inline object index here instead
+  // of going through a getProblemViz() helper.
+  const VizComponent = VIZ_MAP[id];
   // Subscribe reactively to the underlying sets/maps (selectors) so this page
   // re-renders on toggle. Reading via isSolved()/isBookmarked() helpers is a
   // non-reactive get() and leaves the buttons visually stale.
@@ -175,7 +179,7 @@ export default function ProblemPage({ params }: Props) {
                 <div className="quiet-panel p-5 text-center space-y-3" style={{ border: "1px dashed var(--border)" }}>
                   <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>Try it yourself first.</p>
                   <p className="text-xs leading-5 max-w-md mx-auto" style={{ color: "var(--text-muted)" }}>
-                    Read the problem above, sketch an approach, attempt it — before seeing the pattern or the solution. That's what actually sticks, not reading a walkthrough.
+                    Read the problem above, sketch an approach, attempt it — before seeing the pattern or the solution. That&apos;s what actually sticks, not reading a walkthrough.
                   </p>
                   <div className="flex items-center justify-center gap-2 pt-1">
                     {!showHint && (

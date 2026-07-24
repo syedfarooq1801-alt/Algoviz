@@ -27,7 +27,7 @@ export default function PartitionEqualSubsetViz() {
   const [dp, setDp] = useState(Array(TARGET + 1).fill(false).map((_, i) => i === 0));
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(700);
+  const [speed] = useState(700);
   const [msg, setMsg] = useState(`Partition [${NUMS.join(",")}] into 2 equal subsets. Target sum=${TARGET}.`);
   const stateRef = useRef({ step: -1 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

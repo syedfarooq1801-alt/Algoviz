@@ -49,7 +49,6 @@ export default function FlashcardsPage() {
   const dueCount = getDueCount(allDomainCards.map((c) => c.id));
 
   const card = allCards[idx] ?? null;
-  const totalCards = domain === "sd" ? buildSDCards().length : buildSECards().length;
   const knownCount = allCards.filter((c) => isKnown(c.id)).length;
 
   const advance = (n: number) => {

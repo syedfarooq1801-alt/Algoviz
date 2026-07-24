@@ -7,8 +7,8 @@ export default function MedianTwoSortedViz() {
   const [ai, setAi] = useState("1,3");
   const [bi, setBi] = useState("2");
   const [partition, setPartition] = useState(-1);
-  const [L, setL] = useState(0);
-  const [R, setR] = useState(2);
+  const [, setL] = useState(0);
+  const [, setR] = useState(2);
   const [result, setResult] = useState<number|null>(null);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -61,6 +61,7 @@ export default function MedianTwoSortedViz() {
     if (playing) { iRef.current = setInterval(doStep, speed); }
     else if (iRef.current) { clearInterval(iRef.current); iRef.current = null; }
     return () => { if (iRef.current) clearInterval(iRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed]);
 
   const apply = () => {

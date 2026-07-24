@@ -16,7 +16,7 @@ export default function BitwiseAndNumbersRangeViz() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState("Bitwise AND of range [left,right]: Find common prefix by right-shifting until equal.");
   const stateRef = useRef({ step: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -85,7 +85,7 @@ export default function BitwiseAndNumbersRangeViz() {
           <div><div style={{ color: "var(--text-muted)" }} className="text-xs">n (right)</div><div className="font-bold text-lg" style={{ color: "#4f8ef7" }}>{cur.n} ({cur.n.toString(2)})</div></div>
           <div><div style={{ color: "var(--text-muted)" }} className="text-xs">shifts</div><div className="font-bold text-lg" style={{ color: "#f97316" }}>{cur.shift}</div></div>
         </div>
-        {(cur as any).final !== undefined && <div className="mt-2 text-center text-lg font-bold" style={{ color: "#22c55e" }}>Result = {(cur as any).final}</div>}
+        {"final" in cur && cur.final !== undefined && <div className="mt-2 text-center text-lg font-bold" style={{ color: "#22c55e" }}>Result = {cur.final}</div>}
       </div>
       <div className="rounded-lg px-4 py-2 text-xs font-mono" style={{ background: done ? "rgba(34,197,94,0.08)" : "rgba(79,142,247,0.07)", color: done ? "#22c55e" : "#4f8ef7", border: `1px solid ${done ? "rgba(34,197,94,0.3)" : "rgba(79,142,247,0.18)"}` }}>{msg}</div>
     </div>

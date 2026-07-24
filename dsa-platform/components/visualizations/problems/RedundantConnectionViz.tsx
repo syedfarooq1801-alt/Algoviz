@@ -11,7 +11,7 @@ export default function RedundantConnectionViz() {
   const [done, setDone] = useState(false);
   const [redundant, setRedundant] = useState<number[] | null>(null);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1000);
+  const [speed] = useState(1000);
   const [msg, setMsg] = useState("Union-Find: adding edges one by one. If both nodes same component = redundant.");
   const stateRef = useRef({ step: -1, parent: Array.from({ length: N + 1 }, (_, i) => i) });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -54,6 +54,7 @@ export default function RedundantConnectionViz() {
     if (playing) iRef.current = setInterval(doStep, speed);
     else if (iRef.current) { clearInterval(iRef.current); iRef.current = null; }
     return () => { if (iRef.current) clearInterval(iRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed]);
 
   const NODE_POS = [{ x: 0, y: 0 }, { x: 150, y: 40 }, { x: 60, y: 150 }, { x: 240, y: 150 }];

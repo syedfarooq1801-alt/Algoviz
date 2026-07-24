@@ -53,7 +53,7 @@ export default function MaxSubarrayViz() {
   return (
     <div className="space-y-4">
       <div className="rounded-xl p-4" style={{ background:"var(--bg-card)", border:"1px solid var(--border)" }}>
-        <h3 className="text-sm font-semibold mb-3" style={{ color:"var(--text-primary)" }}>Maximum Subarray — Kadane's Algorithm</h3>
+        <h3 className="text-sm font-semibold mb-3" style={{ color:"var(--text-primary)" }}>Maximum Subarray — Kadane&apos;s Algorithm</h3>
         <div className="flex flex-wrap gap-3 mb-3">
           <div className="flex items-center gap-2"><label className="text-xs" style={{ color:"var(--text-muted)" }}>nums:</label>
             <input className="px-2 py-1 rounded text-xs" style={{ background:"var(--bg-hover)", border:"1px solid var(--border)", color:"var(--text-primary)", width:"240px" }} value={input} onChange={e=>setInput(e.target.value)}/></div>

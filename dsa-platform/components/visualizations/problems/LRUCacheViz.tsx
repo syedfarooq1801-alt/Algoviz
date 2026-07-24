@@ -1,8 +1,6 @@
 "use client";
 import { useState } from "react";
 
-interface Node { key: number; val: number; prev: number|null; next: number|null; }
-
 type Op = { type: "get"|"put"; key: number; val?: number };
 const OPS: Op[] = [
   {type:"put",key:1,val:1},{type:"put",key:2,val:2},{type:"get",key:1},

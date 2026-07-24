@@ -19,7 +19,7 @@ export default function MinDepthTreeViz() {
   const [step, setStep] = useState(-1);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1000);
+  const [speed] = useState(1000);
   const [msg, setMsg] = useState("BFS = optimal for min depth. First leaf found = min depth (no need to explore further).");
   const stateRef = useRef({ step: -1 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

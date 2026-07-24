@@ -19,7 +19,7 @@ export default function LongestPalindromicSubstrViz() {
   const [best, setBest] = useState("");
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(700);
+  const [speed] = useState(700);
   const [msg, setMsg] = useState(`Expand around each center. Track longest palindrome in "${S}".`);
   const stateRef = useRef({ step: -1, best: "" });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -36,7 +36,6 @@ export default function LongestPalindromicSubstrViz() {
     const next = s + 1;
     if (next >= STEPS.length) { setDone(true); setPlaying(false); setMsg(`Longest palindromic substring = "${best}"`); return; }
     const cur = STEPS[next];
-    const newBest = cur.isMax ? cur.palin : (stateRef.current.best || cur.palin);
     if (cur.palin.length >= (stateRef.current.best || "").length) {
       stateRef.current = { step: next, best: cur.palin };
       setBest(cur.palin);
@@ -52,6 +51,7 @@ export default function LongestPalindromicSubstrViz() {
     if (playing) iRef.current = setInterval(doStep, speed);
     else if (iRef.current) { clearInterval(iRef.current); iRef.current = null; }
     return () => { if (iRef.current) clearInterval(iRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed]);
 
   const cur = step >= 0 && step < STEPS.length ? STEPS[step] : null;
@@ -84,14 +84,14 @@ export default function LongestPalindromicSubstrViz() {
         {cur && (
           <div className="flex gap-3 justify-center text-xs">
             <span style={{ color: "var(--text-muted)" }}>left={cur.left}</span>
-            <span style={{ color: "#f97316", fontWeight: "bold" }}>"{cur.palin}"</span>
+            <span style={{ color: "#f97316", fontWeight: "bold" }}>&quot;{cur.palin}&quot;</span>
             <span style={{ color: "var(--text-muted)" }}>right={cur.right}</span>
           </div>
         )}
       </div>
       <div className="rounded-xl p-4 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <div className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>Best palindrome so far</div>
-        <div className="text-2xl font-bold font-mono" style={{ color: done ? "#22c55e" : "#4f8ef7" }}>"{best}"</div>
+        <div className="text-2xl font-bold font-mono" style={{ color: done ? "#22c55e" : "#4f8ef7" }}>&quot;{best}&quot;</div>
         {best && <div className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>length = {best.length}</div>}
       </div>
       <div className="rounded-lg px-4 py-2 text-xs font-mono" style={{ background: done ? "rgba(34,197,94,0.08)" : "rgba(79,142,247,0.07)", color: done ? "#22c55e" : "#4f8ef7", border: `1px solid ${done ? "rgba(34,197,94,0.3)" : "rgba(79,142,247,0.18)"}` }}>{msg}</div>

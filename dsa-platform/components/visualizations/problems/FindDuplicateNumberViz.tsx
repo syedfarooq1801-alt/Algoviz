@@ -59,7 +59,7 @@ export default function FindDuplicateNumberViz() {
   return (
     <div className="space-y-4">
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Find Duplicate Number — Floyd's Cycle</h3>
+        <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Find Duplicate Number — Floyd&apos;s Cycle</h3>
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Array as linked list: node i points to NUMS[i]. Duplicate = cycle entry point.</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>

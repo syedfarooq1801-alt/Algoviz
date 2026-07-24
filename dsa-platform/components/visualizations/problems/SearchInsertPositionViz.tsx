@@ -11,7 +11,7 @@ export default function SearchInsertPositionViz() {
   const [done, setDone] = useState(false);
   const [result, setResult] = useState(-1);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(800);
+  const [speed] = useState(800);
   const [msg, setMsg] = useState(`Binary search for target=${TARGET} in [${ARR}]`);
   const stateRef = useRef({ lo: 0, hi: ARR.length - 1 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

@@ -9,7 +9,7 @@ export default function LoadBalancerViz() {
   const [requests, setRequests] = useState<{ id: number; server: number; y: number; done: boolean }[]>([]);
   const [loads, setLoads] = useState([0, 0, 0]);
   const [algo, setAlgo] = useState(0);
-  const [rrIdx, setRrIdx] = useState(0);
+  const [, setRrIdx] = useState(0);
 
   useEffect(() => {
     const id = setInterval(() => {

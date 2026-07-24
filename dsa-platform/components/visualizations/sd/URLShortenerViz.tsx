@@ -21,7 +21,7 @@ export default function URLShortenerViz() {
   const [db, setDb] = useState<Entry[]>([]);
   const [cache, setCache] = useState<Record<string, Entry>>({});
   const [activeOp, setActiveOp] = useState<{ type: "write" | "read"; code: string; hit: boolean } | null>(null);
-  const [tick, setTick] = useState(0);
+  const [, setTick] = useState(0);
 
   useEffect(() => {
     const id = setInterval(() => {

@@ -10,10 +10,6 @@ export default function TwoSumViz() {
   const [step, setStep] = useState(-1);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1000);
-  const [hashMap, setHashMap] = useState<Record<number, number>>({});
-  const [currentIndex, setCurrentIndex] = useState(-1);
-  const [foundIndices, setFoundIndices] = useState<[number, number] | null>(null);
-  const [log, setLog] = useState<string[]>([]);
   const [numsInput, setNumsInput] = useState(DEFAULT_NUMS.join(", "));
   const [targetInput, setTargetInput] = useState(String(DEFAULT_TARGET));
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -60,23 +56,19 @@ export default function TwoSumViz() {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [playing, speed, steps.length]);
 
-  useEffect(() => {
-    if (step >= 0 && step < steps.length) {
-      const s = steps[step];
-      setHashMap(s.map);
-      setCurrentIndex(s.i);
-      setFoundIndices(s.found);
-      setLog((prev) => [...prev.slice(-8), `Step ${step + 1}: ${s.msg}`]);
-    }
-  }, [step]);
+  // Derived from step/steps during render instead of mirrored into their own
+  // state via an effect (react-hooks/set-state-in-effect) — step only ever
+  // moves forward (Play/Step advance it, Reset zeros it), so a plain slice
+  // of the already-computed steps array reproduces the same log history.
+  const activeStep = step >= 0 && step < steps.length ? steps[step] : null;
+  const hashMap = activeStep?.map ?? {};
+  const currentIndex = activeStep?.i ?? -1;
+  const foundIndices = activeStep?.found ?? null;
+  const log = steps.slice(0, step + 1).map((s, i) => `Step ${i + 1}: ${s.msg}`).slice(-8);
 
   const reset = () => {
     setStep(-1);
     setPlaying(false);
-    setHashMap({});
-    setCurrentIndex(-1);
-    setFoundIndices(null);
-    setLog([]);
     if (intervalRef.current) clearInterval(intervalRef.current);
   };
 

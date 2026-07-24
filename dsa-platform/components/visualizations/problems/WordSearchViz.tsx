@@ -76,7 +76,7 @@ export default function WordSearchViz() {
     <div className="space-y-4">
       <div className="rounded-xl p-4" style={{ background:"var(--bg-card)", border:"1px solid var(--border)" }}>
         <h3 className="text-sm font-semibold mb-2" style={{ color:"var(--text-primary)" }}>Word Search — Grid DFS Backtracking</h3>
-        <div className="text-xs mb-3" style={{ color:"var(--text-muted)" }}>Search "{WORD}" in board. DFS with visited set, backtrack on mismatch/visited.</div>
+        <div className="text-xs mb-3" style={{ color:"var(--text-muted)" }}>Search &quot;{WORD}&quot; in board. DFS with visited set, backtrack on mismatch/visited.</div>
         <div className="flex gap-2 flex-wrap items-center">
           <button onClick={()=>setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium"
             style={{ background:playing?"rgba(239,68,68,0.15)":"rgba(34,197,94,0.15)", color:playing?"#ef4444":"#22c55e", border:`1px solid ${playing?"rgba(239,68,68,0.3)":"rgba(34,197,94,0.3)"}` }}>
@@ -113,7 +113,7 @@ export default function WordSearchViz() {
 
         {/* Progress */}
         <div className="rounded-xl p-4" style={{ background:"var(--bg-card)", border:"1px solid var(--border)" }}>
-          <div className="text-xs font-semibold mb-3" style={{ color:"var(--text-muted)" }}>Matching "{WORD}"</div>
+          <div className="text-xs font-semibold mb-3" style={{ color:"var(--text-muted)" }}>Matching &quot;{WORD}&quot;</div>
           <div className="flex gap-1">
             {WORD.split("").map((ch,i)=>{
               const matched = cur && i < cur.idx;

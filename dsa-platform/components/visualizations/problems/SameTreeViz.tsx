@@ -16,7 +16,7 @@ export default function SameTreeViz() {
   const [step, setStep] = useState(-1);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState("DFS simultaneously on both trees. Compare val, then recurse left and right.");
   const stateRef = useRef({ step: -1 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

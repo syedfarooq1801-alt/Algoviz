@@ -6,10 +6,10 @@ const A = 2, B = 3; // 010 + 011 = 101 = 5
 export default function SumTwoIntegersViz() {
   const [a, setA] = useState(A);
   const [b, setB] = useState(B);
-  const [step, setStep] = useState(0);
+  const [, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(800);
+  const [speed] = useState(800);
   const [msg, setMsg] = useState(`Add ${A}+${B} without + operator. Use XOR for sum, AND<<1 for carry.`);
   const stateRef = useRef({ a: A, b: B, step: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

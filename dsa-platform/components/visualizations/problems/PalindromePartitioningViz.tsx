@@ -8,10 +8,10 @@ const isPalin = (s: string) => s === s.split("").reverse().join("");
 
 export default function PalindromePartitioningViz() {
   const [idx, setIdx] = useState(0);
-  const [checkStr, setCheckStr] = useState("");
+  const [, setCheckStr] = useState("");
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState(`Partition "${S}" so every substring is a palindrome.`);
   const stateRef = useRef({ idx: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -39,6 +39,7 @@ export default function PalindromePartitioningViz() {
     if (playing) iRef.current = setInterval(doStep, speed);
     else if (iRef.current) { clearInterval(iRef.current); iRef.current = null; }
     return () => { if (iRef.current) clearInterval(iRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed]);
 
   return (
@@ -53,7 +54,7 @@ export default function PalindromePartitioningViz() {
         </div>
       </div>
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <div className="text-xs mb-2 font-semibold" style={{ color: "var(--text-muted)" }}>String: "{S}"</div>
+        <div className="text-xs mb-2 font-semibold" style={{ color: "var(--text-muted)" }}>String: &quot;{S}&quot;</div>
         <div className="flex gap-2 mb-4">
           {S.split("").map((c, i) => (
             <div key={i} className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold" style={{ background: "rgba(79,142,247,0.15)", border: "1px solid rgba(79,142,247,0.4)", color: "#4f8ef7" }}>{c}</div>
@@ -67,7 +68,7 @@ export default function PalindromePartitioningViz() {
               border: i === idx - 1 ? "2px solid " + (CHECK_RESULTS[i] ? "#22c55e" : "#ef4444") : "1px solid var(--border)",
               color: i < idx ? (CHECK_RESULTS[i] ? "#22c55e" : "#ef4444") : "var(--text-muted)"
             }}>
-              "{c}" {i < idx ? (CHECK_RESULTS[i] ? "✓" : "✗") : ""}
+              &quot;{c}&quot; {i < idx ? (CHECK_RESULTS[i] ? "✓" : "✗") : ""}
             </div>
           ))}
         </div>
@@ -77,7 +78,7 @@ export default function PalindromePartitioningViz() {
         {PARTITIONS.map((parts, i) => (
           <div key={i} className="flex gap-2 mb-2">
             {parts.map((p, j) => (
-              <div key={j} className="px-3 py-1.5 rounded text-xs font-mono" style={{ background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e" }}>"{p}"</div>
+              <div key={j} className="px-3 py-1.5 rounded text-xs font-mono" style={{ background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.3)", color: "#22c55e" }}>&quot;{p}&quot;</div>
             ))}
           </div>
         ))}

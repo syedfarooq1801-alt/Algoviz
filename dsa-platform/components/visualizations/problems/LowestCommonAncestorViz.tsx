@@ -24,7 +24,7 @@ export default function LowestCommonAncestorViz() {
   const [q] = useState(8); // index of val=8 (val=5)
   const [visited, setVisited] = useState<number[]>([]);
   const [current, setCurrent] = useState<number|null>(null);
-  const [found, setFound] = useState<number[]>([]);
+  const [, setFound] = useState<number[]>([]);
   const [lca, setLca] = useState<number|null>(null);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -33,13 +33,16 @@ export default function LowestCommonAncestorViz() {
   const stateRef = useRef({ stack:[[0,"down"]] as [number,string][], visited:[] as number[], found:[] as number[], resultMap:{} as Record<number,boolean>, lca:-1 });
   const iRef = useRef<ReturnType<typeof setInterval>|null>(null);
 
-  useEffect(() => { reset(); }, []);
-
   const reset = () => {
     stateRef.current = { stack:[[0,"down"]], visited:[], found:[], resultMap:{}, lca:-1 };
     setVisited([]); setCurrent(null); setFound([]); setLca(null); setDone(false); setPlaying(false);
     setMsg(`Find LCA of p=${TREE[p].val} and q=${TREE[q].val}`); if (iRef.current) clearInterval(iRef.current);
   };
+
+  // setState deferred into the timeout callback rather than called
+  // synchronously in the effect body, per react-hooks/set-state-in-effect.
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
+  useEffect(() => { const t = setTimeout(reset, 0); return () => clearTimeout(t); }, []);
 
   const doStep = () => {
     const st = stateRef.current;
@@ -74,6 +77,7 @@ export default function LowestCommonAncestorViz() {
     if (playing) { iRef.current = setInterval(doStep, speed); }
     else if (iRef.current) { clearInterval(iRef.current); iRef.current = null; }
     return () => { if (iRef.current) clearInterval(iRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed]);
 
   return (

@@ -11,7 +11,6 @@ const DEFAULT_GRID = [
 type Cell = "1" | "0" | "V" | "C"; // V=visited, C=current
 
 export default function IslandsViz() {
-  const [grid, setGrid] = useState<Cell[][]>(DEFAULT_GRID.map(r => [...r] as Cell[]));
   const [displayGrid, setDisplayGrid] = useState<Cell[][]>(DEFAULT_GRID.map(r => [...r] as Cell[]));
   const [islandCount, setIslandCount] = useState(0);
   const [currentCell, setCurrentCell] = useState<[number, number] | null>(null);
@@ -62,7 +61,10 @@ export default function IslandsViz() {
     if (intervalRef.current) clearInterval(intervalRef.current);
   };
 
-  useEffect(() => { reset(); }, []);
+  // setState deferred into the timeout callback rather than called
+  // synchronously in the effect body, per react-hooks/set-state-in-effect.
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
+  useEffect(() => { const t = setTimeout(() => reset(), 0); return () => clearTimeout(t); }, []);
 
   const doStep = () => {
     const idx = stepIdxRef.current;

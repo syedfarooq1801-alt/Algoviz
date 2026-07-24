@@ -1,6 +1,6 @@
 "use client";
 import { useState, useMemo } from "react";
-import { SD_CHAPTERS, getAllConcepts, getAllCaseStudyRefs, getTotalSDConcepts, getTotalCaseStudies } from "@/data/systemDesign";
+import { SD_CHAPTERS, getTotalSDConcepts, getTotalCaseStudies } from "@/data/systemDesign";
 import { useSDStore } from "@/lib/sdStore";
 import SDChapterSection from "@/components/sd/SDChapterSection";
 import SDLearningPath from "@/components/sd/SDLearningPath";

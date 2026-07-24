@@ -3,16 +3,6 @@ import { useState, useEffect, useRef } from "react";
 
 // Tree: [1, null, 2, 3, null, null, 4, 5, null, null, null, null, null, 6, null]
 // Simpler: hand-built tree
-interface Node { id: number; val: number; left: number | null; right: number | null }
-const NODES: Node[] = [
-  { id: 0, val: 1,  left: 1,    right: 2    },
-  { id: 1, val: 4,  left: 3,    right: 4    },
-  { id: 2, val: 3,  left: null, right: null },
-  { id: 3, val: 2,  left: null, right: null },
-  { id: 4, val: 4,  left: null, right: null },
-  // node 2 subtree [3] is valid BST sum=3
-  // node 1 subtree: 2<4<4? No, 4==4, not strict. Let's use different values
-];
 
 // Use a cleaner tree: root=1, left subtree valid BST [2,3,4]
 // Let me use: root=-4363, left=2 (left=1, right=3), right=6 (left=5, right=7)

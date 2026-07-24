@@ -13,7 +13,7 @@ export default function ValidParenthesisStringViz() {
   const [done, setDone] = useState(false);
   const [valid, setValid] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(800);
+  const [speed] = useState(800);
   const [msg, setMsg] = useState(`Track range [lo,hi] of possible open parentheses counts for "${S}".`);
   const stateRef = useRef({ idx: 0, lo: 0, hi: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -62,7 +62,7 @@ export default function ValidParenthesisStringViz() {
     <div className="space-y-4">
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Valid Parenthesis String — Greedy Range</h3>
-        <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Track [lo,hi] possible open counts. '*'=any. Invalid if hi&lt;0. Valid if lo=0 at end.</div>
+        <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Track [lo,hi] possible open counts. &apos;*&apos;=any. Invalid if hi&lt;0. Valid if lo=0 at end.</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>
           <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>

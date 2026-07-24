@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from "react";
 
 // tasks=['A','A','A','B','B','B'], n=2
 // Optimal: A→B→idle→A→B→idle→A→B = 8
-const TASKS = ['A','A','A','B','B','B'];
 const N_COOLDOWN = 2;
 const SCHEDULE = ['A','B','idle','A','B','idle','A','B'];
 const FREQ = {A:3, B:3};
@@ -19,7 +18,7 @@ export default function TaskSchedulerViz() {
   const [step, setStep] = useState(-1);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(700);
+  const [speed] = useState(700);
   const [msg, setMsg] = useState(`tasks=[A,A,A,B,B,B], n=${N_COOLDOWN}. Formula: max(N, (maxFreq-1)*(n+1)+countMaxFreq)`);
   const stateRef = useRef({ step: -1 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

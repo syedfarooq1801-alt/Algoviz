@@ -27,7 +27,7 @@ export default function ProcessStateViz() {
   return (
     <div>
       <svg viewBox="0 0 420 190" width="100%" style={{ maxWidth: 460 }}>
-        {EDGES.map(([a, b, lbl], i) => {
+        {EDGES.map(([a, b], i) => {
           const A = STATES[a], B = STATES[b];
           const active = cur === a && next[a]?.includes(b);
           return (

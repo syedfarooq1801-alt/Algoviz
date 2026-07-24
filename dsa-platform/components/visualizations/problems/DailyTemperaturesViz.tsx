@@ -25,7 +25,7 @@ export default function DailyTemperaturesViz() {
     const next = st.idx + 1;
     if (next >= st.temps.length) { setDone(true); setPlaying(false); setMsg(`Done! result=[${st.result.join(",")}]`); return; }
 
-    let dq = [...st.stack];
+    const dq = [...st.stack];
     const nr = [...st.result];
     let msg = `i=${next}(${st.temps[next]}): `;
     const popped: number[] = [];

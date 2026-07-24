@@ -12,7 +12,7 @@ const CARS_DATA = [
 
 export default function CarFleetViz() {
   const [step, setStep] = useState(-1);
-  const [fleets, setFleets] = useState(0);
+  const [, setFleets] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(900);
   const [done, setDone] = useState(false);
@@ -41,7 +41,7 @@ export default function CarFleetViz() {
       setFleets(st.length); return;
     }
     const t = times[nextStep];
-    let newStack = [...st];
+    const newStack = [...st];
     let newMsg = "";
     if (newStack.length === 0 || t > newStack[newStack.length - 1]) {
       newStack.push(t);
@@ -63,6 +63,7 @@ export default function CarFleetViz() {
     if (playing) iRef.current = setInterval(doStep, speed);
     else if (iRef.current) { clearInterval(iRef.current); iRef.current = null; }
     return () => { if (iRef.current) clearInterval(iRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed]);
 
   return (

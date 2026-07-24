@@ -23,10 +23,10 @@ const res2 = robLinear(arr2);
 
 export default function HouseRobberIIViz() {
   const [phase, setPhase] = useState(0); // 0=intro, 1=range1, 2=range2, 3=done
-  const [dpStep, setDpStep] = useState(0);
+  const [, setDpStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState("Houses in circle. Can't rob first AND last. Split into 2 ranges.");
   const stateRef = useRef({ phase: 0, dpStep: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

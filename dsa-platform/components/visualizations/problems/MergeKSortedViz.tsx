@@ -8,7 +8,6 @@ const buildSteps = () => {
   const heap: {val:number, list:number, idx:number}[] = [];
   const result: number[] = [];
   const steps: {heap: typeof heap, extracted: number|null, result: number[], msg: string}[] = [];
-  const ptrs = [0,0,0];
   // init
   for (let i = 0; i < LISTS.length; i++) {
     if (LISTS[i].length > 0) heap.push({val: LISTS[i][0], list: i, idx: 0});
@@ -34,7 +33,7 @@ export default function MergeKSortedViz() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(800);
+  const [speed] = useState(800);
   const [msg, setMsg] = useState("Min heap of size k. Always extract minimum. Push next from same list.");
   const stateRef = useRef({ step: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

@@ -71,7 +71,6 @@ export default function HouseRobberViz() {
         <div className="flex gap-2 items-end" style={{ height:"80px" }}>
           {nums.map((v,i)=>{
             const isActive = i === activeIdx;
-            const isRobbed = done && dp[i] > (i>0?dp[i-1]:0) && (i<2||dp[i]>dp[i-1]);
             return (
               <div key={i} className="flex flex-col items-center flex-1">
                 <div className="w-full rounded-t transition-all duration-200 flex items-end justify-center" style={{ height:`${(v/maxVal)*60}px`, background:isActive?"rgba(79,142,247,0.35)":"rgba(168,85,247,0.2)", border:isActive?"1px solid rgba(79,142,247,0.6)":"1px solid rgba(168,85,247,0.3)" }}></div>

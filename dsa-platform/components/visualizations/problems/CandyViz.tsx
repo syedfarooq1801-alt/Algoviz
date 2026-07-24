@@ -38,7 +38,6 @@ function buildSteps(): St[] {
 }
 
 const STEPS = buildSteps();
-const MAX_CANDY = Math.max(...STEPS[STEPS.length - 1].candy);
 
 export default function CandyViz() {
   const [idx, setIdx] = useState(0);
@@ -85,7 +84,6 @@ export default function CandyViz() {
           {RATINGS.map((r, i) => {
             const isActive = i === cur.i;
             const c = cur.candy[i];
-            const barH = MAX_CANDY > 0 ? (c / MAX_CANDY) * 80 : 20;
             return (
               <div key={i} className="flex flex-col items-center gap-1" style={{ flex: 1 }}>
                 {/* candy bar */}

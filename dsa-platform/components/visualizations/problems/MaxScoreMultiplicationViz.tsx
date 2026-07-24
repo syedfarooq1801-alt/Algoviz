@@ -31,7 +31,7 @@ export default function MaxScoreMultiplicationViz() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(600);
+  const [speed] = useState(600);
   const [msg, setMsg] = useState(`nums=[${NUMS}], mult=[${MULT}]. Pick from left or right each step.`);
   const stateRef = useRef({ step: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

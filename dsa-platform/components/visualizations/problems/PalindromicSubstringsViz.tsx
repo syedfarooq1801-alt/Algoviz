@@ -23,7 +23,7 @@ export default function PalindromicSubstringsViz() {
   const [palins, setPalins] = useState<string[]>([]);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(700);
+  const [speed] = useState(700);
   const [msg, setMsg] = useState(`Count all palindromic substrings in "${S}". Expand around each center.`);
   const stateRef = useRef({ step: -1, palins: [] as string[] });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -79,14 +79,14 @@ export default function PalindromicSubstringsViz() {
             );
           })}
         </div>
-        {cur && <div className="text-center text-sm font-bold" style={{ color: "#4f8ef7" }}>"{cur.palin}"</div>}
+        {cur && <div className="text-center text-sm font-bold" style={{ color: "#4f8ef7" }}>&quot;{cur.palin}&quot;</div>}
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
           <div className="text-xs mb-2 font-semibold" style={{ color: "var(--text-muted)" }}>Found palindromes</div>
           <div className="flex flex-wrap gap-1">
             {palins.map((p, i) => (
-              <div key={i} className="px-2 py-1 rounded text-xs font-mono" style={{ background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.25)", color: "#22c55e" }}>"{p}"</div>
+              <div key={i} className="px-2 py-1 rounded text-xs font-mono" style={{ background: "rgba(34,197,94,0.15)", border: "1px solid rgba(34,197,94,0.25)", color: "#22c55e" }}>&quot;{p}&quot;</div>
             ))}
           </div>
         </div>

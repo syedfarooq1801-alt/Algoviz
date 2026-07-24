@@ -24,7 +24,7 @@ export default function ReversePolishViz() {
     const { idx: i, stack: st } = stateRef.current;
     if (i >= TOKENS.length) { setDone(true); setPlaying(false); setMsg(`Result = ${st[0]}`); return; }
     const token = TOKENS[i];
-    let newStack = [...st];
+    const newStack = [...st];
     let newMsg = "";
     if (["+", "-", "*", "/"].includes(token)) {
       const b = newStack.pop()!, a = newStack.pop()!;

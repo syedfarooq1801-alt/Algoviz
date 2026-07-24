@@ -15,7 +15,7 @@ export default function Search2DMatrixViz() {
   const [done, setDone] = useState(false);
   const [found, setFound] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(800);
+  const [speed] = useState(800);
   const [msg, setMsg] = useState(`Search for ${TARGET} in matrix. Treat as flat sorted array.`);
   const stateRef = useRef({ lo: 0, hi: MATRIX.length * MATRIX[0].length - 1 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -55,6 +55,7 @@ export default function Search2DMatrixViz() {
     if (playing) iRef.current = setInterval(doStep, speed);
     else if (iRef.current) { clearInterval(iRef.current); iRef.current = null; }
     return () => { if (iRef.current) clearInterval(iRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed]);
 
   const [mr, mc] = mid >= 0 ? idxToRC(mid) : [-1, -1];

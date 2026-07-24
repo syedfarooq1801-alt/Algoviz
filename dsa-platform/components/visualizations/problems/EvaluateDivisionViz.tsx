@@ -4,8 +4,6 @@ import { useState, useRef, useEffect } from "react";
 // equations=[["a","b"],["b","c"]], values=[2,3]
 // queries=[["a","c"],["b","a"],["a","e"]]
 // a/b=2, b/c=3 → a/c=6, b/a=1/2=0.5, a/e=-1(unknown)
-const EQUATIONS = [["a","b"],["b","c"]];
-const VALUES = [2,3];
 const QUERIES = [["a","c"],["b","a"],["a","e"]];
 const ANSWERS = [6, 0.5, -1];
 
@@ -20,7 +18,7 @@ export default function EvaluateDivisionViz() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1000);
+  const [speed] = useState(1000);
   const [msg, setMsg] = useState("Build weighted directed graph. DFS/BFS multiplies edge weights along path.");
   const stateRef = useRef({ step: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

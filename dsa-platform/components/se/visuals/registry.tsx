@@ -6,7 +6,7 @@ import type { ComponentType } from "react";
 const load = (imp: () => Promise<{ default: ComponentType }>) => dynamic(imp, { ssr: false, loading: () => <div className="text-xs" style={{ color: "var(--text-muted)" }}>Loading visual…</div> });
 
 // key: `${subjectId}/${chapterId}`
-const REGISTRY: Record<string, ComponentType> = {
+export const REGISTRY: Record<string, ComponentType> = {
   // Operating Systems
   "operating-systems/processes-states-the-pcb-context-switching": load(() => import("./ProcessStateViz")),
   "operating-systems/threads-multithreading-models": load(() => import("./ThreadModelViz")),
@@ -37,7 +37,3 @@ const REGISTRY: Record<string, ComponentType> = {
   "linux-se/sdlc-agile": load(() => import("./SDLCViz")),
   "linux-se/complexity-analysis-big-o": load(() => import("./BigOViz")),
 };
-
-export function getSEVisual(subjectId: string, chapterId: string): ComponentType | null {
-  return REGISTRY[`${subjectId}/${chapterId}`] ?? null;
-}

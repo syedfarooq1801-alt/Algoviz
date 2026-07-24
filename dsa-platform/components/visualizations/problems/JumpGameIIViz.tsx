@@ -10,7 +10,7 @@ export default function JumpGameIIViz() {
   const [farthest, setFarthest] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(800);
+  const [speed] = useState(800);
   const [msg, setMsg] = useState("Greedy: track current window end. At window end, jump (increment jumps).");
   const stateRef = useRef({ idx: 0, jumps: 0, curEnd: 0, farthest: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

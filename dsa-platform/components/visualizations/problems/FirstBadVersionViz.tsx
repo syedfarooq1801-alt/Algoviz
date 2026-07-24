@@ -11,7 +11,7 @@ export default function FirstBadVersionViz() {
   const [calls, setCalls] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(800);
+  const [speed] = useState(800);
   const [msg, setMsg] = useState(`Find first bad version (1..${N}). Bad starts at version ${BAD}.`);
   const stateRef = useRef({ lo: 1, hi: N, calls: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -51,6 +51,7 @@ export default function FirstBadVersionViz() {
     if (playing) iRef.current = setInterval(doStep, speed);
     else if (iRef.current) { clearInterval(iRef.current); iRef.current = null; }
     return () => { if (iRef.current) clearInterval(iRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed]);
 
   return (

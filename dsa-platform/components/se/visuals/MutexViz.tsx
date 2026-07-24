@@ -12,8 +12,11 @@ export default function MutexViz() {
 
   useEffect(() => {
     if (!running) return;
-    if (tick >= 8) { setRunning(false); setHolder(null); return; }
+    // setState deferred into the timeout callback in every branch, per
+    // react-hooks/set-state-in-effect — no synchronous setState in the
+    // effect body itself.
     const t = setTimeout(() => {
+      if (tick >= 8) { setRunning(false); setHolder(null); return; }
       const who: "A" | "B" = tick % 2 === 0 ? "A" : "B";
       if (locked) {
         setHolder(who);

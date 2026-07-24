@@ -12,7 +12,7 @@ export default function GasStationViz() {
   const [start, setStart] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(800);
+  const [speed] = useState(800);
   const [msg, setMsg] = useState("If tank < 0 at any station, reset start to next station. Surplus must be ≥ 0 to have solution.");
   const stateRef = useRef({ idx: 0, tank: 0, totalSurplus: 0, start: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -58,13 +58,11 @@ export default function GasStationViz() {
     return () => { if (iRef.current) clearInterval(iRef.current); };
   }, [playing, speed]);
 
-  const maxGas = Math.max(...GAS);
-
   return (
     <div className="space-y-4">
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Gas Station — Greedy</h3>
-        <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>If can't reach next station, start must be after current. Track totalSurplus to check if solution exists.</div>
+        <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>If can&apos;t reach next station, start must be after current. Track totalSurplus to check if solution exists.</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>
           <button onClick={doStep} disabled={done || playing} className="px-3 py-1.5 rounded text-xs" style={{ background: "var(--bg-hover)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>→ Step</button>

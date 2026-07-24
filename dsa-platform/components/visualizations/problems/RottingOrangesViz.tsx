@@ -52,8 +52,11 @@ export default function RottingOrangesViz() {
     else { setResult(st.minute); setDone(true); setPlaying(false); setMsg(`No more fresh neighbors. Total = ${st.minute} minutes`); }
   };
 
+  // setState deferred into the timeout callback rather than called
+  // synchronously in the effect body, per react-hooks/set-state-in-effect.
   useEffect(() => {
-    reset();
+    const t = setTimeout(reset, 0);
+    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {

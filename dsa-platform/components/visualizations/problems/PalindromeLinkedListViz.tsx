@@ -74,8 +74,6 @@ export default function PalindromeLinkedListViz() {
       const nf = st.fast + 2;
       if (nf >= LIST.length) {
         // slow is now at middle; start reverse from slow
-        const mid = ns <= LIST.length ? ns : st.slow;
-        const actualMid = nf >= LIST.length ? st.slow + 1 : st.slow;
         // For odd length: fast goes past end after 2 hops, slow is at (n-1)/2
         // We'll start reversing from slow+1
         const startRev = st.slow + 1;
@@ -185,10 +183,10 @@ export default function PalindromeLinkedListViz() {
       if (i === fast) return { bg: "rgba(79,142,247,0.25)", border: "#4f8ef7", text: "#4f8ef7" };
     }
     if (phase === "compare" || phase === "done") {
-      // find if this index is currently being compared
-      const currA = stateRef.current.p1;
-      const currB = stateRef.current.p2;
-      if (phase === "compare" && (i === currA || i === currB)) {
+      // find if this index is currently being compared — read from state
+      // (already kept in sync with stateRef by doStep), not the ref itself:
+      // reading a ref's .current during render isn't safe to rely on.
+      if (phase === "compare" && (i === p1 || i === p2)) {
         return { bg: "rgba(168,85,247,0.25)", border: "#a855f7", text: "#a855f7" };
       }
       const pair = comparedPairs.find(p => p.a === i || p.b === i);

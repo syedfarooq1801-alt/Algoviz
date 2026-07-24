@@ -27,7 +27,7 @@ export default function MinimumPathSumViz() {
   const [dp, setDp] = useState(Array.from({ length: ROWS }, () => Array(COLS).fill(null)));
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(800);
+  const [speed] = useState(800);
   const [msg, setMsg] = useState("dp[i][j] = min(dp[i-1][j], dp[i][j-1]) + grid[i][j]. Only move right/down.");
   const stateRef = useRef({ step: -1 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

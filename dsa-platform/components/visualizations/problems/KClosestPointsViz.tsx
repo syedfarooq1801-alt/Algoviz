@@ -10,7 +10,7 @@ export default function KClosestPointsViz() {
   const [heap, setHeap] = useState<number[][]>([]);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState(`Max-heap of size k=${K} by distance. Keep k closest to origin.`);
   const stateRef = useRef({ idx: 0, heap: [] as number[][] });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -50,6 +50,7 @@ export default function KClosestPointsViz() {
     if (playing) iRef.current = setInterval(doStep, speed);
     else if (iRef.current) { clearInterval(iRef.current); iRef.current = null; }
     return () => { if (iRef.current) clearInterval(iRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed]);
 
   return (

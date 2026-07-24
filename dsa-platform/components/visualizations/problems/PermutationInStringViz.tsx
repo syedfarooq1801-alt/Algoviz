@@ -5,7 +5,7 @@ const S1 = "ab", S2 = "eidbaooo";
 
 export default function PermutationInStringViz() {
   const [left, setLeft] = useState(0);
-  const [right, setRight] = useState(0);
+  const [, setRight] = useState(0);
   const [done, setDone] = useState(false);
   const [result, setResult] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -35,7 +35,7 @@ export default function PermutationInStringViz() {
   };
 
   const doStep = () => {
-    const { left: l, right: r } = stateRef.current;
+    const { left: l } = stateRef.current;
     if (l + S1.length - 1 >= S2.length) {
       setDone(true); setResult(false); setPlaying(false);
       setMsg("No permutation found. Return false."); return;
@@ -57,6 +57,7 @@ export default function PermutationInStringViz() {
     if (playing) iRef.current = setInterval(doStep, speed);
     else if (iRef.current) { clearInterval(iRef.current); iRef.current = null; }
     return () => { if (iRef.current) clearInterval(iRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed]);
 
   const windowL = left - 1 < 0 ? 0 : left - 1;
@@ -75,7 +76,7 @@ export default function PermutationInStringViz() {
         </div>
       </div>
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <div className="text-xs mb-1 font-semibold" style={{ color: "var(--accent-purple)" }}>s1 = "{S1}" | s2 = "{S2}"</div>
+        <div className="text-xs mb-1 font-semibold" style={{ color: "var(--accent-purple)" }}>s1 = &quot;{S1}&quot; | s2 = &quot;{S2}&quot;</div>
         <div className="flex gap-2 mt-3">
           {S2.split("").map((c, i) => {
             const inWindow = !done && i >= windowL && i <= windowR;

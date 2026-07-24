@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from "react";
 
 // beginWord="hit", endWord="cog", wordList=["hot","dot","dog","lot","log","cog"]
 const PATH = ["hit","hot","dot","dog","cog"];
-const ALL_WORDS = ["hit","hot","dot","dog","lot","log","cog"];
 
 const STEPS = PATH.map((word, i) => ({
   current: i,
@@ -19,7 +18,7 @@ export default function WordLadderViz() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState(`BFS on word graph. Each edge = 1-letter diff. Find shortest path "hit"→"cog".`);
   const stateRef = useRef({ step: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

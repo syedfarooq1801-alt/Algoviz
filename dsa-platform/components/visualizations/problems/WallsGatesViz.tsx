@@ -29,7 +29,6 @@ const buildSteps = () => {
   const grid = INIT_GRID.map(r => [...r]);
   steps.push({ grid: grid.map(r => r.map(v => v === INF ? "∞" : v)), msg: "Multi-source BFS from all gates (0s) simultaneously." });
   // Step 1: dist=1 cells
-  const dist1 = [[0,2,0,3],[1,1,1,2],[1,2,3,2]];
   const g1 = INIT_GRID.map(r => [...r]);
   g1[0][3]=1; g1[1][2]=1; g1[2][0]=1;
   steps.push({ grid: g1.map(r => r.map(v => v === INF ? "∞" : v)), msg: "Distance 1: cells adjacent to gates get dist=1." });
@@ -43,7 +42,7 @@ export default function WallsGatesViz() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1000);
+  const [speed] = useState(1000);
   const [msg, setMsg] = useState("Multi-source BFS from all gates. Fill distances outward simultaneously.");
   const stateRef = useRef({ step: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -88,7 +87,6 @@ export default function WallsGatesViz() {
               const isGate = v === 0 || v === "0";
               const isWall = v === W || v === -1;
               const isInf = v === "∞";
-              const numV = typeof v === 'number' ? v : NaN;
               return (
                 <div key={`${r}-${c}`} className="aspect-square flex items-center justify-center rounded-lg text-sm font-bold" style={{ background: isGate ? "rgba(34,197,94,0.35)" : isWall ? "rgba(107,114,128,0.35)" : isInf ? "var(--bg-hover)" : "rgba(79,142,247,0.2)", border: isGate ? "2px solid #22c55e" : isWall ? "1px solid rgba(107,114,128,0.5)" : isInf ? "1px dashed rgba(79,142,247,0.2)" : "1px solid rgba(79,142,247,0.4)", color: isGate ? "#22c55e" : isWall ? "var(--text-muted)" : isInf ? "rgba(79,142,247,0.3)" : "#4f8ef7" }}>
                   {isWall ? "▪" : v.toString()}

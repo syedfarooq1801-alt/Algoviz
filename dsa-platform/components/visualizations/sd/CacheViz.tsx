@@ -7,7 +7,7 @@ const CAPACITY = 4;
 interface CacheEntry { key: string; value: string; age: number }
 
 export default function CacheViz() {
-  const [step, setStep] = useState(0);
+  const [, setStep] = useState(0);
   const [cache, setCache] = useState<CacheEntry[]>([]);
   const [lastKey, setLastKey] = useState<string | null>(null);
   const [hit, setHit] = useState<boolean | null>(null);

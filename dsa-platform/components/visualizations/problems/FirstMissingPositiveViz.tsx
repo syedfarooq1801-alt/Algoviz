@@ -50,6 +50,7 @@ export default function FirstMissingPositiveViz() {
     if (playing && !done) { iRef.current = setInterval(doStep, speed); }
     else if (iRef.current) { clearInterval(iRef.current); iRef.current = null; }
     return () => { if (iRef.current) clearInterval(iRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed, done]);
 
   return (

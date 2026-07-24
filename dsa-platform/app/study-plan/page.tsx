@@ -8,6 +8,7 @@ import { useSDStore } from "@/lib/sdStore";
 import { useSEStore } from "@/lib/seStore";
 import { useLLDStore } from "@/lib/lldStore";
 import { useInterviewStore, COMPANIES, type TargetCompany } from "@/lib/interviewStore";
+import { todayLocalISO } from "@/lib/date";
 
 const DAYS_OPTIONS = [21, 30, 60, 90] as const;
 type Duration = 21 | 30 | 60 | 90;
@@ -25,9 +26,6 @@ const COMPANY_COLORS: Record<string, string> = {
   Apple: "#9499C0", Microsoft: "#22D587", LinkedIn: "#0EA5E9", Netflix: "#EF4444",
 };
 
-function todayISO() {
-  return new Date().toISOString().slice(0, 10);
-}
 
 function daysBetween(fromISO: string, toISO: string): number {
   const a = new Date(fromISO + "T00:00:00").getTime();
@@ -51,7 +49,7 @@ function withPlanSrc(href: string): string {
 
 export default function StudyPlanPage() {
   const isMobile = useMobile();
-  const { solved, solvedDates, toggleSolved, studyPlanDuration, setStudyPlanDuration, planStartDate, setPlanStartDate, weakAreas, toggleWeak, isWeak } = useProgressStore();
+  const { solved, solvedDates, toggleSolved, studyPlanDuration, setStudyPlanDuration, planStartDate, setPlanStartDate, weakAreas, toggleWeak, isWeak, trackWeights, setTrackWeights } = useProgressStore();
   const { mastered, toggleMastered, masteredDates } = useSDStore();
   const { completed, toggleChapter, completedDates } = useSEStore();
   const { completed: lldCompleted, toggleChapter: toggleLLDChapter, completedDates: lldCompletedDates } = useLLDStore();
@@ -62,18 +60,44 @@ export default function StudyPlanPage() {
   const duration: Duration = studyPlanDuration;
   const [activeWeek, setActiveWeek] = useState(0);
 
-  const today = todayISO();
+  // Real state (not a one-shot memo) — todayLocalISO() reads the real clock,
+  // and a plain useMemo([]) would freeze "today" at mount forever, so the
+  // plan would never advance to the next day if the tab is left open
+  // overnight. Re-checked periodically and on tab refocus; setState only
+  // fires when the calendar date has actually changed.
+  const [today, setToday] = useState(() => todayLocalISO());
+  useEffect(() => {
+    const check = () => {
+      const t = todayLocalISO();
+      setToday((prev) => (prev === t ? prev : t));
+    };
+    const id = setInterval(check, 60_000);
+    const onVisible = () => { if (document.visibilityState === "visible") check(); };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => { clearInterval(id); document.removeEventListener("visibilitychange", onVisible); };
+  }, []);
   // planStartDate is no longer auto-set silently — first visit shows a
   // one-time setup gate (below the main return) that asks for an interview
   // date before the plan begins, so extend-vs-compress mode is a deliberate
   // choice from day one instead of a banner you discover later.
-  const startDate = planStartDate || today;
+  const startDate = useMemo(() => planStartDate || today, [planStartDate, today]);
 
   // Small header editor for setting/changing the interview date after setup,
   // so skipping it at setup time isn't a permanent trap.
   const [showDateEditor, setShowDateEditor] = useState(false);
   const [dateDraft, setDateDraft] = useState("");
   const [companyDraft, setCompanyDraft] = useState<TargetCompany>("Other");
+
+  // Default display values when the user hasn't set custom weights — purely
+  // cosmetic starting points for the sliders; the balanced algorithm default
+  // kicks in whenever trackWeights is empty, regardless of these numbers.
+  const DEFAULT_WEIGHTS: Record<"dsa" | "sd" | "se" | "lld", number> = { dsa: 60, sd: 15, se: 15, lld: 10 };
+  const [showWeightsEditor, setShowWeightsEditor] = useState(false);
+  const weightsAreCustom = Object.keys(trackWeights).length > 0;
+  const weightFor = (k: keyof typeof DEFAULT_WEIGHTS) => trackWeights[k] ?? DEFAULT_WEIGHTS[k];
+  function setWeight(k: keyof typeof DEFAULT_WEIGHTS, v: number) {
+    setTrackWeights({ dsa: weightFor("dsa"), sd: weightFor("sd"), se: weightFor("se"), lld: weightFor("lld"), [k]: v });
+  }
 
   function changeDuration(d: Duration) {
     setStudyPlanDuration(d);
@@ -83,9 +107,16 @@ export default function StudyPlanPage() {
   }
 
   const weakKey = useMemo(() => Array.from(weakAreas).sort().join(","), [weakAreas]);
+  const weightsKey = useMemo(
+    () => (["dsa", "sd", "se", "lld"] as const).map((k) => `${k}:${trackWeights[k] ?? 0}`).join(","),
+    [trackWeights]
+  );
+  // trackWeights is a new object reference every render (store selector) —
+  // weightsKey is its stable, value-equal proxy for the dependency array below.
   const basePlan = useMemo(
-    () => generateStudyPlan(duration, startDate, undefined, weakKey ? weakKey.split(",") : []),
-    [duration, startDate, weakKey]
+    () => generateStudyPlan(duration, startDate, trackWeights, weakKey ? weakKey.split(",") : []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [duration, startDate, weakKey, weightsKey]
   );
 
   // Completion check shared by the rebalancer and the task rows below.
@@ -146,10 +177,9 @@ export default function StudyPlanPage() {
   // miss another day it pops again the next day. Keyed on the day so it can't
   // nag on every reload.
   const rebalanceSig = today;
-  const [rebalanceDismissed, setRebalanceDismissed] = useState<string | null>(null);
-  useEffect(() => {
-    try { setRebalanceDismissed(localStorage.getItem("studyplan-rebalance-dismissed")); } catch { /* ignore */ }
-  }, []);
+  const [rebalanceDismissed, setRebalanceDismissed] = useState<string | null>(() => {
+    try { return localStorage.getItem("studyplan-rebalance-dismissed"); } catch { return null; }
+  });
   const showRebalanceToast = rebalance.mode !== "none" && rebalanceDismissed !== rebalanceSig;
   function dismissRebalance() {
     try { localStorage.setItem("studyplan-rebalance-dismissed", rebalanceSig); } catch { /* ignore */ }
@@ -614,6 +644,57 @@ export default function StudyPlanPage() {
                 </div>
               )}
             </div>
+            {/* Track weights — 21-day plan is fixed-curriculum, so this only
+                applies to 30/60/90 plans. */}
+            {duration !== 21 && (
+              <div style={{ position: "relative" }}>
+                <button
+                  onClick={() => setShowWeightsEditor((v) => !v)}
+                  style={{
+                    fontSize: 11, fontWeight: 600, cursor: "pointer",
+                    padding: "5px 10px", borderRadius: 6, border: "1px solid var(--border-subtle)",
+                    background: "var(--bg-secondary)", color: weightsAreCustom ? "var(--accent)" : "var(--text-muted)",
+                  }}
+                >
+                  ⚖ Focus
+                </button>
+                {showWeightsEditor && (
+                  <div style={{
+                    position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 50,
+                    width: 260, padding: 14, borderRadius: 8,
+                    background: "var(--bg-card)", border: "1px solid var(--border)",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+                    display: "flex", flexDirection: "column", gap: 10,
+                  }}>
+                    <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.5 }}>
+                      Relative daily focus per track. Higher = more of that track&apos;s work per day.
+                    </div>
+                    {(["dsa", "sd", "se", "lld"] as const).map((k) => (
+                      <label key={k} style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 11, color: "var(--text-secondary)" }}>
+                        <span style={{ display: "flex", justifyContent: "space-between" }}>
+                          <span>{PHASE_LABEL[k]}</span>
+                          <span style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>{weightFor(k)}</span>
+                        </span>
+                        <input
+                          type="range" min="0" max="100" step="5"
+                          value={weightFor(k)}
+                          onChange={(e) => setWeight(k, Number(e.target.value))}
+                          style={{ width: "100%", accentColor: "var(--accent)" }}
+                        />
+                      </label>
+                    ))}
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {weightsAreCustom && (
+                        <button onClick={() => setTrackWeights({})} className="btn-ghost px-3 py-1.5 text-xs">
+                          Reset to balanced
+                        </button>
+                      )}
+                      <button onClick={() => setShowWeightsEditor(false)} className="btn-ghost px-3 py-1.5 text-xs">Done</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             {/* Start date — aligns the plan to the real calendar */}
             <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "var(--text-muted)" }}>
               Started
@@ -630,12 +711,17 @@ export default function StudyPlanPage() {
             </label>
             <div style={{ display: "flex", gap: 3, background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)", borderRadius: 6, padding: 3 }}>
               {DAYS_OPTIONS.map((d) => (
-                <button key={d} onClick={() => changeDuration(d)} style={{
-                  padding: "4px 14px", fontSize: 12, borderRadius: 4, cursor: "pointer",
-                  background: duration === d ? "var(--accent)" : "transparent",
-                  color: duration === d ? "#fff" : "var(--text-muted)",
-                  fontWeight: duration === d ? 600 : 400, border: "none", transition: "all 0.1s",
-                }}>{d}d</button>
+                <button
+                  key={d}
+                  onClick={() => changeDuration(d)}
+                  title={d === 21 ? "21 core days + final mock + 2 behavioral wrap-up days (~24 days total)" : undefined}
+                  style={{
+                    padding: "4px 14px", fontSize: 12, borderRadius: 4, cursor: "pointer",
+                    background: duration === d ? "var(--accent)" : "transparent",
+                    color: duration === d ? "#fff" : "var(--text-muted)",
+                    fontWeight: duration === d ? 600 : 400, border: "none", transition: "all 0.1s",
+                  }}
+                >{d === 21 ? "21d+" : `${d}d`}</button>
               ))}
             </div>
           </div>

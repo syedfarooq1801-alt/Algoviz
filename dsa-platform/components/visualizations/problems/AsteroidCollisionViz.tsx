@@ -24,7 +24,7 @@ export default function AsteroidCollisionViz() {
     const { idx: i, stack: st } = stateRef.current;
     if (i >= ASTEROIDS.length) { setDone(true); setPlaying(false); setMsg(`Survivors: [${st.join(", ")}]`); return; }
     const ast = ASTEROIDS[i];
-    let newStack = [...st];
+    const newStack = [...st];
     let newMsg = "";
     if (ast > 0) {
       newStack.push(ast);

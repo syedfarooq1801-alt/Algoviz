@@ -14,7 +14,7 @@ export default function ReplicationViz() {
   const [writeLog, setWriteLog] = useState<Write[]>([]);
   const [activeWrite, setActiveWrite] = useState<number | null>(null);
   const [replicaLag, setReplicaLag] = useState([0, 0]);
-  const [tick, setTick] = useState(0);
+  const [, setTick] = useState(0);
   const [mode, setMode] = useState<"sync" | "async">("sync");
 
   useEffect(() => {

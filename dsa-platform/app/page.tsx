@@ -10,13 +10,10 @@ import { useSDStore } from "@/lib/sdStore";
 import { useSEStore } from "@/lib/seStore";
 import { useInterviewStore } from "@/lib/interviewStore";
 import { usePrepStore } from "@/lib/prepStore";
+import { todayLocalISO } from "@/lib/date";
 
 function pct(done: number, total: number) {
   return total ? Math.round((done / total) * 100) : 0;
-}
-
-function todayIso() {
-  return new Date().toISOString().split("T")[0];
 }
 
 export default function Home() {
@@ -24,7 +21,7 @@ export default function Home() {
   const { mastered } = useSDStore();
   const { completed } = useSEStore();
   const { targetDate, targetCompany, daysUntil } = useInterviewStore();
-  const { reviewDue, mockSessions } = usePrepStore();
+  const { reviewDue } = usePrepStore();
   const days = daysUntil();
 
   const totalProblems = getTotalProblems();
@@ -32,24 +29,30 @@ export default function Home() {
   const seTotal = getTotalSEChapters();
   const allProblems = useMemo(() => PATTERNS.flatMap((p) => p.problems), []);
 
-  const continueTarget = useMemo(() => {
-    for (const pattern of PATTERNS) {
-      for (const problem of pattern.problems) {
-        if (!solved.has(problem.id)) {
-          return {
-            href: `/problems/${problem.id}`,
-            title: problem.title,
-            pattern: pattern.title,
-            difficulty: problem.difficulty,
-          };
-        }
+  // Left un-memoized so React Compiler can auto-memoize it — a manual
+  // useMemo here kept failing preserve-manual-memoization (the nested
+  // early-return loop isn't a shape the compiler can verify matches).
+  let continueTarget: { href: string; title: string; pattern: string; difficulty: string } | null = null;
+  for (const pattern of PATTERNS) {
+    for (const problem of pattern.problems) {
+      if (!solved.has(problem.id)) {
+        continueTarget = {
+          href: `/problems/${problem.id}`,
+          title: problem.title,
+          pattern: pattern.title,
+          difficulty: problem.difficulty,
+        };
+        break;
       }
     }
-    return { href: "/dsa", title: "All problems complete", pattern: "DSA", difficulty: "—" };
-  }, [solved]);
+    if (continueTarget) break;
+  }
+  if (!continueTarget) {
+    continueTarget = { href: "/dsa", title: "All problems complete", pattern: "DSA", difficulty: "—" };
+  }
 
   const dueReviews = Object.entries(reviewDue)
-    .filter(([, due]) => due <= todayIso())
+    .filter(([, due]) => due <= todayLocalISO())
     .map(([id]) => allProblems.find((p) => p.id === id))
     .filter(Boolean)
     .slice(0, 6);

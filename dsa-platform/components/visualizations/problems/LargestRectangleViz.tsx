@@ -7,7 +7,7 @@ export default function LargestRectangleViz() {
   const [idx, setIdx] = useState(-1);
   const [stack, setStack] = useState<{idx:number,h:number}[]>([]);
   const [maxArea, setMaxArea] = useState(0);
-  const [bestRect, setBestRect] = useState<{l:number,r:number,h:number}|null>(null);
+  const [, setBestRect] = useState<{l:number,r:number,h:number}|null>(null);
   const [highlighted, setHighlighted] = useState<{l:number,r:number,h:number}|null>(null);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -27,11 +27,11 @@ export default function LargestRectangleViz() {
     const next = st.idx + 1;
     const n = st.heights.length;
     const currH = next < n ? st.heights[next] : 0;
-    let dq = [...st.stack];
+    const dq = [...st.stack];
     let maxA = st.maxArea;
     let bestR = st.bestRect;
     let startIdx = next;
-    let msgs: string[] = [];
+    const msgs: string[] = [];
 
     while (dq.length && dq[dq.length-1].h > currH) {
       const popped = dq.pop()!;

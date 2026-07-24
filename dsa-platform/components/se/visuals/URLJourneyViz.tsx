@@ -17,8 +17,13 @@ export default function URLJourneyViz() {
   const [playing, setPlaying] = useState(false);
   useEffect(() => {
     if (!playing) return;
-    if (step >= STAGES.length - 1) { setPlaying(false); return; }
-    const t = setTimeout(() => setStep((s) => s + 1), 1000);
+    // setState deferred into the timeout callback in both branches, per
+    // react-hooks/set-state-in-effect — no synchronous setState in the
+    // effect body itself.
+    const t = setTimeout(() => {
+      if (step >= STAGES.length - 1) setPlaying(false);
+      else setStep((s) => s + 1);
+    }, 1000);
     return () => clearTimeout(t);
   }, [playing, step]);
 

@@ -95,7 +95,7 @@ export default function MultiplyStringsViz() {
     <div className="space-y-4">
       {/* Controls */}
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Multiply Strings — "{NUM1}" × "{NUM2}" = {Number(NUM1) * Number(NUM2)}</h3>
+        <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Multiply Strings — &quot;{NUM1}&quot; × &quot;{NUM2}&quot; = {Number(NUM1) * Number(NUM2)}</h3>
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>
           Multiply each digit pair, accumulate into result array. result[i+j+1] += d1×d2; carry propagates to result[i+j].
         </div>
@@ -216,8 +216,8 @@ export default function MultiplyStringsViz() {
           })}
         </div>
         <div className="mt-3 text-xs font-mono" style={{ color: "var(--text-muted)" }}>
-          String: "{done ? finalResult : resultArr.join("")}"
-          {done && <span className="ml-2 font-bold" style={{ color: "#22c55e" }}>→ trimmed: "{finalResult}"</span>}
+          String: &quot;{done ? finalResult : resultArr.join("")}&quot;
+          {done && <span className="ml-2 font-bold" style={{ color: "#22c55e" }}>→ trimmed: &quot;{finalResult}&quot;</span>}
         </div>
       </div>
 
@@ -248,7 +248,7 @@ export default function MultiplyStringsViz() {
       {/* Final result */}
       {done && (
         <div className="rounded-xl p-4 text-center" style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.3)" }}>
-          <div className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>"{NUM1}" × "{NUM2}"</div>
+          <div className="text-xs mb-1" style={{ color: "var(--text-muted)" }}>&quot;{NUM1}&quot; × &quot;{NUM2}&quot;</div>
           <div className="text-3xl font-bold font-mono" style={{ color: "#22c55e" }}>{finalResult}</div>
         </div>
       )}

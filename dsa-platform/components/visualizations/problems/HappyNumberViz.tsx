@@ -70,6 +70,7 @@ export default function HappyNumberViz() {
     if (playing) { iRef.current = setInterval(doStep, speed); }
     else if (iRef.current) { clearInterval(iRef.current); iRef.current = null; }
     return () => { if (iRef.current) clearInterval(iRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed, activeN]);
 
   const switchN = (n: 19 | 4) => {

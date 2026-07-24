@@ -51,7 +51,7 @@ function invertSteps(nodes: TreeMap): { highlighted: number[]; swapped: number[]
 const DEFAULT_TREE = [4, 2, 7, 1, 3, 6, 9];
 
 export default function TreeViz() {
-  const [treeArr, setTreeArr] = useState<(number | null)[]>(DEFAULT_TREE);
+  const [, setTreeArr] = useState<(number | null)[]>(DEFAULT_TREE);
   const [inputVal, setInputVal] = useState(DEFAULT_TREE.join(", "));
   const [nodes, setNodes] = useState<TreeMap>(() => buildTree(DEFAULT_TREE));
   const [stepIdx, setStepIdx] = useState(-1);
@@ -188,7 +188,7 @@ export default function TreeViz() {
 
       {done && (
         <div className="rounded-xl p-4 text-center" style={{ background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.3)" }}>
-          <div className="font-semibold text-sm" style={{ color: "#22c55e" }}>✓ Tree inverted! Every node's children are swapped.</div>
+          <div className="font-semibold text-sm" style={{ color: "#22c55e" }}>✓ Tree inverted! Every node&apos;s children are swapped.</div>
           <div className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>Postorder DFS: process children before parent.</div>
         </div>
       )}

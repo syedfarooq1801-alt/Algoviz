@@ -1,15 +1,16 @@
 "use client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { todayLocalISO, dateToLocalISO } from "@/lib/date";
 
 function addDays(days: number): string {
   const d = new Date();
   d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
+  return dateToLocalISO(d);
 }
 
 function todayISO(): string {
-  return new Date().toISOString().slice(0, 10);
+  return todayLocalISO();
 }
 
 const INTERVALS = [1, 3, 7, 14, 30, 60]; // days per level
@@ -72,7 +73,11 @@ export const useFlashcardStore = create<FlashcardState>()(
           const weak = new Set(state.weak);
           known.delete(id);
           weak.delete(id);
+          // Destructuring-omit idiom: the excluded value has to be bound to
+          // something even though it's discarded.
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { [id]: _l, ...level } = state.level;
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { [id]: _r, ...nextReview } = state.nextReview;
           return { known, weak, level, nextReview };
         }),

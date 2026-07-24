@@ -213,7 +213,7 @@ export default function PlusOneViz() {
             let transform = "scale(1)";
 
             if (hl) {
-              bg = d === 0 && stateRef.current.carry !== false ? "rgba(249,115,22,0.2)" : "rgba(79,142,247,0.2)";
+              bg = d === 0 && carry ? "rgba(249,115,22,0.2)" : "rgba(79,142,247,0.2)";
               border = d === 0 && phase !== "done" ? "2px solid #f97316" : "2px solid #4f8ef7";
               color = d === 0 && phase !== "done" ? "#f97316" : "#4f8ef7";
               transform = "scale(1.12)";

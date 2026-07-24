@@ -58,8 +58,6 @@ def _sl(h):
     while h: r.append(h.val); h = h.next
     return r`;
 
-const TREE_AND_LIST_PREAMBLE = TREE_PREAMBLE + "\n" + LIST_PREAMBLE;
-
 // ─── Problem runners ────────────────────────────────────────────────────────
 
 export const PROBLEM_RUNNERS: Record<string, ProblemRunner> = {

@@ -7,7 +7,7 @@ const K = 3;
 export default function MaxPointsCardsViz() {
   const [leftTake, setLeftTake] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(700);
+  const [speed] = useState(700);
   const [done, setDone] = useState(false);
   const [msg, setMsg] = useState(`Take k=${K} cards from left/right ends to maximize sum`);
   const stateRef = useRef({ leftTake: 0 });
@@ -45,6 +45,7 @@ export default function MaxPointsCardsViz() {
     if (playing) iRef.current = setInterval(doStep, speed);
     else if (iRef.current) { clearInterval(iRef.current); iRef.current = null; }
     return () => { if (iRef.current) clearInterval(iRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed]);
 
   const lt = Math.min(leftTake, K);

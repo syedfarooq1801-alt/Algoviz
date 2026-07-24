@@ -46,7 +46,7 @@ export default function BigOViz() {
           );
         })}
       </div>
-      <p className="text-xs mt-2" style={{ color: "var(--text-muted)" }}>Operations for input size n. Notice how O(2ⁿ) and O(n²) explode — that's why they're unusable at scale.</p>
+      <p className="text-xs mt-2" style={{ color: "var(--text-muted)" }}>Operations for input size n. Notice how O(2ⁿ) and O(n²) explode — that&apos;s why they&apos;re unusable at scale.</p>
     </div>
   );
 }

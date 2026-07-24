@@ -8,7 +8,7 @@ export default function LastStoneWeightViz() {
   const [log, setLog] = useState<string[]>([]);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState("Max heap: repeatedly smash two heaviest stones.");
   const stateRef = useRef({ stones: [...INITIAL].sort((a, b) => b - a), log: [] as string[] });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -30,7 +30,7 @@ export default function LastStoneWeightViz() {
     }
     const sorted = [...st].sort((a, b) => b - a);
     const a = sorted[0], b = sorted[1];
-    let newStones = sorted.slice(2);
+    const newStones = sorted.slice(2);
     let logEntry = "";
     if (a === b) {
       logEntry = `${a} vs ${b} → equal, both destroyed!`;

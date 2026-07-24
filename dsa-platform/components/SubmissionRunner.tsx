@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { getProblemRunner, buildTestCode, type ProblemTestCase } from "@/data/testCases";
 import { usePrepStore } from "@/lib/prepStore";
 import { runPython as runPythonCode, getPyodide } from "@/lib/pyodide";
@@ -49,7 +49,6 @@ interface Props {
 export default function SubmissionRunner({ problemId, starterCpp, starterPython, defaultLang = "python" }: Props) {
   const runner = getProblemRunner(problemId);
   const addCodeAttempt = usePrepStore((s) => s.addCodeAttempt);
-  const codeAttempts = usePrepStore((s) => s.codeAttempts).filter((a) => a.problemId === problemId).slice(0, 5);
   const hasTestCases = runner !== null;
 
   const getStarter = (l: Lang) =>
@@ -180,7 +179,9 @@ export default function SubmissionRunner({ problemId, starterCpp, starterPython,
 
   // ── Submit run ─────────────────────────────────────────────────────────────
 
-  const runSubmit = async () => {
+  // useCallback (not a plain closure) so performance.now() inside it isn't
+  // treated as an impure call during render by react-hooks/purity.
+  const runSubmit = useCallback(async () => {
     if (!runner) return;
     setSubmitting(true);
     setTestResults(null);
@@ -236,7 +237,7 @@ export default function SubmissionRunner({ problemId, starterCpp, starterPython,
       summary: passCount === finalResults.length ? "Accepted" : `${passCount}/${finalResults.length} tests passed`,
     });
     setSubmitting(false);
-  };
+  }, [runner, code, customInput, customExpected, addCodeAttempt, problemId, lang, elapsed]);
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Tab") {

@@ -2,6 +2,7 @@
 import { PATTERNS, getTotalProblems } from "@/data/problems";
 import { useProgressStore } from "@/lib/store";
 import { usePrepStore } from "@/lib/prepStore";
+import { todayLocalISO } from "@/lib/date";
 import { useMobile } from "@/lib/useMobile";
 import { useState, useMemo, Suspense } from "react";
 import Link from "next/link";
@@ -22,7 +23,7 @@ const COMPANY_COLORS: Record<string, string> = {
 function DSAContent() {
   const { solved, bookmarked: bookmarkedSet, toggleSolved, toggleBookmark } = useProgressStore();
   const { reviewDue } = usePrepStore();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayLocalISO();
   const [activeTopic, setActiveTopic] = useState("all");
   const [diff, setDiff] = useState<Diff>("All");
   const [company, setCompany] = useState<Company>("All");

@@ -78,7 +78,7 @@ export default function MinimumWindowSubsequenceViz() {
       </div>
 
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <div className="text-xs font-semibold mb-1" style={{ color: "var(--text-muted)" }}>S = "{S}"</div>
+        <div className="text-xs font-semibold mb-1" style={{ color: "var(--text-muted)" }}>S = &quot;{S}&quot;</div>
         <div className="flex gap-2 mt-2">
           {S.split("").map((c, i) => {
             const inWindow = cur && i >= cur.windowStart && i < cur.windowEnd;
@@ -100,7 +100,7 @@ export default function MinimumWindowSubsequenceViz() {
       </div>
 
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <div className="text-xs font-semibold mb-2" style={{ color: "var(--text-muted)" }}>T = "{T}"</div>
+        <div className="text-xs font-semibold mb-2" style={{ color: "var(--text-muted)" }}>T = &quot;{T}&quot;</div>
         <div className="flex gap-2">
           {T.split("").map((c, i) => {
             const active = cur && i === cur.ti;
@@ -118,13 +118,13 @@ export default function MinimumWindowSubsequenceViz() {
           <span className="text-xs font-semibold px-2 py-0.5 rounded" style={{ background: `${phaseColor}22`, color: phaseColor }}>{cur?.phase?.toUpperCase()}</span>
           <span className="text-xs font-mono" style={{ color: "var(--text-secondary)" }}>{cur?.msg}</span>
         </div>
-        {cur?.bestL >= 0 && <div className="text-xs" style={{ color: "#22c55e" }}>Best so far: "{S.slice(cur.bestL, cur.bestR)}"</div>}
+        {cur?.bestL >= 0 && <div className="text-xs" style={{ color: "#22c55e" }}>Best so far: &quot;{S.slice(cur.bestL, cur.bestR)}&quot;</div>}
       </div>
 
       {done && (
         <div className="rounded-xl p-4 text-center" style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.3)" }}>
           <div className="text-sm font-semibold" style={{ color: "#22c55e" }}>
-            Answer: "{STEPS[STEPS.length - 1].bestL >= 0 ? S.slice(STEPS[STEPS.length - 1].bestL, STEPS[STEPS.length - 1].bestR) : ""}"
+            Answer: &quot;{STEPS[STEPS.length - 1].bestL >= 0 ? S.slice(STEPS[STEPS.length - 1].bestL, STEPS[STEPS.length - 1].bestR) : ""}&quot;
           </div>
         </div>
       )}

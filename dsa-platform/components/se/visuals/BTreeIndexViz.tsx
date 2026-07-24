@@ -41,7 +41,7 @@ export default function BTreeIndexViz() {
           ? <>Index probes <b style={{ color: "var(--accent)" }}>{path.length}</b> nodes (O(log n)) — halves the search each step.</>
           : <>Scan reads <b style={{ color: "var(--accent-red)" }}>{scanSteps}</b> rows (O(n)) — checks every row until found.</>}
       </p>
-      <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>An index trades write speed + storage for vastly faster reads. That's why you index columns in WHERE/JOIN clauses.</p>
+      <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>An index trades write speed + storage for vastly faster reads. That&apos;s why you index columns in WHERE/JOIN clauses.</p>
     </div>
   );
 }

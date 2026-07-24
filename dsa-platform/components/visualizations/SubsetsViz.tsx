@@ -27,8 +27,7 @@ export default function SubsetsViz() {
 
   const allSteps = buildAllSteps(nums);
 
-  const reset = (arr = nums) => {
-    const s = buildAllSteps(arr);
+  const reset = () => {
     setVisibleSets([[]]);
     setStep(0);
     setDone(false);
@@ -73,13 +72,14 @@ export default function SubsetsViz() {
       if (intervalRef.current) clearInterval(intervalRef.current);
     }
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed]);
 
   const apply = () => {
     try {
       const arr = input.split(",").map((x) => parseInt(x.trim(), 10)).filter((x) => !isNaN(x)).slice(0, 5);
       setNums(arr);
-      reset(arr);
+      reset();
     } catch {}
   };
 

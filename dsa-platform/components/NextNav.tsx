@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { generateStudyPlan } from "@/lib/studyPlan";
 import { useProgressStore } from "@/lib/store";
+import { todayLocalISO } from "@/lib/date";
 
 type Target = { href: string; label: string } | null;
 
@@ -36,7 +37,7 @@ function NextNavInner({
 
   const planTarget = useMemo<Target>(() => {
     if (!fromPlan) return null;
-    const start = planStartDate || new Date().toISOString().slice(0, 10);
+    const start = planStartDate || todayLocalISO();
     const plan = generateStudyPlan(studyPlanDuration, start);
     const tasks = plan.days.flatMap((d) => d.tasks);
     const idx = tasks.findIndex((t) => t.href === currentHref);

@@ -19,7 +19,7 @@ export default function DetectSquaresViz() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1000);
+  const [speed] = useState(1000);
   const [msg, setMsg] = useState("For each query: pick diagonal point. Check if other 2 corners exist in map.");
   const stateRef = useRef({ step: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -47,7 +47,6 @@ export default function DetectSquaresViz() {
   const cur = OPERATIONS[step];
   const queryPt = [11,10];
   const isQuery = cur.op === "count";
-  const squareCorners = [[3,10],[11,10],[3,2],[11,2]];
 
   return (
     <div className="space-y-4">

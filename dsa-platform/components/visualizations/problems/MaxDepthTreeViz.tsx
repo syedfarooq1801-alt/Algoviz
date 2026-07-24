@@ -11,11 +11,6 @@ const TREE: TreeNode[] = [
   { val:7, left:null, right:null },
 ];
 
-function getDepth(idx: number|null, tree: TreeNode[]): number {
-  if (idx === null) return 0;
-  return 1 + Math.max(getDepth(tree[idx].left, tree), getDepth(tree[idx].right, tree));
-}
-
 export default function MaxDepthTreeViz() {
   const [visited, setVisited] = useState<number[]>([]);
   const [current, setCurrent] = useState<number|null>(null);
@@ -27,13 +22,15 @@ export default function MaxDepthTreeViz() {
   const stateRef = useRef({ stack:[[0,"down"]] as [number,string][], visited:[] as number[], depthMap:{} as Record<number,number> });
   const iRef = useRef<ReturnType<typeof setInterval>|null>(null);
 
-  useEffect(() => { reset(); }, []);
-
   const reset = () => {
     stateRef.current = { stack:[[0,"down"]], visited:[], depthMap:{} };
     setVisited([]); setCurrent(null); setDepthMap({}); setDone(false); setPlaying(false);
     setMsg("DFS from root — compute depth bottom up"); if (iRef.current) clearInterval(iRef.current);
   };
+
+  // setState deferred into the timeout callback rather than called
+  // synchronously in the effect body, per react-hooks/set-state-in-effect.
+  useEffect(() => { const t = setTimeout(reset, 0); return () => clearTimeout(t); }, []);
 
   const doStep = () => {
     const st = stateRef.current;

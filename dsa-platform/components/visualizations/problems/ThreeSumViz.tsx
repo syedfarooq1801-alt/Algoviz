@@ -105,9 +105,6 @@ export default function ThreeSumViz() {
             const isFixed = i === fixedIdx;
             const isL = i === L;
             const isR = i === R;
-            const inTriplet = triplets.some(t => t.includes(n) && (
-              (i===fixedIdx||i===L||i===R) || (done && t.includes(n))
-            ));
             return (
               <div key={i} className="flex flex-col items-center gap-0.5">
                 <div className="w-11 h-11 rounded-lg flex items-center justify-center text-xs font-bold font-mono transition-all duration-300"

@@ -51,7 +51,8 @@ export default function MinWindowSubstringViz() {
     setR(nextR); setWinFreq({...nf}); setHave(nh);
 
     if (nh === needCount) {
-      let nl = st.l, nf2 = { ...nf }, nh2 = nh, best = st.result;
+      let nl = st.l, nh2 = nh, best = st.result;
+      const nf2 = { ...nf };
       while (nh2 === needCount) {
         const win = st.s.slice(nl, nextR+1);
         if (!best || win.length < best.length) best = win;
@@ -72,6 +73,7 @@ export default function MinWindowSubstringViz() {
     if (playing) { iRef.current = setInterval(doStep, speed); }
     else if (iRef.current) { clearInterval(iRef.current); iRef.current = null; }
     return () => { if (iRef.current) clearInterval(iRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed]);
 
   const apply = () => { setSi(si); setTi(ti); setS(si); setT(ti); reset(si, ti); };
@@ -156,7 +158,7 @@ export default function MinWindowSubstringViz() {
 
       {result && done && (
         <div className="rounded-xl p-4 text-center" style={{ background:"rgba(34,197,94,0.08)", border:"1px solid rgba(34,197,94,0.3)" }}>
-          <div className="font-semibold text-sm" style={{ color:"#22c55e" }}>Minimum window: "{result}"</div>
+          <div className="font-semibold text-sm" style={{ color:"#22c55e" }}>Minimum window: &quot;{result}&quot;</div>
         </div>
       )}
     </div>

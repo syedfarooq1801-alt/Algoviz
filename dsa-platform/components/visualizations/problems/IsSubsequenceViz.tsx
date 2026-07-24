@@ -31,7 +31,8 @@ export default function IsSubsequenceViz() {
       setMsg(`✗ Ran out of "${t}" chars. NOT a subsequence.`); return;
     }
     const match = s[si_] === t[ti_];
-    let newSi = si_, newTi = ti_ + 1;
+    let newSi = si_;
+    const newTi = ti_ + 1;
     let newMsg = `t[${ti_}]='${t[ti_]}' vs s[${si_}]='${s[si_]}' → `;
     if (match) { newSi = si_ + 1; newMsg += `MATCH! advance both pointers`; }
     else newMsg += `no match — advance t only`;
@@ -69,7 +70,7 @@ export default function IsSubsequenceViz() {
       </div>
       <div className="rounded-xl p-4 space-y-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
         <div>
-          <div className="text-xs mb-2 font-semibold" style={{ color: "var(--accent-blue)" }}>s = "{s}" (pattern)</div>
+          <div className="text-xs mb-2 font-semibold" style={{ color: "var(--accent-blue)" }}>s = &quot;{s}&quot; (pattern)</div>
           <div className="flex gap-2">
             {s.split("").map((c, i) => (
               <div key={i} className="flex flex-col items-center gap-1">
@@ -83,20 +84,13 @@ export default function IsSubsequenceViz() {
           </div>
         </div>
         <div>
-          <div className="text-xs mb-2 font-semibold" style={{ color: "var(--accent-orange)" }}>t = "{t}" (text)</div>
+          <div className="text-xs mb-2 font-semibold" style={{ color: "var(--accent-orange)" }}>t = &quot;{t}&quot; (text)</div>
           <div className="flex gap-2">
             {t.split("").map((c, i) => {
-              const isMatched = s.split("").some((sc, si_) => {
-                let tidx = 0, sidx = 0;
-                while (sidx < si_ && tidx < t.length) { if (t[tidx] === s[sidx]) sidx++; tidx++; }
-                return tidx === i && sc === c && i < ti;
-              });
               return (
                 <div key={i} className="flex flex-col items-center gap-1">
                   <div className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold transition-all"
-                    style={{ background: i < ti && s.split("").filter((sc, si_) => {
-                      let cnt = 0; for (let k = 0; k < i; k++) if (t[k] === s[cnt]) cnt++; return false;
-                    }).length >= 0 && i < ti ? (i < ti - 1 ? "rgba(107,114,128,0.1)" : "rgba(249,115,22,0.2)") : "var(--bg-hover)",
+                    style={{ background: i < ti ? (i < ti - 1 ? "rgba(107,114,128,0.1)" : "rgba(249,115,22,0.2)") : "var(--bg-hover)",
                     border: i === ti - 1 && !done ? "2px solid #f97316" : "1px solid var(--border)",
                     color: i === ti - 1 && !done ? "#f97316" : "var(--text-muted)" }}>
                     {c}

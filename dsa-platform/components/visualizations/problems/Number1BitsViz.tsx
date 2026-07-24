@@ -6,11 +6,11 @@ const NUM = 11; // 1011 in binary
 export default function Number1BitsViz() {
   const [n, setN] = useState(NUM);
   const [count, setCount] = useState(0);
-  const [step, setStep] = useState(0);
+  const [, setStep] = useState(0);
   const [bits, setBits] = useState<string[]>([]);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(700);
+  const [speed] = useState(700);
   const [msg, setMsg] = useState(`Count set bits in ${NUM} = ${NUM.toString(2)}. Use n & (n-1) trick.`);
   const stateRef = useRef({ n: NUM, count: 0, step: 0, bits: [] as string[] });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

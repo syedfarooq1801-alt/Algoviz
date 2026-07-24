@@ -15,7 +15,7 @@ export const useSQLStore = create<SQLState>()(
       toggleSolved: (id) =>
         set((state) => {
           const next = new Set(state.solved);
-          next.has(id) ? next.delete(id) : next.add(id);
+          if (next.has(id)) next.delete(id); else next.add(id);
           return { solved: next };
         }),
       isSolved: (id) => get().solved.has(id),

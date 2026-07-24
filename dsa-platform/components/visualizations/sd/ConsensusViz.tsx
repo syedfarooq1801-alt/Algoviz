@@ -23,11 +23,9 @@ const INITIAL_NODES: RaftNode[] = [
 export default function ConsensusViz() {
   const [nodes, setNodes] = useState<RaftNode[]>(INITIAL_NODES);
   const [phase, setPhase] = useState<"election" | "replication" | "steady">("election");
-  const [tick, setTick] = useState(0);
+  const [, setTick] = useState(0);
   const [message, setMessage] = useState("Waiting for leader timeout...");
-  const [crashedNode, setCrashedNode] = useState<string | null>(null);
-
-  const leader = nodes.find((n) => n.state === "leader");
+  const [, setCrashedNode] = useState<string | null>(null);
 
   useEffect(() => {
     const id = setInterval(() => {

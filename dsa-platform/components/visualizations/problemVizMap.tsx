@@ -271,7 +271,3 @@ export const VIZ_MAP: Record<string, ComponentType> = {
   "design-search-autocomplete": DesignSearchAutocompleteViz,
   "shortest-path-obstacle": ShortestPathObstacleViz,
 };
-
-export function getProblemViz(id: string): ComponentType | undefined {
-  return VIZ_MAP[id];
-}

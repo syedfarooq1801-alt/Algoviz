@@ -29,7 +29,7 @@ export default function DecodeWaysViz() {
   const [dp, setDp] = useState([1, S[0] !== "0" ? 1 : 0, ...Array(S.length - 1).fill(0)]);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState(`Decode "${S}": count ways each character(s) can map to A-Z.`);
   const stateRef = useRef({ step: -1 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -73,7 +73,7 @@ export default function DecodeWaysViz() {
         </div>
       </div>
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <div className="text-xs mb-3 font-semibold" style={{ color: "var(--text-muted)" }}>String: "{S}"</div>
+        <div className="text-xs mb-3 font-semibold" style={{ color: "var(--text-muted)" }}>String: &quot;{S}&quot;</div>
         <div className="flex gap-4 items-end">
           <div>
             <div className="text-xs mb-2" style={{ color: "var(--text-muted)" }}>chars</div>

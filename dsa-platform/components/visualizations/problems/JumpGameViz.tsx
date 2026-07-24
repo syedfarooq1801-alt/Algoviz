@@ -9,7 +9,7 @@ export default function JumpGameViz() {
   const [done, setDone] = useState(false);
   const [canReach, setCanReach] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(800);
+  const [speed] = useState(800);
   const [msg, setMsg] = useState("Track max reachable index. If current index > maxReach, stuck!");
   const stateRef = useRef({ idx: 0, maxReach: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

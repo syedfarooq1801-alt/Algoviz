@@ -42,7 +42,10 @@ export default function GenerateParenthesesViz() {
     if (iRef.current) clearInterval(iRef.current);
   };
 
-  useEffect(() => { init(); }, []);
+  // setState deferred into the timeout callback rather than called
+  // synchronously in the effect body, per react-hooks/set-state-in-effect.
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
+  useEffect(() => { const t = setTimeout(() => init(), 0); return () => clearTimeout(t); }, []);
 
   const doStep = () => {
     if (step >= paths.length) { setDone(true); setPlaying(false); return; }
@@ -56,6 +59,7 @@ export default function GenerateParenthesesViz() {
     if (playing) { iRef.current = setInterval(doStep, speed); }
     else if (iRef.current) { clearInterval(iRef.current); iRef.current = null; }
     return () => { if (iRef.current) clearInterval(iRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally excluded: re-running this effect would restart the interval and break the step cadence
   }, [playing, speed, step]);
 
   const apply = () => { const nv=Math.min(4,Math.max(1,parseInt(ni)||3)); setN(nv); init(nv); };

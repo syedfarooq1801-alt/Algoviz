@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from "react";
 
 // tickets=[["MUC","LHR"],["JFK","MUC"],["SFO","SJC"],["LHR","SFO"]]
 // Answer: JFK→MUC→LHR→SFO→SJC (Hierholzer's algorithm)
-const TICKETS = [["MUC","LHR"],["JFK","MUC"],["SFO","SJC"],["LHR","SFO"]];
 const ANSWER = ["JFK","MUC","LHR","SFO","SJC"];
 
 const STEPS = [
@@ -20,7 +19,7 @@ export default function ReconstructItineraryViz() {
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState("Hierholzer's: DFS from JFK. Post-order add to result. Reverse at end.");
   const stateRef = useRef({ step: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -50,7 +49,7 @@ export default function ReconstructItineraryViz() {
   return (
     <div className="space-y-4">
       <div className="rounded-xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}>
-        <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Reconstruct Itinerary — Hierholzer's DFS</h3>
+        <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>Reconstruct Itinerary — Hierholzer&apos;s DFS</h3>
         <div className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>Eulerian path. DFS, post-order append. Reverse result. Sorted adj list for lex order.</div>
         <div className="flex gap-2">
           <button onClick={() => setPlaying(!playing)} disabled={done} className="px-3 py-1.5 rounded text-xs font-medium" style={{ background: playing ? "rgba(239,68,68,0.15)" : "rgba(34,197,94,0.15)", color: playing ? "#ef4444" : "#22c55e", border: `1px solid ${playing ? "rgba(239,68,68,0.3)" : "rgba(34,197,94,0.3)"}` }}>{playing ? "⏸ Pause" : "▶ Play"}</button>

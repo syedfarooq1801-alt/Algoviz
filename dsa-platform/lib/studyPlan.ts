@@ -5,6 +5,7 @@ import { SE_SUBJECTS } from "@/data/seBasics";
 import { LLD_SUBJECTS } from "@/data/lld";
 import { COMMON_QUESTIONS, COMPANY_VALUES } from "@/data/behavioral";
 import { ESSENTIAL_DSA_SET, ESSENTIAL_SE_SET, ESSENTIAL_SD_SET, ESSENTIAL_LLD_SET } from "@/data/essentials15";
+import { dateToLocalISO } from "@/lib/date";
 
 export type TaskDomain = "dsa" | "sd" | "se" | "lld" | "behavioral";
 export type DayPhase = "dsa" | "sd" | "se" | "lld" | "review" | "mock" | "behavioral";
@@ -210,9 +211,14 @@ function buildBehavioralTasks(): PlanTask[] {
 }
 
 function addDays(iso: string, n: number): string {
-  const d = new Date(iso);
+  // "T00:00:00" forces local-time parsing — a bare date-only string like
+  // "2026-07-24" parses as UTC midnight, which is a different calendar day
+  // in any timezone ahead of UTC (e.g. India). getDate()/setDate() are local,
+  // so mixing a UTC-parsed date with local arithmetic silently corrupts the
+  // result for those timezones; dateToLocalISO formats back the same way.
+  const d = new Date(iso + "T00:00:00");
   d.setDate(d.getDate() + n);
-  return d.toISOString().split("T")[0];
+  return dateToLocalISO(d);
 }
 
 function topByPriority(tasks: PlanTask[], n: number): PlanTask[] {
@@ -354,7 +360,7 @@ function packPatternGroups(groups: PlanTask[][], dayCount: number): PlanTask[][]
   const maxSum = lo;
 
   // Build the actual index-partitions using that minimal maxSum.
-  let partitions: number[][] = [];
+  const partitions: number[][] = [];
   {
     let cur: number[] = [], curSum = 0;
     for (let i = 0; i < n; i++) {
@@ -628,12 +634,14 @@ export function generateStudyPlan(durationDays: 21 | 30 | 60 | 90, startDate: st
   const wDsa = tw.dsa ?? 0;
   const wSd = tw.sd ?? 0;
   const wSe = tw.se ?? 0;
-  const wTotal = wDsa + wSd + wSe;
+  const wLld = tw.lld ?? 0;
+  const wTotal = wDsa + wSd + wSe + wLld;
   const dsaFrac = wTotal > 0 ? Math.max(0.10, wDsa / wTotal) : 0.62;
-  const supportFrac = wTotal > 0 ? Math.max(0.05, (wSd + wSe) / wTotal / 2) : 0.19;
+  const supportFrac = wTotal > 0 ? Math.max(0.05, (wSd + wSe + wLld) / wTotal / 3) : 0.19;
   const dsaQueue = buildDSATasks();
   const sdQueue = buildSDTasks();
   const seQueue = buildSETasks();
+  const lldQueue = buildLLDTasks();
   // Behavioral is entirely OUTSIDE these durationDays — appended as extra days
   // after the loop, so DSA/SE/SD fully own the stated time span (no carve-out).
   const behavioralQueue = buildBehavioralTasks();
@@ -642,15 +650,18 @@ export function generateStudyPlan(durationDays: 21 | 30 | 60 | 90, startDate: st
   const days: DayPlan[] = [];
   const behavioralDays = durationDays === 30 ? 3 : durationDays === 60 ? 5 : 7;
   // Real weekday of a plan day (0 = Sunday, 6 = Saturday).
-  // Saturday = review, Sunday = mock. Both are weekend days (no new learning).
+  // Saturday = review, Sunday = full rest — same rule as the 21-day plan, so
+  // no plan variant leaves the user without a genuine work-free day. Periodic
+  // mock practice comes from the capstone mock(s) appended after the core
+  // days, not a weekly slot.
   const weekdayOf = (dn: number) => new Date(addDays(startDate, dn - 1) + "T00:00:00").getDay();
   const isSatReview = (dn: number) => weekdayOf(dn) === 6;
-  const isSunMock   = (dn: number) => weekdayOf(dn) === 0;
-  const isWeekend   = (dn: number) => isSatReview(dn) || isSunMock(dn);
+  const isSunRest   = (dn: number) => weekdayOf(dn) === 0;
+  const isWeekend   = (dn: number) => isSatReview(dn) || isSunRest(dn);
   const coreWorkDays = Array.from({ length: durationDays }, (_, i) => i + 1).filter((day) => !isWeekend(day)).length;
 
   function remainingCoreEffort() {
-    return totalEffort(dsaQueue) + totalEffort(sdQueue) + totalEffort(seQueue);
+    return totalEffort(dsaQueue) + totalEffort(sdQueue) + totalEffort(seQueue) + totalEffort(lldQueue);
   }
 
   function remainingCoreWorkDays(dayNum: number) {
@@ -658,9 +669,13 @@ export function generateStudyPlan(durationDays: 21 | 30 | 60 | 90, startDate: st
       .filter((day) => !isWeekend(day)).length;
   }
 
+  // Counts only core (non-weekend) days actually reached, so the learn/
+  // practice split below compares like-for-like against coreWorkDays
+  // (dayNum alone also counts Sat/Sun slots, which coreWorkDays excludes).
+  let workDayNum = 0;
+
   for (let dayNum = 1; dayNum <= durationDays; dayNum++) {
     const date = addDays(startDate, dayNum - 1);
-    const slot = (dayNum - 1) % 7;
     const week = Math.ceil(dayNum / 7);
 
     if (isSatReview(dayNum)) {
@@ -682,39 +697,54 @@ export function generateStudyPlan(durationDays: 21 | 30 | 60 | 90, startDate: st
       continue;
     }
 
-    if (isSunMock(dayNum)) {
-      // Sunday: timed mock from best problems seen so far
-      const tasks = topByPriority(assigned, 6)
-        .map((t) => ({ ...t, id: `rv-mock-${t.id}` }));
+    if (isSunRest(dayNum)) {
       days.push({
         day: dayNum,
         date,
-        phase: "mock",
-        type: "mock",
-        label: `Week ${week} mock interview`,
-        color: PHASE_COLOR.mock,
-        tasks,
-        reviewNote: getReviewNote("mock"),
+        phase: "review",
+        type: "rest",
+        label: "Rest day",
+        color: PHASE_COLOR.review,
+        tasks: [],
       });
       continue;
     }
 
+    workDayNum++;
     const workDaysLeft = Math.max(1, remainingCoreWorkDays(dayNum));
     const dailyTarget = Math.max(6, remainingCoreEffort() / workDaysLeft);
     const dsaTarget = Math.max(2, dailyTarget * dsaFrac);
     const supportTarget = Math.max(1.5, dailyTarget * supportFrac);
-    const supportQueue = slot === 2 || slot === 4 ? seQueue : sdQueue;
-    const alternateQueue = supportQueue === seQueue ? sdQueue : seQueue;
+    // Real weekday, not the plan-day slot — a slot-based rotation
+    // ((dayNum-1)%7) drifts to different actual weekdays depending on what
+    // weekday the plan happens to start on, making the rhythm arbitrary.
+    // Weekday is stable regardless of start date. Tue/Thu = SE, Wed = LLD,
+    // Mon/Fri = SD, so all three support tracks get real weekly airtime.
+    const wd = weekdayOf(dayNum);
+    const supportQueue = wd === 2 || wd === 4 ? seQueue : wd === 3 ? lldQueue : sdQueue;
+    const otherQueues = [sdQueue, seQueue, lldQueue].filter((q) => q !== supportQueue);
     const dsaTasks = takeDsaPatternByEffort(dsaQueue, dsaTarget, 1);
     let supportTasks = takeByEffort(supportQueue, supportTarget, 1);
 
-    if (dsaQueue.length === 0 || supportTasks.length === 0) {
-      supportTasks = [...supportTasks, ...takeByEffort(alternateQueue, supportTarget, supportTasks.length ? 0 : 1)];
+    if (supportTasks.length === 0) {
+      // Primary support queue is exhausted — guarantee at least one item
+      // from whichever other track still has work.
+      for (const q of otherQueues) {
+        supportTasks = [...supportTasks, ...takeByEffort(q, supportTarget, 1)];
+        if (supportTasks.length > 0) break;
+      }
+    } else if (dsaQueue.length === 0) {
+      // DSA is exhausted — spend the day's freed-up budget on more support
+      // work instead of leaving it thin.
+      for (const q of otherQueues) {
+        supportTasks = [...supportTasks, ...takeByEffort(q, supportTarget, 0)];
+      }
     }
 
     const tasks = [...dsaTasks, ...supportTasks];
     const phase: DayPhase =
       supportTasks.some((task) => task.domain === "se") ? "se" :
+      supportTasks.some((task) => task.domain === "lld") ? "lld" :
       supportTasks.some((task) => task.domain === "sd") ? "sd" : "dsa";
 
     weeklyWindow.push(...dsaTasks, ...supportTasks);
@@ -723,7 +753,7 @@ export function generateStudyPlan(durationDays: 21 | 30 | 60 | 90, startDate: st
       day: dayNum,
       date,
       phase,
-      type: dayNum <= Math.ceil(coreWorkDays * 0.35) ? "learn" : "practice",
+      type: workDayNum <= Math.ceil(coreWorkDays * 0.35) ? "learn" : "practice",
       label: labelFromTasks("Core curriculum", tasks),
       color: PHASE_COLOR[phase],
       tasks,
@@ -861,11 +891,14 @@ function redateAndFixRest(
     d.date = addDays(startDate, i);
   });
   for (const d of days) {
-    // The trailing mock / behavioral days are appended OUTSIDE the core
-    // 21-day grind, so the "no work on Sunday" rest cadence doesn't apply to
-    // them. Leave them entirely alone — converting one to a rest day here
-    // would strand its tasks (they'd be wiped on the next study-day refill).
-    if (d.phase === "mock" || d.phase === "behavioral") continue;
+    // The trailing behavioral days are appended OUTSIDE the core grind, and
+    // there's no bucket to redistribute their content if displaced, so they
+    // stay exempt from the Sunday-rest rule. Mock days are NOT exempt — a
+    // final mock landing on Sunday would violate the same rest guarantee
+    // every other day type gets; its tasks route through `displaced.mock`
+    // below, which both callers already know how to place on another mock
+    // slot (or, if none exists, fold into a regular study day).
+    if (d.phase === "behavioral") continue;
     if (isSundayISO(d.date)) {
       if (d.tasks.length) {
         const into = d.type === "review" ? displaced.review : d.type === "mock" ? displaced.mock : displaced.core;
@@ -980,9 +1013,19 @@ export function rebalancePlan(
   const dedupeFromToday = () => {
     const seen = new Set<string>();
     for (let i = todayIdx; i < days.length; i++) {
+      // Within a single day, "two-sum" / "rv-two-sum" / "rv-mock-two-sum" are
+      // the same underlying problem — showing more than one on the SAME day
+      // just looks duplicated, unlike the same trio spread across different
+      // days, which is the intended spaced-repetition behavior and must stay
+      // untouched. Scoped per-day (not carried in `seen`) for exactly that
+      // reason.
+      const seenBaseToday = new Set<string>();
       days[i].tasks = days[i].tasks.filter((t) => {
         if (seen.has(t.id)) return false;
+        const base = t.id.replace(/^rv-mock-/, "").replace(/^rv-/, "");
+        if (seenBaseToday.has(base)) return false;
         seen.add(t.id);
+        seenBaseToday.add(base);
         return true;
       });
     }
@@ -1044,7 +1087,14 @@ export function rebalancePlan(
     if (slots.length === 0) {
       // Nothing left before the interview: dump on the soonest working day so
       // the work is at least still visible rather than silently dropped.
-      const fallback = days.findIndex((d, i) => i >= todayIdx && d.type !== "rest");
+      // Still prefer a day before the interview date (even a review/mock
+      // day, not just learn/practice) over spilling past it — only search
+      // unbounded if literally no day remains before the interview at all.
+      const boundedFallback = days.findIndex((d, i) =>
+        i >= todayIdx && d.type !== "rest" && (!interviewDate || d.date <= interviewDate));
+      const fallback = boundedFallback >= 0
+        ? boundedFallback
+        : days.findIndex((d, i) => i >= todayIdx && d.type !== "rest");
       if (fallback >= 0) days[fallback].tasks.push(...carried);
       applyDoneLate();
       dedupeFromToday();

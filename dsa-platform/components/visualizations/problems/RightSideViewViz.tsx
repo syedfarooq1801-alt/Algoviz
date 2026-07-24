@@ -13,7 +13,7 @@ export default function RightSideViewViz() {
   const [visible, setVisible] = useState<number[]>([]);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(900);
+  const [speed] = useState(900);
   const [msg, setMsg] = useState("BFS level by level. Last node of each level = rightmost visible.");
   const stateRef = useRef({ level: -1, visible: [] as number[] });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

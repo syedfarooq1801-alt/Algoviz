@@ -9,7 +9,7 @@ export default function SubsetsIIViz() {
   const [idx, setIdx] = useState(0);
   const [done, setDone] = useState(false);
   const [playing, setPlaying] = useState(false);
-  const [speed, setSpeed] = useState(700);
+  const [speed] = useState(700);
   const [msg, setMsg] = useState(`Generate all unique subsets of [${NUMS}]. Skip duplicate elements at same level.`);
   const stateRef = useRef({ idx: 0 });
   const iRef = useRef<ReturnType<typeof setInterval> | null>(null);

@@ -38,18 +38,30 @@ export default function CommandPalette() {
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
-  const index = useMemo(buildIndex, []);
+  const index = useMemo(() => buildIndex(), []);
 
+  // Functional update avoids needing `open` in the closure, so this listener
+  // can be registered once on mount without a stale-closure ref hack.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setOpen((o) => !o); }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setOpen((prev) => !prev);
+      }
       if (e.key === "Escape") setOpen(false);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  useEffect(() => { if (open) { setQ(""); setActive(0); setTimeout(() => inputRef.current?.focus(), 30); } }, [open]);
+  // Reset search state and focus the input each time the palette opens.
+  // setState deferred into the timeout callback rather than called
+  // synchronously in the effect body, per react-hooks/set-state-in-effect.
+  useEffect(() => {
+    if (!open) return;
+    const t = setTimeout(() => { setQ(""); setActive(0); inputRef.current?.focus(); }, 30);
+    return () => clearTimeout(t);
+  }, [open]);
 
   const results = useMemo(() => {
     const query = q.trim().toLowerCase();
@@ -71,8 +83,6 @@ export default function CommandPalette() {
     return scored;
   }, [q, index]);
 
-  useEffect(() => { setActive(0); }, [q]);
-
   const go = useCallback((item: Item) => { setOpen(false); router.push(item.href); }, [router]);
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -88,9 +98,6 @@ export default function CommandPalette() {
 
   if (!open) return null;
 
-  // group ordering
-  let lastGroup = "";
-
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[12vh] px-4"
       style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)" }}
@@ -99,7 +106,7 @@ export default function CommandPalette() {
         style={{ background: "var(--bg-secondary)", border: "1px solid var(--border)", boxShadow: "var(--shadow-lg)" }}>
         <div className="flex items-center gap-3 px-4 py-3.5" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
           <span style={{ color: "var(--text-muted)" }}>⌕</span>
-          <input ref={inputRef} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKeyDown}
+          <input ref={inputRef} value={q} onChange={(e) => { setQ(e.target.value); setActive(0); }} onKeyDown={onKeyDown}
             placeholder="Search problems, patterns, concepts, chapters…"
             className="flex-1 bg-transparent outline-none text-base" style={{ color: "var(--text-primary)" }} />
           <kbd>esc</kbd>
@@ -107,8 +114,7 @@ export default function CommandPalette() {
         <div ref={listRef} className="max-h-[55vh] overflow-y-auto py-2">
           {results.length === 0 && <div className="px-4 py-8 text-center text-sm" style={{ color: "var(--text-muted)" }}>No matches for “{q}”</div>}
           {results.map((item, i) => {
-            const showGroup = item.group !== lastGroup;
-            lastGroup = item.group;
+            const showGroup = i === 0 || item.group !== results[i - 1].group;
             return (
               <div key={item.id}>
                 {showGroup && <div className="px-4 pt-3 pb-1 eyebrow">{item.group}</div>}

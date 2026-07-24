@@ -20,7 +20,7 @@ export default function FindMedianStreamViz() {
   const addNum = () => {
     if (idx >= STREAM.length) return;
     const val = STREAM[idx];
-    let nl = [...lo], nh = [...hi];
+    const nl = [...lo], nh = [...hi];
 
     if (!nl.length || val <= nl[nl.length-1]) { nl.push(val); nl.sort((a,b)=>a-b); }
     else { nh.push(val); nh.sort((a,b)=>a-b); }

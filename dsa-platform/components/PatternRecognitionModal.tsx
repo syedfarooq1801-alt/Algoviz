@@ -198,9 +198,6 @@ export default function PatternRecognitionModal({ onClose }: Props) {
                   else { textColor = "var(--text-muted)"; }
                 }
 
-                const patternObj = PATTERNS.find((p) => p.id === choice.id);
-                const choiceColor = patternObj ? COLOR_MAP[patternObj.color] ?? "#4F8CFF" : "#4F8CFF";
-
                 return (
                   <button
                     key={choice.id}

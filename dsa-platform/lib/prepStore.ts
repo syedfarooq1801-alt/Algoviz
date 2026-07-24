@@ -1,6 +1,7 @@
 "use client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { todayLocalISO, dateToLocalISO } from "@/lib/date";
 
 export type ReadinessState = "unseen" | "attempted" | "solved" | "reviewing" | "mastered";
 export type PrepTrackId =
@@ -95,13 +96,13 @@ interface PrepState {
 const REVIEW_OFFSETS = [1, 3, 7, 21];
 
 function todayIso() {
-  return new Date().toISOString().split("T")[0];
+  return todayLocalISO();
 }
 
 function addDays(days: number) {
   const d = new Date();
   d.setDate(d.getDate() + days);
-  return d.toISOString().split("T")[0];
+  return dateToLocalISO(d);
 }
 
 function makeId(prefix: string) {
@@ -155,7 +156,7 @@ export const PREP_TRACKS: Record<PrepTrackId, { title: string; focus: string; we
 
 export const usePrepStore = create<PrepState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       problemStates: {},
       reviewDue: {},
       successfulReviews: {},

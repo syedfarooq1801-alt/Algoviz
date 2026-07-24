@@ -8,7 +8,7 @@ export default function LongestConsecutiveViz() {
   const [activeStart, setActiveStart] = useState<number|null>(null);
   const [currentSeq, setCurrentSeq] = useState<number[]>([]);
   const [best, setBest] = useState<number[]>([]);
-  const [checkedStarts, setCheckedStarts] = useState<number[]>([]);
+  const [, setCheckedStarts] = useState<number[]>([]);
   const [skipped, setSkipped] = useState<number[]>([]);
   const [phase, setPhase] = useState<"idle"|"build-set"|"find"|"done">("idle");
   const [playing, setPlaying] = useState(false);
