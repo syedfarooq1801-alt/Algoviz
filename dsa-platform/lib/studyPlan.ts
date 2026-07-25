@@ -866,18 +866,37 @@ function orderRank(t: PlanTask): number {
   return DOMAIN_ORDER[t.domain] ?? 9;
 }
 
+// Theory always opens its pattern, then problems ramp Easy → Medium → Hard —
+// the intended curriculum ramp. Concepts (SE/SD/LLD chapters) have no
+// difficulty field; they all fall in the same middle tier so they don't
+// scatter relative to each other.
+function difficultyRank(t: PlanTask): number {
+  if (t.kind === "theory") return 0;
+  if (t.difficulty === "Easy") return 1;
+  if (t.difficulty === "Hard") return 3;
+  return 2; // Medium, and anything without a difficulty (concepts)
+}
+
 function normalizeDayOrder(days: DayPlan[]): void {
   for (const d of days) {
-    // Tiebreak by id, not original array position — rebalancePlan rebuilds
-    // the carried-task distribution from scratch on every completion toggle
-    // (isDoneTask changing reference re-runs it), so the array position a
-    // task lands in isn't stable across runs even when the same set of
-    // tasks ends up on the same day. An id-based tiebreak makes a day's
-    // order depend only on WHICH tasks are on it, not on how this pass
-    // happened to assemble them — otherwise checking a task off could make
-    // it (and everything after it) visually jump position within the day,
-    // which read as the whole page "moving" when you marked something done.
-    d.tasks = [...d.tasks].sort((a, b) => orderRank(a) - orderRank(b) || a.id.localeCompare(b.id));
+    // Every key here is a property of the task itself (never its position in
+    // the array), so a day's order depends only on WHICH tasks are on it —
+    // not on how this particular rebalance pass happened to assemble them.
+    // rebalancePlan rebuilds the carried-task distribution from scratch on
+    // every completion toggle (isDoneTask changing reference re-runs it), so
+    // an array-position-based order isn't stable across runs even when the
+    // same set of tasks ends up on the same day — checking a task off could
+    // make it (and everything after it) visually jump position, which read
+    // as the whole page "moving" when you marked something done. Grouped by
+    // pattern tag (so carried whole-groups stay adjacent even when a block
+    // mixes multiple patterns), then theory-first/difficulty-ascending
+    // within each group, id as the final deterministic tiebreak.
+    d.tasks = [...d.tasks].sort((a, b) =>
+      orderRank(a) - orderRank(b)
+      || (a.tag ?? "").localeCompare(b.tag ?? "")
+      || difficultyRank(a) - difficultyRank(b)
+      || a.id.localeCompare(b.id)
+    );
   }
 }
 
