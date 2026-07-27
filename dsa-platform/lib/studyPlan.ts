@@ -1084,26 +1084,53 @@ export function rebalancePlan(
   // Study days — the only ones that receive carried core work.
   const eligible = (): number[] => slotsOfType(["learn", "practice"]);
 
-  // Spread a bucket evenly over its matching slots. If no matching slot is
-  // left (e.g. the last revision day is already behind us), fall back to study
-  // days so the work is still surfaced rather than silently dropped.
-  const placeBucket = (bucketTasks: PlanTask[], types: DayType[], wholePlan = false) => {
-    if (bucketTasks.length === 0) return;
+  // A day should never look like a wall of 90 problems regardless of how the
+  // effort math works out — cap it by raw count, not just effort budget.
+  const MAX_ITEMS_PER_DAY = 20;
+
+  // Spread a bucket over its matching slots, round-robin, never pushing any
+  // single slot past MAX_ITEMS_PER_DAY — a flat even split still crams
+  // everything onto one day when only one matching slot is left (e.g. the
+  // sole review day before the plan's end absorbing months of missed
+  // reviews in one sitting). Whatever still doesn't fit once every matching
+  // slot is at the cap is returned so the caller can route it like any
+  // other carried work (a freshly inserted day) instead of it vanishing.
+  const placeBucket = (bucketTasks: PlanTask[], types: DayType[], wholePlan = false): PlanTask[] => {
+    if (bucketTasks.length === 0) return [];
     let slots = slotsOfType(types, wholePlan);
     if (slots.length === 0) slots = eligible();
-    if (slots.length === 0) return; // nothing left anywhere; handled by caller
-    const chunks = chunkEvenly(bucketTasks, slots.length);
-    slots.forEach((dayIdx, ci) => {
-      days[dayIdx].tasks = [...days[dayIdx].tasks, ...chunks[ci]];
-    });
+    if (slots.length === 0) return bucketTasks; // nothing left anywhere; handled by caller
+    const remaining: PlanTask[] = [];
+    let start = 0;
+    for (const t of bucketTasks) {
+      let placed = false;
+      for (let n = 0; n < slots.length; n++) {
+        const dayIdx = slots[(start + n) % slots.length];
+        if (days[dayIdx].tasks.length < MAX_ITEMS_PER_DAY) {
+          days[dayIdx].tasks.push(t);
+          start = (start + n + 1) % slots.length;
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) remaining.push(t);
+    }
+    return remaining;
   };
 
   // Route revision and mock work to their own day types up front, so the
-  // core-work logic below only ever deals with study days.
-  placeBucket(carriedReview, ["review"]);
-  placeBucket(carriedMock, ["mock"], true);
-
+  // core-work logic below only ever deals with study days. Snapshot the
+  // total BEFORE routing — items that overflow the cap get folded into
+  // `carried` below so they still land somewhere, and that must not double
+  // count them in the "N tasks carried forward" total.
   const totalCarried = carried.length + carriedReview.length + carriedMock.length;
+  const reviewOverflow = placeBucket(carriedReview, ["review"]);
+  const mockOverflow = placeBucket(carriedMock, ["mock"], true);
+  // Overflow from review/mock days still needs a home. In compress mode it
+  // spreads across whatever study days remain (same fallback as any other
+  // carried work under a fixed deadline); in extend mode it rides along
+  // with `carried` into the fresh-day insertion logic below.
+  carried.push(...reviewOverflow, ...mockOverflow);
 
   if (compress) {
     // Deadline is fixed — spread carried core work across what's left, no new
@@ -1172,14 +1199,15 @@ export function rebalancePlan(
   let daysAdded = 0;
   const MAX_ADDED = 60; // hard stop; a plan needing more than this is a rewrite
   const primaryIdx = eligible()[0];
+  // No eligible study day between today and the end of the core span (e.g.
+  // today itself is already the last day, or everything left is review/rest)
+  // — anchor on today itself instead of falling back to dumping the whole
+  // backlog, uncapped, onto whatever non-rest (possibly a review day) day
+  // happens to exist. Clamped so the anchor never lands past the core span,
+  // which would insert study days into the trailing mock/behavioral region.
+  const anchorIdx = Math.min(primaryIdx ?? todayIdx, coreCount - 1);
 
-  if (primaryIdx === undefined) {
-    // No eligible study day exists at all (shouldn't normally happen) —
-    // fall back to surfacing the work on the soonest non-rest day so it's
-    // at least visible rather than silently dropped.
-    const fallback = days.findIndex((d, i) => i >= todayIdx && d.type !== "rest");
-    if (fallback >= 0) days[fallback].tasks.push(...carried);
-  } else {
+  {
     // Fill by WHOLE pattern-group, never by individual task — otherwise a
     // heavy carried pattern (e.g. Dynamic Programming) can spill onto a day
     // that already has a different heavy pattern (e.g. LLD) just because
@@ -1192,15 +1220,15 @@ export function rebalancePlan(
       while (queue.length > 0) {
         const group = queue[0];
         const e = totalEffort(group);
-        if (day.tasks.length > 0 && eff + e > budget + 0.75) break;
+        if (day.tasks.length > 0 && (eff + e > budget + 0.75 || day.tasks.length + group.length > MAX_ITEMS_PER_DAY)) break;
         day.tasks.push(...queue.shift()!);
         eff += e;
-        if (eff >= budget) break;
+        if (eff >= budget || day.tasks.length >= MAX_ITEMS_PER_DAY) break;
       }
       day.label = labelFromTasks(day.label, day.tasks);
     };
 
-    // primaryIdx itself is left alone — carried work always gets its own
+    // The anchor day itself is left alone — carried work always gets its own
     // fresh day(s), starting right after it. Insert the WHOLE estimated
     // batch before doing a single re-date pass, rather than one insert +
     // one full re-date per single day: re-dating shifts every later day by
@@ -1210,9 +1238,13 @@ export function rebalancePlan(
     // another, compounding into far more days than the backlog actually
     // needed (inserting this close to today shifts many more days per
     // insert than the old end-of-plan insertion point did).
-    let insertAt = primaryIdx + 1;
+    let insertAt = anchorIdx + 1;
     const remainingEffort = queue.reduce((s, g) => s + totalEffort(g), 0);
-    const estimate = Math.min(MAX_ADDED, Math.max(0, Math.ceil(remainingEffort / budget)));
+    const remainingItems = queue.reduce((s, g) => s + g.length, 0);
+    const estimate = Math.min(
+      MAX_ADDED,
+      Math.max(0, Math.ceil(remainingEffort / budget), Math.ceil(remainingItems / MAX_ITEMS_PER_DAY))
+    );
     if (estimate > 0) {
       days.splice(insertAt, 0, ...Array.from({ length: estimate }, () => blankStudyDay()));
       coreCount += estimate;
@@ -1247,12 +1279,18 @@ export function rebalancePlan(
     // shrinking the plan back down by one. Only ever folds into another day
     // this same rebalance added — never into today (kept clean, untouched
     // by carried work) or an original curriculum day. If there's only one
-    // overflow day, it's simply left as-is, small or not.
+    // overflow day, it's simply left as-is, small or not. Never folds past
+    // MAX_ITEMS_PER_DAY either.
     if (daysAdded > 1) {
       const lastIdx = insertAt - 1;
       const prevIdx = insertAt - 2;
       const lastDay = days[lastIdx];
-      if (lastDay && lastDay.tasks.length > 0 && totalEffort(lastDay.tasks) < budget / 2) {
+      const prevDay = days[prevIdx];
+      if (
+        lastDay && prevDay && lastDay.tasks.length > 0
+        && totalEffort(lastDay.tasks) < budget / 2
+        && prevDay.tasks.length + lastDay.tasks.length <= MAX_ITEMS_PER_DAY
+      ) {
         days[prevIdx].tasks = [...days[prevIdx].tasks, ...lastDay.tasks];
         days.splice(lastIdx, 1);
         coreCount -= 1;
