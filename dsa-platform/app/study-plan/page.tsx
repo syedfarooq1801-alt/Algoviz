@@ -1,14 +1,12 @@
 "use client";
-import { useMemo, useState, useEffect, useRef, useCallback } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useMobile } from "@/lib/useMobile";
 import Link from "next/link";
-import { generateStudyPlan, rebalancePlan, PHASE_COLOR, estHours, type DayPlan, type PlanTask } from "@/lib/studyPlan";
+import { generateStudyPlan, PHASE_COLOR, estHours, type DayPlan, type PlanTask } from "@/lib/studyPlan";
 import { useProgressStore } from "@/lib/store";
 import { useSDStore } from "@/lib/sdStore";
 import { useSEStore } from "@/lib/seStore";
 import { useLLDStore } from "@/lib/lldStore";
-import { useInterviewStore, COMPANIES, type TargetCompany } from "@/lib/interviewStore";
-import { todayLocalISO } from "@/lib/date";
 
 const DAYS_OPTIONS = [21, 30, 60, 90] as const;
 type Duration = 21 | 30 | 60 | 90;
@@ -26,6 +24,9 @@ const COMPANY_COLORS: Record<string, string> = {
   Apple: "#9499C0", Microsoft: "#22D587", LinkedIn: "#0EA5E9", Netflix: "#EF4444",
 };
 
+function todayISO() {
+  return new Date().toISOString().slice(0, 10);
+}
 
 function daysBetween(fromISO: string, toISO: string): number {
   const a = new Date(fromISO + "T00:00:00").getTime();
@@ -49,55 +50,20 @@ function withPlanSrc(href: string): string {
 
 export default function StudyPlanPage() {
   const isMobile = useMobile();
-  const { solved, solvedDates, toggleSolved, studyPlanDuration, setStudyPlanDuration, planStartDate, setPlanStartDate, weakAreas, toggleWeak, isWeak, trackWeights, setTrackWeights } = useProgressStore();
-  const { mastered, toggleMastered, masteredDates } = useSDStore();
-  const { completed, toggleChapter, completedDates } = useSEStore();
-  const { completed: lldCompleted, toggleChapter: toggleLLDChapter, completedDates: lldCompletedDates } = useLLDStore();
-  const targetDate = useInterviewStore((s) => s.targetDate);
-  const targetCompany = useInterviewStore((s) => s.targetCompany);
-  const setTarget = useInterviewStore((s) => s.setTarget);
-  const clearTarget = useInterviewStore((s) => s.clearTarget);
+  const { solved, toggleSolved, studyPlanDuration, setStudyPlanDuration, planStartDate, setPlanStartDate, weakAreas, toggleWeak, isWeak } = useProgressStore();
+  const { mastered, toggleMastered } = useSDStore();
+  const { completed, toggleChapter } = useSEStore();
+  const { completed: lldCompleted, toggleChapter: toggleLLDChapter } = useLLDStore();
   const duration: Duration = studyPlanDuration;
   const [activeWeek, setActiveWeek] = useState(0);
 
-  // Real state (not a one-shot memo) — todayLocalISO() reads the real clock,
-  // and a plain useMemo([]) would freeze "today" at mount forever, so the
-  // plan would never advance to the next day if the tab is left open
-  // overnight. Re-checked periodically and on tab refocus; setState only
-  // fires when the calendar date has actually changed.
-  const [today, setToday] = useState(() => todayLocalISO());
+  const today = todayISO();
+  // Anchor the plan to a fixed start date so "today" maps to a real day.
+  // First visit (or after reset) sets it to today.
   useEffect(() => {
-    const check = () => {
-      const t = todayLocalISO();
-      setToday((prev) => (prev === t ? prev : t));
-    };
-    const id = setInterval(check, 60_000);
-    const onVisible = () => { if (document.visibilityState === "visible") check(); };
-    document.addEventListener("visibilitychange", onVisible);
-    return () => { clearInterval(id); document.removeEventListener("visibilitychange", onVisible); };
-  }, []);
-  // planStartDate is no longer auto-set silently — first visit shows a
-  // one-time setup gate (below the main return) that asks for an interview
-  // date before the plan begins, so extend-vs-compress mode is a deliberate
-  // choice from day one instead of a banner you discover later.
-  const startDate = useMemo(() => planStartDate || today, [planStartDate, today]);
-
-  // Small header editor for setting/changing the interview date after setup,
-  // so skipping it at setup time isn't a permanent trap.
-  const [showDateEditor, setShowDateEditor] = useState(false);
-  const [dateDraft, setDateDraft] = useState("");
-  const [companyDraft, setCompanyDraft] = useState<TargetCompany>("Other");
-
-  // Default display values when the user hasn't set custom weights — purely
-  // cosmetic starting points for the sliders; the balanced algorithm default
-  // kicks in whenever trackWeights is empty, regardless of these numbers.
-  const DEFAULT_WEIGHTS: Record<"dsa" | "sd" | "se" | "lld", number> = { dsa: 60, sd: 15, se: 15, lld: 10 };
-  const [showWeightsEditor, setShowWeightsEditor] = useState(false);
-  const weightsAreCustom = Object.keys(trackWeights).length > 0;
-  const weightFor = (k: keyof typeof DEFAULT_WEIGHTS) => trackWeights[k] ?? DEFAULT_WEIGHTS[k];
-  function setWeight(k: keyof typeof DEFAULT_WEIGHTS, v: number) {
-    setTrackWeights({ dsa: weightFor("dsa"), sd: weightFor("sd"), se: weightFor("se"), lld: weightFor("lld"), [k]: v });
-  }
+    if (!planStartDate) setPlanStartDate(today);
+  }, [planStartDate, setPlanStartDate, today]);
+  const startDate = planStartDate || today;
 
   function changeDuration(d: Duration) {
     setStudyPlanDuration(d);
@@ -107,55 +73,10 @@ export default function StudyPlanPage() {
   }
 
   const weakKey = useMemo(() => Array.from(weakAreas).sort().join(","), [weakAreas]);
-  const weightsKey = useMemo(
-    () => (["dsa", "sd", "se", "lld"] as const).map((k) => `${k}:${trackWeights[k] ?? 0}`).join(","),
-    [trackWeights]
+  const plan = useMemo(
+    () => generateStudyPlan(duration, startDate, undefined, weakKey ? weakKey.split(",") : []),
+    [duration, startDate, weakKey]
   );
-  // trackWeights is a new object reference every render (store selector) —
-  // weightsKey is its stable, value-equal proxy for the dependency array below.
-  const basePlan = useMemo(
-    () => generateStudyPlan(duration, startDate, trackWeights, weakKey ? weakKey.split(",") : []),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [duration, startDate, weakKey, weightsKey]
-  );
-
-  // Completion check shared by the rebalancer and the task rows below.
-  const isDoneTask = useCallback(
-    (t: PlanTask) =>
-      t.domain === "dsa" ? solved.has(t.id)
-      : t.domain === "sd" ? mastered.has(t.id)
-      : t.domain === "se" ? completed.has(t.id)
-      : t.domain === "lld" ? lldCompleted.has(t.id)
-      : false,
-    [solved, mastered, completed, lldCompleted]
-  );
-
-  // A task carried onto today and completed there should count as today's
-  // progress, not snap back onto whatever day it was originally scheduled
-  // for — per-domain completion dates let the rebalancer tell "done on time"
-  // apart from "done later, after being carried forward". Every domain that
-  // can be marked complete on the plan needs this, not just DSA.
-  const getSolvedDate = useCallback(
-    (t: PlanTask) => {
-      if (t.domain === "dsa") return solvedDates[t.id];
-      if (t.domain === "sd") return masteredDates[t.id];
-      if (t.domain === "se") return completedDates[t.id];
-      if (t.domain === "lld") return lldCompletedDates[t.id];
-      return undefined;
-    },
-    [solvedDates, masteredDates, completedDates, lldCompletedDates]
-  );
-
-  // Missed days never strand their work. With no interview date the plan
-  // extends; with one set it compresses into the days left before it. Reacts
-  // to every completion (isDoneTask/getSolvedDate change reference) so
-  // today's pile actually shrinks as you work through it — rebalancePlan
-  // itself is responsible for doing that without disturbing days it doesn't
-  // need to touch (see the EXTEND-mode comments below).
-  const { plan, rebalance } = useMemo(() => {
-    const r = rebalancePlan(basePlan, today, isDoneTask, targetDate, getSolvedDate);
-    return { plan: r.plan, rebalance: r.info };
-  }, [basePlan, today, isDoneTask, targetDate, getSolvedDate]);
 
   // Which day index is "today" within the plan (clamped to the plan range).
   const todayIdx = useMemo(() => {
@@ -166,29 +87,21 @@ export default function StudyPlanPage() {
   // Effective "current" day = earliest day (up to today) with unfinished work.
   // Missed days roll forward instead of being skipped; advances only when done.
   const currentIdx = useMemo(() => {
+    const isDone = (t: PlanTask) =>
+      t.domain === "dsa" ? solved.has(t.id)
+      : t.domain === "sd" ? mastered.has(t.id)
+      : t.domain === "se" ? completed.has(t.id)
+      : t.domain === "lld" ? lldCompleted.has(t.id)
+      : true; // behavioral has no toggle
     for (let i = 0; i <= todayIdx; i++) {
       const d = plan.days[i];
       if (!d || d.type === "rest") continue;
       const todo = d.tasks.filter((t) => t.domain !== "behavioral");
-      if (todo.length && !todo.every(isDoneTask)) return i;
+      if (todo.length && !todo.every(isDone)) return i;
     }
     return todayIdx; // all caught up → real today
-  }, [plan, todayIdx, isDoneTask]);
+  }, [plan, todayIdx, solved, mastered, completed, lldCompleted]);
   const daysBehind = todayIdx - currentIdx;
-
-  // Rebalance notice is a dismissible toast, not a permanent banner. Dismissal
-  // is remembered per calendar day — closing it hides it for today, but if you
-  // miss another day it pops again the next day. Keyed on the day so it can't
-  // nag on every reload.
-  const rebalanceSig = today;
-  const [rebalanceDismissed, setRebalanceDismissed] = useState<string | null>(() => {
-    try { return localStorage.getItem("studyplan-rebalance-dismissed"); } catch { return null; }
-  });
-  const showRebalanceToast = rebalance.mode !== "none" && rebalanceDismissed !== rebalanceSig;
-  function dismissRebalance() {
-    try { localStorage.setItem("studyplan-rebalance-dismissed", rebalanceSig); } catch { /* ignore */ }
-    setRebalanceDismissed(rebalanceSig);
-  }
 
   // Readiness — a single running signal instead of waiting until the last
   // day to find out. Blends actual completion across DSA/SE/SD/LLD (deduped
@@ -226,66 +139,14 @@ export default function StudyPlanPage() {
   const totalWeeks = weeks.length;
   const [activeDayIdx, setActiveDayIdx] = useState<number>(0);
 
-  // Open on the current (earliest unfinished) day so missed work surfaces —
-  // but only on a genuinely fresh visit. Clicking through to a problem/case-
-  // study/concept page and back fully unmounts and remounts this page (no
-  // route-level state preservation in this app), which used to re-run this
-  // exact effect and jump back to the earliest-incomplete day even if the
-  // user was actively working ahead on today — checking something off from
-  // its own detail page looked like it "sent me back to a previous day"
-  // purely because leaving the page and returning is itself a remount.
-  // Remembering the last-viewed day across that remount fixes it without
-  // touching the actual carried/done-late day-assignment logic at all.
-  const FOCUS_STORAGE_KEY = "studyplan-focus-date";
+  // Open on the current (earliest unfinished) day so missed work surfaces.
   const didAutoInit = useRef(false);
   useEffect(() => {
     if (didAutoInit.current) return;
     didAutoInit.current = true;
-    let targetIdx = currentIdx;
-    try {
-      const savedDate = sessionStorage.getItem(FOCUS_STORAGE_KEY);
-      if (savedDate) {
-        const idx = plan.days.findIndex((d) => d.date === savedDate);
-        if (idx >= 0) targetIdx = idx;
-      }
-    } catch { /* ignore */ }
-    setActiveWeek(Math.floor(targetIdx / 7));
-    setActiveDayIdx(targetIdx % 7);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    setActiveWeek(Math.floor(currentIdx / 7));
+    setActiveDayIdx(currentIdx % 7);
   }, [currentIdx]);
-
-  // Keep the remembered focus day up to date with whatever's on screen,
-  // whether that's the auto-init above or an explicit day/week click below.
-  // Deliberately keyed on the click, not on `plan` — see the reconciliation
-  // effect below for why `plan` can't be a trigger here too.
-  const focusedDateRef = useRef<string | null>(null);
-  useEffect(() => {
-    const d = plan.days[activeWeek * 7 + activeDayIdx];
-    if (!d) return;
-    focusedDateRef.current = d.date;
-    try { sessionStorage.setItem(FOCUS_STORAGE_KEY, d.date); } catch { /* ignore */ }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeWeek, activeDayIdx]);
-
-  // Marking a task complete can itself restructure the plan: rebalancePlan
-  // re-runs on every completion change, and if that task was carried-forward
-  // backlog, the day it clears can shrink/grow the plan (extend mode) or
-  // resettle which days hold what (compress mode). activeWeek/activeDayIdx
-  // are raw indices, so when that happens they can end up pointing at
-  // completely different content — and `focusDay`'s "first non-rest day of
-  // this week" fallback below would silently substitute an EARLIER day,
-  // which is exactly what looked like "checking something off sent me back
-  // a day". Re-locate the same calendar date in the restructured plan
-  // instead of leaving the raw index to drift.
-  useEffect(() => {
-    const date = focusedDateRef.current;
-    if (!date) return;
-    const idx = plan.days.findIndex((d) => d.date === date);
-    if (idx < 0) return; // that date no longer exists in the plan — leave as-is
-    const w = Math.floor(idx / 7), di = idx % 7;
-    setActiveWeek((prev) => (prev === w ? prev : w));
-    setActiveDayIdx((prev) => (prev === di ? prev : di));
-  }, [plan]);
 
   const focusDay = week[activeDayIdx] ?? week.find((d) => d.type !== "rest") ?? week[0];
 
@@ -430,143 +291,8 @@ export default function StudyPlanPage() {
   const totalTasks = plan.days.reduce((n, d) => n + d.tasks.filter(t => t.domain !== "behavioral").length, 0);
   const completedTasks = plan.days.reduce((n, d) => n + d.tasks.filter(isTaskDone).length, 0);
 
-  // First-visit setup gate — ask up front whether an interview date exists,
-  // since that decides extend vs. compress mode for the whole plan. Answering
-  // "no" just starts the plan (stays extend); answering "yes" sets the target
-  // date/company before the plan begins. Confirming either way sets
-  // planStartDate, which is what clears this gate on the next render.
-  if (!planStartDate) {
-    return (
-      <div style={{ minHeight: "100vh", background: "var(--bg-primary)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-        <div className="quiet-panel" style={{ maxWidth: 460, width: "100%", padding: 28 }}>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: "var(--text-primary)", margin: "0 0 8px" }}>Do you have an interview date?</h1>
-          <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.6, margin: "0 0 20px" }}>
-            This decides how the plan handles a missed day. With a date set, missed work spreads
-            thinly across the days left so your finish date never moves. Without one, the plan
-            simply grows by however many days you fall behind.
-          </p>
-
-          {!showDateEditor ? (
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              <button
-                onClick={() => setShowDateEditor(true)}
-                className="btn-primary px-4 py-2 text-sm"
-              >
-                Yes, I have one
-              </button>
-              <button
-                onClick={() => setPlanStartDate(today)}
-                className="btn-ghost px-4 py-2 text-sm"
-              >
-                No, not yet — start the plan
-              </button>
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <label style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12, color: "var(--text-muted)" }}>
-                Interview date
-                <input
-                  type="date"
-                  value={dateDraft}
-                  onChange={(e) => setDateDraft(e.target.value)}
-                  style={{
-                    fontSize: 13, padding: "8px 10px", borderRadius: 6,
-                    background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)",
-                    color: "var(--text-primary)", colorScheme: "dark",
-                  }}
-                />
-              </label>
-              <label style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 12, color: "var(--text-muted)" }}>
-                Company
-                <select
-                  value={companyDraft}
-                  onChange={(e) => setCompanyDraft(e.target.value as TargetCompany)}
-                  style={{
-                    fontSize: 13, padding: "8px 10px", borderRadius: 6,
-                    background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)",
-                    color: "var(--text-primary)",
-                  }}
-                >
-                  {COMPANIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </label>
-              <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
-                <button
-                  onClick={() => {
-                    if (dateDraft) setTarget(dateDraft, companyDraft);
-                    setPlanStartDate(today);
-                  }}
-                  disabled={!dateDraft}
-                  className="btn-primary px-4 py-2 text-sm"
-                  style={!dateDraft ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
-                >
-                  Confirm
-                </button>
-                <button onClick={() => setShowDateEditor(false)} className="btn-ghost px-4 py-2 text-sm">Back</button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
-      {/* Missed-day rebalance toast — dismissible; remembered per day */}
-      {showRebalanceToast && (
-        <div style={{
-          position: "fixed", top: isMobile ? 12 : 20, left: "50%", transform: "translateX(-50%)",
-          zIndex: 90, width: "min(560px, calc(100vw - 24px))",
-          display: "flex", alignItems: "flex-start", gap: 10, padding: "12px 14px",
-          borderRadius: 10,
-          background: rebalance.overloaded ? "rgba(30,16,16,0.98)" : "rgba(14,26,20,0.98)",
-          border: `1px solid ${rebalance.overloaded ? "rgba(239,68,68,0.4)" : "rgba(47,191,113,0.4)"}`,
-          boxShadow: "0 8px 28px rgba(0,0,0,0.5)",
-          backdropFilter: "blur(6px)",
-          animation: "sp-toast-in 0.25s ease",
-        }}>
-          <style>{`@keyframes sp-toast-in{from{opacity:0;transform:translate(-50%,-8px)}to{opacity:1;transform:translate(-50%,0)}}`}</style>
-          <span style={{ fontSize: 15, lineHeight: "18px", flexShrink: 0 }}>{rebalance.overloaded ? "⚠" : "↺"}</span>
-          <div style={{ fontSize: 12.5, lineHeight: 1.55, color: "var(--text-secondary)", flex: 1 }}>
-            <strong style={{ color: rebalance.overloaded ? "#EF4444" : "#2FBF71" }}>
-              {rebalance.carriedCount} task{rebalance.carriedCount > 1 ? "s" : ""} carried forward
-            </strong>
-            {rebalance.mode === "extend" ? (
-              <>
-                {" — "}nothing was lost. Your missed work moved into today and everything after it
-                shifted along, so the plan now runs{" "}
-                <strong style={{ color: "var(--text-primary)" }}>
-                  {rebalance.daysAdded} day{rebalance.daysAdded === 1 ? "" : "s"} longer
-                </strong>
-                . Daily load is unchanged. Set an interview date to compress instead of extend.
-              </>
-            ) : rebalance.overloaded ? (
-              <>
-                {" — "}but there aren&apos;t enough days left before your interview to absorb it
-                comfortably. The remaining days are now heavier than normal. Consider trimming
-                scope rather than trying to do everything.
-              </>
-            ) : (
-              <>
-                {" — "}nothing was lost. Because you have an interview date set, the plan
-                can&apos;t run longer, so the missed work was spread thinly across the days you
-                have left. Your finish date is unchanged.
-              </>
-            )}
-          </div>
-          <button
-            onClick={dismissRebalance}
-            aria-label="Dismiss"
-            style={{
-              flexShrink: 0, width: 22, height: 22, borderRadius: 5, cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              background: "transparent", border: "1px solid var(--border)", color: "var(--text-muted)",
-              fontSize: 13, lineHeight: 1,
-            }}
-          >✕</button>
-        </div>
-      )}
       <main style={{ maxWidth: 1152, margin: "0 auto", padding: isMobile ? "20px 14px 80px" : "28px 20px 48px" }}>
 
         {/* Header */}
@@ -582,7 +308,7 @@ export default function StudyPlanPage() {
                   {" · "}21-Day Essentials — 122 curated problems + deep SE/SD
                 </span>
               )}
-              {rebalance.mode === "none" && daysBehind > 0 && (
+              {daysBehind > 0 && (
                 <span style={{ color: "#F5A524" }}>
                   {" · "}{daysBehind} day{daysBehind > 1 ? "s" : ""} behind — catch up
                 </span>
@@ -612,118 +338,6 @@ export default function StudyPlanPage() {
               padding: "5px 10px", borderRadius: 6, border: "1px solid var(--border-subtle)",
               background: "var(--bg-secondary)",
             }}>📄 Cheat-sheet</Link>
-            <div style={{ position: "relative" }}>
-              <button
-                onClick={() => {
-                  setDateDraft(targetDate ?? "");
-                  setCompanyDraft(targetCompany ?? "Other");
-                  setShowDateEditor((v) => !v);
-                }}
-                style={{
-                  fontSize: 11, fontWeight: 600, cursor: "pointer",
-                  padding: "5px 10px", borderRadius: 6, border: "1px solid var(--border-subtle)",
-                  background: "var(--bg-secondary)", color: targetDate ? "var(--accent)" : "var(--text-muted)",
-                }}
-              >
-                🎯 {targetDate ? `${targetCompany} · ${fmtDate(targetDate)}` : "Set interview date"}
-              </button>
-              {showDateEditor && (
-                <div style={{
-                  position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 50,
-                  width: 260, padding: 14, borderRadius: 8,
-                  background: "var(--bg-card)", border: "1px solid var(--border)",
-                  boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-                  display: "flex", flexDirection: "column", gap: 10,
-                }}>
-                  <label style={{ display: "flex", flexDirection: "column", gap: 5, fontSize: 11, color: "var(--text-muted)" }}>
-                    Interview date
-                    <input
-                      type="date"
-                      value={dateDraft}
-                      onChange={(e) => setDateDraft(e.target.value)}
-                      style={{ fontSize: 12, padding: "6px 8px", borderRadius: 5, background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)", color: "var(--text-primary)", colorScheme: "dark" }}
-                    />
-                  </label>
-                  <label style={{ display: "flex", flexDirection: "column", gap: 5, fontSize: 11, color: "var(--text-muted)" }}>
-                    Company
-                    <select
-                      value={companyDraft}
-                      onChange={(e) => setCompanyDraft(e.target.value as TargetCompany)}
-                      style={{ fontSize: 12, padding: "6px 8px", borderRadius: 5, background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)", color: "var(--text-primary)" }}
-                    >
-                      {COMPANIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button
-                      onClick={() => { if (dateDraft) setTarget(dateDraft, companyDraft); setShowDateEditor(false); }}
-                      disabled={!dateDraft}
-                      className="btn-primary px-3 py-1.5 text-xs"
-                      style={!dateDraft ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
-                    >
-                      Save
-                    </button>
-                    {targetDate && (
-                      <button onClick={() => { clearTarget(); setShowDateEditor(false); }} className="btn-ghost px-3 py-1.5 text-xs">
-                        Clear
-                      </button>
-                    )}
-                    <button onClick={() => setShowDateEditor(false)} className="btn-ghost px-3 py-1.5 text-xs">Cancel</button>
-                  </div>
-                </div>
-              )}
-            </div>
-            {/* Track weights — 21-day plan is fixed-curriculum, so this only
-                applies to 30/60/90 plans. */}
-            {duration !== 21 && (
-              <div style={{ position: "relative" }}>
-                <button
-                  onClick={() => setShowWeightsEditor((v) => !v)}
-                  style={{
-                    fontSize: 11, fontWeight: 600, cursor: "pointer",
-                    padding: "5px 10px", borderRadius: 6, border: "1px solid var(--border-subtle)",
-                    background: "var(--bg-secondary)", color: weightsAreCustom ? "var(--accent)" : "var(--text-muted)",
-                  }}
-                >
-                  ⚖ Focus
-                </button>
-                {showWeightsEditor && (
-                  <div style={{
-                    position: "absolute", top: "calc(100% + 6px)", right: 0, zIndex: 50,
-                    width: 260, padding: 14, borderRadius: 8,
-                    background: "var(--bg-card)", border: "1px solid var(--border)",
-                    boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-                    display: "flex", flexDirection: "column", gap: 10,
-                  }}>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.5 }}>
-                      Relative daily focus per track. Higher = more of that track&apos;s work per day.
-                    </div>
-                    {(["dsa", "sd", "se", "lld"] as const).map((k) => (
-                      <label key={k} style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 11, color: "var(--text-secondary)" }}>
-                        <span style={{ display: "flex", justifyContent: "space-between" }}>
-                          <span>{PHASE_LABEL[k]}</span>
-                          <span style={{ fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>{weightFor(k)}</span>
-                        </span>
-                        <input
-                          type="range" min="0" max="100" step="5"
-                          value={weightFor(k)}
-                          onChange={(e) => setWeight(k, Number(e.target.value))}
-                          style={{ width: "100%", accentColor: "var(--accent)" }}
-                        />
-                      </label>
-                    ))}
-                    <div style={{ display: "flex", gap: 8 }}>
-                      {weightsAreCustom && (
-                        <button onClick={() => setTrackWeights({})} className="btn-ghost px-3 py-1.5 text-xs">
-                          Reset to balanced
-                        </button>
-                      )}
-                      <button onClick={() => setShowWeightsEditor(false)} className="btn-ghost px-3 py-1.5 text-xs">Done</button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
             {/* Start date — aligns the plan to the real calendar */}
             <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "var(--text-muted)" }}>
               Started
@@ -740,17 +354,12 @@ export default function StudyPlanPage() {
             </label>
             <div style={{ display: "flex", gap: 3, background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)", borderRadius: 6, padding: 3 }}>
               {DAYS_OPTIONS.map((d) => (
-                <button
-                  key={d}
-                  onClick={() => changeDuration(d)}
-                  title={d === 21 ? "21 core days + final mock + 2 behavioral wrap-up days (~24 days total)" : undefined}
-                  style={{
-                    padding: "4px 14px", fontSize: 12, borderRadius: 4, cursor: "pointer",
-                    background: duration === d ? "var(--accent)" : "transparent",
-                    color: duration === d ? "#fff" : "var(--text-muted)",
-                    fontWeight: duration === d ? 600 : 400, border: "none", transition: "all 0.1s",
-                  }}
-                >{d === 21 ? "21d+" : `${d}d`}</button>
+                <button key={d} onClick={() => changeDuration(d)} style={{
+                  padding: "4px 14px", fontSize: 12, borderRadius: 4, cursor: "pointer",
+                  background: duration === d ? "var(--accent)" : "transparent",
+                  color: duration === d ? "#fff" : "var(--text-muted)",
+                  fontWeight: duration === d ? 600 : 400, border: "none", transition: "all 0.1s",
+                }}>{d}d</button>
               ))}
             </div>
           </div>

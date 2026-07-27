@@ -1,11 +1,9 @@
 import { PATTERNS } from "@/data/problems";
-import { PROBLEM_SUBGROUPS } from "@/data/problemSubgroups";
 import { SD_CHAPTERS } from "@/data/systemDesign";
 import { SE_SUBJECTS } from "@/data/seBasics";
 import { LLD_SUBJECTS } from "@/data/lld";
 import { COMMON_QUESTIONS, COMPANY_VALUES } from "@/data/behavioral";
 import { ESSENTIAL_DSA_SET, ESSENTIAL_SE_SET, ESSENTIAL_SD_SET, ESSENTIAL_LLD_SET } from "@/data/essentials15";
-import { dateToLocalISO } from "@/lib/date";
 
 export type TaskDomain = "dsa" | "sd" | "se" | "lld" | "behavioral";
 export type DayPhase = "dsa" | "sd" | "se" | "lld" | "review" | "mock" | "behavioral";
@@ -64,25 +62,6 @@ function sdPriority(difficulty: string): number {
   return difficulty === "Fundamental" ? 3 : difficulty === "Intermediate" ? 2 : 1;
 }
 
-// Within a pattern, cluster problems by sub-family (see problemSubgroups.ts)
-// so twin problems — same sub-technique, different twist — land adjacent in
-// the plan instead of scattered across the pattern's full problem list.
-// Clusters are placed at the position where their FIRST member originally
-// appeared (not alphabetically), so the existing easy-to-hard curriculum
-// ramp within a pattern is preserved — this only pulls siblings together,
-// it doesn't re-rank difficulty. Unlabeled problems keep their own slot.
-function bySubgroup<T extends { id: string }>(problems: T[]): T[] {
-  const anchor = new Map<string, number>();
-  problems.forEach((p, i) => {
-    const key = PROBLEM_SUBGROUPS[p.id] ?? `__solo-${p.id}`;
-    if (!anchor.has(key)) anchor.set(key, i);
-  });
-  return problems
-    .map((p, i) => ({ p, i, key: PROBLEM_SUBGROUPS[p.id] ?? `__solo-${p.id}` }))
-    .sort((a, b) => anchor.get(a.key)! - anchor.get(b.key)! || a.i - b.i)
-    .map((x) => x.p);
-}
-
 function buildDSATasks(): PlanTask[] {
   return PATTERNS.flatMap((pattern) => [
     {
@@ -96,7 +75,7 @@ function buildDSATasks(): PlanTask[] {
       meta: "Pattern theory",
       kind: "theory" as const,
     },
-    ...bySubgroup(pattern.problems).map((p) => {
+    ...pattern.problems.map((p) => {
       const freq = (p as { frequency?: string }).frequency ?? "Medium";
       return {
         domain: "dsa" as const,
@@ -211,14 +190,9 @@ function buildBehavioralTasks(): PlanTask[] {
 }
 
 function addDays(iso: string, n: number): string {
-  // "T00:00:00" forces local-time parsing — a bare date-only string like
-  // "2026-07-24" parses as UTC midnight, which is a different calendar day
-  // in any timezone ahead of UTC (e.g. India). getDate()/setDate() are local,
-  // so mixing a UTC-parsed date with local arithmetic silently corrupts the
-  // result for those timezones; dateToLocalISO formats back the same way.
-  const d = new Date(iso + "T00:00:00");
+  const d = new Date(iso);
   d.setDate(d.getDate() + n);
-  return dateToLocalISO(d);
+  return d.toISOString().split("T")[0];
 }
 
 function topByPriority(tasks: PlanTask[], n: number): PlanTask[] {
@@ -335,13 +309,7 @@ function groupByPattern(queue: PlanTask[]): PlanTask[][] {
 function packPatternGroups(groups: PlanTask[][], dayCount: number): PlanTask[][] {
   const n = groups.length;
   if (n === 0) return Array.from({ length: dayCount }, () => []);
-  // Effort-weighted, not raw item count — a day with 5 Hard Graph problems is
-  // already a full day even at only 5 items, so it shouldn't also absorb
-  // another pattern's leftover just because the ITEM count looks balanced.
-  // Two intrinsically heavy patterns (Graphs, DP, ...) landing on the same
-  // day was exactly this: count-balancing let their remainders combine even
-  // though the actual study-hour load was already doubled.
-  const sizes = groups.map((g) => totalEffort(g));
+  const sizes = groups.map((g) => g.length);
 
   const countParts = (maxSum: number): number => {
     let parts = 1, cur = 0;
@@ -620,11 +588,6 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
     dayNum++;
   }
 
-  // The Two-Pointers-day pinned bundle above splices SE/SD/case-study tasks in
-  // AFTER that day's tasks array already ends with the evening recall drill —
-  // re-sort so DSA still renders first and the recall drill stays pinned last.
-  normalizeDayOrder(days);
-
   return { durationDays: targetDays, startDate, days };
 }
 
@@ -634,14 +597,12 @@ export function generateStudyPlan(durationDays: 21 | 30 | 60 | 90, startDate: st
   const wDsa = tw.dsa ?? 0;
   const wSd = tw.sd ?? 0;
   const wSe = tw.se ?? 0;
-  const wLld = tw.lld ?? 0;
-  const wTotal = wDsa + wSd + wSe + wLld;
+  const wTotal = wDsa + wSd + wSe;
   const dsaFrac = wTotal > 0 ? Math.max(0.10, wDsa / wTotal) : 0.62;
-  const supportFrac = wTotal > 0 ? Math.max(0.05, (wSd + wSe + wLld) / wTotal / 3) : 0.19;
+  const supportFrac = wTotal > 0 ? Math.max(0.05, (wSd + wSe) / wTotal / 2) : 0.19;
   const dsaQueue = buildDSATasks();
   const sdQueue = buildSDTasks();
   const seQueue = buildSETasks();
-  const lldQueue = buildLLDTasks();
   // Behavioral is entirely OUTSIDE these durationDays — appended as extra days
   // after the loop, so DSA/SE/SD fully own the stated time span (no carve-out).
   const behavioralQueue = buildBehavioralTasks();
@@ -650,18 +611,15 @@ export function generateStudyPlan(durationDays: 21 | 30 | 60 | 90, startDate: st
   const days: DayPlan[] = [];
   const behavioralDays = durationDays === 30 ? 3 : durationDays === 60 ? 5 : 7;
   // Real weekday of a plan day (0 = Sunday, 6 = Saturday).
-  // Saturday = review, Sunday = full rest — same rule as the 21-day plan, so
-  // no plan variant leaves the user without a genuine work-free day. Periodic
-  // mock practice comes from the capstone mock(s) appended after the core
-  // days, not a weekly slot.
+  // Saturday = review, Sunday = mock. Both are weekend days (no new learning).
   const weekdayOf = (dn: number) => new Date(addDays(startDate, dn - 1) + "T00:00:00").getDay();
   const isSatReview = (dn: number) => weekdayOf(dn) === 6;
-  const isSunRest   = (dn: number) => weekdayOf(dn) === 0;
-  const isWeekend   = (dn: number) => isSatReview(dn) || isSunRest(dn);
+  const isSunMock   = (dn: number) => weekdayOf(dn) === 0;
+  const isWeekend   = (dn: number) => isSatReview(dn) || isSunMock(dn);
   const coreWorkDays = Array.from({ length: durationDays }, (_, i) => i + 1).filter((day) => !isWeekend(day)).length;
 
   function remainingCoreEffort() {
-    return totalEffort(dsaQueue) + totalEffort(sdQueue) + totalEffort(seQueue) + totalEffort(lldQueue);
+    return totalEffort(dsaQueue) + totalEffort(sdQueue) + totalEffort(seQueue);
   }
 
   function remainingCoreWorkDays(dayNum: number) {
@@ -669,13 +627,9 @@ export function generateStudyPlan(durationDays: 21 | 30 | 60 | 90, startDate: st
       .filter((day) => !isWeekend(day)).length;
   }
 
-  // Counts only core (non-weekend) days actually reached, so the learn/
-  // practice split below compares like-for-like against coreWorkDays
-  // (dayNum alone also counts Sat/Sun slots, which coreWorkDays excludes).
-  let workDayNum = 0;
-
   for (let dayNum = 1; dayNum <= durationDays; dayNum++) {
     const date = addDays(startDate, dayNum - 1);
+    const slot = (dayNum - 1) % 7;
     const week = Math.ceil(dayNum / 7);
 
     if (isSatReview(dayNum)) {
@@ -697,54 +651,39 @@ export function generateStudyPlan(durationDays: 21 | 30 | 60 | 90, startDate: st
       continue;
     }
 
-    if (isSunRest(dayNum)) {
+    if (isSunMock(dayNum)) {
+      // Sunday: timed mock from best problems seen so far
+      const tasks = topByPriority(assigned, 6)
+        .map((t) => ({ ...t, id: `rv-mock-${t.id}` }));
       days.push({
         day: dayNum,
         date,
-        phase: "review",
-        type: "rest",
-        label: "Rest day",
-        color: PHASE_COLOR.review,
-        tasks: [],
+        phase: "mock",
+        type: "mock",
+        label: `Week ${week} mock interview`,
+        color: PHASE_COLOR.mock,
+        tasks,
+        reviewNote: getReviewNote("mock"),
       });
       continue;
     }
 
-    workDayNum++;
     const workDaysLeft = Math.max(1, remainingCoreWorkDays(dayNum));
     const dailyTarget = Math.max(6, remainingCoreEffort() / workDaysLeft);
     const dsaTarget = Math.max(2, dailyTarget * dsaFrac);
     const supportTarget = Math.max(1.5, dailyTarget * supportFrac);
-    // Real weekday, not the plan-day slot — a slot-based rotation
-    // ((dayNum-1)%7) drifts to different actual weekdays depending on what
-    // weekday the plan happens to start on, making the rhythm arbitrary.
-    // Weekday is stable regardless of start date. Tue/Thu = SE, Wed = LLD,
-    // Mon/Fri = SD, so all three support tracks get real weekly airtime.
-    const wd = weekdayOf(dayNum);
-    const supportQueue = wd === 2 || wd === 4 ? seQueue : wd === 3 ? lldQueue : sdQueue;
-    const otherQueues = [sdQueue, seQueue, lldQueue].filter((q) => q !== supportQueue);
+    const supportQueue = slot === 2 || slot === 4 ? seQueue : sdQueue;
+    const alternateQueue = supportQueue === seQueue ? sdQueue : seQueue;
     const dsaTasks = takeDsaPatternByEffort(dsaQueue, dsaTarget, 1);
     let supportTasks = takeByEffort(supportQueue, supportTarget, 1);
 
-    if (supportTasks.length === 0) {
-      // Primary support queue is exhausted — guarantee at least one item
-      // from whichever other track still has work.
-      for (const q of otherQueues) {
-        supportTasks = [...supportTasks, ...takeByEffort(q, supportTarget, 1)];
-        if (supportTasks.length > 0) break;
-      }
-    } else if (dsaQueue.length === 0) {
-      // DSA is exhausted — spend the day's freed-up budget on more support
-      // work instead of leaving it thin.
-      for (const q of otherQueues) {
-        supportTasks = [...supportTasks, ...takeByEffort(q, supportTarget, 0)];
-      }
+    if (dsaQueue.length === 0 || supportTasks.length === 0) {
+      supportTasks = [...supportTasks, ...takeByEffort(alternateQueue, supportTarget, supportTasks.length ? 0 : 1)];
     }
 
     const tasks = [...dsaTasks, ...supportTasks];
     const phase: DayPhase =
       supportTasks.some((task) => task.domain === "se") ? "se" :
-      supportTasks.some((task) => task.domain === "lld") ? "lld" :
       supportTasks.some((task) => task.domain === "sd") ? "sd" : "dsa";
 
     weeklyWindow.push(...dsaTasks, ...supportTasks);
@@ -753,7 +692,7 @@ export function generateStudyPlan(durationDays: 21 | 30 | 60 | 90, startDate: st
       day: dayNum,
       date,
       phase,
-      type: workDayNum <= Math.ceil(coreWorkDays * 0.35) ? "learn" : "practice",
+      type: dayNum <= Math.ceil(coreWorkDays * 0.35) ? "learn" : "practice",
       label: labelFromTasks("Core curriculum", tasks),
       color: PHASE_COLOR[phase],
       tasks,
@@ -782,544 +721,6 @@ export function generateStudyPlan(durationDays: 21 | 30 | 60 | 90, startDate: st
   }
 
   return { durationDays, startDate, days };
-}
-
-// ---------------------------------------------------------------------------
-// Missed-day rebalancing
-//
-// A generated plan pins every day to a fixed calendar date, so unfinished work
-// on a past day would otherwise sit stranded there forever. Instead we pull
-// that work forward. Two modes, chosen by whether an interview date is set:
-//
-//   • No interview date  → EXTEND. The plan grows by however many days the
-//     missed work needs. Nothing gets denser; the finish date moves out.
-//   • Interview date set → COMPRESS. The deadline is real, so the plan cannot
-//     grow. Missed work is spread thinly across the days that remain before
-//     the interview — miss one day with 18 left and each day grows a few
-//     percent, which is invisible in practice.
-//
-// Rest days stay pinned to real Sundays in both modes: work is only ever
-// placed on non-Sunday days, and after any day is inserted the whole array is
-// re-dated and Sundays re-marked as rest.
-// ---------------------------------------------------------------------------
-
-export type RebalanceMode = "none" | "extend" | "compress";
-
-export interface RebalanceInfo {
-  mode: RebalanceMode;
-  /** How many unfinished tasks were pulled forward off past days. */
-  carriedCount: number;
-  /** Extra days appended to fit the carried work (extend mode only). */
-  daysAdded: number;
-  /**
-   * Compress mode only: the remaining days can't absorb the carried work
-   * without going well past a normal day's load. The deadline is at risk.
-   */
-  overloaded: boolean;
-}
-
-const CARRY_TAG = "↺ Carried";
-
-function isSundayISO(iso: string): boolean {
-  return new Date(iso + "T00:00:00").getDay() === 0;
-}
-
-/** Split `arr` into `n` contiguous, near-equal chunks (keeps original order). */
-function chunkEvenly<T>(arr: T[], n: number): T[][] {
-  const out: T[][] = Array.from({ length: Math.max(0, n) }, () => [] as T[]);
-  if (n <= 0) return out;
-  const per = Math.floor(arr.length / n);
-  const extra = arr.length % n;
-  let k = 0;
-  for (let i = 0; i < n; i++) {
-    const take = per + (i < extra ? 1 : 0);
-    out[i] = arr.slice(k, k + take);
-    k += take;
-  }
-  return out;
-}
-
-function markCarried(t: PlanTask): PlanTask {
-  const base = t.tag ?? "";
-  return { ...t, tag: base.startsWith(CARRY_TAG) ? base : `${CARRY_TAG}${base ? ` · ${base}` : ""}` };
-}
-
-function blankStudyDay(): DayPlan {
-  return {
-    day: 0, date: "", phase: "dsa", type: "practice",
-    label: "Catch-up", color: PHASE_COLOR.dsa, tasks: [],
-  };
-}
-
-// Canonical within-day ordering: DSA always first, then SE, SD, LLD, then
-// behavioral. The page renders each day's tasks grouped by time block, and the
-// order inside a block is just this array's order — so carried work spliced in
-// by the rebalancer must be re-sorted to this rank or it shows up ahead of the
-// day's own DSA. Stable (keeps original order within a domain).
-const DOMAIN_ORDER: Record<TaskDomain, number> = { dsa: 0, se: 1, sd: 2, lld: 3, behavioral: 4 };
-
-// The evening "redo today's problems from memory" recall drill is a meta task,
-// not curriculum — it always belongs LAST in its block, after real content,
-// even though its domain is dsa. Rank it below everything else.
-function orderRank(t: PlanTask): number {
-  if (t.id.startsWith("recall-")) return 8;
-  return DOMAIN_ORDER[t.domain] ?? 9;
-}
-
-// Theory always opens its pattern, then problems ramp Easy → Medium → Hard —
-// the intended curriculum ramp. Concepts (SE/SD/LLD chapters) have no
-// difficulty field; they all fall in the same middle tier so they don't
-// scatter relative to each other.
-function difficultyRank(t: PlanTask): number {
-  if (t.kind === "theory") return 0;
-  if (t.difficulty === "Easy") return 1;
-  if (t.difficulty === "Hard") return 3;
-  return 2; // Medium, and anything without a difficulty (concepts)
-}
-
-function normalizeDayOrder(days: DayPlan[]): void {
-  for (const d of days) {
-    // Every key here is a property of the task itself (never its position in
-    // the array), so a day's order depends only on WHICH tasks are on it —
-    // not on how this particular rebalance pass happened to assemble them.
-    // rebalancePlan rebuilds the carried-task distribution from scratch on
-    // every completion toggle (isDoneTask changing reference re-runs it), so
-    // an array-position-based order isn't stable across runs even when the
-    // same set of tasks ends up on the same day — checking a task off could
-    // make it (and everything after it) visually jump position, which read
-    // as the whole page "moving" when you marked something done. Grouped by
-    // pattern tag (so carried whole-groups stay adjacent even when a block
-    // mixes multiple patterns), then theory-first/difficulty-ascending
-    // within each group, id as the final deterministic tiebreak.
-    d.tasks = [...d.tasks].sort((a, b) =>
-      orderRank(a) - orderRank(b)
-      || (a.tag ?? "").localeCompare(b.tag ?? "")
-      || difficultyRank(a) - difficultyRank(b)
-      || a.id.localeCompare(b.id)
-    );
-  }
-}
-
-/**
- * Re-date and renumber every day from the start date, then force any day that
- * lands on a Sunday to be a rest day. Tasks displaced off a Sunday are
- * returned, split by the kind of day they came from, so the caller can put
- * revision work back on revision days rather than dumping it into study days.
- */
-function redateAndFixRest(
-  days: DayPlan[],
-  startDate: string
-): { core: PlanTask[]; review: PlanTask[]; mock: PlanTask[] } {
-  const displaced = { core: [] as PlanTask[], review: [] as PlanTask[], mock: [] as PlanTask[] };
-  days.forEach((d, i) => {
-    d.day = i + 1;
-    d.date = addDays(startDate, i);
-  });
-  for (const d of days) {
-    // The trailing behavioral days are appended OUTSIDE the core grind, and
-    // there's no bucket to redistribute their content if displaced, so they
-    // stay exempt from the Sunday-rest rule. Mock days are NOT exempt — a
-    // final mock landing on Sunday would violate the same rest guarantee
-    // every other day type gets; its tasks route through `displaced.mock`
-    // below, which both callers already know how to place on another mock
-    // slot (or, if none exists, fold into a regular study day).
-    if (d.phase === "behavioral") continue;
-    if (isSundayISO(d.date)) {
-      if (d.tasks.length) {
-        const into = d.type === "review" ? displaced.review : d.type === "mock" ? displaced.mock : displaced.core;
-        into.push(...d.tasks);
-        d.tasks = [];
-      }
-      d.type = "rest";
-      d.phase = "review";
-      d.label = "Rest day";
-      d.color = PHASE_COLOR.review;
-    } else if (d.type === "rest") {
-      // Shifted off Sunday — it's an ordinary (currently empty) day again.
-      d.type = "practice";
-      d.phase = "dsa";
-      d.label = "Catch-up";
-      d.color = PHASE_COLOR.dsa;
-    }
-  }
-  return displaced;
-}
-
-export function rebalancePlan(
-  plan: StudyPlan,
-  today: string,
-  isDone: (task: PlanTask) => boolean,
-  interviewDate?: string | null,
-  getSolvedDate?: (task: PlanTask) => string | undefined
-): { plan: StudyPlan; info: RebalanceInfo } {
-  const none: RebalanceInfo = { mode: "none", carriedCount: 0, daysAdded: 0, overloaded: false };
-  const elapsed = daysDiff(plan.startDate, today);
-  if (elapsed <= 0) return { plan, info: none };
-
-  const days: DayPlan[] = plan.days.map((d) => ({ ...d, tasks: [...d.tasks] }));
-  const todayIdx = Math.min(elapsed, days.length - 1);
-  // Mutable: extend mode splices extra study days into the core span.
-  let coreCount = Math.min(plan.durationDays, days.length);
-
-  // 1. Strip unfinished work off past days, bucketed by the KIND of day it
-  //    came from, so it can be put back on the same kind of day later.
-  //    Behavioral tasks have no completion toggle so they'd carry forever —
-  //    leave them where they are. Per-day recall prompts are tied to that
-  //    day's content and every new day generates its own, so they're dropped
-  //    rather than carried stale or left behind looking unfinished.
-  const carried: PlanTask[] = [];        // from learn / practice days
-  const carriedReview: PlanTask[] = [];  // from revision days
-  const carriedMock: PlanTask[] = [];    // from mock days
-  // A review day can legitimately pick the same problem again on a later
-  // cycle (spaced repetition re-selects from the growing pool of past work),
-  // and each pick carries the identical `rv-<id>` — genuinely the same
-  // tracked completion, not a separate rep. If several such picks are still
-  // unsolved when carrying happens, they'd otherwise collapse onto one
-  // target day as multiple visually-identical rows that even share the same
-  // checkbox state. Carry each id at most once.
-  const seenCarriedIds = new Set<string>();
-  // A task carried forward and solved LATER must count on the day it was
-  // actually solved, not snap back onto the past day it was originally
-  // scheduled for — otherwise checking it off makes it vanish with no
-  // credit anywhere visible, and the redistribution below pulls in a
-  // different task to fill the gap, which reads as "today's work turned
-  // into tomorrow's". Bucketed by the exact day it was solved on (not always
-  // "today") so this doesn't re-pile the same historical completions onto
-  // every new "today" forever as the plan moves forward.
-  const dateToIdx = new Map<string, number>();
-  days.forEach((d, i) => dateToIdx.set(d.date, i));
-  const doneLateByDay = new Map<number, PlanTask[]>();
-  const queueDoneLate = (t: PlanTask, solvedOn: string) => {
-    const idx = dateToIdx.get(solvedOn) ?? todayIdx;
-    const arr = doneLateByDay.get(idx) ?? [];
-    arr.push(t);
-    doneLateByDay.set(idx, arr);
-  };
-  for (let i = 0; i < todayIdx; i++) {
-    const d = days[i];
-    if (!d || d.type === "rest") continue;
-    const bucket = d.type === "review" ? carriedReview : d.type === "mock" ? carriedMock : carried;
-    const keep: PlanTask[] = [];
-    for (const t of d.tasks) {
-      if (isDone(t)) {
-        const solvedOn = getSolvedDate?.(t);
-        if (solvedOn && solvedOn > d.date) { queueDoneLate(t, solvedOn); continue; } // solved after this day had already passed
-        keep.push(t); continue;            // finished on time — stays as history
-      }
-      if (t.domain === "behavioral") { keep.push(t); continue; } // no toggle → would carry forever
-      // Per-day recall prompts ("redo today's AM problems") are tied to the
-      // content that was scheduled that day. That content has just moved, and
-      // every study day generates its own prompt, so this one is dropped
-      // rather than carried stale or left behind looking unfinished.
-      if (t.id.startsWith("recall-")) continue;
-      if (seenCarriedIds.has(t.id)) continue; // already queued from an earlier day's identical pick
-      seenCarriedIds.add(t.id);
-      bucket.push(markCarried(t));
-    }
-    d.tasks = keep;
-  }
-  // Applied right before each return below — not here — since extend mode
-  // still pulls days[todayIdx].tasks into its redistribution stream further
-  // down; applying before that would let already-done work get reshuffled
-  // onto some other day like everything else.
-  const applyDoneLate = () => {
-    for (const [idx, tasks] of doneLateByDay) {
-      if (days[idx]) days[idx].tasks = [...days[idx].tasks, ...tasks];
-    }
-  };
-
-  // Catch-all dedup across every day from today onward, keeping the first
-  // occurrence of each id. seenCarriedIds above only dedupes what the
-  // stripping loop itself carries; it can't see a FUTURE (not-yet-reached)
-  // day's own originally-generated content, which review-day selection can
-  // independently repick even when an earlier, still-unsolved carried
-  // instance of the exact same problem already exists. Never touches days
-  // before todayIdx — that's finalized history, not still-visible content.
-  const dedupeFromToday = () => {
-    const seen = new Set<string>();
-    for (let i = todayIdx; i < days.length; i++) {
-      // Within a single day, "two-sum" / "rv-two-sum" / "rv-mock-two-sum" are
-      // the same underlying problem — showing more than one on the SAME day
-      // just looks duplicated, unlike the same trio spread across different
-      // days, which is the intended spaced-repetition behavior and must stay
-      // untouched. Scoped per-day (not carried in `seen`) for exactly that
-      // reason.
-      const seenBaseToday = new Set<string>();
-      days[i].tasks = days[i].tasks.filter((t) => {
-        if (seen.has(t.id)) return false;
-        const base = t.id.replace(/^rv-mock-/, "").replace(/^rv-/, "");
-        if (seenBaseToday.has(base)) return false;
-        seen.add(t.id);
-        seenBaseToday.add(base);
-        return true;
-      });
-    }
-  };
-
-  if (carried.length + carriedReview.length + carriedMock.length === 0) {
-    applyDoneLate();
-    dedupeFromToday();
-    normalizeDayOrder(days);
-    return { plan: { ...plan, days }, info: none };
-  }
-
-  const compress = Boolean(interviewDate);
-
-  // Slots of a given day type from today onward. Carried work always goes back
-  // onto the same kind of day it came from: missed revision lands on a future
-  // revision day, a missed mock on a future mock — never mixed into a normal
-  // study day, where recall drills and fresh learning would fight each other.
-  const slotsOfType = (types: DayType[], searchWholePlan = false): number[] => {
-    const end = searchWholePlan ? days.length : coreCount;
-    const out: number[] = [];
-    for (let i = todayIdx; i < end; i++) {
-      const d = days[i];
-      if (!d || !types.includes(d.type)) continue;
-      if (compress && interviewDate && d.date > interviewDate) continue;
-      out.push(i);
-    }
-    return out;
-  };
-
-  // Study days — the only ones that receive carried core work.
-  const eligible = (): number[] => slotsOfType(["learn", "practice"]);
-
-  // A day should never look like a wall of 90 problems regardless of how the
-  // effort math works out — cap it by raw count, not just effort budget.
-  const MAX_ITEMS_PER_DAY = 20;
-
-  // Spread a bucket over its matching slots, round-robin, never pushing any
-  // single slot past MAX_ITEMS_PER_DAY — a flat even split still crams
-  // everything onto one day when only one matching slot is left (e.g. the
-  // sole review day before the plan's end absorbing months of missed
-  // reviews in one sitting). Whatever still doesn't fit once every matching
-  // slot is at the cap is returned so the caller can route it like any
-  // other carried work (a freshly inserted day) instead of it vanishing.
-  const placeBucket = (bucketTasks: PlanTask[], types: DayType[], wholePlan = false): PlanTask[] => {
-    if (bucketTasks.length === 0) return [];
-    let slots = slotsOfType(types, wholePlan);
-    if (slots.length === 0) slots = eligible();
-    if (slots.length === 0) return bucketTasks; // nothing left anywhere; handled by caller
-    const remaining: PlanTask[] = [];
-    let start = 0;
-    for (const t of bucketTasks) {
-      let placed = false;
-      for (let n = 0; n < slots.length; n++) {
-        const dayIdx = slots[(start + n) % slots.length];
-        if (days[dayIdx].tasks.length < MAX_ITEMS_PER_DAY) {
-          days[dayIdx].tasks.push(t);
-          start = (start + n + 1) % slots.length;
-          placed = true;
-          break;
-        }
-      }
-      if (!placed) remaining.push(t);
-    }
-    return remaining;
-  };
-
-  // Route revision and mock work to their own day types up front, so the
-  // core-work logic below only ever deals with study days. Snapshot the
-  // total BEFORE routing — items that overflow the cap get folded into
-  // `carried` below so they still land somewhere, and that must not double
-  // count them in the "N tasks carried forward" total.
-  const totalCarried = carried.length + carriedReview.length + carriedMock.length;
-  const reviewOverflow = placeBucket(carriedReview, ["review"]);
-  const mockOverflow = placeBucket(carriedMock, ["mock"], true);
-  // Overflow from review/mock days still needs a home. In compress mode it
-  // spreads across whatever study days remain (same fallback as any other
-  // carried work under a fixed deadline); in extend mode it rides along
-  // with `carried` into the fresh-day insertion logic below.
-  carried.push(...reviewOverflow, ...mockOverflow);
-
-  if (compress) {
-    // Deadline is fixed — spread carried core work across what's left, no new
-    // days. Revision/mock work was already routed to its own day types above.
-    const slots = eligible();
-    if (slots.length === 0) {
-      // Nothing left before the interview: dump on the soonest working day so
-      // the work is at least still visible rather than silently dropped.
-      // Still prefer a day before the interview date (even a review/mock
-      // day, not just learn/practice) over spilling past it — only search
-      // unbounded if literally no day remains before the interview at all.
-      const boundedFallback = days.findIndex((d, i) =>
-        i >= todayIdx && d.type !== "rest" && (!interviewDate || d.date <= interviewDate));
-      const fallback = boundedFallback >= 0
-        ? boundedFallback
-        : days.findIndex((d, i) => i >= todayIdx && d.type !== "rest");
-      if (fallback >= 0) days[fallback].tasks.push(...carried);
-      applyDoneLate();
-      dedupeFromToday();
-      normalizeDayOrder(days);
-      return {
-        plan: { ...plan, days },
-        info: { mode: "compress", carriedCount: totalCarried, daysAdded: 0, overloaded: true },
-      };
-    }
-    const chunks = chunkEvenly(carried, slots.length);
-    let worstRatio = 0;
-    slots.forEach((dayIdx, ci) => {
-      const before = totalEffort(days[dayIdx].tasks);
-      days[dayIdx].tasks = [...days[dayIdx].tasks, ...chunks[ci]];
-      const after = totalEffort(days[dayIdx].tasks);
-      if (before > 0) worstRatio = Math.max(worstRatio, after / before);
-    });
-    applyDoneLate();
-    dedupeFromToday();
-    normalizeDayOrder(days);
-    return {
-      plan: { ...plan, days },
-      info: {
-        mode: "compress",
-        carriedCount: totalCarried,
-        daysAdded: 0,
-        overloaded: worstRatio > 1.6,
-      },
-    };
-  }
-
-  // EXTEND — no deadline, so the plan is allowed to grow. Carried backlog
-  // never touches today's own already-scheduled content, and never touches
-  // any day already scheduled further out either — it gets entirely fresh
-  // day(s) of its own, inserted immediately after today, filled by whole
-  // pattern-group (never split — see below) up to a normal day's budget.
-  // That's what keeps a heavy carried pattern (e.g. 8 DP problems) as its
-  // OWN clean day instead of getting jammed in alongside whatever today
-  // already had — and what keeps completing one task from reshuffling
-  // content on days that were never touched: the OLD approach re-collected
-  // and re-flowed every eligible day from today onward on every single
-  // call, so shrinking the backlog by one task could shift which day an
-  // entire unrelated pattern group landed on.
-  const budget = (() => {
-    const study = plan.days.filter((d) => d.type === "learn" || d.type === "practice");
-    const eff = study.length ? totalEffort(study.flatMap((d) => d.tasks)) / study.length : 0;
-    return Math.max(4, eff);
-  })();
-
-  let daysAdded = 0;
-  const MAX_ADDED = 60; // hard stop; a plan needing more than this is a rewrite
-  const primaryIdx = eligible()[0];
-  // No eligible study day between today and the end of the core span (e.g.
-  // today itself is already the last day, or everything left is review/rest)
-  // — anchor on today itself instead of falling back to dumping the whole
-  // backlog, uncapped, onto whatever non-rest (possibly a review day) day
-  // happens to exist. Clamped so the anchor never lands past the core span,
-  // which would insert study days into the trailing mock/behavioral region.
-  const anchorIdx = Math.min(primaryIdx ?? todayIdx, coreCount - 1);
-
-  {
-    // Fill by WHOLE pattern-group, never by individual task — otherwise a
-    // heavy carried pattern (e.g. Dynamic Programming) can spill onto a day
-    // that already has a different heavy pattern (e.g. LLD) just because
-    // there was still a little budget room left for ONE more task. A group
-    // that doesn't fit moves to its own day entirely instead.
-    const queue = groupByPattern(carried);
-    const fillDay = (dayIdx: number) => {
-      const day = days[dayIdx];
-      let eff = totalEffort(day.tasks);
-      while (queue.length > 0) {
-        const group = queue[0];
-        const e = totalEffort(group);
-        if (day.tasks.length > 0 && (eff + e > budget + 0.75 || day.tasks.length + group.length > MAX_ITEMS_PER_DAY)) break;
-        day.tasks.push(...queue.shift()!);
-        eff += e;
-        if (eff >= budget || day.tasks.length >= MAX_ITEMS_PER_DAY) break;
-      }
-      day.label = labelFromTasks(day.label, day.tasks);
-    };
-
-    // The anchor day itself is left alone — carried work always gets its own
-    // fresh day(s), starting right after it. Insert the WHOLE estimated
-    // batch before doing a single re-date pass, rather than one insert +
-    // one full re-date per single day: re-dating shifts every later day by
-    // a weekday, which can knock a revision/mock day onto Sunday and
-    // displace it back into the fill queue — doing that once per single
-    // inserted day let each round's displacement potentially trigger
-    // another, compounding into far more days than the backlog actually
-    // needed (inserting this close to today shifts many more days per
-    // insert than the old end-of-plan insertion point did).
-    let insertAt = anchorIdx + 1;
-    const remainingEffort = queue.reduce((s, g) => s + totalEffort(g), 0);
-    const remainingItems = queue.reduce((s, g) => s + g.length, 0);
-    const estimate = Math.min(
-      MAX_ADDED,
-      Math.max(0, Math.ceil(remainingEffort / budget), Math.ceil(remainingItems / MAX_ITEMS_PER_DAY))
-    );
-    if (estimate > 0) {
-      days.splice(insertAt, 0, ...Array.from({ length: estimate }, () => blankStudyDay()));
-      coreCount += estimate;
-      daysAdded += estimate;
-      const displaced = redateAndFixRest(days, plan.startDate);
-      if (displaced.review.length) placeBucket(displaced.review, ["review"]);
-      if (displaced.mock.length) placeBucket(displaced.mock, ["mock"], true);
-      if (displaced.core.length) queue.push(...groupByPattern(displaced.core));
-      for (let i = 0; i < estimate; i++) fillDay(insertAt + i);
-      insertAt += estimate;
-    }
-    // Top up if whole-group sizes didn't divide evenly into the estimate
-    // (or displaced content added more than expected) — rarely more than a
-    // day or two now that the bulk landed in one batch above.
-    while (queue.length > 0 && daysAdded < MAX_ADDED) {
-      days.splice(insertAt, 0, blankStudyDay());
-      coreCount += 1;
-      daysAdded++;
-      const displaced = redateAndFixRest(days, plan.startDate);
-      if (displaced.review.length) placeBucket(displaced.review, ["review"]);
-      if (displaced.mock.length) placeBucket(displaced.mock, ["mock"], true);
-      if (displaced.core.length) queue.push(...groupByPattern(displaced.core));
-      fillDay(insertAt);
-      insertAt++;
-    }
-
-    // The fill above front-loads each inserted day to `budget` before
-    // moving on, so the LAST one can end up with just a token handful of
-    // tasks. Rather than leave that day sitting there — even emptied out it
-    // still renders as a dangling "Free — buffer day" the user has to click
-    // through — fold its tasks into the PREVIOUS overflow day and remove it,
-    // shrinking the plan back down by one. Only ever folds into another day
-    // this same rebalance added — never into today (kept clean, untouched
-    // by carried work) or an original curriculum day. If there's only one
-    // overflow day, it's simply left as-is, small or not. Never folds past
-    // MAX_ITEMS_PER_DAY either.
-    if (daysAdded > 1) {
-      const lastIdx = insertAt - 1;
-      const prevIdx = insertAt - 2;
-      const lastDay = days[lastIdx];
-      const prevDay = days[prevIdx];
-      if (
-        lastDay && prevDay && lastDay.tasks.length > 0
-        && totalEffort(lastDay.tasks) < budget / 2
-        && prevDay.tasks.length + lastDay.tasks.length <= MAX_ITEMS_PER_DAY
-      ) {
-        days[prevIdx].tasks = [...days[prevIdx].tasks, ...lastDay.tasks];
-        days.splice(lastIdx, 1);
-        coreCount -= 1;
-        daysAdded -= 1;
-        const displaced = redateAndFixRest(days, plan.startDate);
-        if (displaced.review.length) placeBucket(displaced.review, ["review"]);
-        if (displaced.mock.length) placeBucket(displaced.mock, ["mock"], true);
-        if (displaced.core.length) days[prevIdx].tasks.push(...displaced.core);
-        days[prevIdx].label = labelFromTasks(days[prevIdx].label, days[prevIdx].tasks);
-      }
-    }
-  }
-
-  applyDoneLate();
-  dedupeFromToday();
-
-  // Clear any day that ended up with nothing so it doesn't render as an empty
-  // work day, and refresh labels.
-  for (const d of days) {
-    if (d.type !== "rest" && d.tasks.length === 0 && d.phase !== "mock" && d.phase !== "behavioral") {
-      d.label = "Free — buffer day";
-    }
-  }
-
-  normalizeDayOrder(days);
-  return {
-    plan: { ...plan, days },
-    info: { mode: "extend", carriedCount: totalCarried, daysAdded, overloaded: false },
-  };
 }
 
 const REVIEW_INTERVALS = [1, 3, 7, 14, 30];
