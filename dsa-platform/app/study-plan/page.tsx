@@ -1,8 +1,8 @@
 "use client";
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { useMobile } from "@/lib/useMobile";
 import Link from "next/link";
-import { generateStudyPlan, PHASE_COLOR, estHours, type DayPlan, type PlanTask } from "@/lib/studyPlan";
+import { generateStudyPlan, carryForward, PHASE_COLOR, estHours, type DayPlan, type PlanTask } from "@/lib/studyPlan";
 import { useProgressStore } from "@/lib/store";
 import { useSDStore } from "@/lib/sdStore";
 import { useSEStore } from "@/lib/seStore";
@@ -73,35 +73,32 @@ export default function StudyPlanPage() {
   }
 
   const weakKey = useMemo(() => Array.from(weakAreas).sort().join(","), [weakAreas]);
-  const plan = useMemo(
+  const basePlan = useMemo(
     () => generateStudyPlan(duration, startDate, undefined, weakKey ? weakKey.split(",") : []),
     [duration, startDate, weakKey]
   );
 
-  // Which day index is "today" within the plan (clamped to the plan range).
+  const isDoneTask = useCallback((t: PlanTask): boolean => {
+    if (t.domain === "dsa") return solved.has(t.id);
+    if (t.domain === "sd") return mastered.has(t.id);
+    if (t.domain === "se") return completed.has(t.id);
+    if (t.domain === "lld") return lldCompleted.has(t.id);
+    return true; // behavioral has no toggle
+  }, [solved, mastered, completed, lldCompleted]);
+
+  // Missed work is pushed forward onto today/future days (never stranded,
+  // never moved backward) — see carryForward in lib/studyPlan.ts.
+  const { plan, carriedCount } = useMemo(() => {
+    const r = carryForward(basePlan, today, isDoneTask);
+    return { plan: r.plan, carriedCount: r.carriedCount };
+  }, [basePlan, today, isDoneTask]);
+
+  // Which day index is "today" within the plan (clamped to the plan range;
+  // carryForward may have appended days past the original duration).
   const todayIdx = useMemo(() => {
     const diff = daysBetween(startDate, today);
     return Math.max(0, Math.min(diff, plan.days.length - 1));
   }, [startDate, today, plan.days.length]);
-
-  // Effective "current" day = earliest day (up to today) with unfinished work.
-  // Missed days roll forward instead of being skipped; advances only when done.
-  const currentIdx = useMemo(() => {
-    const isDone = (t: PlanTask) =>
-      t.domain === "dsa" ? solved.has(t.id)
-      : t.domain === "sd" ? mastered.has(t.id)
-      : t.domain === "se" ? completed.has(t.id)
-      : t.domain === "lld" ? lldCompleted.has(t.id)
-      : true; // behavioral has no toggle
-    for (let i = 0; i <= todayIdx; i++) {
-      const d = plan.days[i];
-      if (!d || d.type === "rest") continue;
-      const todo = d.tasks.filter((t) => t.domain !== "behavioral");
-      if (todo.length && !todo.every(isDone)) return i;
-    }
-    return todayIdx; // all caught up → real today
-  }, [plan, todayIdx, solved, mastered, completed, lldCompleted]);
-  const daysBehind = todayIdx - currentIdx;
 
   // Readiness — a single running signal instead of waiting until the last
   // day to find out. Blends actual completion across DSA/SE/SD/LLD (deduped
@@ -139,14 +136,16 @@ export default function StudyPlanPage() {
   const totalWeeks = weeks.length;
   const [activeDayIdx, setActiveDayIdx] = useState<number>(0);
 
-  // Open on the current (earliest unfinished) day so missed work surfaces.
+  // Open on today — missed work has already been pushed onto it (or a later
+  // day) by carryForward, so there's no separate "earliest unfinished day"
+  // to hunt for.
   const didAutoInit = useRef(false);
   useEffect(() => {
     if (didAutoInit.current) return;
     didAutoInit.current = true;
-    setActiveWeek(Math.floor(currentIdx / 7));
-    setActiveDayIdx(currentIdx % 7);
-  }, [currentIdx]);
+    setActiveWeek(Math.floor(todayIdx / 7));
+    setActiveDayIdx(todayIdx % 7);
+  }, [todayIdx]);
 
   const focusDay = week[activeDayIdx] ?? week.find((d) => d.type !== "rest") ?? week[0];
 
@@ -308,9 +307,9 @@ export default function StudyPlanPage() {
                   {" · "}21-Day Essentials — 122 curated problems + deep SE/SD
                 </span>
               )}
-              {daysBehind > 0 && (
+              {carriedCount > 0 && (
                 <span style={{ color: "#F5A524" }}>
-                  {" · "}{daysBehind} day{daysBehind > 1 ? "s" : ""} behind — catch up
+                  {" · "}{carriedCount} task{carriedCount > 1 ? "s" : ""} carried forward
                 </span>
               )}
             </p>

@@ -723,6 +723,129 @@ export function generateStudyPlan(durationDays: 21 | 30 | 60 | 90, startDate: st
   return { durationDays, startDate, days };
 }
 
+// A day should never turn into a wall of problems — cap it, and once full,
+// overflow spills onto the next day instead.
+const MAX_ITEMS_PER_DAY = 20;
+
+// Display order within a day: DSA first (theory before its own problems,
+// easy before hard), then SE Basics, then System Design, then LLD. A
+// per-day recall prompt has no real completion state (see carryForward
+// below) so it's ranked last, out of the way, rather than sorted in.
+const DOMAIN_ORDER: Record<TaskDomain, number> = { dsa: 0, se: 1, sd: 2, lld: 3, behavioral: 4 };
+function orderRank(t: PlanTask): number {
+  if (t.id.startsWith("recall-")) return 8;
+  return DOMAIN_ORDER[t.domain] ?? 9;
+}
+function difficultyRank(t: PlanTask): number {
+  if (t.kind === "theory") return 0;
+  if (t.difficulty === "Easy") return 1;
+  if (t.difficulty === "Hard") return 3;
+  return 2; // Medium, and anything without a difficulty (concepts)
+}
+function sortTasks(tasks: PlanTask[]): PlanTask[] {
+  return [...tasks].sort((a, b) =>
+    orderRank(a) - orderRank(b)
+    || (a.tag ?? "").localeCompare(b.tag ?? "")
+    || difficultyRank(a) - difficultyRank(b)
+    || a.id.localeCompare(b.id)
+  );
+}
+function normalizeDayOrder(days: DayPlan[]): void {
+  for (const d of days) d.tasks = sortTasks(d.tasks);
+}
+
+function markCarried(task: PlanTask): PlanTask {
+  if (task.tag?.startsWith("↺ Carried")) return task;
+  return { ...task, tag: task.tag ? `↺ Carried · ${task.tag}` : "↺ Carried" };
+}
+
+function isSundayISO(iso: string): boolean {
+  return new Date(iso + "T00:00:00").getDay() === 0;
+}
+
+/**
+ * Missed work never strands on a past day. Anything left unfinished before
+ * `today` is stripped off and pushed forward — starting at today, filling
+ * each day up to MAX_ITEMS_PER_DAY before spilling to the next, appending
+ * fresh days past the end of the plan if the backlog doesn't fit in what's
+ * left. Deliberately one-directional: the fill cursor only ever advances,
+ * so a task can never land earlier than where it's already been placed —
+ * no reshuffling, no going back.
+ */
+export function carryForward(
+  plan: StudyPlan,
+  today: string,
+  isDone: (task: PlanTask) => boolean
+): { plan: StudyPlan; carriedCount: number; daysAdded: number } {
+  const days: DayPlan[] = plan.days.map((d) => ({ ...d, tasks: [...d.tasks] }));
+
+  // First day at or after today — the fill cursor never starts before this.
+  // If today is past the whole plan, anchor past the end so everything
+  // carried lands on freshly appended days instead.
+  let anchorIdx = days.findIndex((d) => d.date >= today);
+  if (anchorIdx < 0) anchorIdx = days.length;
+
+  const carried: PlanTask[] = [];
+  for (let i = 0; i < anchorIdx; i++) {
+    const d = days[i];
+    if (d.type === "rest") continue;
+    const keep: PlanTask[] = [];
+    for (const t of d.tasks) {
+      if (t.domain === "behavioral") { keep.push(t); continue; } // no toggle → would carry forever
+      // A per-day recall prompt ("redo today's AM problems") is tied to
+      // content that's since moved off this day — drop it rather than
+      // carry a prompt that no longer refers to anything current.
+      if (t.id.startsWith("recall-")) continue;
+      if (isDone(t)) { keep.push(t); continue; }
+      carried.push(markCarried(t));
+    }
+    d.tasks = keep;
+  }
+
+  // "Carried" (missed work, tagged ↺) is what the caller reports — this must
+  // be snapshotted before the sweep below, which can also push around
+  // same-day overflow that was never missed, just natively too much for one
+  // day (e.g. a heavy pattern day generated with 21+ items on its own).
+  const totalCarried = carried.length;
+  const queue = [...carried];
+
+  // Single forward sweep from today onward: fill each day's spare room from
+  // the queue, then — regardless of whether that room came from carried
+  // work or the day was simply born oversized — trim anything past the cap
+  // off the (sorted) tail and queue it for the next day. This is the only
+  // place any day's size is enforced, so "max 20/day" holds everywhere from
+  // today forward, not just for backlog.
+  let idx = anchorIdx;
+  let daysAdded = 0;
+  while (idx < days.length || queue.length > 0) {
+    if (idx >= days.length) {
+      const date = addDays(plan.startDate, idx);
+      if (isSundayISO(date)) {
+        days.push({ day: idx + 1, date, phase: "review", type: "rest", label: "Rest day", color: PHASE_COLOR.review, tasks: [] });
+        idx++;
+        continue;
+      }
+      days.push({ day: idx + 1, date, phase: "dsa", type: "practice", label: "Catch-up", color: PHASE_COLOR.dsa, tasks: [] });
+      daysAdded++;
+    }
+    const day = days[idx];
+    if (day.type === "rest") { idx++; continue; }
+    const room = MAX_ITEMS_PER_DAY - day.tasks.length;
+    if (room > 0 && queue.length > 0) {
+      day.tasks.push(...queue.splice(0, room));
+    }
+    if (day.tasks.length > MAX_ITEMS_PER_DAY) {
+      day.tasks = sortTasks(day.tasks);
+      queue.push(...day.tasks.splice(MAX_ITEMS_PER_DAY));
+    }
+    if (day.tasks.length) day.label = labelFromTasks(day.label, day.tasks);
+    idx++;
+  }
+
+  normalizeDayOrder(days);
+  return { plan: { ...plan, days }, carriedCount: totalCarried, daysAdded };
+}
+
 const REVIEW_INTERVALS = [1, 3, 7, 14, 30];
 
 export function getDueForReview(solvedDates: Record<string, string>, today: string): string[] {
