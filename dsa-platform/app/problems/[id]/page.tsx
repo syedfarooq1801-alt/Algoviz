@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Bookmark, Check, ExternalLink } from "lucide-react";
 import { getProblemById, getPatternById, getAllProblems, practiceUrl, practiceLabel } from "@/data/problems";
 import { PROBLEM_CONTENT } from "@/data/problemContent";
+import { BRUTE_FORCE } from "@/data/bruteForce";
 import { PROBLEM_TECHNIQUES, getTechniqueColor } from "@/data/problemTechniques";
 import NextNav from "@/components/NextNav";
 import ExampleVisual from "@/components/ExampleVisual";
@@ -24,6 +25,7 @@ export default function ProblemPage({ params }: Props) {
 
   const pattern = getPatternById(problem.pattern);
   const content = PROBLEM_CONTENT[id];
+  const bruteForce = BRUTE_FORCE[id];
   // Direct property access (not a function call) — react-hooks/static-components
   // taints any component reference that comes from a CallExpression, even a
   // memoized one, so the lookup has to be an inline object index here instead
@@ -186,6 +188,16 @@ export default function ProblemPage({ params }: Props) {
                     </div>
                   )}
                 </WorkspaceSection>
+              )}
+
+              {/* Brute force — deliberately NOT gated behind "reveal solution".
+                  Naming the obvious approach and why it's too slow is step one
+                  of the interview, not a spoiler for the optimal one. */}
+              {bruteForce && (
+                <div className="quiet-panel p-4 text-sm leading-6" style={{ border: "1px solid var(--border)" }}>
+                  <span style={{ color: "var(--text-muted)" }}>Brute force: </span>
+                  <span style={{ color: "var(--text-secondary)" }}>{bruteForce}</span>
+                </div>
               )}
 
               {!showSolution && (
@@ -368,7 +380,15 @@ export default function ProblemPage({ params }: Props) {
               </WorkspaceSection>
             </div>
           ) : (
-            <div className="p-8 text-sm" style={{ color: "var(--text-muted)" }}>No local explanation yet. Use the LeetCode link above.</div>
+            <div className="p-8 text-sm space-y-4" style={{ color: "var(--text-muted)" }}>
+              {bruteForce && (
+                <div className="quiet-panel p-4 leading-6" style={{ border: "1px solid var(--border)" }}>
+                  <span style={{ color: "var(--text-muted)" }}>Brute force: </span>
+                  <span style={{ color: "var(--text-secondary)" }}>{bruteForce}</span>
+                </div>
+              )}
+              <div>No local explanation yet. Use the {practiceLabel(problem)} link above.</div>
+            </div>
           )}
         </section>
         <NextNav currentHref={`/problems/${id}`} fallback={fallbackNext} />
