@@ -18,6 +18,30 @@ export interface CompanyProblem {
   link?: string;
 }
 
+/** One block of work inside a countdown prep day. */
+export interface PrepBlock {
+  time: string;
+  title: string;
+  items: string[];
+}
+
+/** A single day of a dated, countdown-style prep plan for an announced drive. */
+export interface PrepDay {
+  day: number;
+  date: string;
+  weekday: string;
+  theme: string;
+  goal: string;
+  blocks: PrepBlock[];
+}
+
+/** Hard logistics that disqualify you if missed — shown above everything else. */
+export interface PrepDeadline {
+  label: string;
+  detail: string;
+  critical?: boolean;
+}
+
 export interface Company {
   id: string;
   name: string;
@@ -32,9 +56,196 @@ export interface Company {
   behavioralFocus: string[];
   insiderTips: string[];
   packageRange: string;
+  /** Set only for a live, dated campus drive — renders a countdown prep plan. */
+  prepPlan?: PrepDay[];
+  deadlines?: PrepDeadline[];
 }
 
 export const COMPANIES: Company[] = [
+  {
+    id: "ibm",
+    name: "IBM",
+    logo: "IBM",
+    color: "#0F62FE",
+    tagline: "IBM Infrastructure / India Systems Development Lab (ISDL) — systems software, not web dev. The assessment is standard DSA on HackerRank; the interview is where OS internals, C/C++ and Linux decide it.",
+    roles: ["Software Engineer — IBM Infrastructure (2027 batch)", "6-month internship (Jan'27–Jun'27) → full-time"],
+    packageRange: "₹17L CTC + ₹1.5L one-time premium + ₹25K settling · Internship ₹30K/mo (BE/BTech), ₹40K/mo (M.Tech/Dual)",
+    deadlines: [
+      { label: "Assessment", detail: "4 Aug 2026, 5:00 PM — HackerRank, 1–2 hours, webcam-proctored", critical: true },
+      { label: "Registration window", detail: "Link goes live 4 Aug at 4:30 PM and dies after 30 minutes. Miss it and you are out — be at your desk by 4:25.", critical: true },
+      { label: "College name format", detail: "Type exactly \"Ramaiah Institute of Technology Bangalore\". Any other spelling can get the application dropped.", critical: true },
+      { label: "Contact details", detail: "Personal email + personal phone only. A college email ID will invalidate the registration." },
+      { label: "Desktop app", detail: "Install the HackerRank desktop app and pass the sample test BEFORE the day — https://www.hackerrank.com/app · sample: https://hr.gs/sample-app-test", critical: true },
+      { label: "Eligibility", detail: "2027 batch · ≥70% or 7.0 CGPA (all subjects incl. electives) · no active backlog · CS/IT/ISE/EE/ECE/EIE/AEIE/EEE/ETE/Robotics/Computing" },
+    ],
+    rounds: [
+      { name: "Pre-Placement Talk", duration: "~45 min", format: "Virtual — IBM introduces ISDL, the Power/Z/Storage stack and the role", tips: ["Attend it — interviewers ask 'why IBM Infrastructure' and the PPT hands you the answer", "Note the specific team names mentioned (AIX, OpenBMC, Spectrum Fusion, AI on Z)", "Write down 2 questions to ask; it signals genuine interest"] },
+      { name: "Coding Assessment", duration: "1–2 hours", format: "Virtual — HackerRank desktop app, webcam on, fullscreen locked", tips: ["Typically 2–3 coding problems, easy→medium, sometimes with MCQs on OS/DBMS/CN/C output", "HackerRank needs FULL programs with stdin/stdout — not just a function body like LeetCode", "Tab switching is flagged. Do not leave fullscreen", "Partial credit is per test case — always submit a brute force before optimising"] },
+      { name: "Technical Interview", duration: "45–60 min", format: "In-person — DSA + OS/Linux internals + C/C++ + your projects", tips: ["This is where IBM differs: OS internals carry as much weight as DSA", "Expect 'what happens when you run ./a.out', signals, IPC, shared memory, threads vs processes", "Know your resume projects to the line — they will drill into one", "C/C++ pointer and memory questions are near-guaranteed"] },
+      { name: "HR / Managerial", duration: "20–30 min", format: "In-person — fit, relocation, the 6-month internship commitment", tips: ["Be clear you can do the Jan–Jun 2027 in-person internship", "Bangalore/Pune/Hyderabad relocation willingness", "Ask about the team you'd join — ISDL has very distinct sub-teams"] },
+    ],
+    focus: [
+      { topic: "Arrays, Strings & Hashing", weight: "High", notes: "The bread and butter of an IBM HackerRank set — frequency counts, two pointers, prefix sums" },
+      { topic: "OS & Linux Internals", weight: "High", notes: "The JD's core ask. Processes vs threads, scheduling, deadlock, paging, signals, IPC, shared memory. Heavy in the INTERVIEW, not the assessment" },
+      { topic: "C / C++ Fundamentals", weight: "High", notes: "Pointers, memory layout, malloc vs new, structs, dangling pointers, static/extern. IBM Systems is a C/C++ shop" },
+      { topic: "Recursion, Trees & Graphs", weight: "Medium", notes: "BFS/DFS and basic tree traversals show up; deep graph theory rarely does" },
+      { topic: "Sorting & Searching", weight: "Medium", notes: "Binary search on answer, custom comparators, complexity reasoning" },
+      { topic: "DBMS & Networking", weight: "Medium", notes: "Normalization, joins, ACID, indexing; TCP vs UDP, the DNS/HTTP path. Common as MCQs and interview filler" },
+      { topic: "Dynamic Programming", weight: "Low", notes: "Occasionally one easy-medium DP. Don't spend your 4 days here" },
+    ],
+    topPatterns: ["Hashing & Frequency Maps", "Two Pointers", "Sliding Window", "Sorting + Greedy", "Binary Search", "BFS/DFS", "Prefix Sum", "String Manipulation"],
+    mustSolve: [
+      { title: "Two Sum", pattern: "Hashing", frequency: "Very Common" },
+      { title: "Valid Anagram", pattern: "Hashing", frequency: "Very Common" },
+      { title: "Group Anagrams", pattern: "Hashing", frequency: "Common" },
+      { title: "Maximum Subarray", pattern: "Kadane / Greedy", frequency: "Very Common" },
+      { title: "Merge Intervals", pattern: "Sorting + Intervals", frequency: "Common" },
+      { title: "Best Time to Buy and Sell Stock", pattern: "Sliding Window", frequency: "Very Common" },
+      { title: "Longest Substring Without Repeating Chars", pattern: "Sliding Window", frequency: "Common" },
+      { title: "Binary Search", pattern: "Binary Search", frequency: "Very Common" },
+      { title: "Reverse Linked List", pattern: "Linked List", frequency: "Very Common" },
+      { title: "Number of Islands", pattern: "BFS/DFS", frequency: "Common" },
+      { title: "Valid Parentheses", pattern: "Stack", frequency: "Very Common" },
+      { title: "Climbing Stairs", pattern: "DP", frequency: "Common" },
+    ],
+    behavioralFocus: [
+      "Why IBM Infrastructure / systems software rather than a product web role?",
+      "Are you comfortable with C/C++ and low-level work? (Say yes only if you mean it — they will test it)",
+      "Walk me through a project — expect them to drill into one specific decision",
+      "A time you debugged something genuinely hard, and how you isolated the cause",
+      "Are you able to relocate and do the full 6-month in-person internship from Jan 2027?",
+    ],
+    insiderTips: [
+      "IBM's assessment is EASIER than its interview. Most eliminations happen at the interview on OS and C — so don't spend all 4 days on DSA",
+      "HackerRank ≠ LeetCode: you write a complete program and parse stdin yourself. Practise reading input in your language before the test day",
+      "Always submit a working brute force first — HackerRank scores per test case, so a passing O(n²) beats an unfinished O(n)",
+      "The JD names C, C++, Go, Python, shell and Linux repeatedly. Mentioning any real Linux/C exposure in the interview is a strong differentiator",
+      "Do not use a college email or a misspelt college name at registration — those are silent rejections before anyone reads your code",
+      "The 30-minute registration window is the single most common way people lose this opportunity. Set two alarms for 4:25 PM on 4 Aug",
+    ],
+    prepPlan: [
+      {
+        day: 1,
+        date: "1 Aug 2026",
+        weekday: "Saturday",
+        theme: "Assessment core — hashing, arrays, strings",
+        goal: "Get fast and accurate on the problem types that actually appear on an IBM HackerRank set, and get the HackerRank environment working today (not on test day).",
+        blocks: [
+          { time: "Morning", title: "Logistics first — 30 min, do not skip", items: [
+            "Install the HackerRank desktop app and run the sample test end to end, with webcam on.",
+            "Fix any camera/permission/fullscreen issue NOW — you cannot debug this at 5 PM on the 4th.",
+            "Save your personal email + personal phone somewhere ready to paste at registration.",
+          ]},
+          { time: "Morning", title: "Arrays & Hashing — 12 problems", items: [
+            "Two Sum, Contains Duplicate, Valid Anagram, Ransom Note, Group Anagrams, Top K Frequent.",
+            "Maximum Subarray (Kadane), Product of Array Except Self, Move Zeroes.",
+            "For each: state the brute force out loud first, then the optimisation. That is exactly the interview script.",
+          ]},
+          { time: "Afternoon", title: "Strings + I/O drilling", items: [
+            "Longest Substring Without Repeating Chars, Valid Palindrome, Longest Common Prefix, string reversal/rotation.",
+            "Critical: write 3 of these as FULL programs reading from stdin and printing to stdout — the HackerRank format.",
+            "Practise parsing: single int, array on one line, n then n lines, multiple test cases.",
+          ]},
+          { time: "Evening", title: "C/C++ fundamentals — 1 hour", items: [
+            "Pointers vs references, pointer arithmetic, array-pointer decay.",
+            "malloc/free vs new/delete, memory leaks, dangling pointers, the stack/heap/data/text memory layout.",
+            "sizeof of structs and why padding exists — a classic IBM warm-up question.",
+          ]},
+        ],
+      },
+      {
+        day: 2,
+        date: "2 Aug 2026",
+        weekday: "Sunday",
+        theme: "Two pointers, sliding window, sorting, binary search",
+        goal: "Finish the remaining high-frequency assessment patterns, then start OS — because OS is what wins the interview.",
+        blocks: [
+          { time: "Morning", title: "Two Pointers & Sliding Window — 10 problems", items: [
+            "Valid Palindrome, Two Sum II, 3Sum, Container With Most Water, Merge Sorted Array.",
+            "Best Time to Buy and Sell Stock, Max Consecutive Ones III, Fruit Into Baskets.",
+            "Fixed-size vs variable-size window — be able to say which one a problem needs within 30 seconds.",
+          ]},
+          { time: "Afternoon", title: "Sorting, Searching & Intervals — 8 problems", items: [
+            "Binary Search, Search Insert Position, First Bad Version, Koko Eating Bananas (binary search on the answer).",
+            "Merge Intervals, Insert Interval, Non-overlapping Intervals, Meeting Rooms.",
+            "Custom comparators in your language — sorting by a second key trips people up under time pressure.",
+          ]},
+          { time: "Evening", title: "OS block 1 — processes & concurrency", items: [
+            "Process vs thread, the PCB, context switching, process states.",
+            "CPU scheduling: FCFS, SJF, Round Robin, priority. Be able to compute average waiting time by hand.",
+            "Deadlock: the 4 Coffman conditions, prevention vs avoidance vs detection, Banker's algorithm idea.",
+            "Mutex vs semaphore vs spinlock — IBM asks this constantly.",
+          ]},
+        ],
+      },
+      {
+        day: 3,
+        date: "3 Aug 2026",
+        weekday: "Monday",
+        theme: "Linked lists, trees, graphs + OS/Linux internals + full mock",
+        goal: "Close the remaining DSA gaps, go deep on the Linux internals the JD keeps naming, and sit one full timed mock under real conditions.",
+        blocks: [
+          { time: "Morning", title: "Linked Lists, Stacks, Trees, Graphs — 10 problems", items: [
+            "Reverse Linked List, Merge Two Sorted Lists, Linked List Cycle, Remove Nth Node.",
+            "Valid Parentheses, Min Stack, Implement Queue using Stacks.",
+            "Max Depth, Invert Binary Tree, Level Order Traversal, Validate BST.",
+            "Number of Islands, Rotting Oranges — BFS/DFS on a grid is the most likely graph question.",
+          ]},
+          { time: "Afternoon", title: "OS block 2 — memory + Linux internals (the JD's core)", items: [
+            "Paging, segmentation, virtual memory, page faults, TLB, thrashing.",
+            "Page replacement: FIFO, LRU, Optimal — be able to trace a reference string.",
+            "Linux internals the JD names explicitly: signals, IPC (pipes, message queues, shared memory), fork/exec/wait, zombie vs orphan processes.",
+            "File systems: inodes, hard vs soft links, file descriptors.",
+            "Multi-threading: race conditions, critical section, producer-consumer.",
+          ]},
+          { time: "Afternoon", title: "DBMS + Networking speed pass — 45 min", items: [
+            "Normalization 1NF→3NF, joins, ACID, indexing, transactions/isolation levels.",
+            "TCP vs UDP, the 3-way handshake, what happens when you type a URL, DNS, HTTP vs HTTPS.",
+            "These mostly appear as MCQs — recognition is enough, no deep study needed.",
+          ]},
+          { time: "Evening", title: "FULL TIMED MOCK — 2 hours, non-negotiable", items: [
+            "Use the HackerRank desktop app in fullscreen with the webcam on. Simulate the real thing.",
+            "Pick 3 unseen problems (1 easy, 2 medium) and give yourself 2 hours total.",
+            "Practise the real strategy: read all problems first, solve the easiest first, brute force before optimising.",
+            "Afterwards, write down every mistake — the fix list becomes tomorrow's revision.",
+          ]},
+        ],
+      },
+      {
+        day: 4,
+        date: "4 Aug 2026",
+        weekday: "Tuesday — ASSESSMENT DAY (5:00 PM)",
+        theme: "Light revision, zero new topics, flawless logistics",
+        goal: "Do not learn anything new today. Stay sharp, stay calm, and do not lose this on a registration technicality.",
+        blocks: [
+          { time: "Morning", title: "Light revision only — 2 hours max", items: [
+            "Re-read your mistake list from yesterday's mock. That is the highest-value hour you have.",
+            "Re-solve 3–4 problems you have ALREADY solved, for confidence and speed — not new ones.",
+            "Skim OS one-liners: process vs thread, mutex vs semaphore, deadlock conditions, paging vs segmentation.",
+          ]},
+          { time: "Afternoon (by 3:00 PM)", title: "Machine check — do this early", items: [
+            "Reboot. Close every other app. Test the webcam and the HackerRank desktop app one final time.",
+            "Check your internet; keep a mobile hotspot ready as a backup.",
+            "Charge your laptop AND plug it in. Sit somewhere quiet with decent lighting on your face.",
+            "Keep your ID proof on the desk in case it's asked for.",
+          ]},
+          { time: "4:25 PM", title: "REGISTRATION — the 30-minute window", items: [
+            "Be seated by 4:25 PM. The link goes live at 4:30 PM and closes at 5:00 PM.",
+            "College name must read exactly: Ramaiah Institute of Technology Bangalore.",
+            "Personal email and personal phone number only — never the college ID.",
+            "Register the moment the link drops. Do not wait, do not multitask.",
+          ]},
+          { time: "5:00 PM", title: "The assessment — execution rules", items: [
+            "Read every problem before writing any code, then start with the easiest.",
+            "Write a working brute force and SUBMIT it before optimising — partial test cases still score.",
+            "Remember it is a full program: read stdin, print stdout, handle the exact output format.",
+            "Never leave fullscreen or switch tabs — it is flagged as malpractice.",
+            "If stuck for more than 10 minutes, move on and come back. An unattempted easy problem is the worst outcome.",
+          ]},
+        ],
+      },
+    ],
+  },
   {
     id: "google",
     name: "Google",

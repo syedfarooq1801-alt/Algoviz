@@ -32,7 +32,7 @@ export default function CompanyPrepPage() {
             Company Prep
           </h1>
           <p className="max-w-[700px] text-[17px] leading-8" style={{ color: "var(--text-secondary)" }}>
-            Differentiated prep paths for Google, Meta, Amazon, Microsoft, and Indian unicorns. Know what each company values, what rounds look like, and which problems are asked most.
+            Differentiated prep paths for IBM, Google, Meta, Amazon, Microsoft, and Indian unicorns. Know what each company values, what rounds look like, and which problems are asked most. Live campus drives also get a dated, day-by-day plan.
           </p>
         </section>
 
@@ -91,6 +91,109 @@ export default function CompanyPrepPage() {
                 {company.tagline}
               </p>
             </div>
+
+            {/* Hard logistics for a live drive — these disqualify you if missed,
+                so they sit above the study material, not buried under it. */}
+            {company.deadlines && company.deadlines.length > 0 && (
+              <div
+                className="rounded-2xl p-6"
+                style={{ background: "var(--bg-card)", border: "1px solid rgba(239,68,68,0.35)" }}
+              >
+                <h3 className="text-base font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
+                  Do not lose it on a technicality
+                </h3>
+                <p className="text-xs mb-5" style={{ color: "var(--text-muted)" }}>
+                  Every one of these can disqualify you before a single line of your code is read.
+                </p>
+                <div className="space-y-3">
+                  {company.deadlines.map((d, i) => (
+                    <div
+                      key={i}
+                      className="rounded-lg p-3"
+                      style={{
+                        background: d.critical ? "rgba(239,68,68,0.07)" : "var(--bg-secondary)",
+                        border: `1px solid ${d.critical ? "rgba(239,68,68,0.25)" : "var(--border-subtle)"}`,
+                      }}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        {d.critical && <span style={{ color: "#EF4444", fontSize: 11 }}>●</span>}
+                        <span className="text-xs font-semibold" style={{ color: d.critical ? "#EF4444" : "var(--text-primary)" }}>
+                          {d.label}
+                        </span>
+                      </div>
+                      <p className="text-xs leading-5" style={{ color: "var(--text-secondary)" }}>{d.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Dated countdown plan — only present for a live announced drive */}
+            {company.prepPlan && company.prepPlan.length > 0 && (
+              <div
+                className="rounded-2xl p-6"
+                style={{ background: "var(--bg-card)", border: "1px solid var(--border)" }}
+              >
+                <h3 className="text-base font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
+                  {company.prepPlan.length}-Day Prep Plan
+                </h3>
+                <p className="text-xs mb-5" style={{ color: "var(--text-muted)" }}>
+                  Built for this exact drive — dated to the assessment, weighted to what IBM actually tests.
+                </p>
+                <div className="space-y-6">
+                  {company.prepPlan.map((d) => (
+                    <div
+                      key={d.day}
+                      className="rounded-xl p-4"
+                      style={{ background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)" }}
+                    >
+                      <div className="flex items-baseline gap-3 flex-wrap mb-1">
+                        <span
+                          className="text-xs px-2 py-0.5 rounded font-bold"
+                          style={{ background: company.color, color: "#fff" }}
+                        >
+                          DAY {d.day}
+                        </span>
+                        <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                          {d.theme}
+                        </span>
+                        <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                          {d.date} · {d.weekday}
+                        </span>
+                      </div>
+                      <p className="text-xs leading-5 mb-4" style={{ color: "var(--text-secondary)" }}>
+                        {d.goal}
+                      </p>
+                      <div className="space-y-4">
+                        {d.blocks.map((b, bi) => (
+                          <div key={bi}>
+                            <div className="flex items-baseline gap-2 mb-1.5">
+                              <span
+                                className="text-[10px] px-1.5 py-0.5 rounded font-mono font-semibold shrink-0"
+                                style={{ background: "var(--bg-hover)", color: company.color, border: "1px solid var(--border-subtle)" }}
+                              >
+                                {b.time}
+                              </span>
+                              <span className="text-xs font-semibold" style={{ color: "var(--text-primary)" }}>
+                                {b.title}
+                              </span>
+                            </div>
+                            <ul className="space-y-1">
+                              {b.items.map((it, ii) => (
+                                <li key={ii} className="flex gap-2 text-xs leading-5" style={{ color: "var(--text-muted)" }}>
+                                  <span style={{ color: company.color }}>→</span>
+                                  <span>{it}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Interview Rounds */}
             <div
