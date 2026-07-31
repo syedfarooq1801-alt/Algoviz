@@ -1,5 +1,5 @@
 "use client";
-import { Problem } from "@/data/problems";
+import { Problem, practiceUrl, practiceLabel } from "@/data/problems";
 import { useProgressStore } from "@/lib/store";
 import { useAuth } from "@/lib/authContext";
 import { syncToFirestore } from "@/lib/authContext";
@@ -135,17 +135,19 @@ export default function ProblemRow({ problem, index }: Props) {
         </Link>
       </div>
 
-      {/* LeetCode link */}
+      {/* Practice link — LeetCode, or a free mirror when LeetCode paywalls it */}
       <a
-        href={problem.leetcodeUrl}
+        href={practiceUrl(problem)}
         target="_blank"
         rel="noopener noreferrer"
         className="shrink-0 w-8 flex justify-center hover:scale-110 transition-transform"
-        title="Open on LeetCode"
+        title={problem.premium && problem.freeUrl
+          ? `LeetCode Premium — opens the free ${practiceLabel(problem)} version`
+          : "Open on LeetCode"}
       >
         <svg width="18" height="18" viewBox="0 0 50 50" fill="none">
-          <path d="M36 35H14" stroke="#F5A524" strokeWidth="4" strokeLinecap="round" />
-          <path d="M14 15l10 10-10 10" stroke="#F5A524" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M36 35H14" stroke={problem.premium ? "#2FBF71" : "#F5A524"} strokeWidth="4" strokeLinecap="round" />
+          <path d="M14 15l10 10-10 10" stroke={problem.premium ? "#2FBF71" : "#F5A524"} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </a>
 

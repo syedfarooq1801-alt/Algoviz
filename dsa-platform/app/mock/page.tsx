@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { PATTERNS, Problem } from "@/data/problems";
+import { PATTERNS, Problem, practiceUrl, practiceLabel } from "@/data/problems";
 import { PROBLEM_CONTENT } from "@/data/problemContent";
 import { useProgressStore } from "@/lib/store";
 import { usePrepStore, type MockProblemReview, type MockSessionReview } from "@/lib/prepStore";
@@ -340,7 +340,7 @@ function ProblemPrompt({ problem, review, onUpdate }: {
           </p>
         )}
         <div className="flex items-center gap-2 mt-4 flex-wrap">
-          <a href={problem.leetcodeUrl} target="_blank" rel="noopener noreferrer" className="btn-ghost px-3 py-1.5 text-xs">Full statement on LeetCode</a>
+          <a href={practiceUrl(problem)} target="_blank" rel="noopener noreferrer" className="btn-ghost px-3 py-1.5 text-xs">Full statement on {practiceLabel(problem)}</a>
           <button onClick={() => onUpdate({ solved: !review.solved })} className="px-3 py-1.5 text-xs rounded-lg transition-all"
             style={{ background: review.solved ? "var(--accent-soft)" : "var(--bg-hover)", color: review.solved ? "var(--accent-green)" : "var(--text-secondary)", border: "1px solid var(--border)" }}>
             {review.solved ? "✓ Solved" : "Mark solved"}
@@ -361,10 +361,10 @@ function ProblemPrompt({ problem, review, onUpdate }: {
             </div>
           ))}
         </div>
-        <a href={problem.leetcodeUrl} target="_blank" rel="noopener noreferrer"
+        <a href={practiceUrl(problem)} target="_blank" rel="noopener noreferrer"
           className="mt-4 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all"
           style={{ background: "rgba(255,161,22,0.1)", color: "#F5A524", border: "1px solid rgba(255,161,22,0.25)", textDecoration: "none" }}>
-          Open on LeetCode ↗
+          Open on {practiceLabel(problem)} ↗
         </a>
       </div>
     </div>

@@ -3,7 +3,7 @@ import { use, useState } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Bookmark, Check, ExternalLink } from "lucide-react";
-import { getProblemById, getPatternById, getAllProblems } from "@/data/problems";
+import { getProblemById, getPatternById, getAllProblems, practiceUrl, practiceLabel } from "@/data/problems";
 import { PROBLEM_CONTENT } from "@/data/problemContent";
 import { PROBLEM_TECHNIQUES, getTechniqueColor } from "@/data/problemTechniques";
 import NextNav from "@/components/NextNav";
@@ -106,6 +106,11 @@ export default function ProblemPage({ params }: Props) {
                     </>
                   )}
                 </div>
+                {problem.premium && problem.freeUrl && (
+                  <div className="text-xs mt-2 px-2 py-1 rounded inline-block" style={{ background: "rgba(47,191,113,0.1)", color: "#2FBF71", border: "1px solid rgba(47,191,113,0.25)" }}>
+                    LeetCode Premium — the link below opens a free GeeksforGeeks version instead
+                  </div>
+                )}
                 {problem.companies.length > 0 && (
                   <div className="flex flex-wrap items-center gap-1.5 mt-2">
                     {problem.companies.map((c) => (
@@ -131,8 +136,16 @@ export default function ProblemPage({ params }: Props) {
                 >
                   {dueDate ? `Due ${dueDate} ✕` : "Review later"}
                 </button>
-                <a href={problem.leetcodeUrl} target="_blank" rel="noopener noreferrer" className="btn-ghost px-3 py-2 text-sm inline-flex items-center gap-2">
-                  <ExternalLink size={15} /> LeetCode
+                <a
+                  href={practiceUrl(problem)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-ghost px-3 py-2 text-sm inline-flex items-center gap-2"
+                  title={problem.premium && problem.freeUrl
+                    ? "This one is LeetCode Premium — opens the free GeeksforGeeks version instead"
+                    : undefined}
+                >
+                  <ExternalLink size={15} /> {practiceLabel(problem)}
                 </a>
               </div>
             </div>

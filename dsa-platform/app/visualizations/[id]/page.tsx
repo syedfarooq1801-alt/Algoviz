@@ -1,6 +1,6 @@
 "use client";
 import { use } from "react";
-import { getProblemById, getPatternById } from "@/data/problems";
+import { getProblemById, getPatternById, practiceUrl, practiceLabel } from "@/data/problems";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import VizPageTabs from "@/components/visualizations/VizPageTabs";
@@ -56,12 +56,12 @@ export default function VisualizationPage({ params }: Props) {
             </Link>
             <span>·</span>
             <a
-              href={problem.leetcodeUrl}
+              href={practiceUrl(problem)}
               target="_blank"
               rel="noopener noreferrer"
               className="hover:underline"
             >
-              LeetCode ↗
+              {practiceLabel(problem)} ↗
             </a>
           </div>
         </section>
