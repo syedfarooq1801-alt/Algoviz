@@ -139,28 +139,38 @@ export const ESSENTIAL_SD: string[] = [
   "amazon-ecommerce", "twitter-feed",
 ];
 
-// LLD coverage — SOLID (all 5), the core pattern set, and 6 full-design case
-// studies. OOP fundamentals themselves (encapsulation/inheritance/polymorphism/
-// abstraction) live in ESSENTIAL_SE's oop/ entries above, not duplicated here.
+// LLD coverage — modelling fundamentals, SOLID (all 5), the core pattern set,
+// and 8 full-design case studies. The LLD-flavoured OOP chapter here is about
+// MODELLING (picking classes, composition vs inheritance); ESSENTIAL_SE's oop/
+// entries above cover the language-level mechanics, so they complement rather
+// than duplicate each other.
 export const ESSENTIAL_LLD: string[] = [
+  // Modelling fundamentals — comes before SOLID (3)
+  "lld-fundamentals/oop-fundamentals",
+  "lld-fundamentals/relationships",
+  "lld-fundamentals/class-diagrams",
   // SOLID — all five (5)
   "solid-principles/srp", "solid-principles/ocp", "solid-principles/lsp",
   "solid-principles/isp", "solid-principles/dip",
-  // Core pattern set (7)
+  // Core pattern set (8)
   "design-patterns-creational/singleton",
   "design-patterns-creational/factory-method",
   "design-patterns-creational/abstract-factory",
   "design-patterns-creational/builder",
+  "design-patterns-structural/adapter",
   "design-patterns-structural/decorator",
   "design-patterns-behavioral/strategy",
   "design-patterns-behavioral/observer",
-  // Full-design case studies — requirements -> class diagram -> code -> extensibility (6)
+  // Full-design case studies — requirements -> class diagram -> code -> extensibility (8)
   "lld-problems-classic/parking-lot",
   "lld-problems-classic/lru-cache-design",
   "lld-problems-classic/elevator-system",
   "lld-problems-classic/chess-game",
   "lld-problems-classic/library-system",
+  "lld-problems-classic/atm-design",
+  "lld-problems-classic/tic-tac-toe",
   "lld-problems-realworld/splitwise",
+  "lld-problems-realworld/movie-ticket-booking",
 ];
 
 export const ESSENTIAL_DSA_SET = new Set(ESSENTIAL_DSA);

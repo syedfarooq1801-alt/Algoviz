@@ -1,3 +1,4 @@
+import lldFundamentals from "./lldContent-fundamentals";
 import lldPart1 from "./lldContent-part1";
 import lldPart2 from "./lldContent-part2";
 import lldPart3 from "./lldContent-part3";
@@ -30,12 +31,18 @@ export interface LLDSubject {
 }
 
 const raw: Record<string, LLDSubject> = {
+  ...lldFundamentals,
   ...lldPart1,
   ...lldPart2,
   ...lldPart3,
 } as Record<string, LLDSubject>;
 
 export const LLD_SUBJECT_META: Record<string, { blurb: string; accent: string; topics: string }> = {
+  "lld-fundamentals": {
+    blurb: "OOP pillars, class relationships, and UML class diagrams — the modelling vocabulary every LLD round assumes before you touch a pattern.",
+    accent: "var(--accent-purple)",
+    topics: "OOP · Relationships · Class Diagrams",
+  },
   "solid-principles": {
     blurb: "SRP, OCP, LSP, ISP, DIP — the five principles behind every clean codebase. Essential for senior interviews.",
     accent: "var(--accent)",
@@ -57,9 +64,9 @@ export const LLD_SUBJECT_META: Record<string, { blurb: string; accent: string; t
     topics: "Observer · Strategy · Command · Template Method · State",
   },
   "lld-problems-classic": {
-    blurb: "Parking Lot, LRU Cache, Elevator, Library, Chess — the canonical LLD interview problems with full class designs.",
+    blurb: "Parking Lot, LRU Cache, Elevator, Library, Chess, ATM, Tic Tac Toe — the canonical LLD interview problems with full class designs.",
     accent: "var(--accent-red)",
-    topics: "Parking Lot · LRU Cache · Elevator · Library · Chess",
+    topics: "Parking Lot · LRU Cache · Elevator · Library · Chess · ATM · Tic Tac Toe",
   },
   "lld-problems-realworld": {
     blurb: "Splitwise, BookMyShow, Swiggy, Uber, Twitter — design real products. Asked directly at Amazon, Flipkart, Uber, Swiggy.",
@@ -69,6 +76,7 @@ export const LLD_SUBJECT_META: Record<string, { blurb: string; accent: string; t
 };
 
 const SUBJECT_ORDER = [
+  "lld-fundamentals",
   "solid-principles",
   "design-patterns-creational",
   "design-patterns-structural",
