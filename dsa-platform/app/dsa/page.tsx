@@ -6,6 +6,7 @@ import { todayLocalISO } from "@/lib/date";
 import { useMobile } from "@/lib/useMobile";
 import { useState, useMemo, Suspense } from "react";
 import Link from "next/link";
+import PracticeLinkIcon from "@/components/PracticeLinkIcon";
 
 type Diff = "All" | "Easy" | "Medium" | "Hard";
 type Company = "All" | "Google" | "Amazon" | "Meta" | "Apple" | "Microsoft" | "LinkedIn" | "Netflix";
@@ -43,8 +44,8 @@ function DSAContent() {
   const firstUnsolved = problems.find((p) => !solved.has(p.id))?.id;
   const filteredSolved = problems.filter((p) => solved.has(p.id)).length;
 
-  const desktopGrid = "36px 1fr 150px 90px 36px 36px";
-  const mobileGrid = "26px 1fr 62px 30px";
+  const desktopGrid = "36px 1fr 150px 90px 24px 36px 36px";
+  const mobileGrid = "26px 1fr 62px 22px 30px";
   const tableGrid = isMobile ? mobileGrid : desktopGrid;
 
   return (
@@ -226,6 +227,7 @@ function DSAContent() {
             {!isMobile && <span>TOPIC</span>}
             <span>DIFF</span>
             <span />
+            <span />
             {!isMobile && <span />}
           </div>
 
@@ -294,6 +296,9 @@ function DSAContent() {
                   }}>
                     {isMobile ? prob.difficulty[0] : prob.difficulty}
                   </span>
+
+                  {/* Practice link — LeetCode, or GeeksforGeeks when LeetCode paywalls it */}
+                  <PracticeLinkIcon problem={prob} size={isMobile ? 13 : 15} />
 
                   {/* Solved checkbox */}
                   <button onClick={() => toggleSolved(prob.id)} title={isSolved ? "Mark unsolved" : "Mark solved"}
