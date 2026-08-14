@@ -2,6 +2,7 @@
 export type { ProblemContent } from "./problemContent.generated";
 import { PROBLEM_CONTENT as GENERATED_CONTENT } from "./problemContent.generated";
 import { PYTHON_SOLUTIONS } from "./pythonSolutions";
+import { APPROACH_OVERRIDES } from "./approachOverrides";
 
 // Rich overrides — merge generated base with high-quality entries below
 const RICH_OVERRIDES: Record<string, import("./problemContent.generated").ProblemContent> = {
@@ -12516,11 +12517,24 @@ public:
   },
 };
 
-// Merged: generated base + rich overrides + python solutions
+// Some approach steps were authored as indented sub-bullets ("  — If the
+// number is in the set..."). The page renders approach as a flat numbered
+// list, so the leading dash surfaces as "3. — If the number is in the set",
+// which just looks broken. The numbering already supplies the structure the
+// dash was standing in for, so strip it.
+const cleanStep = (s: string) => s.replace(/^[\s]*—[\s]*/, "").trim();
+
+// Merged: generated base + rich overrides + rewritten approach steps + python.
+// APPROACH_OVERRIDES lands last so it wins over both the generated base and the
+// rich entries — it only ever replaces `approach`, leaving the rest intact.
 const withPython = Object.fromEntries(
   Object.entries({ ...GENERATED_CONTENT, ...RICH_OVERRIDES }).map(([id, content]) => [
     id,
-    { ...content, pythonSolution: PYTHON_SOLUTIONS[id] ?? content.pythonSolution },
+    {
+      ...content,
+      approach: (APPROACH_OVERRIDES[id] ?? content.approach ?? []).map(cleanStep),
+      pythonSolution: PYTHON_SOLUTIONS[id] ?? content.pythonSolution,
+    },
   ])
 );
 export const PROBLEM_CONTENT = withPython;
