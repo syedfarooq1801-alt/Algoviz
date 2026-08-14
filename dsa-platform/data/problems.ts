@@ -926,105 +926,157 @@ void unite(int x, int y) { parent[find(x)] = find(y); }`,
     ]
   },
   {
-    id: "dynamic-programming",
-    title: "Dynamic Programming",
-    description: "DP eliminates exponential brute force by recognizing that subproblems overlap — the same subproblem is solved multiple times in naive recursion. Cache the answer the first time (memoization) or build answers bottom-up (tabulation). The three steps: (1) define the subproblem and what dp[i] or dp[i][j] means, (2) write the recurrence (how bigger problems depend on smaller ones), (3) initialize base cases. 1D DP handles single-sequence problems; 2D DP handles two-sequence or grid problems.",
-    coreIntuition: "If the brute force is exponential and you see repeated subproblems in the recursion tree, DP applies. The hardest part is defining the state. Once you have 'dp[i] = X given first i elements', the recurrence often follows from 'what's the last decision I made?' — include/exclude, take/skip, left/right. For 2D, dp[i][j] usually means 'answer for first i chars of s1 and first j chars of s2'.",
+    id: "dp-1d",
+    title: "1-D Dynamic Programming",
+    description: "One index defines the state: dp[i] is the answer for the first i elements (or the answer ending at i). You reach dp[i] from a constant number of earlier entries, so the whole table is one pass. This is where DP starts — if you can't state what dp[i] means in one sentence, you don't have the recurrence yet.",
+    coreIntuition: "Ask 'what was the LAST decision?' — take it or skip it, extend the run or restart it. That question turns into the recurrence directly. dp[i] = f(dp[i-1], dp[i-2], ...) with a small, fixed lookback. Because the lookback is fixed and small, almost every 1-D DP collapses from an O(n) array to two or three variables.",
     recognitionSignals: [
-      "Count number of ways to do X",
-      "Minimum/maximum cost to achieve X",
-      "Can we achieve X? (boolean DP)",
-      "Optimal subsequence (LIS, LCS, edit distance)",
-      "Knapsack-style include/exclude decisions",
-      "Overlapping subproblems in recursion tree",
-      "Grid path counting / minimum path",
-      "String matching with wildcards or edits"
+      "One sequence, and the answer depends on a prefix of it",
+      "Count the number of ways to reach step / index n",
+      "Max or min over choices at each index (rob it or skip it)",
+      "Extend the current run or start a new one (Kadane-style)",
+      "Reach a target amount from a set of choices (coin change)",
+      "Answer at i depends only on a few earlier answers"
     ],
-    template: `// 1D DP — Climbing Stairs / Fibonacci style
+    template: `// Fibonacci shape — dp[i] from the two before it
 vector<int> dp(n + 1);
 dp[0] = 1; dp[1] = 1;
 for (int i = 2; i <= n; i++)
     dp[i] = dp[i-1] + dp[i-2];
 
-// 1D DP — Include/exclude (House Robber)
-// dp[i] = max money robbing houses 0..i
-dp[0] = nums[0]; dp[1] = max(nums[0], nums[1]);
+// Include / exclude shape — House Robber
+// dp[i] = best over houses 0..i
+dp[0] = nums[0];
+dp[1] = max(nums[0], nums[1]);
 for (int i = 2; i < n; i++)
     dp[i] = max(dp[i-1], dp[i-2] + nums[i]);
 
-// 2D DP — LCS / Edit Distance style
-// dp[i][j] = answer for s1[0..i-1], s2[0..j-1]
-for (int i = 1; i <= m; i++)
-    for (int j = 1; j <= n; j++)
-        if (s1[i-1] == s2[j-1]) dp[i][j] = dp[i-1][j-1] + 1;
-        else dp[i][j] = max(dp[i-1][j], dp[i][j-1]);`,
-    timeComplexity: "O(n) 1D, O(n²) 2D, O(n*amount) for knapsack",
-    spaceComplexity: "O(n) 1D, O(n²) 2D — often reducible to O(n) rolling array",
-    realWorldAnalogy: "Building a skyscraper. Each floor's cost = material cost + cost of building everything below. Don't rebuild from ground up for each floor — look up the pre-computed cost of the floor below.",
+// Rolling variables — the same thing in O(1) space
+int prev2 = 0, prev1 = 0;
+for (int x : nums) { int cur = max(prev1, prev2 + x); prev2 = prev1; prev1 = cur; }`,
+    timeComplexity: "O(n), or O(n·target) when the state carries an amount",
+    spaceComplexity: "O(n), almost always reducible to O(1) with rolling variables",
+    realWorldAnalogy: "Climbing stairs while writing on each step how many ways you got there. Step 10 only needs what's written on steps 9 and 8 — you never look further back, so you never need the whole staircase in memory.",
     icon: "Grid",
     color: "amber",
     keyInsights: [
-      "The hardest part of DP is defining the STATE — dp[i] must mean something precise and complete",
-      "Find the RECURRENCE by asking: 'what was the LAST decision made to reach state i?'",
-      "1D DP: usually 'include or exclude current element' or 'extend or restart'",
-      "2D DP: dp[i][j] usually = 'best answer using first i elements of s1 and first j elements of s2'",
-      "Rolling array optimization: when dp[i] only depends on dp[i-1] and dp[i-2], use two variables instead of array",
+      "Say out loud what dp[i] MEANS before writing any recurrence — most bugs are a vague state definition",
+      "'Answer for the first i' and 'answer ending exactly at i' are different states with different recurrences — Kadane needs the second",
+      "Fixed, small lookback is what makes the O(1) space trick always available here",
+      "Base cases represent the empty prefix, not the first element",
     ],
     commonMistakes: [
-      "Defining state too narrowly: dp[i] = 'answer ending at i' vs dp[i] = 'best answer for first i' — wrong definition causes wrong recurrence",
-      "Wrong base cases: dp[0] should represent 'empty prefix' answer, not 'first element' answer",
-      "For coin change: initializing unreachable states to INT_MAX and adding 1 causes overflow — use amount+1 as sentinel",
-      "For LCS/edit distance: forgetting the diagonal dp[i-1][j-1] when characters match",
-      "Thinking too hard before writing recurrence — write naive recursion first, then memoize",
+      "Mixing the two state definitions mid-problem — starting with 'best so far' and then indexing as if it were 'ending at i'",
+      "Coin change: seeding unreachable states with INT_MAX and then adding 1 — overflow; use amount+1 as the sentinel",
+      "Optimising to rolling variables before the array version is correct",
+      "Reaching for DP when a greedy scan already works (Best Time to Buy and Sell Stock)",
     ],
-    whenNotToUse: "When greedy works (provably optimal local choice). When problem is on a tree (tree DP is different). When n is tiny (backtracking). When the 'optimal substructure' property doesn't hold (some graph problems).",
+    whenNotToUse: "When a greedy choice is provably optimal, when the state genuinely needs two indices (see 2-D DP), or when n is small enough that plain recursion is clearer.",
     thinkingProcess: [
-      "1. Write the brute force recursive solution first — identify overlapping subproblems",
-      "2. Define dp[i] clearly: 'dp[i] = [what exactly?] for [what input?]'",
-      "3. Write the recurrence: dp[i] depends on which previous states?",
-      "4. Identify base cases: what are the smallest valid inputs?",
-      "5. Determine order: must compute smaller problems before larger ones",
+      "1. Write the naive recursion and spot the repeated calls",
+      "2. Define dp[i] in one precise sentence",
+      "3. Ask what the last decision was — that gives the recurrence",
+      "4. Fill in base cases for the empty / single-element prefix",
+      "5. Only then consider collapsing the array into variables",
     ],
-    decisionFramework: "Fibonacci/staircase → dp[i] = dp[i-1] + dp[i-2]. Include/exclude (knapsack, rob) → dp[i] = max(dp[i-1], dp[i-2]+val). Unbounded knapsack (coin change) → inner loop over coins for each amount. LCS/edit → 2D dp with match/no-match recurrence. Count paths in grid → dp[i][j] = dp[i-1][j] + dp[i][j-1]. LIS → dp[i] = max dp[j]+1 where j<i and arr[j]<arr[i].",
+    decisionFramework: "Ways to reach n → dp[i] = dp[i-1] + dp[i-2]. Take-or-skip with a gap → dp[i] = max(dp[i-1], dp[i-2] + v). Extend-or-restart → Kadane. Hit an exact amount → dp[amount], loop coins inside. Longest increasing subsequence → dp[i] = max(dp[j]) + 1 over j < i, or patience sorting for O(n log n).",
     problems: [
-      // 1D DP — Easy
-      { id: "climbing-stairs", title: "Climbing Stairs", difficulty: "Easy", difficultyScore: 3, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/climbing-stairs/", hasVisualization: true, tags: ["Math", "DP", "Memoization"], companies: ["Amazon", "Apple"], frequency: "High" },
-      { id: "min-cost-climbing", title: "Min Cost Climbing Stairs", difficulty: "Easy", difficultyScore: 4, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/min-cost-climbing-stairs/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon"], frequency: "Medium" },
-      { id: "nth-tribonacci", title: "N-th Tribonacci Number", difficulty: "Easy", difficultyScore: 3, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/n-th-tribonacci-number/", hasVisualization: true, tags: ["Math", "DP", "Memoization"], companies: ["Amazon", "LinkedIn"], frequency: "Medium" },
-      { id: "nim-game", title: "Nim Game", difficulty: "Easy", difficultyScore: 3, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/nim-game/", hasVisualization: false, tags: ["Math", "Game Theory", "DP"], companies: ["Google", "Amazon"], frequency: "Medium" },
-      // 1D DP — Medium
-      { id: "house-robber", title: "House Robber", difficulty: "Medium", difficultyScore: 5, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/house-robber/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon", "Airbnb"], frequency: "High" },
-      { id: "house-robber-ii", title: "House Robber II", difficulty: "Medium", difficultyScore: 6, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/house-robber-ii/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon"], frequency: "High" },
-      { id: "longest-palindromic-substr", title: "Longest Palindromic Substring", difficulty: "Medium", difficultyScore: 7, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/longest-palindromic-substring/", hasVisualization: true, tags: ["String", "DP", "Expand Around Center"], companies: ["Amazon", "Microsoft"], frequency: "High" },
-      { id: "palindromic-substrings", title: "Palindromic Substrings", difficulty: "Medium", difficultyScore: 6, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/palindromic-substrings/", hasVisualization: true, tags: ["String", "DP", "Expand Around Center"], companies: ["Amazon"], frequency: "High" },
-      { id: "decode-ways", title: "Decode Ways", difficulty: "Medium", difficultyScore: 7, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/decode-ways/", hasVisualization: true, tags: ["String", "DP"], companies: ["Amazon", "Facebook"], frequency: "High" },
-      { id: "coin-change", title: "Coin Change", difficulty: "Medium", difficultyScore: 7, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/coin-change/", hasVisualization: true, tags: ["Array", "DP", "BFS"], companies: ["Amazon", "Google"], frequency: "High" },
-      { id: "max-product-subarray", title: "Maximum Product Subarray", difficulty: "Medium", difficultyScore: 7, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/maximum-product-subarray/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon", "LinkedIn"], frequency: "High" },
-      { id: "word-break", title: "Word Break", difficulty: "Medium", difficultyScore: 7, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/word-break/", hasVisualization: true, tags: ["String", "DP", "Hash Set", "Trie"], companies: ["Amazon", "Google"], frequency: "High" },
-      { id: "longest-increasing-subsequence", title: "Longest Increasing Subsequence", difficulty: "Medium", difficultyScore: 8, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/longest-increasing-subsequence/", hasVisualization: true, tags: ["Array", "DP", "Binary Search"], companies: ["Amazon", "Microsoft"], frequency: "High" },
-      { id: "partition-equal-subset", title: "Partition Equal Subset Sum", difficulty: "Medium", difficultyScore: 8, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/partition-equal-subset-sum/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon"], frequency: "Medium" },
-      { id: "jump-game-vii", title: "Jump Game VII", difficulty: "Medium", difficultyScore: 7, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/jump-game-vii/", hasVisualization: false, tags: ["String", "DP", "Prefix Sum", "Sliding Window"], companies: ["Amazon"], frequency: "Low" },
-      // 2D DP — Medium
-      { id: "unique-paths", title: "Unique Paths", difficulty: "Medium", difficultyScore: 5, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/unique-paths/", hasVisualization: true, tags: ["Math", "DP", "Combinatorics"], companies: ["Amazon", "Google"], frequency: "High" },
-      { id: "minimum-path-sum", title: "Minimum Path Sum", difficulty: "Medium", difficultyScore: 6, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/minimum-path-sum/", hasVisualization: true, tags: ["Array", "DP", "Matrix"], companies: ["Amazon"], frequency: "High" },
-      { id: "triangle", title: "Triangle", difficulty: "Medium", difficultyScore: 6, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/triangle/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon"], frequency: "Medium" },
-      { id: "longest-common-subsequence", title: "Longest Common Subsequence", difficulty: "Medium", difficultyScore: 8, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/longest-common-subsequence/", hasVisualization: true, tags: ["String", "DP"], companies: ["Amazon", "Google"], frequency: "High" },
-      { id: "edit-distance", title: "Edit Distance", difficulty: "Medium", difficultyScore: 9, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/edit-distance/", hasVisualization: true, tags: ["String", "DP"], companies: ["Amazon", "Google", "Microsoft"], frequency: "High" },
-      { id: "stone-game", title: "Stone Game", difficulty: "Medium", difficultyScore: 6, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/stone-game/", hasVisualization: false, tags: ["Array", "Math", "DP", "Game Theory"], companies: ["Google", "Amazon", "Meta"], frequency: "Medium" },
-      { id: "buy-sell-cooldown", title: "Best Time to Buy and Sell Stock with Cooldown", difficulty: "Medium", difficultyScore: 7, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon"], frequency: "Medium" },
-      { id: "coin-change-ii", title: "Coin Change II", difficulty: "Medium", difficultyScore: 7, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/coin-change-ii/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon"], frequency: "High" },
-      { id: "target-sum", title: "Target Sum", difficulty: "Medium", difficultyScore: 7, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/target-sum/", hasVisualization: true, tags: ["Array", "DP", "Backtracking"], companies: ["Amazon"], frequency: "High" },
-      { id: "interleaving-string", title: "Interleaving String", difficulty: "Medium", difficultyScore: 8, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/interleaving-string/", hasVisualization: false, tags: ["String", "DP"], companies: ["Google"], frequency: "Medium" },
-      { id: "01-knapsack", title: "0/1 Knapsack", difficulty: "Medium", difficultyScore: 7, pattern: "dynamic-programming", leetcodeUrl: "https://www.geeksforgeeks.org/0-1-knapsack-problem-dp-10/", hasVisualization: false, tags: ["Array", "DP"], companies: ["Amazon", "Microsoft", "Flipkart"], frequency: "High" },
-      { id: "matrix-chain-multiplication", title: "Matrix Chain Multiplication", difficulty: "Hard", difficultyScore: 8, pattern: "dynamic-programming", leetcodeUrl: "https://www.geeksforgeeks.org/matrix-chain-multiplication-dp-8/", hasVisualization: false, tags: ["Array", "DP", "Interval DP"], companies: ["Amazon", "Google"], frequency: "Medium" },
-      { id: "best-time-stock-iii", title: "Best Time to Buy and Sell Stock III", difficulty: "Hard", difficultyScore: 8, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/", hasVisualization: false, tags: ["Array", "DP"], companies: ["Amazon", "Microsoft"], frequency: "Medium" },
-      { id: "best-time-stock-iv", title: "Best Time to Buy and Sell Stock IV", difficulty: "Hard", difficultyScore: 8, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/", hasVisualization: false, tags: ["Array", "DP"], companies: ["Amazon", "Google"], frequency: "Medium" },
-      // 2D DP — Hard
-      { id: "longest-increasing-path-matrix", title: "Longest Increasing Path in a Matrix", difficulty: "Hard", difficultyScore: 9, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/longest-increasing-path-in-a-matrix/", hasVisualization: true, tags: ["Array", "DP", "DFS", "Memoization"], companies: ["Google", "Amazon"], frequency: "Medium" },
-      { id: "distinct-subsequences", title: "Distinct Subsequences", difficulty: "Hard", difficultyScore: 9, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/distinct-subsequences/", hasVisualization: true, tags: ["String", "DP"], companies: ["Amazon"], frequency: "Medium" },
-      { id: "burst-balloons", title: "Burst Balloons", difficulty: "Hard", difficultyScore: 10, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/burst-balloons/", hasVisualization: false, tags: ["Array", "DP", "Divide & Conquer"], companies: ["Google"], frequency: "Medium" },
-      { id: "regular-expression-matching", title: "Regular Expression Matching", difficulty: "Hard", difficultyScore: 10, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/regular-expression-matching/", hasVisualization: false, tags: ["String", "DP", "Recursion"], companies: ["Amazon", "Google", "Facebook"], frequency: "Medium" },
-      { id: "max-score-multiplication", title: "Maximum Score from Performing Multiplication Operations", difficulty: "Hard", difficultyScore: 8, pattern: "dynamic-programming", leetcodeUrl: "https://leetcode.com/problems/maximum-score-from-performing-multiplication-operations/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon", "Google"], frequency: "Low" },
+      { id: "climbing-stairs", title: "Climbing Stairs", difficulty: "Easy", difficultyScore: 3, pattern: "dp-1d", leetcodeUrl: "https://leetcode.com/problems/climbing-stairs/", hasVisualization: true, tags: ["Math", "DP", "Memoization"], companies: ["Amazon", "Apple"], frequency: "High" },
+      { id: "min-cost-climbing", title: "Min Cost Climbing Stairs", difficulty: "Easy", difficultyScore: 4, pattern: "dp-1d", leetcodeUrl: "https://leetcode.com/problems/min-cost-climbing-stairs/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon"], frequency: "Medium" },
+      { id: "nth-tribonacci", title: "N-th Tribonacci Number", difficulty: "Easy", difficultyScore: 3, pattern: "dp-1d", leetcodeUrl: "https://leetcode.com/problems/n-th-tribonacci-number/", hasVisualization: true, tags: ["Math", "DP", "Memoization"], companies: ["Amazon", "LinkedIn"], frequency: "Medium" },
+      { id: "nim-game", title: "Nim Game", difficulty: "Easy", difficultyScore: 3, pattern: "dp-1d", leetcodeUrl: "https://leetcode.com/problems/nim-game/", hasVisualization: false, tags: ["Math", "Game Theory", "DP"], companies: ["Google", "Amazon"], frequency: "Medium" },
+      { id: "house-robber", title: "House Robber", difficulty: "Medium", difficultyScore: 5, pattern: "dp-1d", leetcodeUrl: "https://leetcode.com/problems/house-robber/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon", "Airbnb"], frequency: "High" },
+      { id: "house-robber-ii", title: "House Robber II", difficulty: "Medium", difficultyScore: 6, pattern: "dp-1d", leetcodeUrl: "https://leetcode.com/problems/house-robber-ii/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon"], frequency: "High" },
+      { id: "longest-palindromic-substr", title: "Longest Palindromic Substring", difficulty: "Medium", difficultyScore: 7, pattern: "dp-1d", leetcodeUrl: "https://leetcode.com/problems/longest-palindromic-substring/", hasVisualization: true, tags: ["String", "DP", "Expand Around Center"], companies: ["Amazon", "Microsoft"], frequency: "High" },
+      { id: "palindromic-substrings", title: "Palindromic Substrings", difficulty: "Medium", difficultyScore: 6, pattern: "dp-1d", leetcodeUrl: "https://leetcode.com/problems/palindromic-substrings/", hasVisualization: true, tags: ["String", "DP", "Expand Around Center"], companies: ["Amazon"], frequency: "High" },
+      { id: "decode-ways", title: "Decode Ways", difficulty: "Medium", difficultyScore: 7, pattern: "dp-1d", leetcodeUrl: "https://leetcode.com/problems/decode-ways/", hasVisualization: true, tags: ["String", "DP"], companies: ["Amazon", "Facebook"], frequency: "High" },
+      { id: "coin-change", title: "Coin Change", difficulty: "Medium", difficultyScore: 7, pattern: "dp-1d", leetcodeUrl: "https://leetcode.com/problems/coin-change/", hasVisualization: true, tags: ["Array", "DP", "BFS"], companies: ["Amazon", "Google"], frequency: "High" },
+      { id: "max-product-subarray", title: "Maximum Product Subarray", difficulty: "Medium", difficultyScore: 7, pattern: "dp-1d", leetcodeUrl: "https://leetcode.com/problems/maximum-product-subarray/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon", "LinkedIn"], frequency: "High" },
+      { id: "word-break", title: "Word Break", difficulty: "Medium", difficultyScore: 7, pattern: "dp-1d", leetcodeUrl: "https://leetcode.com/problems/word-break/", hasVisualization: true, tags: ["String", "DP", "Hash Set", "Trie"], companies: ["Amazon", "Google"], frequency: "High" },
+      { id: "longest-increasing-subsequence", title: "Longest Increasing Subsequence", difficulty: "Medium", difficultyScore: 8, pattern: "dp-1d", leetcodeUrl: "https://leetcode.com/problems/longest-increasing-subsequence/", hasVisualization: true, tags: ["Array", "DP", "Binary Search"], companies: ["Amazon", "Microsoft"], frequency: "High" },
+      { id: "partition-equal-subset", title: "Partition Equal Subset Sum", difficulty: "Medium", difficultyScore: 8, pattern: "dp-1d", leetcodeUrl: "https://leetcode.com/problems/partition-equal-subset-sum/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon"], frequency: "Medium" },
+      { id: "jump-game-vii", title: "Jump Game VII", difficulty: "Medium", difficultyScore: 7, pattern: "dp-1d", leetcodeUrl: "https://leetcode.com/problems/jump-game-vii/", hasVisualization: false, tags: ["String", "DP", "Prefix Sum", "Sliding Window"], companies: ["Amazon"], frequency: "Low" },
+    ]
+  },
+  {
+    id: "dp-2d",
+    title: "2-D Dynamic Programming",
+    description: "Two indices define the state: dp[i][j] is the answer for the first i of one thing and the first j of another — two strings, a grid's rows and columns, or the interval [i..j]. The jump from 1-D is not difficulty, it's that one index can no longer describe where you are.",
+    coreIntuition: "Same last-decision question, now with two moving parts. For two sequences it is almost always 'do the current characters match?' — match consumes both (dp[i-1][j-1]), mismatch consumes one or the other (dp[i-1][j], dp[i][j-1]). For grids you arrive from above or from the left. For intervals you pick a split point k inside [i..j] and recurse on both halves.",
+    recognitionSignals: [
+      "Two strings or two sequences compared against each other",
+      "A grid, with movement restricted to right / down",
+      "An interval [i..j] where you choose something inside it to remove or split on",
+      "A choice plus a second piece of state — transactions left, cooldown, capacity",
+      "The 1-D state isn't enough to know what you're allowed to do next"
+    ],
+    template: `// Two sequences — LCS / Edit Distance shape
+// dp[i][j] = answer for s1[0..i-1] against s2[0..j-1]
+for (int i = 1; i <= m; i++)
+    for (int j = 1; j <= n; j++)
+        if (s1[i-1] == s2[j-1]) dp[i][j] = dp[i-1][j-1] + 1;
+        else                    dp[i][j] = max(dp[i-1][j], dp[i][j-1]);
+
+// Grid — arrive from above or from the left
+for (int i = 1; i < m; i++)
+    for (int j = 1; j < n; j++)
+        dp[i][j] = grid[i][j] + min(dp[i-1][j], dp[i][j-1]);
+
+// Interval — choose a split k, solve both halves, combine
+for (int len = 2; len <= n; len++)
+    for (int i = 0; i + len <= n; i++) {
+        int j = i + len - 1;
+        for (int k = i; k < j; k++)
+            dp[i][j] = max(dp[i][j], dp[i][k] + dp[k+1][j] + combine(i, k, j));
+    }`,
+    timeComplexity: "O(m·n) for two-sequence and grid; O(n³) for interval DP",
+    spaceComplexity: "O(m·n), often reducible to O(n) by keeping only the previous row",
+    realWorldAnalogy: "A spreadsheet where each cell's value is computed from the cell above, the cell to the left, and the one diagonally back. Fill it row by row and the bottom-right corner is your answer.",
+    icon: "Grid",
+    color: "amber",
+    keyInsights: [
+      "dp[i][j] almost always means 'first i of A against first j of B' — index i is a COUNT, so the string character is s[i-1]",
+      "Two-sequence problems branch on match vs mismatch; that single question generates most of these recurrences",
+      "Interval DP loops by LENGTH, not by start index — the shorter intervals must exist before the longer ones",
+      "Row 0 and column 0 encode 'one side is empty', which is where edit distance gets its 'delete everything' base case",
+      "If only the previous row is read, the table collapses to two rows"
+    ],
+    commonMistakes: [
+      "Off-by-one between the count i and the character s[i-1]",
+      "Forgetting the diagonal dp[i-1][j-1] on a match",
+      "Filling an interval DP in plain i, j order so shorter intervals aren't ready yet",
+      "Burst Balloons: thinking about which balloon to pop FIRST — the recurrence only works if you fix which one is popped LAST",
+      "Compressing to a rolling row before the full table is verified",
+    ],
+    whenNotToUse: "When one index suffices (use 1-D and keep the O(1) space), when the grid is a shortest-path problem with arbitrary movement (that's BFS/Dijkstra), or when the state space is too large to tabulate and memoised recursion on reachable states is better.",
+    thinkingProcess: [
+      "1. Name the two dimensions — what does i index, what does j index?",
+      "2. State dp[i][j] in one sentence using both",
+      "3. Ask what the last decision was: match/mismatch, arrive-from-where, or split-at-k",
+      "4. Fill in the empty-prefix row and column first",
+      "5. Choose the iteration order so every dependency is already computed",
+    ],
+    decisionFramework: "Two strings → match/mismatch recurrence. Count paths in a grid → dp[i][j] = dp[i-1][j] + dp[i][j-1]. Min cost path → same, with min and the cell's own cost. Pick from either end of an interval → interval DP by length. Extra constraint (k transactions, cooldown, capacity) → make it the second dimension.",
+    problems: [
+      { id: "unique-paths", title: "Unique Paths", difficulty: "Medium", difficultyScore: 5, pattern: "dp-2d", leetcodeUrl: "https://leetcode.com/problems/unique-paths/", hasVisualization: true, tags: ["Math", "DP", "Combinatorics"], companies: ["Amazon", "Google"], frequency: "High" },
+      { id: "minimum-path-sum", title: "Minimum Path Sum", difficulty: "Medium", difficultyScore: 6, pattern: "dp-2d", leetcodeUrl: "https://leetcode.com/problems/minimum-path-sum/", hasVisualization: true, tags: ["Array", "DP", "Matrix"], companies: ["Amazon"], frequency: "High" },
+      { id: "triangle", title: "Triangle", difficulty: "Medium", difficultyScore: 6, pattern: "dp-2d", leetcodeUrl: "https://leetcode.com/problems/triangle/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon"], frequency: "Medium" },
+      { id: "longest-common-subsequence", title: "Longest Common Subsequence", difficulty: "Medium", difficultyScore: 8, pattern: "dp-2d", leetcodeUrl: "https://leetcode.com/problems/longest-common-subsequence/", hasVisualization: true, tags: ["String", "DP"], companies: ["Amazon", "Google"], frequency: "High" },
+      { id: "edit-distance", title: "Edit Distance", difficulty: "Medium", difficultyScore: 9, pattern: "dp-2d", leetcodeUrl: "https://leetcode.com/problems/edit-distance/", hasVisualization: true, tags: ["String", "DP"], companies: ["Amazon", "Google", "Microsoft"], frequency: "High" },
+      { id: "stone-game", title: "Stone Game", difficulty: "Medium", difficultyScore: 6, pattern: "dp-2d", leetcodeUrl: "https://leetcode.com/problems/stone-game/", hasVisualization: false, tags: ["Array", "Math", "DP", "Game Theory"], companies: ["Google", "Amazon", "Meta"], frequency: "Medium" },
+      { id: "buy-sell-cooldown", title: "Best Time to Buy and Sell Stock with Cooldown", difficulty: "Medium", difficultyScore: 7, pattern: "dp-2d", leetcodeUrl: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon"], frequency: "Medium" },
+      { id: "coin-change-ii", title: "Coin Change II", difficulty: "Medium", difficultyScore: 7, pattern: "dp-2d", leetcodeUrl: "https://leetcode.com/problems/coin-change-ii/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon"], frequency: "High" },
+      { id: "target-sum", title: "Target Sum", difficulty: "Medium", difficultyScore: 7, pattern: "dp-2d", leetcodeUrl: "https://leetcode.com/problems/target-sum/", hasVisualization: true, tags: ["Array", "DP", "Backtracking"], companies: ["Amazon"], frequency: "High" },
+      { id: "interleaving-string", title: "Interleaving String", difficulty: "Medium", difficultyScore: 8, pattern: "dp-2d", leetcodeUrl: "https://leetcode.com/problems/interleaving-string/", hasVisualization: false, tags: ["String", "DP"], companies: ["Google"], frequency: "Medium" },
+      { id: "01-knapsack", title: "0/1 Knapsack", difficulty: "Medium", difficultyScore: 7, pattern: "dp-2d", leetcodeUrl: "https://www.geeksforgeeks.org/0-1-knapsack-problem-dp-10/", hasVisualization: false, tags: ["Array", "DP"], companies: ["Amazon", "Microsoft", "Flipkart"], frequency: "High" },
+      { id: "matrix-chain-multiplication", title: "Matrix Chain Multiplication", difficulty: "Hard", difficultyScore: 8, pattern: "dp-2d", leetcodeUrl: "https://www.geeksforgeeks.org/matrix-chain-multiplication-dp-8/", hasVisualization: false, tags: ["Array", "DP", "Interval DP"], companies: ["Amazon", "Google"], frequency: "Medium" },
+      { id: "best-time-stock-iii", title: "Best Time to Buy and Sell Stock III", difficulty: "Hard", difficultyScore: 8, pattern: "dp-2d", leetcodeUrl: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/", hasVisualization: false, tags: ["Array", "DP"], companies: ["Amazon", "Microsoft"], frequency: "Medium" },
+      { id: "best-time-stock-iv", title: "Best Time to Buy and Sell Stock IV", difficulty: "Hard", difficultyScore: 8, pattern: "dp-2d", leetcodeUrl: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/", hasVisualization: false, tags: ["Array", "DP"], companies: ["Amazon", "Google"], frequency: "Medium" },
+      { id: "longest-increasing-path-matrix", title: "Longest Increasing Path in a Matrix", difficulty: "Hard", difficultyScore: 9, pattern: "dp-2d", leetcodeUrl: "https://leetcode.com/problems/longest-increasing-path-in-a-matrix/", hasVisualization: true, tags: ["Array", "DP", "DFS", "Memoization"], companies: ["Google", "Amazon"], frequency: "Medium" },
+      { id: "distinct-subsequences", title: "Distinct Subsequences", difficulty: "Hard", difficultyScore: 9, pattern: "dp-2d", leetcodeUrl: "https://leetcode.com/problems/distinct-subsequences/", hasVisualization: true, tags: ["String", "DP"], companies: ["Amazon"], frequency: "Medium" },
+      { id: "burst-balloons", title: "Burst Balloons", difficulty: "Hard", difficultyScore: 10, pattern: "dp-2d", leetcodeUrl: "https://leetcode.com/problems/burst-balloons/", hasVisualization: false, tags: ["Array", "DP", "Divide & Conquer"], companies: ["Google"], frequency: "Medium" },
+      { id: "regular-expression-matching", title: "Regular Expression Matching", difficulty: "Hard", difficultyScore: 10, pattern: "dp-2d", leetcodeUrl: "https://leetcode.com/problems/regular-expression-matching/", hasVisualization: false, tags: ["String", "DP", "Recursion"], companies: ["Amazon", "Google", "Facebook"], frequency: "Medium" },
+      { id: "max-score-multiplication", title: "Maximum Score from Performing Multiplication Operations", difficulty: "Hard", difficultyScore: 8, pattern: "dp-2d", leetcodeUrl: "https://leetcode.com/problems/maximum-score-from-performing-multiplication-operations/", hasVisualization: true, tags: ["Array", "DP"], companies: ["Amazon", "Google"], frequency: "Low" },
     ]
   },
   {

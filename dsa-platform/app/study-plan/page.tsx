@@ -325,7 +325,8 @@ export default function StudyPlanPage() {
               {completedTasks} tasks done · {totalTasks - completedTasks} remaining
               {duration === 5 && (
                 <span style={{ color: "#06b6d4" }}>
-                  {" · "}5-Day Revision Sprint — {totalTasks} NeetCode problems, 35/day (~7h)
+                  {" · "}5-Day Revision Sprint — NeetCode {totalTasks},{" "}
+                  {Math.round(totalTasks / plan.days.length)}/day (~{estRevisionHours(plan.days[0]?.tasks ?? [])}h)
                 </span>
               )}
               {duration === 21 && (

@@ -38,62 +38,78 @@ export const BLIND_75: string[] = [
   "valid-parentheses", "generate-parentheses",
 ];
 
+// The real NeetCode 150 — exactly 150 problems in NeetCode's own 18 groups,
+// including its split of Dynamic Programming into 1-D and 2-D. The previous
+// version of this list was BLIND_75 plus assorted extras and came to 175,
+// which is a different (larger) set than the one people mean by "NeetCode 150".
 export const NEETCODE_150: string[] = [
-  ...BLIND_75,
-  // Additional Arrays & Hashing
-  "valid-sudoku", "ransom-note", "isomorphic-strings", "encode-decode-strings",
-  // Additional Two Pointers
-  "two-sum-ii", "move-zeroes", "is-subsequence", "trapping-rain-water",
-  // Additional Sliding Window
-  "permutation-in-string", "sliding-window-max", "max-points-cards",
-  // Additional Stack
-  "min-stack", "reverse-polish", "daily-temperatures", "car-fleet",
-  "largest-rectangle-histogram", "decode-string", "asteroid-collision",
-  // Additional Binary Search
-  "binary-search", "first-bad-version", "search-insert-position",
-  "koko-bananas", "time-based-key-value", "median-two-sorted",
-  // Additional Linked List
-  "copy-list-random", "add-two-numbers", "find-duplicate-number", "lru-cache",
-  "reverse-k-group", "swap-pairs", "palindrome-linked-list",
-  // Additional Trees
-  "balanced-tree", "diameter-tree", "right-side-view",
-  "count-good-nodes", "average-of-levels", "path-sum",
-  // Additional Heap / Priority Queue
+  // Arrays & Hashing (9)
+  "contains-duplicate", "valid-anagram", "two-sum", "group-anagrams",
+  "top-k-frequent", "encode-decode-strings", "product-except-self",
+  "valid-sudoku", "longest-consecutive",
+  // Two Pointers (5)
+  "valid-palindrome", "two-sum-ii", "three-sum", "container-water",
+  "trapping-rain-water",
+  // Sliding Window (6)
+  "best-time-stock", "longest-substring", "longest-repeating-replacement",
+  "permutation-in-string", "min-window-substring", "sliding-window-max",
+  // Stack (7)
+  "valid-parentheses", "min-stack", "reverse-polish", "generate-parentheses",
+  "daily-temperatures", "car-fleet", "largest-rectangle-histogram",
+  // Binary Search (7)
+  "binary-search", "search-2d-matrix", "koko-bananas", "find-min-rotated",
+  "search-rotated", "time-based-key-value", "median-two-sorted",
+  // Linked List (11)
+  "reverse-linked-list", "merge-two-sorted", "reorder-list", "remove-nth-node",
+  "copy-list-random", "add-two-numbers", "linked-list-cycle",
+  "find-duplicate-number", "lru-cache", "merge-k-sorted", "reverse-k-group",
+  // Trees (15)
+  "invert-binary-tree", "max-depth-tree", "diameter-tree", "balanced-tree",
+  "same-tree", "subtree-of-another", "lowest-common-ancestor",
+  "level-order-traversal", "right-side-view", "count-good-nodes",
+  "validate-bst", "kth-smallest-bst", "construct-tree-preorder",
+  "max-path-sum", "serialize-deserialize",
+  // Tries (3)
+  "implement-trie", "add-search-words", "word-search-ii",
+  // Heap / Priority Queue (7)
   "kth-largest-stream", "last-stone-weight", "k-closest-points",
-  "task-scheduler", "design-twitter", "kth-largest-array",
-  // Additional Backtracking
+  "kth-largest-array", "task-scheduler", "design-twitter", "find-median-stream",
+  // Backtracking (9)
   "subsets", "combination-sum", "permutations", "subsets-ii",
-  "combination-sum-ii", "palindrome-partitioning", "letter-combinations", "n-queens",
-  // Additional Graphs
-  "rotting-oranges", "course-schedule-ii", "surrounded-regions",
-  "max-area-island", "find-path-exists", "all-paths-source-target",
-  "word-ladder", "walls-gates", "num-connected-components",
-  // Additional Advanced Graphs
+  "combination-sum-ii", "word-search", "palindrome-partitioning",
+  "letter-combinations", "n-queens",
+  // Graphs (13)
+  "number-of-islands", "max-area-island", "clone-graph", "walls-gates",
+  "rotting-oranges", "pacific-atlantic", "surrounded-regions",
+  "course-schedule", "course-schedule-ii", "graph-valid-tree",
+  "num-connected-components", "redundant-connection", "word-ladder",
+  // Advanced Graphs (6)
   "reconstruct-itinerary", "min-cost-connect-points", "network-delay-time",
-  "swim-rising-water", "cheapest-flights", "evaluate-division",
-  "redundant-connection", "path-max-probability",
-  // Additional 1D DP
-  "min-cost-climbing", "palindromic-substrings", "partition-equal-subset",
-  "max-product-subarray", "nth-tribonacci", "triangle",
-  // Additional 2D DP
-  "buy-sell-cooldown", "coin-change-ii", "target-sum", "interleaving-string",
-  "longest-increasing-path-matrix", "distinct-subsequences",
-  "edit-distance", "burst-balloons", "regular-expression-matching",
-  "minimum-path-sum",
-  // Additional Greedy
-  "jump-game-ii", "gas-station", "hand-of-straights",
-  "merge-triplets", "partition-labels", "valid-parenthesis-string",
-  "lemonade-change",
-  // Additional Intervals
-  "min-interval-query",
-  // Additional Math & Geometry
-  "happy-number", "plus-one", "pow-x-n", "multiply-strings",
-  "detect-squares", "reverse-integer", "roman-to-integer", "count-primes",
-  // Additional Bit Manipulation
-  "single-number", "power-of-two",
-  // Additional Tries
-  "replace-words", "longest-word-dictionary",
-].filter((id, i, arr) => arr.indexOf(id) === i); // deduplicate
+  "swim-rising-water", "alien-dictionary", "cheapest-flights",
+  // 1-D Dynamic Programming (12)
+  "climbing-stairs", "min-cost-climbing", "house-robber", "house-robber-ii",
+  "longest-palindromic-substr", "palindromic-substrings", "decode-ways",
+  "coin-change", "max-product-subarray", "word-break",
+  "longest-increasing-subsequence", "partition-equal-subset",
+  // 2-D Dynamic Programming (11)
+  "unique-paths", "longest-common-subsequence", "buy-sell-cooldown",
+  "coin-change-ii", "target-sum", "interleaving-string",
+  "longest-increasing-path-matrix", "distinct-subsequences", "edit-distance",
+  "burst-balloons", "regular-expression-matching",
+  // Greedy (8)
+  "max-subarray", "jump-game", "jump-game-ii", "gas-station",
+  "hand-of-straights", "merge-triplets", "partition-labels",
+  "valid-parenthesis-string",
+  // Intervals (6)
+  "insert-interval", "merge-intervals", "non-overlapping-intervals",
+  "meeting-rooms", "meeting-rooms-ii", "min-interval-query",
+  // Math & Geometry (8)
+  "rotate-image", "spiral-matrix", "set-matrix-zeroes", "happy-number",
+  "plus-one", "pow-x-n", "multiply-strings", "detect-squares",
+  // Bit Manipulation (7)
+  "single-number", "number-1-bits", "counting-bits", "reverse-bits",
+  "missing-number", "sum-two-integers", "reverse-integer",
+];
 
 // Company-specific track definitions — curated problem IDs
 export interface CompanyTrack {

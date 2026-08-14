@@ -332,13 +332,22 @@ const BIG_O_DATA: Record<string, { structures: { name: string; access: string; s
       { name: "Topological Sort", best: "O(V+E)", avg: "O(V+E)", worst: "O(V+E)", space: "O(V)" },
     ],
   },
-  "dynamic-programming": {
-    structures: [{ name: "DP Table", access: "O(1)", search: "O(1)", insert: "O(1)", delete: "O(1)", space: "O(n²)*" }],
+  "dp-1d": {
+    structures: [{ name: "DP Array", access: "O(1)", search: "O(1)", insert: "O(1)", delete: "O(1)", space: "O(n) → O(1)*" }],
     algorithms: [
-      { name: "0/1 Knapsack", best: "O(nW)", avg: "O(nW)", worst: "O(nW)", space: "O(nW) or O(W)" },
-      { name: "LCS / Edit Distance", best: "O(mn)", avg: "O(mn)", worst: "O(mn)", space: "O(mn) or O(n)" },
+      { name: "Climbing Stairs / Fib", best: "O(n)", avg: "O(n)", worst: "O(n)", space: "O(1) rolling" },
+      { name: "House Robber", best: "O(n)", avg: "O(n)", worst: "O(n)", space: "O(1) rolling" },
       { name: "Coin Change", best: "O(n×amount)", avg: "O(n×amount)", worst: "O(n×amount)", space: "O(amount)" },
       { name: "LIS", best: "O(n log n)", avg: "O(n log n)", worst: "O(n²) naive", space: "O(n)" },
+    ],
+  },
+  "dp-2d": {
+    structures: [{ name: "DP Table", access: "O(1)", search: "O(1)", insert: "O(1)", delete: "O(1)", space: "O(mn) → O(n)*" }],
+    algorithms: [
+      { name: "LCS / Edit Distance", best: "O(mn)", avg: "O(mn)", worst: "O(mn)", space: "O(mn) or O(n)" },
+      { name: "0/1 Knapsack", best: "O(nW)", avg: "O(nW)", worst: "O(nW)", space: "O(nW) or O(W)" },
+      { name: "Grid Paths", best: "O(mn)", avg: "O(mn)", worst: "O(mn)", space: "O(n) rolling row" },
+      { name: "Interval DP (Burst Balloons)", best: "O(n³)", avg: "O(n³)", worst: "O(n³)", space: "O(n²)" },
     ],
   },
 };
