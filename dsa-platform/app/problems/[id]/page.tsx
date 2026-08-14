@@ -248,6 +248,24 @@ export default function ProblemPage({ params }: Props) {
                       </Link>
                     </div>
                   )}
+
+                  {/* The correctness argument, deliberately in the main flow
+                      rather than the drawer. Steps fade; the reason a step is
+                      safe is what lets you rebuild the solution later instead
+                      of trying to recall it. */}
+                  {content.whyItWorks && (
+                    <div className="mt-4">
+                      <div
+                        className="text-xs font-semibold mb-1.5"
+                        style={{ color: "var(--text-muted)", letterSpacing: "0.06em", textTransform: "uppercase" }}
+                      >
+                        Why it works
+                      </div>
+                      <p className="text-sm leading-6" style={{ color: "var(--text-secondary)" }}>
+                        {content.whyItWorks}
+                      </p>
+                    </div>
+                  )}
                 </Beat>
               )}
 

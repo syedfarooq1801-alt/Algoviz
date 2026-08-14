@@ -3,6 +3,7 @@ export type { ProblemContent } from "./problemContent.generated";
 import { PROBLEM_CONTENT as GENERATED_CONTENT } from "./problemContent.generated";
 import { PYTHON_SOLUTIONS } from "./pythonSolutions";
 import { APPROACH_OVERRIDES } from "./approachOverrides";
+import { WHY_IT_WORKS } from "./whyItWorks";
 
 // Rich overrides — merge generated base with high-quality entries below
 const RICH_OVERRIDES: Record<string, import("./problemContent.generated").ProblemContent> = {
@@ -12533,6 +12534,7 @@ const withPython = Object.fromEntries(
     {
       ...content,
       approach: (APPROACH_OVERRIDES[id] ?? content.approach ?? []).map(cleanStep),
+      whyItWorks: WHY_IT_WORKS[id] ?? content.whyItWorks,
       pythonSolution: PYTHON_SOLUTIONS[id] ?? content.pythonSolution,
     },
   ])
