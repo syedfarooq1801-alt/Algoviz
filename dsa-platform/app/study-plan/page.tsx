@@ -2,14 +2,20 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useMobile } from "@/lib/useMobile";
 import Link from "next/link";
-import { generateStudyPlan, PHASE_COLOR, estHours, type DayPlan, type PlanTask } from "@/lib/studyPlan";
+import { generateStudyPlan, PHASE_COLOR, estHours, estRevisionHours, type DayPlan, type PlanTask } from "@/lib/studyPlan";
 import { useProgressStore } from "@/lib/store";
 import { useSDStore } from "@/lib/sdStore";
 import { useSEStore } from "@/lib/seStore";
 import { useLLDStore } from "@/lib/lldStore";
 
-const DAYS_OPTIONS = [21, 30, 60, 90] as const;
-type Duration = 21 | 30 | 60 | 90;
+const DAYS_OPTIONS = [5, 21, 30, 60, 90] as const;
+type Duration = 5 | 21 | 30 | 60 | 90;
+
+// 5 isn't a shorter version of the others — it's a revision sprint over the
+// NeetCode set, so it gets its own label rather than reading as "5d".
+const DURATION_LABEL: Record<Duration, string> = {
+  5: "Revise 150", 21: "21d+", 30: "30d", 60: "60d", 90: "90d",
+};
 
 const PHASE_LABEL: Record<string, string> = {
   dsa: "DSA", sd: "System Design", se: "SE Basics", lld: "LLD",
@@ -181,6 +187,12 @@ export default function StudyPlanPage() {
     if (task.domain === "lld") { toggleLLDChapter(task.id); return; }
   }
 
+  // A revision day is 35 problems you've already solved — costing it with the
+  // learning-effort model would read ~70h instead of ~7h.
+  function hoursFor(tasks: PlanTask[]) {
+    return plan.revision ? estRevisionHours(tasks) : estHours(tasks);
+  }
+
   function tasksDoneCount(tasks: PlanTask[]) {
     return tasks.filter(isTaskDone).length;
   }
@@ -282,11 +294,19 @@ export default function StudyPlanPage() {
     );
   }
 
-  const TIME_BLOCKS: { key: "AM" | "PM" | "Eve"; label: string }[] = [
-    { key: "AM", label: "Morning · fresh brain — hardest new material" },
-    { key: "PM", label: "Afternoon · theory + more practice" },
-    { key: "Eve", label: "Evening · timed recall + behavioral" },
-  ];
+  // A revision day has no new material and no theory to read, so the learning
+  // plan's block descriptions would be actively misleading here.
+  const TIME_BLOCKS: { key: "AM" | "PM" | "Eve"; label: string }[] = plan.revision
+    ? [
+      { key: "AM", label: "Morning · fresh brain — weakest patterns first" },
+      { key: "PM", label: "Afternoon · keep the pace, flag anything you blank on" },
+      { key: "Eve", label: "Evening · finish the set, then re-run today's flags" },
+    ]
+    : [
+      { key: "AM", label: "Morning · fresh brain — hardest new material" },
+      { key: "PM", label: "Afternoon · theory + more practice" },
+      { key: "Eve", label: "Evening · timed recall + behavioral" },
+    ];
 
   const totalTasks = plan.days.reduce((n, d) => n + d.tasks.filter(t => t.domain !== "behavioral").length, 0);
   const completedTasks = plan.days.reduce((n, d) => n + d.tasks.filter(isTaskDone).length, 0);
@@ -303,6 +323,11 @@ export default function StudyPlanPage() {
             </h1>
             <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "2px 0 0" }}>
               {completedTasks} tasks done · {totalTasks - completedTasks} remaining
+              {duration === 5 && (
+                <span style={{ color: "#06b6d4" }}>
+                  {" · "}5-Day Revision Sprint — {totalTasks} NeetCode problems, 35/day (~7h)
+                </span>
+              )}
               {duration === 21 && (
                 <span style={{ color: "#06b6d4" }}>
                   {" · "}21-Day Essentials — 122 curated problems + deep SE/SD
@@ -359,7 +384,7 @@ export default function StudyPlanPage() {
                   background: duration === d ? "var(--accent)" : "transparent",
                   color: duration === d ? "#fff" : "var(--text-muted)",
                   fontWeight: duration === d ? 600 : 400, border: "none", transition: "all 0.1s",
-                }}>{d}d</button>
+                }}>{DURATION_LABEL[d]}</button>
               ))}
             </div>
           </div>
@@ -448,13 +473,13 @@ export default function StudyPlanPage() {
                   })()}
                 </span>
                 <span style={{ marginLeft: "auto", display: "flex", gap: 6, alignItems: "center" }}>
-                  {estHours(focusDay.tasks) > 0 && (
+                  {hoursFor(focusDay.tasks) > 0 && (
                     <span style={{
                       fontSize: 10, fontFamily: "var(--font-mono)", color: PHASE_COLOR[focusDay.phase] ?? "var(--text-muted)",
                       background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)",
                       borderRadius: 4, padding: "2px 7px",
                     }}>
-                      ≈ {estHours(focusDay.tasks)}h
+                      ≈ {hoursFor(focusDay.tasks)}h
                     </span>
                   )}
                   <span style={{
@@ -468,7 +493,7 @@ export default function StudyPlanPage() {
               </div>
 
               {/* Revision / mock / behavioral protocol — how to work this day, not just what */}
-              {focusDay.reviewNote && (focusDay.type === "review" || focusDay.type === "mock" || focusDay.phase === "behavioral") && (
+              {focusDay.reviewNote && (plan.revision || focusDay.type === "review" || focusDay.type === "mock" || focusDay.phase === "behavioral") && (
                 <div style={{
                   marginBottom: 14, padding: "10px 12px", borderRadius: 8,
                   background: focusDay.type === "mock" ? "rgba(239,68,68,0.07)" : "rgba(154,164,178,0.08)",
@@ -505,7 +530,7 @@ export default function StudyPlanPage() {
                           }}>{key}</span>
                           <span style={{ fontSize: 10, color: "var(--text-muted)" }}>{label}</span>
                           <span style={{ marginLeft: "auto", fontSize: 9, fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
-                            ≈ {estHours(blockTasks) || 1}h
+                            ≈ {hoursFor(blockTasks) || 1}h
                           </span>
                         </div>
                         {blockTasks.map(renderTask)}

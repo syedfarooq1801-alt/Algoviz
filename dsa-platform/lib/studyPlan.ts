@@ -4,6 +4,10 @@ import { SE_SUBJECTS } from "@/data/seBasics";
 import { LLD_SUBJECTS } from "@/data/lld";
 import { COMMON_QUESTIONS, COMPANY_VALUES } from "@/data/behavioral";
 import { ESSENTIAL_DSA_SET, ESSENTIAL_SE_SET, ESSENTIAL_SD_SET, ESSENTIAL_LLD_SET } from "@/data/essentials15";
+import { NEETCODE_150 } from "@/data/curatedLists";
+
+const NEETCODE_SET = new Set(NEETCODE_150);
+const REVISION_DAYS = 5;
 
 export type TaskDomain = "dsa" | "sd" | "se" | "lld" | "behavioral";
 export type DayPhase = "dsa" | "sd" | "se" | "lld" | "review" | "mock" | "behavioral";
@@ -37,7 +41,10 @@ export interface DayPlan {
 }
 
 export interface StudyPlan {
-  durationDays: 21 | 30 | 60 | 90;
+  durationDays: 5 | 21 | 30 | 60 | 90;
+  /** 5-day revision sprint: re-solving known problems, not learning new ones.
+   *  Changes how a day's hours are estimated — see estRevisionHours. */
+  revision?: boolean;
   startDate: string;
   days: DayPlan[];
 }
@@ -271,6 +278,16 @@ function getReviewNote(phase: DayPhase): string {
 // Estimated hours for a set of tasks (1 effort unit ≈ 1 hour of focused work).
 export function estHours(tasks: PlanTask[]): number {
   return Math.round(totalEffort(tasks));
+}
+
+// Re-solving a problem you've already done costs a flat, much smaller slice of
+// time than learning it did: recall the approach, and where the recall fails,
+// go back through the explanation before re-deriving it. That second path is
+// what the budget is sized for — without it 30+ problems a day wouldn't fit.
+export const REVISION_MINUTES_PER_PROBLEM = 12;
+
+export function estRevisionHours(tasks: PlanTask[]): number {
+  return Math.round((tasks.length * REVISION_MINUTES_PER_PROBLEM) / 60);
 }
 
 // A self-study recall task — no link, just an instruction to redo from memory.
@@ -591,7 +608,71 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
   return { durationDays: targetDays, startDate, days };
 }
 
-export function generateStudyPlan(durationDays: 21 | 30 | 60 | 90, startDate: string, trackWeights?: Record<string, number>, weakIds?: string[]): StudyPlan {
+const REVISION_NOTE = [
+  "Revision, not first-time learning. Speed comes from retrieval, so do not read the solution first.",
+  "1. Read the title. Give yourself 60 seconds to state the approach and its complexity out loud.",
+  "2. Recalled it? Write only the tricky lines (the invariant, the update step) and move on.",
+  "3. Blanked? Work back through the explanation until it clicks, then re-derive it unaided before moving on.",
+  "4. Blanked on it a second time? Flag it weak — those are the ones to re-run on the final day.",
+].join("\n");
+
+/**
+ * 5-day revision sprint over the NeetCode set. Every problem is one you have
+ * already learned, so the plan optimises for even daily load and pattern
+ * adjacency rather than teaching order.
+ *
+ * Deliberately NOT packed with packPatternGroups (which the learning plans
+ * use). That packer never splits a pattern, and with Trees at 17 problems the
+ * best it can do here is a 31–38 spread — a 7.6-hour day against a 6–7 hour
+ * budget. Splitting a pattern across a boundary costs almost nothing when you
+ * are re-solving rather than learning the template for the first time, so an
+ * even split wins: every day lands on the same count and the same hours.
+ * The queue is already in curriculum order, so patterns still stay contiguous
+ * apart from the one that straddles each boundary.
+ */
+function packEvenly(queue: PlanTask[], dayCount: number): PlanTask[][] {
+  const out: PlanTask[][] = [];
+  let idx = 0;
+  for (let d = 0; d < dayCount; d++) {
+    const take = Math.ceil((queue.length - idx) / (dayCount - d));
+    out.push(queue.slice(idx, idx + take));
+    idx += take;
+  }
+  return out;
+}
+
+function generateRevisionPlan(startDate: string, weakIds: string[] = []): StudyPlan {
+  const weak = new Set(weakIds);
+  const queue = buildDSATasks().filter((t) => t.kind === "problem" && NEETCODE_SET.has(t.id));
+  const buckets = packEvenly(queue, REVISION_DAYS);
+
+  const days: DayPlan[] = buckets.map((tasks, i) => {
+    // Weak-flagged problems first — they need the fresh head. Array.sort is
+    // stable, so everything else keeps curriculum order behind them.
+    const ordered = [...tasks].sort((a, b) => (weak.has(b.id) ? 1 : 0) - (weak.has(a.id) ? 1 : 0));
+    const third = Math.ceil(ordered.length / 3);
+    const withBlocks = ordered.map((t, idx) => ({
+      ...t,
+      timeBlock: (idx < third ? "AM" : idx < third * 2 ? "PM" : "Eve") as "AM" | "PM" | "Eve",
+      tag: weak.has(t.id) ? `⚠ Weak · ${t.tag ?? ""}` : t.tag,
+    }));
+    return {
+      day: i + 1,
+      date: addDays(startDate, i),
+      phase: "dsa" as DayPhase,
+      type: "practice" as DayType,
+      label: labelFromTasks("Revision sprint", tasks),
+      color: PHASE_COLOR.dsa,
+      tasks: withBlocks,
+      reviewNote: REVISION_NOTE,
+    };
+  });
+
+  return { durationDays: REVISION_DAYS, startDate, days, revision: true };
+}
+
+export function generateStudyPlan(durationDays: 5 | 21 | 30 | 60 | 90, startDate: string, trackWeights?: Record<string, number>, weakIds?: string[]): StudyPlan {
+  if (durationDays === 5) return generateRevisionPlan(startDate, weakIds);
   if (durationDays === 21) return generate21DayPlan(startDate, weakIds);
   const tw = trackWeights ?? {};
   const wDsa = tw.dsa ?? 0;
