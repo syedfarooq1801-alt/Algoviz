@@ -2,6 +2,7 @@ import lldFundamentals from "./lldContent-fundamentals";
 import lldPart1 from "./lldContent-part1";
 import lldPart2 from "./lldContent-part2";
 import lldPart3 from "./lldContent-part3";
+import { LLD_CODE_OVERRIDES } from "./lldCodeOverrides";
 
 export type BlockType =
   | "para" | "heading" | "analogy" | "memory-trick" | "example"
@@ -85,9 +86,35 @@ const SUBJECT_ORDER = [
   "lld-problems-realworld",
 ];
 
+// Swap in the whiteboard-sized code block where we have one. Done here rather
+// than by editing the content files because those store code as single escaped
+// string literals — surgery on them is error-prone and unreviewable, whereas
+// an override map diffs cleanly. Only the FIRST `pre` block is replaced: that's
+// the chapter's main design sketch; any later ones are small supporting
+// snippets that were already short.
+function applyCodeOverrides(subject: LLDSubject): LLDSubject {
+  return {
+    ...subject,
+    chapters: subject.chapters.map((ch) => {
+      const replacement = LLD_CODE_OVERRIDES[`${subject.id}/${ch.id}`];
+      if (!replacement) return ch;
+      let swapped = false;
+      return {
+        ...ch,
+        blocks: ch.blocks.map((b) => {
+          if (swapped || b.type !== "pre") return b;
+          swapped = true;
+          return { ...b, text: replacement };
+        }),
+      };
+    }),
+  };
+}
+
 export const LLD_SUBJECTS: LLDSubject[] = SUBJECT_ORDER
   .map((id) => raw[id])
-  .filter(Boolean);
+  .filter(Boolean)
+  .map(applyCodeOverrides);
 
 export function getLLDSubject(id: string): LLDSubject | undefined {
   return LLD_SUBJECTS.find((s) => s.id === id);
