@@ -4,8 +4,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLLDSubject, LLD_SUBJECTS, type Block } from "@/data/lld";
 import { useLLDStore } from "@/lib/lldStore";
+import Collapsible from "@/components/Collapsible";
 
 interface Props { params: Promise<{ subject: string }>; }
+
+// Block types that are reference material rather than part of the chapter's
+// design walkthrough — collected into a drawer at the end instead of
+// interrupting it.
+const ASIDE_TYPES = new Set(["memory-trick", "common-mistake", "placement"]);
 
 function LLDBlock({ block }: { block: Block }) {
   switch (block.type) {
@@ -56,19 +62,40 @@ function LLDBlock({ block }: { block: Block }) {
       );
     case "interview":
       return (
-        <div className="mb-4 space-y-3">
-          {(block.qas ?? []).map((qa, i) => (
-            <div key={i} className="rounded-xl p-4" style={{ background: "rgba(34,197,94,0.05)", border: "1px solid rgba(34,197,94,0.15)" }}>
-              <div className="text-xs font-semibold mb-2" style={{ color: "#22c55e" }}>Interview Q</div>
-              <p className="text-sm font-medium mb-2" style={{ color: "var(--text-primary)" }}>{qa.q}</p>
-              <p className="text-sm leading-7" style={{ color: "var(--text-secondary)" }}>{qa.a}</p>
-            </div>
-          ))}
+        <div className="mb-4 space-y-2">
+          {(block.qas ?? []).map((qa, i) => <InterviewQA key={i} qa={qa} />)}
         </div>
       );
     default:
       return null;
   }
+}
+
+/**
+ * Answer hidden until asked for. Showing it next to the question turns a
+ * self-test into passive reading, which is the whole thing these chapters
+ * are trying to avoid.
+ */
+function InterviewQA({ qa }: { qa: { q: string; a: string } }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="rounded-xl p-4" style={{ background: "rgba(34,197,94,0.05)", border: "1px solid rgba(34,197,94,0.15)" }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-start gap-2 text-left"
+        style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
+      >
+        <span className="text-[10px] mt-1.5" style={{ color: "#22c55e" }}>{open ? "▼" : "▶"}</span>
+        <span className="flex-1">
+          <span className="block text-xs font-semibold mb-1" style={{ color: "#22c55e" }}>Interview Q</span>
+          <span className="block text-sm font-medium" style={{ color: "var(--text-primary)" }}>{qa.q}</span>
+        </span>
+      </button>
+      {open && (
+        <p className="text-sm leading-7 mt-2.5 pl-4" style={{ color: "var(--text-secondary)" }}>{qa.a}</p>
+      )}
+    </div>
+  );
 }
 
 export default function LLDSubjectPage({ params }: Props) {
@@ -125,6 +152,14 @@ export default function LLDSubjectPage({ params }: Props) {
     () => (activeChapter?.blocks ?? []).filter((b) => b.type === "interview").reduce((n, b) => n + (b.qas?.length ?? 0), 0),
     [activeChapter]
   );
+
+  // Split the chapter into the design walkthrough itself and the reference
+  // material hanging off it. The plain-words opener, code, analogies and
+  // interview Q&As stay inline; tricks/pitfalls/placement notes move to a
+  // drawer at the end.
+  const blocks = useMemo(() => activeChapter?.blocks ?? [], [activeChapter]);
+  const mainBlocks = useMemo(() => blocks.filter((b) => !ASIDE_TYPES.has(b.type)), [blocks]);
+  const asideBlocks = useMemo(() => blocks.filter((b) => ASIDE_TYPES.has(b.type)), [blocks]);
 
   const currentIdx = subject.chapters.findIndex((c) => c.id === activeId);
   const nextChapter = subject.chapters[currentIdx + 1];
@@ -258,11 +293,30 @@ export default function LLDSubjectPage({ params }: Props) {
                   </div>
                 </div>
 
+                {/* The chapter reads straight through: plain-words opener,
+                    explanation, code, analogies and the interview Q&As stay
+                    inline. Memory tricks, pitfalls and placement notes are
+                    reference material — inline they interrupted the design
+                    walkthrough every few paragraphs — so they collect into
+                    one drawer at the end. */}
                 <div>
-                  {activeChapter.blocks.map((block, i) => (
+                  {mainBlocks.map((block, i) => (
                     <LLDBlock key={i} block={block} />
                   ))}
                 </div>
+
+                {asideBlocks.length > 0 && (
+                  <div className="mt-8">
+                    <Collapsible
+                      title="Memory tricks, pitfalls & placement notes"
+                      subtitle={`${asideBlocks.length} item${asideBlocks.length > 1 ? "s" : ""}`}
+                    >
+                      {asideBlocks.map((block, i) => (
+                        <LLDBlock key={i} block={block} />
+                      ))}
+                    </Collapsible>
+                  </div>
+                )}
 
                 {nextChapter && (
                   <div className="mt-12 pt-8" style={{ borderTop: "1px solid var(--border-subtle)" }}>
