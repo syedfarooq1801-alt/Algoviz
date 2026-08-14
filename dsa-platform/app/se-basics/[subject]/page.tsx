@@ -3,12 +3,17 @@ import { use, useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SEBlock from "@/components/se/SEBlock";
+import Collapsible from "@/components/Collapsible";
 import NextNav from "@/components/NextNav";
 import { REGISTRY } from "@/components/se/visuals/registry";
 import { getSubject, SUBJECT_META, SE_SUBJECTS } from "@/data/seBasics";
 import { useSEStore } from "@/lib/seStore";
 
 interface Props { params: Promise<{ subject: string }>; }
+
+// Block types that are reference material rather than part of the chapter's
+// argument — collected into a drawer at the end instead of interrupting it.
+const ASIDE_TYPES = new Set(["memory-trick", "common-mistake", "placement"]);
 
 export default function SubjectPage({ params }: Props) {
   const { subject: subjectId } = use(params);
@@ -74,6 +79,13 @@ export default function SubjectPage({ params }: Props) {
     () => (activeChapter?.blocks ?? []).filter((b) => b.type === "interview").reduce((n, b) => n + (b.qas?.length ?? 0), 0),
     [activeChapter]
   );
+
+  // Split the chapter into the argument itself and the reference material
+  // hanging off it. Analogies stay inline — they carry the explanation —
+  // while tricks/pitfalls/placement notes move to a drawer at the end.
+  const blocks = useMemo(() => activeChapter?.blocks ?? [], [activeChapter]);
+  const mainBlocks = useMemo(() => blocks.filter((b) => !ASIDE_TYPES.has(b.type)), [blocks]);
+  const asideBlocks = useMemo(() => blocks.filter((b) => ASIDE_TYPES.has(b.type)), [blocks]);
 
   return (
     <div suppressHydrationWarning style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
@@ -176,9 +188,26 @@ export default function SubjectPage({ params }: Props) {
                   </div>
                 )}
 
+                {/* The chapter reads straight through: explanation, code and
+                    analogies stay inline. Memory tricks, common mistakes and
+                    placement notes are reference material — inline they broke
+                    the argument every few paragraphs, so they collect into one
+                    drawer at the end instead. Interview Q&As keep their own
+                    block (already individually collapsed). */}
                 <div className="reveal reveal-3">
-                  {activeChapter.blocks.map((b, i) => <SEBlock key={i} block={b} />)}
+                  {mainBlocks.map((b, i) => <SEBlock key={i} block={b} />)}
                 </div>
+
+                {asideBlocks.length > 0 && (
+                  <div className="mt-10">
+                    <Collapsible
+                      title="Memory tricks, pitfalls & placement notes"
+                      subtitle={`${asideBlocks.length} item${asideBlocks.length > 1 ? "s" : ""}`}
+                    >
+                      {asideBlocks.map((b, i) => <SEBlock key={i} block={b} />)}
+                    </Collapsible>
+                  </div>
+                )}
 
                 {/* paddingRight reserves room for the fixed "Ask Axon" launcher
                     (bottom:24 right:20, ~150px wide) so the flex-end Next button
