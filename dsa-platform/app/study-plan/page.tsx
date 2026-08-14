@@ -2,7 +2,7 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 import { useMobile } from "@/lib/useMobile";
 import Link from "next/link";
-import { generateStudyPlan, PHASE_COLOR, estHours, estRevisionHours, type DayPlan, type PlanTask } from "@/lib/studyPlan";
+import { generateStudyPlan, PHASE_COLOR, estHours, estRevisionHours, estRecallHours, type DayPlan, type PlanTask } from "@/lib/studyPlan";
 import { useProgressStore } from "@/lib/store";
 import { useSDStore } from "@/lib/sdStore";
 import { useSEStore } from "@/lib/seStore";
@@ -84,11 +84,19 @@ export default function StudyPlanPage() {
     [duration, startDate, weakKey]
   );
 
-  // Which day index is "today" within the plan (clamped to the plan range).
+  // Which day index is "today" within the plan. Resolved by DATE, not by
+  // offset arithmetic: the revision plan's recall sweeps sit on an expanding
+  // 1/3/7/14/30 curve, so its dates have gaps and "days since start" stops
+  // equalling "index into days".
   const todayIdx = useMemo(() => {
-    const diff = daysBetween(startDate, today);
-    return Math.max(0, Math.min(diff, plan.days.length - 1));
-  }, [startDate, today, plan.days.length]);
+    const exact = plan.days.findIndex((d) => d.date === today);
+    if (exact >= 0) return exact;
+    // Between two scheduled days (or past the end): the most recent one that
+    // has already started is what you're working through.
+    let last = -1;
+    for (let i = 0; i < plan.days.length; i++) if (plan.days[i].date <= today) last = i;
+    return last >= 0 ? last : 0;
+  }, [plan.days, today]);
 
   // Effective "current" day = earliest day (up to today) with unfinished work.
   // Missed days roll forward instead of being skipped; advances only when done.
@@ -187,10 +195,13 @@ export default function StudyPlanPage() {
     if (task.domain === "lld") { toggleLLDChapter(task.id); return; }
   }
 
-  // A revision day is 35 problems you've already solved — costing it with the
-  // learning-effort model would read ~70h instead of ~7h.
-  function hoursFor(tasks: PlanTask[]) {
-    return plan.revision ? estRevisionHours(tasks) : estHours(tasks);
+  // Three different costs per task. Learning a problem, re-solving one you
+  // already know (~12 min), and recalling one without re-solving (~1 min) are
+  // an order of magnitude apart, so a recall sweep costed at solve speed would
+  // claim 30h for a ~2.5h sitting.
+  function hoursFor(tasks: PlanTask[], day?: DayPlan) {
+    if (!plan.revision) return estHours(tasks);
+    return day?.type === "review" ? estRecallHours(tasks) : estRevisionHours(tasks);
   }
 
   function tasksDoneCount(tasks: PlanTask[]) {
@@ -308,8 +319,31 @@ export default function StudyPlanPage() {
       { key: "Eve", label: "Evening · timed recall + behavioral" },
     ];
 
-  const totalTasks = plan.days.reduce((n, d) => n + d.tasks.filter(t => t.domain !== "behavioral").length, 0);
-  const completedTasks = plan.days.reduce((n, d) => n + d.tasks.filter(isTaskDone).length, 0);
+  // The revision plan re-lists all 150 problems on each recall sweep, so a raw
+  // task count reads 900. Count distinct underlying problems instead, or the
+  // header claims you have 900 problems to get through.
+  const totalTasks = useMemo(() => {
+    if (!plan.revision) {
+      return plan.days.reduce((n, d) => n + d.tasks.filter((t) => t.domain !== "behavioral").length, 0);
+    }
+    const ids = new Set<string>();
+    for (const d of plan.days) for (const t of d.tasks) ids.add(baseId(t.id));
+    return ids.size;
+  }, [plan]);
+
+  const completedTasks = useMemo(() => {
+    if (!plan.revision) {
+      return plan.days.reduce((n, d) => n + d.tasks.filter(isTaskDone).length, 0);
+    }
+    const done = new Set<string>();
+    for (const d of plan.days) for (const t of d.tasks) if (isTaskDone(t)) done.add(baseId(t.id));
+    return done.size;
+  }, [plan, solved, mastered, completed, lldCompleted]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Problems per sprint day — the recall sweeps are a different unit of work,
+  // so they must not dilute the per-day figure shown in the header.
+  const sprintDays = plan.days.filter((d) => d.type !== "review");
+  const perSprintDay = sprintDays.length ? Math.round(totalTasks / sprintDays.length) : 0;
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg-primary)" }}>
@@ -325,8 +359,9 @@ export default function StudyPlanPage() {
               {completedTasks} tasks done · {totalTasks - completedTasks} remaining
               {duration === 5 && (
                 <span style={{ color: "#06b6d4" }}>
-                  {" · "}5-Day Revision Sprint — NeetCode {totalTasks},{" "}
-                  {Math.round(totalTasks / plan.days.length)}/day (~{estRevisionHours(plan.days[0]?.tasks ?? [])}h)
+                  {" · "}5-Day Sprint — NeetCode {totalTasks}, {perSprintDay}/day
+                  {" (~"}{estRevisionHours(plan.days[0]?.tasks ?? [])}h){" "}
+                  + {plan.days.length - sprintDays.length} spaced recall sweeps
                 </span>
               )}
               {duration === 21 && (
@@ -474,13 +509,13 @@ export default function StudyPlanPage() {
                   })()}
                 </span>
                 <span style={{ marginLeft: "auto", display: "flex", gap: 6, alignItems: "center" }}>
-                  {hoursFor(focusDay.tasks) > 0 && (
+                  {hoursFor(focusDay.tasks, focusDay) > 0 && (
                     <span style={{
                       fontSize: 10, fontFamily: "var(--font-mono)", color: PHASE_COLOR[focusDay.phase] ?? "var(--text-muted)",
                       background: "var(--bg-secondary)", border: "1px solid var(--border-subtle)",
                       borderRadius: 4, padding: "2px 7px",
                     }}>
-                      ≈ {hoursFor(focusDay.tasks)}h
+                      ≈ {hoursFor(focusDay.tasks, focusDay)}h
                     </span>
                   )}
                   <span style={{
@@ -531,7 +566,7 @@ export default function StudyPlanPage() {
                           }}>{key}</span>
                           <span style={{ fontSize: 10, color: "var(--text-muted)" }}>{label}</span>
                           <span style={{ marginLeft: "auto", fontSize: 9, fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>
-                            ≈ {hoursFor(blockTasks) || 1}h
+                            ≈ {hoursFor(blockTasks, focusDay) || 1}h
                           </span>
                         </div>
                         {blockTasks.map(renderTask)}

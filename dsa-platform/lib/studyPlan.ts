@@ -290,6 +290,12 @@ export function estRevisionHours(tasks: PlanTask[]): number {
   return Math.round((tasks.length * REVISION_MINUTES_PER_PROBLEM) / 60);
 }
 
+// A recall sweep re-lists every problem, so costing it at solve speed would
+// claim 30 hours for what is really a ~2.5 hour sitting.
+export function estRecallHours(tasks: PlanTask[]): number {
+  return Math.max(1, Math.round((tasks.length * RECALL_MINUTES_PER_PROBLEM) / 60));
+}
+
 // A self-study recall task — no link, just an instruction to redo from memory.
 function recallTask(dayNum: number, label: string): PlanTask {
   return {
@@ -608,6 +614,25 @@ function generate21DayPlan(startDate: string, weakIds: string[] = []): StudyPlan
   return { durationDays: targetDays, startDate, days };
 }
 
+// Days after the sprint ends on which the whole set comes back. Same expanding
+// curve as REVIEW_INTERVALS below — the point of the spacing is that each
+// sweep lands right as recall starts to fail, which is when retrieval does the
+// most to strengthen it.
+const RECALL_OFFSETS = [1, 3, 7, 14, 30];
+
+// Recall costs about a minute a problem: say the approach and the complexity,
+// confirm, move on. That is what makes a 150-problem sweep a ~2.5 hour sitting
+// rather than a second full sprint.
+export const RECALL_MINUTES_PER_PROBLEM = 1;
+
+const RECALL_NOTE = [
+  "Recall only — do NOT re-solve these. You are testing whether the approach comes back, not practising typing.",
+  "1. Read the title. Say the approach and both complexities out loud, from memory, in under 45 seconds.",
+  "2. It came back cleanly? Tick it and move on. That retrieval is the thing that strengthens the memory.",
+  "3. Hesitated or blanked? Open it, re-read the key insight and why it works, then say it again unaided.",
+  "4. Anything you blanked on stays flagged weak — it will lead the next sweep instead of being buried mid-list.",
+].join("\n");
+
 const REVISION_NOTE = [
   "Revision, not first-time learning. Speed comes from retrieval, so do not read the solution first.",
   "1. Read the title. Give yourself 60 seconds to state the approach and its complexity out loud.",
@@ -666,6 +691,35 @@ function generateRevisionPlan(startDate: string, weakIds: string[] = []): StudyP
       tasks: withBlocks,
       reviewNote: REVISION_NOTE,
     };
+  });
+
+  // Solving 150 problems in 5 days and then stopping is how you forget 150
+  // problems. The sprint above only gets them INTO memory; these keep them
+  // there. Offsets follow the same expanding curve the app's spaced-repetition
+  // already uses (1, 3, 7, 14, 30) measured from the end of the sprint, so
+  // each sweep lands just as recall starts to decay.
+  //
+  // These are recall-only: state the approach and the complexity from memory,
+  // do not re-solve. That runs about a minute a problem instead of twelve,
+  // which is the only reason a full 150-problem sweep is realistic.
+  RECALL_OFFSETS.forEach((offset, i) => {
+    const dayNum = REVISION_DAYS + i + 1;
+    const tasks = queue.map((t, idx) => ({
+      ...t,
+      id: `rv-${t.id}`,                       // separate completion from the original solve
+      timeBlock: (idx < queue.length / 2 ? "AM" : "PM") as "AM" | "PM",
+      tag: weak.has(t.id) ? `⚠ Weak · ${t.tag ?? ""}` : t.tag,
+    }));
+    days.push({
+      day: dayNum,
+      date: addDays(startDate, REVISION_DAYS - 1 + offset),
+      phase: "review",
+      type: "review",
+      label: `Recall sweep · day +${offset}`,
+      color: PHASE_COLOR.review,
+      tasks,
+      reviewNote: RECALL_NOTE,
+    });
   });
 
   return { durationDays: REVISION_DAYS, startDate, days, revision: true };
