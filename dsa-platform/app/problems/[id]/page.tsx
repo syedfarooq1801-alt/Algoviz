@@ -6,6 +6,7 @@ import { Bookmark, Check, ExternalLink } from "lucide-react";
 import { getProblemById, getPatternById, getAllProblems, practiceUrl, practiceLabel } from "@/data/problems";
 import { PROBLEM_CONTENT } from "@/data/problemContent";
 import { BRUTE_FORCE } from "@/data/bruteForce";
+import Collapsible, { Beat } from "@/components/Collapsible";
 import { PROBLEM_TECHNIQUES, getTechniqueColor } from "@/data/problemTechniques";
 import NextNav from "@/components/NextNav";
 import ExampleVisual from "@/components/ExampleVisual";
@@ -190,14 +191,14 @@ export default function ProblemPage({ params }: Props) {
                 </WorkspaceSection>
               )}
 
-              {/* Brute force — deliberately NOT gated behind "reveal solution".
-                  Naming the obvious approach and why it's too slow is step one
-                  of the interview, not a spoiler for the optimal one. */}
+              {/* Beat 1 — brute force. Deliberately NOT gated behind "reveal
+                  solution": naming the obvious approach and why it's too slow
+                  is step one of the interview, not a spoiler for the optimal
+                  one. */}
               {bruteForce && (
-                <div className="quiet-panel p-4 text-sm leading-6" style={{ border: "1px solid var(--border)" }}>
-                  <span style={{ color: "var(--text-muted)" }}>Brute force: </span>
-                  <span style={{ color: "var(--text-secondary)" }}>{bruteForce}</span>
-                </div>
+                <Beat n={1} title="Start with the brute force" accent="#F5A524">
+                  <p className="text-sm leading-6" style={{ color: "var(--text-secondary)" }}>{bruteForce}</p>
+                </Beat>
               )}
 
               {!showSolution && (
@@ -224,143 +225,171 @@ export default function ProblemPage({ params }: Props) {
 
               {showSolution && (
                 <>
+              {/* Beat 2 — the single realization the whole solution turns on.
+                  Given hero treatment because if you only read one thing on
+                  this page, it should be this. */}
               {content.keyInsight && (
-                <div
-                  className="quiet-panel p-4 text-sm leading-6"
-                  style={{ border: "1px solid var(--border)" }}
-                >
-                  <div>
-                    <span style={{ color: "var(--text-muted)" }}>Problem: </span>
-                    <span style={{ color: "var(--text-primary)" }}>{problem.title}</span>
+                <Beat n={2} title="The key insight" accent="#2FBF71">
+                  <div
+                    className="p-3.5 rounded-lg text-sm leading-6"
+                    style={{
+                      background: "rgba(47,191,113,0.07)",
+                      border: "1px solid rgba(47,191,113,0.22)",
+                      color: "var(--text-primary)",
+                    }}
+                  >
+                    {content.keyInsight}
                   </div>
                   {pattern && (
-                    <div>
-                      <span style={{ color: "var(--text-muted)" }}>Pattern: </span>
-                      <span style={{ color: "var(--text-primary)" }}>{pattern.title}</span>
+                    <div className="mt-2 text-xs" style={{ color: "var(--text-muted)" }}>
+                      Pattern:{" "}
+                      <Link href={`/patterns/${pattern.id}`} style={{ color: "var(--accent)" }}>
+                        {pattern.title}
+                      </Link>
                     </div>
                   )}
-                  <div>
-                    <span style={{ color: "var(--text-muted)" }}>Key insight: </span>
-                    <span style={{ color: "var(--text-secondary)" }}>{content.keyInsight}</span>
-                  </div>
-                </div>
+                </Beat>
               )}
 
-              {VizComponent && (
-                <WorkspaceSection title="Visualization">
-                  <div className="quiet-panel p-4">
-                    <VizComponent />
-                  </div>
-                </WorkspaceSection>
-              )}
-
-              {content.recognize && content.recognize.length > 0 && (
-                <WorkspaceSection title="Recognize this pattern">
-                  <ul className="space-y-2">
-                    {content.recognize.map((clue, i) => (
-                      <li key={i} className="text-sm leading-5" style={{ color: "var(--text-secondary)" }}>{clue}</li>
-                    ))}
-                  </ul>
-                </WorkspaceSection>
-              )}
-
-              <WorkspaceSection title="Approach">
-                <ol className="space-y-2">
+              {/* Beat 3 — approach and code together. Splitting them into
+                  separate far-apart sections meant scrolling back and forth
+                  to map one onto the other. */}
+              <Beat n={3} title="Build the optimal solution">
+                <ol className="space-y-2 mb-4">
                   {content.approach.map((step, i) => (
-                    <li key={i} className="grid grid-cols-[24px_1fr] gap-3 text-sm leading-6" style={{ color: "var(--text-secondary)" }}>
+                    <li key={i} className="grid grid-cols-[20px_1fr] gap-2.5 text-sm leading-6" style={{ color: "var(--text-secondary)" }}>
                       <span className="font-mono text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{i + 1}</span>
                       <span>{step}</span>
                     </li>
                   ))}
                 </ol>
-              </WorkspaceSection>
 
-              {content.walkthroughExample && (
-                <WorkspaceSection title="Dry run">
-                  <pre className="text-xs whitespace-pre-wrap"><code>{content.walkthroughExample}</code></pre>
-                </WorkspaceSection>
-              )}
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <WorkspaceSection title="Complexity">
-                  <div className="space-y-3 text-sm">
-                    <div>
-                      <div className="font-mono" style={{ color: "var(--text-primary)" }}>{content.timeComplexity}</div>
-                      <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>{content.timeExplanation}</p>
-                    </div>
-                    <div>
-                      <div className="font-mono" style={{ color: "var(--text-primary)" }}>{content.spaceComplexity}</div>
-                      <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>{content.spaceExplanation}</p>
-                    </div>
-                  </div>
-                </WorkspaceSection>
-
-                <WorkspaceSection title="Edge cases">
-                  <ul className="space-y-2">
-                    {content.edgeCases.map((edge, i) => (
-                      <li key={i} className="text-sm leading-5" style={{ color: "var(--text-secondary)" }}>{edge}</li>
-                    ))}
-                  </ul>
-                </WorkspaceSection>
-              </div>
-
-              {content.commonMistakes && content.commonMistakes.length > 0 && (
-                <WorkspaceSection title="Common mistakes">
-                  <ul className="space-y-2">
-                    {content.commonMistakes.map((mistake, i) => (
-                      <li key={i} className="text-sm leading-5" style={{ color: "var(--text-secondary)" }}>{mistake}</li>
-                    ))}
-                  </ul>
-                </WorkspaceSection>
-              )}
-
-              <WorkspaceSection title="Solution">
-                <div className="flex items-center justify-end mb-3">
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(content.cppSolution ?? "").then(() => {
-                        setCodeCopied(true);
-                        setTimeout(() => setCodeCopied(false), 2000);
-                      });
-                    }}
-                    className="px-3 py-1 rounded text-xs font-medium"
-                    style={{
-                      background: codeCopied ? "rgba(47,191,113,0.12)" : "var(--bg-hover)",
-                      color: codeCopied ? "#2FBF71" : "var(--text-muted)",
-                      border: `1px solid ${codeCopied ? "rgba(47,191,113,0.3)" : "var(--border)"}`,
-                      transition: "all 0.15s",
-                    }}
+                <div className="rounded-lg overflow-hidden" style={{ border: "1px solid var(--border)" }}>
+                  <div
+                    className="flex items-center justify-between px-3 py-1.5"
+                    style={{ background: "var(--bg-secondary)", borderBottom: "1px solid var(--border)" }}
                   >
-                    {codeCopied ? "Copied!" : "Copy"}
-                  </button>
+                    <span className="text-xs font-mono" style={{ color: "var(--text-muted)" }}>C++</span>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(content.cppSolution ?? "").then(() => {
+                          setCodeCopied(true);
+                          setTimeout(() => setCodeCopied(false), 2000);
+                        });
+                      }}
+                      className="px-2 py-0.5 rounded text-xs font-medium"
+                      style={{
+                        background: "transparent",
+                        color: codeCopied ? "#2FBF71" : "var(--text-muted)",
+                        border: "none",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {codeCopied ? "Copied" : "Copy"}
+                    </button>
+                  </div>
+                  <pre className="text-xs p-3 m-0 overflow-x-auto"><code>{content.cppSolution}</code></pre>
                 </div>
-                <pre className="text-xs"><code>{content.cppSolution}</code></pre>
-              </WorkspaceSection>
+              </Beat>
 
-              {content.lineByLine && content.lineByLine.length > 0 && (
-                <WorkspaceSection title="Code, line by line">
-                  <ul className="space-y-2.5">
-                    {content.lineByLine.map((entry, i) => {
-                      const sepIdx = entry.indexOf(" — ");
-                      const code = sepIdx >= 0 ? entry.slice(0, sepIdx).replace(/`/g, "") : null;
-                      const explain = sepIdx >= 0 ? entry.slice(sepIdx + 3) : entry;
-                      return (
-                        <li key={i} className="text-sm leading-6" style={{ color: "var(--text-secondary)" }}>
-                          {code && (
-                            <code
-                              className="block mb-0.5 text-xs px-1.5 py-0.5 rounded"
-                              style={{ background: "var(--bg-hover)", color: "var(--text-primary)", fontFamily: "var(--font-mono)" }}
-                            >
-                              {code}
-                            </code>
-                          )}
-                          <span>{explain}</span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </WorkspaceSection>
-              )}
+              {/* Beat 4 — complexity as one scannable line, not a two-column
+                  panel of paragraphs. */}
+              <Beat n={4} title="Complexity" accent="#A78BFA">
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  <span
+                    className="text-sm font-mono px-2.5 py-1 rounded"
+                    style={{ background: "rgba(167,139,250,0.12)", color: "#A78BFA" }}
+                  >
+                    Time {content.timeComplexity}
+                  </span>
+                  <span
+                    className="text-sm font-mono px-2.5 py-1 rounded"
+                    style={{ background: "rgba(167,139,250,0.12)", color: "#A78BFA" }}
+                  >
+                    Space {content.spaceComplexity}
+                  </span>
+                </div>
+                <p className="text-xs leading-5" style={{ color: "var(--text-muted)" }}>
+                  {content.timeExplanation} {content.spaceExplanation}
+                </p>
+              </Beat>
+
+              {/* Everything below is reference material, not narrative — it
+                  stays collapsed so the five beats above read as one short
+                  explanation instead of competing with a wall of panels. */}
+              <Collapsible title="Go deeper" subtitle="dry run · line-by-line · edge cases · pitfalls">
+                {VizComponent && (
+                  <div>
+                    <SubHead>Visualization</SubHead>
+                    <div className="quiet-panel p-4"><VizComponent /></div>
+                  </div>
+                )}
+
+                {content.recognize && content.recognize.length > 0 && (
+                  <div>
+                    <SubHead>How to recognize this in an interview</SubHead>
+                    <ul className="space-y-1.5">
+                      {content.recognize.map((clue, i) => (
+                        <li key={i} className="text-sm leading-5" style={{ color: "var(--text-secondary)" }}>{clue}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {content.walkthroughExample && (
+                  <div>
+                    <SubHead>Dry run</SubHead>
+                    <pre className="text-xs whitespace-pre-wrap"><code>{content.walkthroughExample}</code></pre>
+                  </div>
+                )}
+
+                {content.lineByLine && content.lineByLine.length > 0 && (
+                  <div>
+                    <SubHead>Code, line by line</SubHead>
+                    <ul className="space-y-2.5">
+                      {content.lineByLine.map((entry, i) => {
+                        const sepIdx = entry.indexOf(" — ");
+                        const code = sepIdx >= 0 ? entry.slice(0, sepIdx).replace(/`/g, "") : null;
+                        const explain = sepIdx >= 0 ? entry.slice(sepIdx + 3) : entry;
+                        return (
+                          <li key={i} className="text-sm leading-6" style={{ color: "var(--text-secondary)" }}>
+                            {code && (
+                              <code
+                                className="block mb-0.5 text-xs px-1.5 py-0.5 rounded"
+                                style={{ background: "var(--bg-hover)", color: "var(--text-primary)", fontFamily: "var(--font-mono)" }}
+                              >
+                                {code}
+                              </code>
+                            )}
+                            <span>{explain}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
+
+                <div className="grid md:grid-cols-2 gap-5">
+                  <div>
+                    <SubHead>Edge cases</SubHead>
+                    <ul className="space-y-1.5">
+                      {content.edgeCases.map((edge, i) => (
+                        <li key={i} className="text-sm leading-5" style={{ color: "var(--text-secondary)" }}>{edge}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  {content.commonMistakes && content.commonMistakes.length > 0 && (
+                    <div>
+                      <SubHead>Common mistakes</SubHead>
+                      <ul className="space-y-1.5">
+                        {content.commonMistakes.map((mistake, i) => (
+                          <li key={i} className="text-sm leading-5" style={{ color: "var(--text-secondary)" }}>{mistake}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </Collapsible>
                 </>
               )}
 
@@ -393,6 +422,18 @@ export default function ProblemPage({ params }: Props) {
         </section>
         <NextNav currentHref={`/problems/${id}`} fallback={fallbackNext} />
       </main>
+    </div>
+  );
+}
+
+/** Small label for a block inside the collapsed "Go deeper" drawer. */
+function SubHead({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className="text-xs font-semibold mb-2"
+      style={{ color: "var(--text-muted)", letterSpacing: "0.06em", textTransform: "uppercase" }}
+    >
+      {children}
     </div>
   );
 }
