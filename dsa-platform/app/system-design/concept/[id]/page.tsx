@@ -5,8 +5,21 @@ import { getConceptById, SD_CHAPTERS } from "@/data/systemDesign";
 import { SD_CONCEPT_CONTENT } from "@/data/systemDesignContent";
 import { useSDStore } from "@/lib/sdStore";
 import NextNav from "@/components/NextNav";
+import Collapsible, { Beat } from "@/components/Collapsible";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+
+/** Small label for a block inside the collapsed "Go deeper" drawer. */
+function SubHead({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      className="text-xs font-semibold mb-2"
+      style={{ color: "var(--text-muted)", letterSpacing: "0.06em", textTransform: "uppercase" }}
+    >
+      {children}
+    </div>
+  );
+}
 
 const SD_VIZ: Record<string, React.ComponentType> = {
   "load-balancer": dynamic(() => import("@/components/visualizations/sd/LoadBalancerViz"), { ssr: false }),
@@ -84,20 +97,33 @@ export default function ConceptPage({ params }: Props) {
         )}
 
         {content ? (
-          <div className="space-y-10">
-            <section className="reveal reveal-3">
-              <div className="rounded-xl px-5 py-4 mb-7" style={{ background: "var(--accent-soft)", borderLeft: "3px solid var(--accent)" }}>
-                <p className="text-xs font-semibold mb-1" style={{ color: "var(--accent)" }}>What breaks if this doesn&apos;t exist?</p>
-                <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{content.intuition}</p>
+          /* Three beats carry the concept: why it exists, how it works, and
+             what it costs you. Tradeoffs are the actual system-design skill,
+             so they stay in the main flow. The cheat-sheet one-liner sits at
+             the top as the thing to memorise; real-world examples, mistakes,
+             memory tricks and related links are reference and collapse. */
+          <div className="space-y-9">
+            {content.cheatSheetLine && (
+              <div
+                className="rounded-lg px-4 py-2.5 text-sm font-mono"
+                style={{ background: "rgba(47,191,113,0.08)", border: "1px solid rgba(47,191,113,0.22)", color: "var(--text-primary)" }}
+              >
+                {content.cheatSheetLine}
               </div>
+            )}
 
-              <p className="eyebrow mb-3">How it works</p>
+            <div className="reveal reveal-3">
+              <Beat n={1} title="Why it exists" accent="#F5A524">
+                <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{content.intuition}</p>
+              </Beat>
+            </div>
+
+            <Beat n={2} title="How it works">
               <p className="text-base leading-relaxed" style={{ color: "var(--text-secondary)" }}>{content.technicalDetail}</p>
-            </section>
+            </Beat>
 
             {content.tradeoffs.length > 0 && (
-              <section>
-                <p className="eyebrow mb-3" style={{ color: "var(--accent-orange)" }}>The tradeoffs</p>
+              <Beat n={3} title="What it costs you" accent="#F5A524">
                 <ul className="space-y-2.5">
                   {content.tradeoffs.map((t, i) => (
                     <li key={i} className="flex items-start gap-2.5 text-sm" style={{ color: "var(--text-secondary)" }}>
@@ -105,59 +131,54 @@ export default function ConceptPage({ params }: Props) {
                     </li>
                   ))}
                 </ul>
-              </section>
+              </Beat>
             )}
 
-            <section>
-              <p className="eyebrow mb-3" style={{ color: "#4F8CFF" }}>In the real world</p>
-              <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{content.realWorldExample}</p>
-            </section>
-
-            <section>
-              <p className="eyebrow mb-3" style={{ color: "var(--accent-purple)" }}>In the interview</p>
+            <Beat n={4} title="Say this in the interview" accent="#A78BFA">
               <p className="text-base font-medium mb-2" style={{ color: "var(--text-primary)" }}>{content.interviewQuestion}</p>
               <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{content.modelAnswer}</p>
-            </section>
+            </Beat>
 
-            {content.commonMistakes.length > 0 && (
-              <section>
-                <p className="eyebrow mb-3" style={{ color: "var(--accent-red)" }}>Common mistakes</p>
-                <ul className="space-y-2">
-                  {content.commonMistakes.map((m, i) => (
-                    <li key={i} className="flex items-start gap-2.5 text-sm" style={{ color: "var(--text-secondary)" }}>
-                      <span style={{ color: "var(--accent-red)" }}>✗</span>{m}
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
+            <Collapsible title="Go deeper" subtitle="real-world · pitfalls · memory trick · related">
+              <div>
+                <SubHead>In the real world</SubHead>
+                <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{content.realWorldExample}</p>
+              </div>
 
-            {(content.memoryTrick || content.cheatSheetLine) && (
-              <section className="space-y-4">
-                {content.memoryTrick && (
-                  <div><span className="eyebrow" style={{ color: "var(--accent-orange)" }}>Memory trick</span>
-                    <p className="text-sm mt-1.5" style={{ color: "var(--text-secondary)" }}>{content.memoryTrick}</p></div>
-                )}
-                {content.cheatSheetLine && (
-                  <div><span className="eyebrow" style={{ color: "var(--accent-green)" }}>One-liner</span>
-                    <p className="text-sm mt-1.5 font-mono" style={{ color: "var(--text-secondary)" }}>{content.cheatSheetLine}</p></div>
-                )}
-              </section>
-            )}
-
-            {content.relatedConcepts.length > 0 && (
-              <section>
-                <p className="eyebrow mb-3">Related concepts</p>
-                <div className="flex flex-wrap gap-2">
-                  {content.relatedConcepts.map((rel) => (
-                    <Link key={rel} href={`/system-design/concept/${rel}`}
-                      className="text-xs px-3 py-1.5 rounded-lg lift" style={{ background: "var(--bg-card)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>
-                      {rel.replace(/-/g, " ")}
-                    </Link>
-                  ))}
+              {content.commonMistakes.length > 0 && (
+                <div>
+                  <SubHead>Common mistakes</SubHead>
+                  <ul className="space-y-2">
+                    {content.commonMistakes.map((m, i) => (
+                      <li key={i} className="flex items-start gap-2.5 text-sm" style={{ color: "var(--text-secondary)" }}>
+                        <span style={{ color: "var(--accent-red)" }}>✗</span>{m}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              </section>
-            )}
+              )}
+
+              {content.memoryTrick && (
+                <div>
+                  <SubHead>Memory trick</SubHead>
+                  <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{content.memoryTrick}</p>
+                </div>
+              )}
+
+              {content.relatedConcepts.length > 0 && (
+                <div>
+                  <SubHead>Related concepts</SubHead>
+                  <div className="flex flex-wrap gap-2">
+                    {content.relatedConcepts.map((rel) => (
+                      <Link key={rel} href={`/system-design/concept/${rel}`}
+                        className="text-xs px-3 py-1.5 rounded-lg lift" style={{ background: "var(--bg-card)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>
+                        {rel.replace(/-/g, " ")}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </Collapsible>
           </div>
         ) : (
           <div className="reading text-center py-12">
