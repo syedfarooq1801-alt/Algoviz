@@ -3,6 +3,8 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import { useMobile } from "@/lib/useMobile";
 import Link from "next/link";
 import { generateStudyPlan, PHASE_COLOR, estHours, estRevisionHours, estRecallHours, type DayPlan, type PlanTask } from "@/lib/studyPlan";
+import { getProblemById } from "@/data/problems";
+import PracticeLinkIcon from "@/components/PracticeLinkIcon";
 import { useProgressStore } from "@/lib/store";
 import { useSDStore } from "@/lib/sdStore";
 import { useSEStore } from "@/lib/seStore";
@@ -219,6 +221,11 @@ export default function StudyPlanPage() {
     const bId = baseId(task.id);
     const weak = isWeak(bId);
     const canFlag = !!task.href && task.kind !== "behavioral" && !task.id.startsWith("recall-");
+    // Only DSA problems have an external home; theory, SE/SD/LLD chapters and
+    // recall prompts have nothing to link out to.
+    const externalProblem = task.domain === "dsa" && task.kind === "problem"
+      ? getProblemById(bId)
+      : undefined;
     return (
       <div
         key={task.id}
@@ -301,6 +308,12 @@ export default function StudyPlanPage() {
             background: task.difficulty === "Easy" ? "rgba(47,191,113,0.1)" : task.difficulty === "Medium" ? "rgba(245,165,36,0.1)" : "rgba(239,68,68,0.1)",
           }}>{task.difficulty}</span>
         )}
+
+        {/* Jump straight to the real problem, same as the DSA sheet. Resolved
+            through baseId so a review/recall task (rv-…) still finds its
+            problem, and via practiceUrl so a LeetCode-Premium one opens the
+            free GeeksforGeeks mirror instead of a paywall. */}
+        {externalProblem && <PracticeLinkIcon problem={externalProblem} size={14} />}
       </div>
     );
   }
